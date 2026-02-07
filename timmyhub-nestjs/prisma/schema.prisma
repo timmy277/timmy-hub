@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  CUSTOMER
+  SELLER
+  BRAND
+  SHIPPER
+  ADMIN
+  SUPER_ADMIN
+}
+
+// ==================== USER & AUTH ====================
+
+model User {
+  id                String      @id @default(cuid())
+  email             String      @unique
+  phone             String?     @unique
+  passwordHash      String
+  role              UserRole    @default(CUSTOMER)
+  isEmailVerified   Boolean     @default(false)
+  isPhoneVerified   Boolean     @default(false)
+  isActive          Boolean     @default(true)
+  isBanned          Boolean     @default(false)
+  banReason         String?
+  lastLoginAt       DateTime?
+  lastLoginIp       String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  deletedAt         DateTime?
+
+  profile           Profile?
+  refreshTokens     RefreshToken[]
+  userPermissions   UserPermission[]
+
+  @@index([email])
+  @@index([phone])
+  @@index([role])
+}
+
+model Profile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName   String
+  lastName    String
+  displayName String?
+  avatar      String?
+  dateOfBirth DateTime?
+  gender      String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token       String   @unique
+  expiresAt   DateTime
+  isRevoked   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  @@index([userId])
+  @@index([token])
+}
+
+// ==================== RBAC ====================
+
+model SystemRole {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  displayName String
+  description String?
+  isSystem    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  permissions RolePermission[]
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  module      String
+  action      String
+  createdAt   DateTime @default(now())
+  rolePermissions RolePermission[]
+  userPermissions UserPermission[]
+  @@index([module, action])
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  role         SystemRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  @@unique([roleId, permissionId])
+}
+
+model UserPermission {
+  id           String     @id @default(cuid())
+  userId       String
+  permissionId String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  grantedAt    DateTime   @default(now())
+  @@unique([userId, permissionId])
+}
