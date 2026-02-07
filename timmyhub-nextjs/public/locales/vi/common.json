@@ -1,0 +1,19 @@
+{
+    "common": {
+        "welcome": "Chào mừng đến với TimmyHub",
+        "login": "Đăng nhập",
+        "logout": "Đăng xuất",
+        "email": "Địa chỉ Email",
+        "password": "Mật khẩu",
+        "rememberMe": "Ghi nhớ tôi",
+        "forgotPassword": "Quên mật khẩu?",
+        "signIn": "Đăng nhập",
+        "noAccount": "Chưa có tài khoản?",
+        "createAccount": "Tạo tài khoản"
+    },
+    "auth": {
+        "welcomeBack": "Chào mừng quay trở lại!",
+        "loginSubtitle": "Nhập thông tin để truy cập tài khoản của bạn",
+        "loginSuccess": "Bạn đã đăng nhập thành công!"
+    }
+}

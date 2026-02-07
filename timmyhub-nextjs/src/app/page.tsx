@@ -1,10 +1,16 @@
+'use client';
+
 import { Button, Container, Title, Text, Stack, Card, Group, Badge } from "@mantine/core";
 import { ThemeSwitcher } from "@/components/shared/ThemeSwitcher";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
+  const { t } = useTranslation();
   return (
     <Container size="sm" py="xl">
       <Group justify="flex-end" mb="xl">
+        <LanguageSwitcher />
         <ThemeSwitcher />
       </Group>
       <Stack gap="xl">

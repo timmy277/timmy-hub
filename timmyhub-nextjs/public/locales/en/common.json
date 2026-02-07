@@ -1,0 +1,19 @@
+{
+  "common": {
+    "welcome": "Welcome to TimmyHub",
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email address",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign in",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create account"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back!",
+    "loginSubtitle": "Enter your credentials to access your account",
+    "loginSuccess": "You have successfully logged in!"
+  }
+}

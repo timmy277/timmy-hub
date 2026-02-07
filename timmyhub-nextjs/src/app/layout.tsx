@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@mantine/core/styles.css";
 import "./globals.css";
 import { ColorSchemeScript } from "@mantine/core";
-import { ThemeWrapper } from "@/components/providers/ThemeWrapper";
+import { AppProvider } from "@/components/providers/AppProvider";
 import "@mantine/notifications/styles.css";
 
 
@@ -37,9 +37,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeWrapper>
+        <AppProvider>
           {children}
-        </ThemeWrapper>
+        </AppProvider>
 
       </body>
     </html>
