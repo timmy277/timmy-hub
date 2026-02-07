@@ -4,10 +4,11 @@ import * as bcrypt from 'bcryptjs';
 export const seedingUsersData = async (prisma: PrismaClient) => {
     console.log('  - Seeding users...');
 
-    const adminEmail = 'admin@timmyhub.com';
     const hashedPassword = await bcrypt.hash('Admin@123', 12);
 
-    await prisma.user.upsert({
+    // 1. Tạo Super Admin
+    const adminEmail = 'admin@timmyhub.com';
+    const superAdmin = await prisma.user.upsert({
         where: { email: adminEmail },
         update: {},
         create: {
@@ -25,6 +26,17 @@ export const seedingUsersData = async (prisma: PrismaClient) => {
             },
         },
     });
+
+    // Link Super Admin to System Role
+    const superAdminRole = await prisma.systemRole.findUnique({ where: { name: 'SUPER_ADMIN' } });
+    if (superAdminRole) {
+        await prisma.userSystemRole.upsert({
+            where: { userId_roleId: { userId: superAdmin.id, roleId: superAdminRole.id } },
+            update: {},
+            create: { userId: superAdmin.id, roleId: superAdminRole.id },
+        });
+    }
+
     // 2. Create 10 Additional Random Users
     console.log('  - Seeding 10 additional users...');
     const usersToSeed = [
@@ -46,7 +58,7 @@ export const seedingUsersData = async (prisma: PrismaClient) => {
             update: {},
             create: {
                 email: u.email,
-                passwordHash: hashedPassword, // Dùng chung pass Admin@123 để dễ test
+                passwordHash: hashedPassword,
                 role: u.role,
                 isEmailVerified: true,
                 isActive: true,
@@ -61,4 +73,3 @@ export const seedingUsersData = async (prisma: PrismaClient) => {
         });
     }
 };
-

@@ -17,6 +17,13 @@ enum UserRole {
   SUPER_ADMIN
 }
 
+enum ResourceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DELETED
+}
+
 // ==================== USER & AUTH ====================
 
 model User {
@@ -37,9 +44,11 @@ model User {
   deletedAt       DateTime?
 
   profile         Profile?
-  devices         Device[]
+  devices         Device?
   refreshTokens   RefreshToken[]
+  userRoles       UserSystemRole[]
   userPermissions UserPermission[]
+  products        Product[]
 
   @@index([email])
   @@index([phone])
@@ -62,7 +71,7 @@ model Profile {
 
 model Device {
   id           String   @id @default(cuid())
-  userId       String
+  userId       String   @unique
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userAgent    String?
   ip           String?
@@ -103,6 +112,16 @@ model SystemRole {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   permissions RolePermission[]
+  users       UserSystemRole[]
+}
+
+model UserSystemRole {
+  userId String
+  roleId String
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   SystemRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
 }
 
 model Permission {
@@ -138,4 +157,23 @@ model UserPermission {
   grantedAt    DateTime   @default(now())
 
   @@unique([userId, permissionId])
+}
+
+// ==================== FEATURES ====================
+
+model Product {
+  id           String         @id @default(cuid())
+  sellerId     String
+  seller       User           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  name         String
+  description  String?
+  price        Decimal        @db.Decimal(15, 2)
+  status       ResourceStatus @default(PENDING)
+  reviewNote   String? // Lý do từ chối hoặc ghi chú duyệt
+  reviewedById String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([sellerId])
+  @@index([status])
 }
