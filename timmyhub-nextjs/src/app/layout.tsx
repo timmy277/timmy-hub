@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@mantine/core/styles.css";
 import "./globals.css";
-import { ColorSchemeScript, MantineProvider, createTheme } from "@mantine/core";
-import { Notifications } from "@mantine/notifications";
+import { ColorSchemeScript } from "@mantine/core";
+import { ThemeWrapper } from "@/components/providers/ThemeWrapper";
 import "@mantine/notifications/styles.css";
 
 
@@ -22,9 +22,7 @@ export const metadata: Metadata = {
   description: "Modern E-commerce Platform",
 };
 
-const theme = createTheme({
-  /** Put your mantine theme override here */
-});
+
 
 export default function RootLayout({
   children,
@@ -39,10 +37,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MantineProvider theme={theme}>
-          <Notifications />
+        <ThemeWrapper>
           {children}
-        </MantineProvider>
+        </ThemeWrapper>
 
       </body>
     </html>

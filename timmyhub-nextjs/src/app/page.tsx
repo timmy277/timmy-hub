@@ -1,15 +1,19 @@
 import { Button, Container, Title, Text, Stack, Card, Group, Badge } from "@mantine/core";
+import { ThemeSwitcher } from "@/components/shared/ThemeSwitcher";
 
 export default function Home() {
   return (
     <Container size="sm" py="xl">
+      <Group justify="flex-end" mb="xl">
+        <ThemeSwitcher />
+      </Group>
       <Stack gap="xl">
         <Stack gap="xs">
-          <Title order={1} className="text-blue-600 underline">
+          <Title order={1} className="underline">
             TimmyHub Integration Test
           </Title>
           <Text size="lg" c="dimmed">
-            Testing Mantine 7 components with Tailwind CSS 4 utility classes.
+            Testing Mantine components with Tailwind CSS utility classes.
           </Text>
         </Stack>
 
@@ -24,24 +28,23 @@ export default function Home() {
 
             <Text size="sm" c="dimmed">
               This card is built using Mantine. The title above has a Tailwind{" "}
-              <code className="bg-zinc-100 p-1 rounded text-red-500 font-bold">underline</code> and{" "}
-              <code className="bg-zinc-100 p-1 rounded text-blue-600 font-bold">text-blue-600</code> class.
+              <code className="bg-zinc-100 dark:bg-zinc-800 p-1 rounded text-red-500 font-bold">underline</code>.
             </Text>
 
             <Group gap="sm">
-              <Button variant="filled" color="blue">
+              <Button variant="filled">
                 Mantine Button
               </Button>
-              <button className="bg-black text-white px-4 py-2 rounded-md hover:bg-zinc-800 transition-colors">
+              <button className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-4 py-2 rounded-md hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors">
                 Tailwind Button
               </button>
             </Group>
           </Stack>
         </Card>
 
-        <div className="p-8 bg-zinc-100 rounded-xl border-2 border-dashed border-blue-400">
-          <Text className="text-center font-mono">
-            This box is styled purely with Tailwind CSS 4.
+        <div className="p-8 bg-zinc-100 dark:bg-zinc-800 rounded-xl border-2 border-dashed border-zinc-400">
+          <Text ta="center" className="font-mono">
+            This box is styled purely with Tailwind CSS.
           </Text>
         </div>
       </Stack>
