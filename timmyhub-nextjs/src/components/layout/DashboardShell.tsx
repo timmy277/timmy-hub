@@ -12,9 +12,10 @@ const AppBar = dynamic(() => import('./AppBar').then((m) => m.AppBar), { ssr: fa
 
 interface DashboardShellProps {
     children: ReactNode;
+    withFooter?: boolean;
 }
 
-export function DashboardShell({ children }: DashboardShellProps) {
+export function DashboardShell({ children, withFooter = true }: DashboardShellProps) {
     const { collapsed } = useSidebarStore();
 
     return (
@@ -35,14 +36,14 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 <Sidebar />
             </AppShell.Navbar>
 
-            <AppShell.Main display="flex" style={{ flexDirection: 'column', minHeight: '100vh' }}>
+            <AppShell.Main display="flex" style={{ flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--mantine-color-gray-0)' }}>
                 {/* Content Area */}
                 <div style={{ flex: 1 }}>
                     {children}
                 </div>
 
                 {/* Footer Section */}
-                <Footer />
+                {withFooter && <Footer />}
             </AppShell.Main>
         </AppShell>
     );
