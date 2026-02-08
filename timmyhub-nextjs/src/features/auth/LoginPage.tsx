@@ -12,16 +12,15 @@ import {
     Group,
     Anchor,
     Box,
-    useMantineTheme,
     TextInput,
-    PasswordInput
+    PasswordInput,
+    rem,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAt, IconLock, IconArrowRight } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 
 export function LoginPage() {
-    const theme = useMantineTheme();
     const [loading, setLoading] = useState(false);
 
     const form = useForm({
@@ -54,37 +53,54 @@ export function LoginPage() {
 
     return (
         <Box
-            className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-zinc-950"
             style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 'var(--mantine-spacing-md)',
+                backgroundColor: 'var(--mantine-color-body)',
                 backgroundImage: 'radial-gradient(circle at 2px 2px, var(--mantine-color-gray-2) 1px, transparent 0)',
                 backgroundSize: '40px 40px',
             }}
         >
-            <Container size={420} className="w-full">
+            <Container size={420} w="100%">
                 <Paper
                     radius="xl"
                     p={{ base: 'lg', sm: 50 }}
                     withBorder
-                    className="shadow-2xl border-zinc-200 dark:border-zinc-800"
+                    style={{
+                        boxShadow: 'var(--mantine-shadow-xl)',
+                        borderColor: 'var(--mantine-color-default-border)',
+                    }}
                 >
-
                     <Stack gap="xl">
-                        <div className="text-center">
+                        <Box ta="center">
                             <Group justify="center" mb="md">
                                 <Box
-                                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-2xl"
-                                    style={{ background: 'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5))' }}
+                                    style={{
+                                        width: rem(48),
+                                        height: rem(48),
+                                        borderRadius: 'var(--mantine-radius-xl)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                        fontSize: rem(24),
+                                        background: 'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5))'
+                                    }}
                                 >
                                     T
                                 </Box>
                             </Group>
-                            <Title order={2} className="tracking-tight font-bold">
+                            <Title order={2} fw={800} style={{ trackingTight: '-0.02em' }}>
                                 Welcome back!
                             </Title>
                             <Text c="dimmed" size="sm" mt={5}>
                                 Enter your credentials to access your account
                             </Text>
-                        </div>
+                        </Box>
 
                         <form onSubmit={form.onSubmit(handleSubmit)}>
                             <Stack gap="md">
@@ -93,7 +109,7 @@ export function LoginPage() {
                                     placeholder="hello@gmail.com"
                                     size="md"
                                     radius="md"
-                                    leftSection={<IconAt size={16} />}
+                                    leftSection={<IconAt size={16} stroke={1.5} />}
                                     {...form.getInputProps('email')}
                                 />
 
@@ -102,7 +118,7 @@ export function LoginPage() {
                                     placeholder="Your password"
                                     size="md"
                                     radius="md"
-                                    leftSection={<IconLock size={16} />}
+                                    leftSection={<IconLock size={16} stroke={1.5} />}
                                     {...form.getInputProps('password')}
                                 />
 
@@ -110,9 +126,9 @@ export function LoginPage() {
                                     <Checkbox
                                         label="Remember me"
                                         {...form.getInputProps('remember', { type: 'checkbox' })}
-                                        className="cursor-pointer"
+                                        style={{ cursor: 'pointer' }}
                                     />
-                                    <Anchor component="button" size="sm" fw={600} className="text-blue-600 hover:text-blue-700">
+                                    <Anchor component="button" size="sm" fw={600}>
                                         Forgot password?
                                     </Anchor>
                                 </Group>
@@ -125,7 +141,9 @@ export function LoginPage() {
                                     mt="xl"
                                     loading={loading}
                                     rightSection={<IconArrowRight size={18} />}
-                                    className="bg-blue-600 hover:bg-blue-700 transition-all active:scale-[0.98]"
+                                    style={{
+                                        transition: 'all 150ms ease',
+                                    }}
                                 >
                                     Sign in
                                 </Button>
@@ -134,7 +152,7 @@ export function LoginPage() {
 
                         <Text c="dimmed" size="sm" ta="center">
                             Don&apos;t have an account?{' '}
-                            <Anchor component="button" size="sm" fw={700} className="text-blue-600">
+                            <Anchor component="button" size="sm" fw={700}>
                                 Create account
                             </Anchor>
                         </Text>

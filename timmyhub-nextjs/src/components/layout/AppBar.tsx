@@ -12,30 +12,37 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 
-export function AppBar() {
+interface AppBarProps {
+    withSidebarToggle?: boolean;
+    title?: string;
+}
+
+export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBarProps) {
     const { t } = useTranslation();
     const { collapsed, toggleSidebar } = useSidebarStore();
 
     return (
         <Group justify="space-between" h="100%" px="md">
             <Group>
-                <ActionIcon
-                    onClick={toggleSidebar}
-                    variant="subtle"
-                    color="gray"
-                    size="lg"
-                    radius="md"
-                >
-                    {collapsed ? (
-                        <IconLayoutSidebarRightCollapse size={22} stroke={1.5} />
-                    ) : (
-                        <IconLayoutSidebarLeftCollapse size={22} stroke={1.5} />
-                    )}
-                </ActionIcon>
+                {withSidebarToggle && (
+                    <ActionIcon
+                        onClick={toggleSidebar}
+                        variant="subtle"
+                        color="gray"
+                        size="lg"
+                        radius="md"
+                    >
+                        {collapsed ? (
+                            <IconLayoutSidebarRightCollapse size={22} stroke={1.5} />
+                        ) : (
+                            <IconLayoutSidebarLeftCollapse size={22} stroke={1.5} />
+                        )}
+                    </ActionIcon>
+                )}
 
-                <Box className="hidden sm:block ml-2">
-                    <Text fw={600} size="lg">
-                        Dashboard
+                <Box className={`${withSidebarToggle ? 'hidden sm:block ml-2' : 'ml-1'}`}>
+                    <Text fw={800} size="xl" className="tracking-tight">
+                        TIMMY<span className="text-blue-600">HUB</span>
                     </Text>
                 </Box>
             </Group>
