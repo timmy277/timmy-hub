@@ -5,6 +5,7 @@ import { AppShell, ScrollArea, useMantineColorScheme } from '@mantine/core';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { ReactNode } from 'react';
 import { Footer } from './Footer';
+import { useMounted } from '@mantine/hooks';
 
 // Nạp động các thành phần Client-only
 const Sidebar = dynamic(() => import('./Sidebar').then((m) => m.Sidebar), { ssr: false });
@@ -17,7 +18,9 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children, withFooter = true }: DashboardShellProps) {
     const { collapsed } = useSidebarStore();
-    const navbarWidth = collapsed ? 80 : 280;
+    const mounted = useMounted();
+    const isCollapsed = mounted ? collapsed : false;
+    const navbarWidth = isCollapsed ? 80 : 280;
 
     return (
         <AppShell

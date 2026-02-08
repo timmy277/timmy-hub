@@ -12,6 +12,7 @@ import {
     Menu,
     Collapse,
 } from '@mantine/core';
+import { useMounted } from '@mantine/hooks';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -69,6 +70,9 @@ const mockData: SidebarItem[] = [
 export function Sidebar() {
     const { collapsed } = useSidebarStore();
     const pathname = usePathname();
+    const mounted = useMounted();
+
+    const isCollapsed = mounted ? collapsed : false;
 
     const isActive = (item: SidebarItem) => {
         if (item.link && pathname === item.link) return true;
@@ -127,7 +131,7 @@ export function Sidebar() {
                         <SidebarNavLink
                             key={item.label}
                             item={item}
-                            collapsed={collapsed}
+                            collapsed={isCollapsed}
                             active={isActive(item)}
                             pathname={pathname}
                         />
@@ -137,13 +141,13 @@ export function Sidebar() {
 
             {/* Footer */}
             <Box
-                p={collapsed ? 0 : rem(12)}
+                p={isCollapsed ? 0 : rem(12)}
                 py="md"
                 className="shrink-0 transition-all duration-150"
             >
                 <SidebarNavLink
                     item={{ label: 'Profile', icon: IconUser, link: '/profile' }} // Added link
-                    collapsed={collapsed}
+                    collapsed={isCollapsed}
                     active={pathname === '/profile'}
                     pathname={pathname}
                 />

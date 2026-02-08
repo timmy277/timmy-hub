@@ -86,7 +86,7 @@ export function BaseDataTable<T>({
     }, [colorScheme]);
 
     return (
-        <Box style={{ height, width: '100%' }}>
+        <Box style={{ height, width: '100%', minHeight: 500 }}>
             <AgGridReact<T>
                 ref={gridRef}
                 theme={gridTheme}
