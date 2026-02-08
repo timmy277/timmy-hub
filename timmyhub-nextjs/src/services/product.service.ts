@@ -1,6 +1,6 @@
 import axiosClient from "@/libs/axios";
-import { Product, CreateProductInput, ResourceStatus } from "@/types/product";
-import { ApiResponse } from "@/types/auth";
+import { Product, CreateProductInput } from "@/types/product";
+import { ApiResponse } from "@/types/api";
 
 /**
  * Service quản lý sản phẩm

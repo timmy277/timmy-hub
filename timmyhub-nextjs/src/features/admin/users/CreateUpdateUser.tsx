@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@mantine/form';
 import {
@@ -18,6 +18,7 @@ import { CreateUserInput } from '@/types/user';
 import { UserRole } from '@/types/enums';
 import { useCreateUserMutation, useUpdateUserMutation } from '@/hooks/useUsers';
 import { User } from '@/types/auth';
+import { createRequiredValidator, createEmailValidator, createPasswordValidator } from '@/utils/validators';
 
 interface CreateUpdateUserProps {
     user?: User;
@@ -31,6 +32,15 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
     const createUserMutation = useCreateUserMutation();
     const updateUserMutation = useUpdateUserMutation();
 
+    const roleOptions = useMemo(() => [
+        { value: UserRole.CUSTOMER, label: t('roles.CUSTOMER') },
+        { value: UserRole.SELLER, label: t('roles.SELLER') },
+        { value: UserRole.BRAND, label: t('roles.BRAND') },
+        { value: UserRole.SHIPPER, label: t('roles.SHIPPER') },
+        { value: UserRole.ADMIN, label: t('roles.ADMIN') },
+        { value: UserRole.SUPER_ADMIN, label: t('roles.SUPER_ADMIN') },
+    ], [t]);
+
     const form = useForm<CreateUserInput & { phoneNumber?: string }>({
         initialValues: {
             email: user?.email || '',
@@ -43,30 +53,14 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
         },
 
         validate: {
-            email: (value) => {
-                if (!value) return t('validation.required', { field: t('userManagement.email') });
-                return /^\S+@\S+$/.test(value) ? null : t('validation.invalidEmail');
-            },
-            password: (value) => {
-                if (!!user) return null;
-                if (!value) return t('validation.required', { field: t('userManagement.password') });
-                return value.length < 6 ? t('validation.passwordMinLength', { min: 6 }) : null;
-            },
-            firstName: (value) => {
-                if (!value || value.trim().length === 0) {
-                    return t('validation.required', { field: t('userManagement.firstName') });
-                }
-                return null;
-            },
-            lastName: (value) => {
-                if (!value || value.trim().length === 0) {
-                    return t('validation.required', { field: t('userManagement.lastName') });
-                }
-                return null;
-            },
+            email: createEmailValidator(t, 'userManagement.email'),
+            password: createPasswordValidator(t, 'userManagement.password', 6, !!user),
+            firstName: createRequiredValidator(t, 'userManagement.firstName'),
+            lastName: createRequiredValidator(t, 'userManagement.lastName'),
         },
     });
 
+    // Fix: Add form.setValues to dependencies
     useEffect(() => {
         if (user) {
             form.setValues({
@@ -79,7 +73,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                 phoneNumber: user.phone || '',
             });
         }
-    }, [user?.id]);
+    }, [user?.id, form.setValues, user, form]);
 
     const handleSubmit = (values: CreateUserInput & { phoneNumber?: string }) => {
         if (!!user) {
@@ -160,14 +154,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                     <Select
                         label={t('userManagement.role')}
                         placeholder={t('userManagement.selectRole')}
-                        data={[
-                            { value: UserRole.CUSTOMER, label: t('roles.CUSTOMER') },
-                            { value: UserRole.SELLER, label: t('roles.SELLER') },
-                            { value: UserRole.BRAND, label: t('roles.BRAND') },
-                            { value: UserRole.SHIPPER, label: t('roles.SHIPPER') },
-                            { value: UserRole.ADMIN, label: t('roles.ADMIN') },
-                            { value: UserRole.SUPER_ADMIN, label: t('roles.SUPER_ADMIN') },
-                        ]}
+                        data={roleOptions}
                         allowDeselect={false}
                         withAsterisk
                         {...form.getInputProps('role')}

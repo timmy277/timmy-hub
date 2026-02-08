@@ -1,6 +1,6 @@
 import axiosClient from "@/libs/axios";
 import { Category, CreateCategoryInput } from "@/types/category";
-import { ApiResponse } from "@/types/auth";
+import { ApiResponse } from "@/types/api";
 
 /**
  * Service quản lý danh mục
