@@ -17,7 +17,9 @@ import {
     Modal,
     NumberInput,
     Select,
-    Pagination
+    Pagination,
+    Popover,
+    Checkbox
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
@@ -26,6 +28,10 @@ import { AgGridReact } from 'ag-grid-react';
 import {
     GridApi,
     GridOptions,
+    GridReadyEvent,
+    PaginationChangedEvent,
+    ColumnPinnedEvent,
+    Column,
     ModuleRegistry,
     ColDef,
     ColGroupDef,
@@ -43,21 +49,12 @@ import {
     CellStyleModule,
     DateEditorModule,
     ColumnAutoSizeModule,
+    CsvExportModule,
+    ColumnApiModule,
     ValidationModule,
     themeQuartz,
     iconSetMaterial
 } from 'ag-grid-community';
-import {
-    ColumnMenuModule,
-    ColumnsToolPanelModule,
-    ContextMenuModule,
-    FiltersToolPanelModule,
-    PivotModule,
-    RowGroupingModule,
-    SetFilterModule,
-    ExcelExportModule,
-} from 'ag-grid-enterprise';
-
 import {
     IconSearch,
     IconPlus,
@@ -68,12 +65,18 @@ import {
     IconX,
     IconDownload,
     IconRefresh,
-    IconFileSpreadsheet
+    IconFileSpreadsheet,
+    IconFileText,
+    IconColumns,
+    IconPin,
+    IconPinnedOff,
+    IconArrowBarToLeft,
+    IconArrowBarToRight
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 
-// Register all community and enterprise modules
+// Register all community modules
 ModuleRegistry.registerModules([
     NumberEditorModule,
     TextEditorModule,
@@ -86,14 +89,8 @@ ModuleRegistry.registerModules([
     CellStyleModule,
     DateEditorModule,
     ColumnAutoSizeModule,
-    ColumnsToolPanelModule,
-    FiltersToolPanelModule,
-    ColumnMenuModule,
-    ContextMenuModule,
-    RowGroupingModule,
-    SetFilterModule,
-    PivotModule,
-    ExcelExportModule,
+    CsvExportModule,
+    ColumnApiModule,
     ...(process.env.NODE_ENV !== "production" ? [ValidationModule] : []),
 ]);
 
@@ -106,11 +103,31 @@ const myTheme = themeQuartz
 // --- Mock Data Generation ---
 const CATEGORIES = ['Electronics', 'Clothing', 'Home & Garden', 'Books', 'Toys', 'Sports', 'Beauty'];
 const STATUSES = ['Active', 'Pending', 'Rejected', 'Out of Stock'];
+const VARIANTS = ['Red - S', 'Blue - M', 'Black - L', 'White - XL', 'Green - S', 'Yellow - XXL'];
+const SELLERS = ['Official Store', 'Global Trader', 'Local Shop', 'Best Choice', 'Mega Mall'];
+const WAREHOUSES = ['Hanoi Hub', 'Da Nang Hub', 'HCMC Hub', 'Can Tho Hub'];
 
-const generateMockData = (count: number) => {
+interface Product {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    stock: number;
+    status: string;
+    createdAt: string;
+    variant: string;
+    seller: string;
+    sku: string;
+    warehouse: string;
+}
+
+const generateMockData = (count: number): Product[] => {
     return Array.from({ length: count }).map((_, index) => {
         const category = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
         const status = STATUSES[Math.floor(Math.random() * STATUSES.length)];
+        const variant = VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
+        const seller = SELLERS[Math.floor(Math.random() * SELLERS.length)];
+        const warehouse = WAREHOUSES[Math.floor(Math.random() * WAREHOUSES.length)];
         const price = Math.floor(Math.random() * 1000) + 10;
         const stock = Math.floor(Math.random() * 500);
         const date = dayjs().subtract(Math.floor(Math.random() * 365), 'day').format('YYYY-MM-DD');
@@ -123,14 +140,18 @@ const generateMockData = (count: number) => {
             stock,
             status,
             createdAt: date,
+            variant,
+            seller,
+            sku: `SKU-${index + 1000}-${Math.floor(Math.random() * 999)}`,
+            warehouse,
         };
     });
 };
 
 export function DashboardPage() {
     // 1. State
-    const [rowData, setRowData] = useState(generateMockData(200));
-    const [gridApi, setGridApi] = useState<any>(null);
+    const [rowData, setRowData] = useState<Product[]>(generateMockData(200));
+    const [gridApi, setGridApi] = useState<GridApi<Product> | null>(null);
     const [quickFilterText, setQuickFilterText] = useState('');
     const [activePage, setActivePage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
@@ -138,7 +159,7 @@ export function DashboardPage() {
 
     // Modal State
     const [opened, { open, close }] = useDisclosure(false);
-    const [editingItem, setEditingItem] = useState<any>(null);
+    const [editingItem, setEditingItem] = useState<Product | null>(null);
 
     const form = useForm({
         initialValues: {
@@ -146,20 +167,27 @@ export function DashboardPage() {
             category: '',
             price: 0,
             stock: 0,
-            status: 'Active'
+            status: 'Active',
+            variant: '',
+            seller: '',
+            sku: '',
+            warehouse: ''
         },
     });
 
     // 2. Action Handlers
-    const handleAction = useCallback((action: string, data: any) => {
+    const handleAction = useCallback((action: string, data?: Product) => {
         if (action === 'Update' || action === 'Create') {
-            setEditingItem(action === 'Update' ? data : null);
-            form.setValues(action === 'Update' ? data : {
-                name: '', category: 'Electronics', price: 0, stock: 0, status: 'Active'
+            setEditingItem(action === 'Update' && data ? data : null);
+            form.setValues(action === 'Update' && data ? data : {
+                name: '', category: 'Electronics', price: 0, stock: 0, status: 'Active', id: '', createdAt: dayjs().format('YYYY-MM-DD'),
+                variant: 'Red - M', seller: 'Official Store', sku: `SKU-${Date.now()}`, warehouse: 'Hanoi Hub'
             });
             open();
             return;
         }
+
+        if (!data) return;
 
         notifications.show({
             title: `Action: ${action}`,
@@ -183,6 +211,7 @@ export function DashboardPage() {
         }
     }, [open, form]);
 
+
     const handleSave = (values: typeof form.values) => {
         if (editingItem) {
             // Update existing
@@ -203,13 +232,31 @@ export function DashboardPage() {
         close();
     };
 
-    const onGridReady = (params: any) => {
+    const [columnPinnedState, setColumnPinnedState] = useState<Record<string, string | boolean | null | undefined>>({});
+
+    const onColumnPinned = useCallback((event: ColumnPinnedEvent<Product>) => {
+        const colState: Record<string, string | boolean | null | undefined> = {};
+        event.api.getAllGridColumns().forEach((col: Column) => {
+            colState[col.getColId()] = col.getPinned();
+        });
+        setColumnPinnedState(colState);
+    }, []);
+
+    // Initial state on grid ready
+    const onGridReady = (params: GridReadyEvent<Product>) => {
         setGridApi(params.api);
-        params.api.sizeColumnsToFit();
+        // params.api.sizeColumnsToFit();
         setTotalPages(params.api.paginationGetTotalPages());
+
+        // Initialize column state
+        const colState: Record<string, string | boolean | null | undefined> = {};
+        params.api.getAllGridColumns().forEach((col: Column) => {
+            colState[col.getColId()] = col.getPinned();
+        });
+        setColumnPinnedState(colState);
     };
 
-    const onPaginationChanged = useCallback((params: any) => {
+    const onPaginationChanged = useCallback((params: PaginationChangedEvent<Product>) => {
         if (params.api) {
             setActivePage(params.api.paginationGetCurrentPage() + 1);
             setTotalPages(params.api.paginationGetTotalPages());
@@ -234,90 +281,91 @@ export function DashboardPage() {
         {
             field: "id",
             headerName: "ID",
-            width: 100,
+            width: 90,
+            filter: 'agTextColumnFilter',
+            pinned: 'left'
+        },
+        {
+            field: "sku",
+            headerName: "SKU",
+            width: 140,
             filter: 'agTextColumnFilter',
         },
         {
             field: "name",
             headerName: "Product Name",
-            flex: 2,
-            minWidth: 200,
+            width: 220,
+            filter: 'agTextColumnFilter',
+        },
+        {
+            field: "variant",
+            headerName: "Variant",
+            width: 130,
             filter: 'agTextColumnFilter',
         },
         {
             field: "category",
             headerName: "Category",
-            width: 150,
-            filter: 'agSetColumnFilter',
+            width: 140,
+            filter: 'agTextColumnFilter',
+        },
+        {
+            field: "seller",
+            headerName: "Seller",
+            width: 160,
+            filter: 'agTextColumnFilter',
+        },
+        {
+            field: "warehouse",
+            headerName: "Warehouse",
+            width: 140,
+            filter: 'agTextColumnFilter',
         },
         {
             field: "price",
-            headerName: "Price",
-            width: 120,
+            headerName: "Price ($)",
+            width: 110,
             filter: 'agNumberColumnFilter',
-            valueFormatter: (params) => `$${params.value.toLocaleString()}`,
-            cellStyle: { fontWeight: 'bold', display: 'flex', alignItems: 'center' } as CellStyle
+            cellStyle: { fontWeight: 'bold' }
         },
         {
             field: "stock",
             headerName: "Stock",
-            width: 120,
+            width: 100,
             filter: 'agNumberColumnFilter',
             cellRenderer: (params: ICellRendererParams) => {
-                return (
-                    <Badge
-                        color={params.value < 50 ? 'red' : params.value < 150 ? 'yellow' : 'blue'}
-                        variant="light"
-                    >
-                        {params.value}
-                    </Badge>
-                )
+                const stock = params.value;
+                const color = stock < 10 ? 'red' : stock < 50 ? 'orange' : 'green';
+                return <Text c={color} fw={700}>{stock}</Text>;
             }
-        },
-        {
-            field: "createdAt",
-            headerName: "Date",
-            width: 140,
-            filter: 'agDateColumnFilter',
-            filterParams: {
-                comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
-                    const dateParts = cellValue.split("-");
-                    const cellDate = new Date(
-                        Number(dateParts[0]),
-                        Number(dateParts[1]) - 1,
-                        Number(dateParts[2])
-                    );
-                    if (cellDate < filterLocalDateAtMidnight) return -1;
-                    if (cellDate > filterLocalDateAtMidnight) return 1;
-                    return 0;
-                }
-            } as IDateFilterParams
         },
         {
             field: "status",
             headerName: "Status",
-            width: 140,
-            filter: 'agSetColumnFilter',
+            width: 130,
+            filter: 'agTextColumnFilter',
             cellRenderer: (params: ICellRendererParams) => {
-                const colors: Record<string, string> = {
-                    'Active': 'green',
-                    'Pending': 'orange',
-                    'Rejected': 'red',
-                    'Out of Stock': 'gray'
-                };
-                return <Badge color={colors[params.value] || 'gray'} fullWidth>{params.value}</Badge>;
+                const color = params.value === 'Active' ? 'green' :
+                    params.value === 'Pending' ? 'yellow' :
+                        params.value === 'Rejected' ? 'red' : 'gray';
+                return <Badge color={color} variant="light">{params.value}</Badge>;
             }
+        },
+        {
+            field: "createdAt",
+            headerName: "Created At",
+            width: 140,
+            filter: 'agDateColumnFilter',
+            valueFormatter: (params) => dayjs(params.value).format('DD/MM/YYYY'),
         },
         {
             headerName: "Actions",
             width: 140,
             pinned: 'right',
-            sortable: false,
-            filter: false,
-            cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' } as CellStyle,
             cellRenderer: (params: ICellRendererParams) => {
+                if (!params.data) return null; // Loading rows
                 return (
-                    <Group gap={4} wrap="nowrap" justify="center">
+                    <Group gap={4} wrap="nowrap">
                         <Tooltip label="Edit">
                             <ActionIcon variant="subtle" color="blue" size="sm" onClick={() => handleAction('Update', params.data)}>
                                 <IconEdit size={16} />
@@ -353,29 +401,16 @@ export function DashboardPage() {
         sortable: true,
         resizable: true,
         filter: true,
-        flex: 1,
-        minWidth: 100,
+        flex: 1, // Allow columns to fill available space
+        minWidth: 140, // Minimum width to enforce horizontal scroll if too narrow
         editable: true,
-        enableRowGroup: true,
-        enablePivot: true,
-        enableValue: true,
         cellStyle: { display: 'flex', alignItems: 'center' } as CellStyle,
     }), []);
 
     return (
         <DashboardShell withFooter={false}>
-            <Container size="xl" py="xl">
+            <Container fluid px="1rem" py="md">
                 <Stack gap="lg">
-                    {/* Header Section */}
-                    <Group justify="space-between" align="center">
-                        <Stack gap={0}>
-                            <Title order={2}>Product Management</Title>
-                            <Text c="dimmed" size="sm">Manage your inventory, approve request, and track status.</Text>
-                        </Stack>
-                        <Group>
-                        </Group>
-                    </Group>
-
                     {/* Filters & Grid Section */}
                     <Card shadow="sm" padding="lg" radius="md" withBorder>
                         <Stack gap="md">
@@ -395,20 +430,86 @@ export function DashboardPage() {
                                     }} leftSection={<IconSearch size={16} />}>
                                         Refresh Data
                                     </Button>
+                                    <Popover width={300} position="bottom-end" withArrow shadow="md">
+                                        <Popover.Target>
+                                            <Button variant="outline" color="blue" leftSection={<IconColumns size={16} />}>
+                                                Columns
+                                            </Button>
+                                        </Popover.Target>
+                                        <Popover.Dropdown>
+                                            <Stack gap="xs">
+                                                <Text size="xs" fw={500} c="dimmed">Manage Columns (Visibility & Pinning)</Text>
+                                                {columnDefs.map(col => (
+                                                    col.field ? (
+                                                        <Group key={col.field} justify="space-between" wrap="nowrap">
+                                                            <Checkbox
+                                                                label={col.headerName}
+                                                                defaultChecked={true}
+                                                                onChange={(event) => {
+                                                                    gridApi?.setColumnsVisible([col.field as string], event.currentTarget.checked);
+                                                                }}
+                                                                style={{ flex: 1 }}
+                                                            />
+                                                            <Group gap={4}>
+                                                                <Tooltip label="Pin Left">
+                                                                    <ActionIcon
+                                                                        variant={columnPinnedState[col.field as string] === 'left' ? "filled" : "subtle"}
+                                                                        size="sm"
+                                                                        color={columnPinnedState[col.field as string] === 'left' ? undefined : "gray"}
+                                                                        onClick={() => gridApi?.applyColumnState({
+                                                                            state: [{ colId: col.field as string, pinned: 'left' }],
+                                                                            defaultState: { pinned: null }
+                                                                        })}
+                                                                    >
+                                                                        <IconArrowBarToLeft size={16} />
+                                                                    </ActionIcon>
+                                                                </Tooltip>
+                                                                <Tooltip label="Unpin">
+                                                                    <ActionIcon
+                                                                        variant={!columnPinnedState[col.field as string] ? "filled" : "subtle"}
+                                                                        size="sm"
+                                                                        color={!columnPinnedState[col.field as string] ? undefined : "gray"}
+                                                                        onClick={() => gridApi?.applyColumnState({
+                                                                            state: [{ colId: col.field as string, pinned: null }]
+                                                                        })}
+                                                                    >
+                                                                        <IconPinnedOff size={16} />
+                                                                    </ActionIcon>
+                                                                </Tooltip>
+                                                                <Tooltip label="Pin Right">
+                                                                    <ActionIcon
+                                                                        variant={columnPinnedState[col.field as string] === 'right' ? "filled" : "subtle"}
+                                                                        size="sm"
+                                                                        color={columnPinnedState[col.field as string] === 'right' ? undefined : "gray"}
+                                                                        onClick={() => gridApi?.applyColumnState({
+                                                                            state: [{ colId: col.field as string, pinned: 'right' }],
+                                                                            defaultState: { pinned: null }
+                                                                        })}
+                                                                    >
+                                                                        <IconArrowBarToRight size={16} />
+                                                                    </ActionIcon>
+                                                                </Tooltip>
+                                                            </Group>
+                                                        </Group>
+                                                    ) : null
+                                                ))}
+                                            </Stack>
+                                        </Popover.Dropdown>
+                                    </Popover>
                                     <Button
                                         variant="outline"
                                         color="green"
-                                        leftSection={<IconDownload size={16} />}
+                                        leftSection={<IconFileSpreadsheet size={16} />}
                                         onClick={() => {
-                                            gridApi?.exportDataAsExcel();
-                                            notifications.show({ message: 'Exporting to Excel...', color: 'green' });
+                                            gridApi?.exportDataAsCsv();
+                                            notifications.show({ message: 'Exporting to CSV...', color: 'green' });
                                         }}
                                     >
-                                        Export Excel
+                                        Export CSV
                                     </Button>
                                     <Button
                                         leftSection={<IconPlus size={16} />}
-                                        onClick={() => handleAction('Create', {})}
+                                        onClick={() => handleAction('Create')}
                                     >
                                         Add New Product
                                     </Button>
@@ -431,6 +532,7 @@ export function DashboardPage() {
                                     theme={myTheme}
                                     suppressPaginationPanel={true}
                                     onPaginationChanged={onPaginationChanged}
+                                    onColumnPinned={onColumnPinned}
                                 />
                             </Paper>
 
