@@ -116,16 +116,18 @@ export function UserManagementPage() {
             filter: false,
             cellRenderer: (params: ICellRendererParams<User>) => {
                 if (!params.data) return null;
-                const { id, isActive } = params.data;
+                const user = params.data;
+                const { isActive } = user;
+
                 return (
                     <Group gap="xs" mt={4}>
                         <Tooltip label="Xem chi tiết">
-                            <ActionIcon variant="light" color="blue" onClick={() => handleAction('Detail', params.data!)}>
+                            <ActionIcon variant="light" color="blue" onClick={() => handleAction('Detail', user)}>
                                 <IconEye size={16} />
                             </ActionIcon>
                         </Tooltip>
                         <Tooltip label="Sửa vai trò">
-                            <ActionIcon variant="light" color="orange" onClick={() => handleAction('Update', params.data!)}>
+                            <ActionIcon variant="light" color="orange" onClick={() => handleAction('Update', user)}>
                                 <IconEdit size={16} />
                             </ActionIcon>
                         </Tooltip>
@@ -133,8 +135,8 @@ export function UserManagementPage() {
                             <ActionIcon
                                 variant="light"
                                 color={isActive ? 'red' : 'green'}
-                                loading={toggleStatusMutation.isPending && toggleStatusMutation.variables === id}
-                                onClick={() => toggleStatusMutation.mutate(id)}
+                                loading={toggleStatusMutation.isPending && toggleStatusMutation.variables === user.id}
+                                onClick={() => toggleStatusMutation.mutate(user.id)}
                             >
                                 {isActive ? <IconLock size={16} /> : <IconLockOpen size={16} />}
                             </ActionIcon>

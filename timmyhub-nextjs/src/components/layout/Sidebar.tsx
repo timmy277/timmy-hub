@@ -13,6 +13,7 @@ import {
     Collapse,
 } from '@mantine/core';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
     IconGauge,
     IconDeviceDesktopAnalytics,
@@ -46,7 +47,7 @@ const mockData: SidebarItem[] = [
     {
         label: 'Quản trị',
         icon: IconFingerprint,
-        initiallyOpened: true,
+        initiallyOpened: true, // This can be dynamic based on pathname too
         links: [
             { label: 'Duyệt sản phẩm', link: '/admin/products', icon: IconCheck },
             { label: 'Người dùng', link: '/admin/users', icon: IconUsers },
@@ -67,7 +68,15 @@ const mockData: SidebarItem[] = [
 
 export function Sidebar() {
     const { collapsed } = useSidebarStore();
-    const [active, setActive] = useState('Dashboard');
+    const pathname = usePathname();
+
+    const isActive = (item: SidebarItem) => {
+        if (item.link && pathname === item.link) return true;
+        if (item.links) {
+            return item.links.some(link => pathname === link.link);
+        }
+        return false;
+    };
 
     return (
         <Box
@@ -119,8 +128,8 @@ export function Sidebar() {
                             key={item.label}
                             item={item}
                             collapsed={collapsed}
-                            active={active === item.label}
-                            onActive={() => setActive(item.label)}
+                            active={isActive(item)}
+                            pathname={pathname}
                         />
                     ))}
                 </Stack>
@@ -133,10 +142,10 @@ export function Sidebar() {
                 className="shrink-0 transition-all duration-150"
             >
                 <SidebarNavLink
-                    item={{ label: 'Profile', icon: IconUser }}
+                    item={{ label: 'Profile', icon: IconUser, link: '/profile' }} // Added link
                     collapsed={collapsed}
-                    active={active === 'Profile'}
-                    onActive={() => setActive('Profile')}
+                    active={pathname === '/profile'}
+                    pathname={pathname}
                 />
             </Box>
         </Box>
@@ -147,21 +156,26 @@ function SidebarNavLink({
     item,
     collapsed,
     active,
-    onActive,
+    pathname,
 }: {
     item: SidebarItem;
     collapsed: boolean;
     active: boolean;
-    onActive: () => void;
+    pathname: string;
 }) {
     const [opened, setOpened] = useState(item.initiallyOpened || false);
     const hasLinks = Array.isArray(item.links);
     const Icon = item.icon;
 
+    // Auto-open if child is active
     useEffect(() => {
-        if (collapsed) setOpened(false);
-        else if (item.initiallyOpened) setOpened(true);
-    }, [collapsed, item.initiallyOpened]);
+        if (hasLinks && item.links?.some(link => pathname === link.link)) {
+            setOpened(true);
+        }
+    }, [pathname, hasLinks, item.links]);
+
+    const isChildActive = hasLinks && item.links?.some(link => pathname === link.link);
+    const isParentActive = active || isChildActive;
 
     const navLink = (
         <NavLink
@@ -180,13 +194,13 @@ function SidebarNavLink({
             }
             leftSection={
                 <Box className={`flex items-center justify-center transition-all duration-300 ${collapsed ? 'w-full' : 'w-6'}`}>
-                    <Icon size={22} stroke={1.5} />
+                    <Icon size={22} stroke={1.5} color={isParentActive ? 'var(--mantine-primary-color-filled)' : undefined} />
                 </Box>
             }
-            active={active}
-            variant="filled"
+            active={isParentActive}
+            variant={isParentActive ? "light" : "subtle"}
+            color={isParentActive ? undefined : undefined} // Let variant handle it or use theme
             onClick={() => {
-                onActive();
                 if (hasLinks && !collapsed) setOpened((o) => !o);
             }}
             opened={opened && !collapsed}
@@ -214,6 +228,11 @@ function SidebarNavLink({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: collapsed ? 'center' : 'flex-start',
+                    backgroundColor: isParentActive ? 'var(--mantine-primary-color-light)' : undefined,
+                    color: isParentActive ? 'var(--mantine-primary-color-filled)' : 'var(--mantine-color-text)',
+                    '&:hover': {
+                        backgroundColor: isParentActive ? 'var(--mantine-primary-color-light-hover)' : 'var(--mantine-color-default-hover)',
+                    }
                 },
                 section: {
                     margin: 0,
@@ -243,17 +262,24 @@ function SidebarNavLink({
                         <Menu.Label className="font-bold pb-2 border-b mb-1">
                             {item.label}
                         </Menu.Label>
-                        {item.links?.map((link) => (
-                            <Menu.Item
-                                key={link.label}
-                                component={Link}
-                                href={link.link}
-                                leftSection={<link.icon size={18} stroke={1.5} />}
-                                className="rounded-lg font-medium py-2 transition-colors"
-                            >
-                                {link.label}
-                            </Menu.Item>
-                        ))}
+                        {item.links?.map((link) => {
+                            const isLinkActive = pathname === link.link;
+                            return (
+                                <Menu.Item
+                                    key={link.label}
+                                    component={Link}
+                                    href={link.link}
+                                    leftSection={<link.icon size={18} stroke={1.5} />}
+                                    className="rounded-lg font-medium py-2 transition-colors"
+                                    style={{
+                                        backgroundColor: isLinkActive ? 'var(--mantine-primary-color-light)' : undefined,
+                                        color: isLinkActive ? 'var(--mantine-primary-color-filled)' : undefined,
+                                    }}
+                                >
+                                    {link.label}
+                                </Menu.Item>
+                            );
+                        })}
                     </Menu.Dropdown>
                 </Menu>
             );
@@ -278,6 +304,7 @@ function SidebarNavLink({
                             href={link.link}
                             label={<Text size="sm" fw={500}>{link.label}</Text>}
                             leftSection={<link.icon size={18} stroke={1.5} />}
+                            active={pathname === link.link} // Highlight child
                             className="rounded-lg h-10 transition-all"
                             styles={{
                                 root: { paddingLeft: rem(12) }
