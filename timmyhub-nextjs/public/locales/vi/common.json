@@ -15,5 +15,47 @@
         "welcomeBack": "Chào mừng quay trở lại!",
         "loginSubtitle": "Nhập thông tin để truy cập tài khoản của bạn",
         "loginSuccess": "Bạn đã đăng nhập thành công!"
+    },
+    "table": {
+        "columns": {
+            "avatar": "Ảnh đại diện",
+            "name": "Tên",
+            "email": "Email",
+            "role": "Vai trò",
+            "status": "Trạng thái",
+            "memberSince": "Thành viên từ",
+            "actions": "Thao tác",
+            "notUpdated": "Chưa cập nhật"
+        },
+        "status": {
+            "active": "Đang hoạt động",
+            "inactive": "Đã khóa"
+        },
+        "actions": {
+            "view": "Xem chi tiết",
+            "edit": "Sửa",
+            "lock": "Khóa",
+            "unlock": "Mở khóa"
+        }
+    },
+    "roles": {
+        "CUSTOMER": "Khách hàng",
+        "SELLER": "Người bán",
+        "BRAND": "Thương hiệu",
+        "SHIPPER": "Người giao hàng",
+        "ADMIN": "Quản trị viên",
+        "SUPER_ADMIN": "Quản trị viên cấp cao"
+    },
+    "userManagement": {
+        "title": "Quản lý người dùng",
+        "searchPlaceholder": "Tìm kiếm người dùng theo email, tên...",
+        "userDetails": "Chi tiết người dùng: {{email}}",
+        "basicInfo": "Thông tin cơ bản",
+        "avatar": "Ảnh đại diện",
+        "fullName": "Họ tên",
+        "email": "Email",
+        "role": "Vai trò",
+        "phone": "Điện thoại",
+        "id": "ID"
     }
 }

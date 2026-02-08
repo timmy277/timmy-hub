@@ -15,5 +15,47 @@
     "welcomeBack": "Welcome back!",
     "loginSubtitle": "Enter your credentials to access your account",
     "loginSuccess": "You have successfully logged in!"
+  },
+  "table": {
+    "columns": {
+      "avatar": "Avatar",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "memberSince": "Member Since",
+      "actions": "Actions",
+      "notUpdated": "Not updated"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Locked"
+    },
+    "actions": {
+      "view": "View details",
+      "edit": "Edit",
+      "lock": "Lock",
+      "unlock": "Unlock"
+    }
+  },
+  "roles": {
+    "CUSTOMER": "Customer",
+    "SELLER": "Seller",
+    "BRAND": "Brand",
+    "SHIPPER": "Shipper",
+    "ADMIN": "Admin",
+    "SUPER_ADMIN": "Super Admin"
+  },
+  "userManagement": {
+    "title": "User Management",
+    "searchPlaceholder": "Search users by email, name...",
+    "userDetails": "User Details: {{email}}",
+    "basicInfo": "Basic Information",
+    "avatar": "Avatar",
+    "fullName": "Full Name",
+    "email": "Email",
+    "role": "Role",
+    "phone": "Phone",
+    "id": "ID"
   }
 }

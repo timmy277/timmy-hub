@@ -1,5 +1,49 @@
 import { UserManagementPage } from '@/features/admin/users/UserManagementPage';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-export default function Page() {
-    return <UserManagementPage />;
+export default async function Page() {
+    const queryClient = new QueryClient();
+    const cookieStore = await cookies();
+
+    const accessToken = cookieStore.get('access_token')?.value;
+
+    // Nếu không có token, redirect ngay lập tức, không cần fetch
+    if (!accessToken) {
+        redirect('/login');
+    }
+
+    await queryClient.prefetchQuery({
+        queryKey: ['users'], // Giữ nguyên key ['users'] để khớp với useUsers hook ở client
+        queryFn: async () => {
+            // Ưu tiên dùng API_URL (server internal network) nếu có, fallback về NEXT_PUBLIC_API_URL
+            const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+
+            const res = await fetch(`${apiUrl}/users`, {
+                headers: {
+                    // Chỉ gửi cookie cần thiết
+                    Cookie: `access_token=${accessToken}`,
+                },
+                // Đảm bảo dữ liệu luôn mới nhất
+                cache: 'no-store',
+            });
+
+            if (res.status === 401 || res.status === 403) {
+                redirect('/login');
+            }
+
+            if (!res.ok) {
+                throw new Error('Failed to fetch users');
+            }
+
+            return res.json();
+        },
+    });
+
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <UserManagementPage />
+        </HydrationBoundary>
+    );
 }
