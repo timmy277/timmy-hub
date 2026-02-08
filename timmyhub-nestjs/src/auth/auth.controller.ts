@@ -3,6 +3,7 @@ import {
     Post,
     Body,
     Req,
+    Res,
     Get,
     UseGuards,
     Delete,
@@ -13,7 +14,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResponseDto } from '../common/dto/response.dto';
-import * as express from 'express';
+import type { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import type { UserRequest } from './interfaces/auth.interface';
 
@@ -32,24 +33,71 @@ export class AuthController {
 
     @Post('login')
     @ApiOperation({ summary: 'Đăng nhập hệ thống' })
-    async login(@Body() dto: LoginDto, @Req() req: express.Request) {
+    async login(
+        @Body() dto: LoginDto,
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ) {
         const ip = req.ip || req.socket.remoteAddress || 'unknown';
         const userAgent = req.headers['user-agent'] || 'unknown';
         const result = await this.authService.login(dto, ip, userAgent);
+
+        // Set cookies
+        res.cookie('access_token', result.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 15 * 60 * 1000, // 15 phút
+        });
+
+        res.cookie('refresh_token', result.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+        });
+
         return ResponseDto.success('Đăng nhập thành công', result);
     }
 
     @Post('refresh')
     @ApiOperation({ summary: 'Làm mới Access Token bằng Refresh Token' })
-    async refresh(@Body('refreshToken') refreshToken: string) {
+    async refresh(
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        const refreshToken = req.cookies['refresh_token'];
         const result = await this.authService.refreshTokens(refreshToken);
+
+        res.cookie('access_token', result.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 15 * 60 * 1000,
+        });
+
+        res.cookie('refresh_token', result.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
         return ResponseDto.success('Làm mới token thành công', result);
     }
 
     @Delete('logout')
     @ApiOperation({ summary: 'Đăng xuất khỏi thiết bị hiện tại' })
-    async logout(@Body('refreshToken') refreshToken: string) {
+    async logout(
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        const refreshToken = req.cookies['refresh_token'];
         await this.authService.logout(refreshToken);
+
+        res.clearCookie('access_token');
+        res.clearCookie('refresh_token');
+
         return ResponseDto.success('Đăng xuất thành công');
     }
 

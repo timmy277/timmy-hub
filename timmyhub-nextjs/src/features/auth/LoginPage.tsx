@@ -26,7 +26,6 @@ import { IconAt, IconLock, IconArrowRight, IconCheck, IconX } from '@tabler/icon
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { authService } from '@/services/auth.service';
-import { useCookie } from '@/hooks/useCookie';
 import { useRouter } from 'next/navigation';
 import { useLoginMutation } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -69,8 +68,6 @@ const schema = z.object({
 });
 
 export function LoginPage() {
-    const [, setAccessToken] = useCookie('access_token');
-    const [, setRefreshToken] = useCookie('refresh_token');
     const setAuth = useAuthStore((state) => state.setAuth);
     const router = useRouter();
     const loginMutation = useLoginMutation();
@@ -107,13 +104,9 @@ export function LoginPage() {
     const handleSubmit = async (values: z.infer<typeof schema>) => {
         try {
             const response = await loginMutation.mutateAsync(values);
-            const { accessToken, refreshToken, user, device } = response.data;
+            const { user, device } = response.data;
 
-            // Lưu tokens vào Cookie
-            setAccessToken(accessToken);
-            setRefreshToken(refreshToken);
-
-            // Lưu thông tin user và device vào Store (Zustand persist)
+            // Lưu thông tin người dùng vào Store (Zustand persist)
             setAuth(user, device);
 
             notifications.show({
