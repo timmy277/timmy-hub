@@ -27,7 +27,6 @@ import {
 } from '@tabler/icons-react';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 
-// Định nghĩa type icon cụ thể thay vì dùng any
 type TablerIcon = React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>;
 
 interface SidebarItem {
@@ -66,7 +65,6 @@ export function Sidebar() {
     const { collapsed } = useSidebarStore();
     const [active, setActive] = useState('Dashboard');
 
-    // Bỏ logmounted vì đã nạp dynamic ssr:false từ page.tsx
     return (
         <Box
             className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out"
@@ -198,7 +196,7 @@ function SidebarNavLink({
                     <IconChevronRight
                         size="0.9rem"
                         stroke={2}
-                        className={`transition-transform duration-300 ${opened ? 'rotate-90' : ''}`}
+                        className={`transition-transform duration-300 ${opened ? 'rotate-0' : ''}`}
                     />
                 </Box>
             }

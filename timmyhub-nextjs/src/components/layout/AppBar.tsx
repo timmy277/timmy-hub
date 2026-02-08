@@ -1,7 +1,7 @@
 'use client';
 
 import { Group, Box, Avatar, Text, Menu, UnstyledButton, ActionIcon, Divider } from '@mantine/core';
-import { LanguageSwitcher, ThemeSwitcher } from './index';
+import { LanguageSwitcher, ThemeSwitcher } from '../shared';
 import {
     IconSettings,
     IconLogout,
@@ -12,7 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 
-export function Header() {
+export function AppBar() {
     const { t } = useTranslation();
     const { collapsed, toggleSidebar } = useSidebarStore();
 

@@ -1,6 +1,3 @@
-'use client';
-
-import dynamic from 'next/dynamic';
 import {
   Container,
   Title,
@@ -9,84 +6,60 @@ import {
   Card,
   Group,
   Badge,
-  AppShell,
   Button,
 } from '@mantine/core';
-import { useTranslation } from 'react-i18next';
-import { useSidebarStore } from '@/stores/useSidebarStore';
+import { DashboardShell } from '@/components';
 
-const Sidebar = dynamic(() => import('@/components/shared/Sidebar').then((m) => m.Sidebar), {
-  ssr: false,
-  loading: () => <div className="w-[280px] h-screen animate-pulse bg-gray-50 dark:bg-dark-8" />
-});
-
-const Header = dynamic(() => import('@/components/shared/Header').then((m) => m.Header), {
-  ssr: false,
-  loading: () => <div className="h-[70px] w-full animate-pulse bg-gray-50 dark:bg-dark-8" />
-});
-
-export default function Home() {
-  const { t } = useTranslation();
-  const { collapsed } = useSidebarStore();
+// TRANG CHỦ LÀ SERVER COMPONENT
+// Ưu điểm: Tốc độ tải trang cực nhanh, SEO tốt, có thể fetch data trực tiếp từ DB/Microservices
+export default async function Home() {
+  // Giả sử đây là một lệnh fetch data từ Server
+  // const data = await db.products.findMany(); 
 
   return (
-    <AppShell
-      layout="alt"
-      header={{ height: 70 }}
-      navbar={{
-        width: collapsed ? 80 : 280,
-        breakpoint: 'sm',
-      }}
-      padding="md"
-    >
-      <AppShell.Header>
-        <Header />
-      </AppShell.Header>
-
-      <AppShell.Navbar>
-        <Sidebar />
-      </AppShell.Navbar>
-
-      <AppShell.Main>
-        <Container size="md" py="xl">
-          <Stack gap="xl">
-            <Stack gap="xs">
-              <Title order={1} suppressHydrationWarning>
-                {t('common.welcome')}
-              </Title>
-              <Text size="lg" c="dimmed">
-                Bố cục hiện tại đã sạch bóng các hàm setState trong useEffect.
-              </Text>
-            </Stack>
-
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Stack gap="md">
-                <Group justify="space-between">
-                  <Text fw={500}>Native Mantine Card</Text>
-                  <Badge color="blue" variant="light">
-                    Perfect Dark Mode
-                  </Badge>
-                </Group>
-
-                <Text size="sm" c="dimmed">
-                  Mọi thành phần chứa logic cá nhân hóa (Theme, Lang, Sidebar) đều được nạp động (Dynamic)
-                  giúp gỡ bỏ hoàn toàn lỗi Hydration mà vẫn giữ code sạch sẽ.
-                </Text>
-
-                <Group gap="sm">
-                  <Button variant="filled" hidden>Hidden</Button>
-                </Group>
-              </Stack>
-            </Card>
-
-            <Card withBorder style={{ borderStyle: 'dashed' }} py="xl">
-              <Text ta="center" fw={500} c="dimmed">
-                Sidebar và Header hiện đã được nạp phía Client.
-              </Text>
-            </Card>
+    <DashboardShell>
+      <Container size="md" py="xl">
+        <Stack gap="xl">
+          <Stack gap="xs">
+            {/* Những phần này được render sẵn HTML từ Server */}
+            <Title order={1}>
+              Chào mừng tới TimmyHub
+            </Title>
+            <Text size="lg" c="dimmed">
+              Trang này hiện đang chạy ở chế độ SSR (Server-Side Rendering).
+            </Text>
           </Stack>
-        </Container>
-      </AppShell.Main>
-    </AppShell>
+
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Stack gap="md">
+              <Group justify="space-between">
+                <Text fw={500}>Hybrid Architecture (SSR + CSR)</Text>
+                <Badge color="blue" variant="light">
+                  SEO Optimized
+                </Badge>
+              </Group>
+
+              <Text size="sm" c="dimmed">
+                Phần nội dung này được Server Render sẵn. Google Bot có thể đọc được nội dung
+                ngay lập tức mà không cần thực thi JavaScript.
+              </Text>
+
+              <Group gap="sm">
+                {/* Button này là Mantine Component, vẫn hoạt động tốt khi server render */}
+                <Button variant="light" color="blue">
+                  Xem chi tiết
+                </Button>
+              </Group>
+            </Stack>
+          </Card>
+
+          <Card withBorder style={{ borderStyle: 'dashed' }} py="xl">
+            <Text ta="center" fw={500} c="dimmed">
+              Bố cục Layout (Header/Sidebar) là CSR để giữ trạng thái cá nhân hóa.
+            </Text>
+          </Card>
+        </Stack>
+      </Container>
+    </DashboardShell>
   );
 }
