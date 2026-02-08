@@ -1,7 +1,9 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const axiosClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+    withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -10,9 +12,10 @@ const axiosClient = axios.create({
 // Add a request interceptor
 axiosClient.interceptors.request.use(
     (config) => {
-        // You can add logic to attach tokens here
-        // const token = localStorage.getItem('token');
-        // if (token) config.headers.Authorization = `Bearer ${token}`;
+        const token = Cookies.get('access_token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
     },
     (error) => {
@@ -26,9 +29,10 @@ axiosClient.interceptors.response.use(
         return response.data;
     },
     (error) => {
-        // Handle global errors here
         if (error.response?.status === 401) {
-            // Logic for logout or refresh token
+            // Optional: Handle token expiration
+            Cookies.remove('access_token');
+            // window.location.href = '/login';
         }
         return Promise.reject(error);
     }

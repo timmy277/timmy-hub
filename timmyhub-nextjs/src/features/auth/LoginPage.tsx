@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import axios, { AxiosError } from 'axios';
 import {
     Button,
     Checkbox,
@@ -15,13 +16,64 @@ import {
     TextInput,
     PasswordInput,
     rem,
+    Center,
+    Progress,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconAt, IconLock, IconArrowRight } from '@tabler/icons-react';
+import { zodResolver } from 'mantine-form-zod-resolver';
+import { useInputState } from '@mantine/hooks';
+import { IconAt, IconLock, IconArrowRight, IconCheck, IconX } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { z } from 'zod';
+import { authService } from '@/services/auth.service';
+import { useCookie } from '@/hooks/useCookie';
+import { useRouter } from 'next/navigation';
+import { useLoginMutation } from '@/hooks/useAuth';
+import { useAuthStore } from '@/stores/useAuthStore';
+
+// --- Password Strength Components ---
+const requirements = [
+    { re: /[0-9]/, label: 'Includes number' },
+    { re: /[a-z]/, label: 'Includes lowercase letter' },
+    { re: /[A-Z]/, label: 'Includes uppercase letter' },
+    { re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: 'Includes special symbol' },
+];
+
+function getStrength(password: string) {
+    let multiplier = password.length > 5 ? 0 : 1;
+
+    requirements.forEach((requirement) => {
+        if (!requirement.re.test(password)) {
+            multiplier += 1;
+        }
+    });
+
+    return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 0);
+}
+
+function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
+    return (
+        <Text component="div" c={meets ? 'teal' : 'red'} mt={5} size="sm">
+            <Center inline>
+                {meets ? <IconCheck size={14} stroke={1.5} /> : <IconX size={14} stroke={1.5} />}
+                <Box ml={7}>{label}</Box>
+            </Center>
+        </Text>
+    );
+}
+
+// --- Validation Schema ---
+const schema = z.object({
+    email: z.string().email({ message: 'Invalid email address' }),
+    password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+});
 
 export function LoginPage() {
-    const [loading, setLoading] = useState(false);
+    const [, setAccessToken] = useCookie('access_token');
+    const [, setRefreshToken] = useCookie('refresh_token');
+    const setAuth = useAuthStore((state) => state.setAuth);
+    const router = useRouter();
+    const loginMutation = useLoginMutation();
 
     const form = useForm({
         initialValues: {
@@ -29,26 +81,65 @@ export function LoginPage() {
             password: '',
             remember: false,
         },
-
-        validate: {
-            email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-            password: (value) => (value.length < 6 ? 'Password should include at least 6 characters' : null),
-        },
+        validate: zodResolver(schema),
     });
 
-    const handleSubmit = async (values: typeof form.values) => {
-        setLoading(true);
-        console.log('Login values:', values);
+    // Handle Password Strength
+    const strength = getStrength(form.values.password);
+    const checks = requirements.map((requirement, index) => (
+        <PasswordRequirement key={index} label={requirement.label} meets={requirement.re.test(form.values.password)} />
+    ));
+    const bars = Array(4)
+        .fill(0)
+        .map((_, index) => (
+            <Progress
+                styles={{ section: { transitionDuration: '0ms' } }}
+                value={
+                    form.values.password.length > 0 && index === 0 ? 100 : strength >= ((index + 1) / 4) * 100 ? 100 : 0
+                }
+                color={strength > 80 ? 'teal' : strength > 50 ? 'yellow' : 'red'}
+                key={index}
+                size={4}
+                aria-label={`Password strength segment ${index + 1}`}
+            />
+        ));
 
-        // Simulate API call
-        setTimeout(() => {
-            setLoading(false);
+    const handleSubmit = async (values: z.infer<typeof schema>) => {
+        try {
+            const response = await loginMutation.mutateAsync(values);
+            const { accessToken, refreshToken, user, device } = response.data;
+
+            // Lưu tokens vào Cookie
+            setAccessToken(accessToken);
+            setRefreshToken(refreshToken);
+
+            // Lưu thông tin user và device vào Store (Zustand persist)
+            setAuth(user, device);
+
             notifications.show({
                 title: 'Success',
-                message: 'You have successfully logged in!',
-                color: 'blue',
+                message: response.message || 'Welcome back! You have successfully logged in.',
+                color: 'green',
+                icon: <IconCheck size={18} />,
             });
-        }, 1500);
+
+            router.push('/dashboard');
+        } catch (error: unknown) {
+            let errorMessage = 'Failed to login. Please check your credentials.';
+
+            if (axios.isAxiosError(error)) {
+                errorMessage = error.response?.data?.message || errorMessage;
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            notifications.show({
+                title: 'Error',
+                message: errorMessage,
+                color: 'red',
+                icon: <IconX size={18} />,
+            });
+        }
     };
 
     return (
@@ -60,18 +151,18 @@ export function LoginPage() {
                 justifyContent: 'center',
                 padding: 'var(--mantine-spacing-md)',
                 backgroundColor: 'var(--mantine-color-body)',
-                backgroundImage: 'radial-gradient(circle at 2px 2px, var(--mantine-color-gray-2) 1px, transparent 0)',
-                backgroundSize: '40px 40px',
             }}
         >
             <Container size={420} w="100%">
                 <Paper
-                    radius="xl"
-                    p={{ base: 'lg', sm: 50 }}
+                    radius="md"
+                    p={{ base: 'lg', sm: 40 }}
                     withBorder
                     style={{
                         boxShadow: 'var(--mantine-shadow-xl)',
                         borderColor: 'var(--mantine-color-default-border)',
+                        borderTop: `${rem(6)} solid var(--mantine-color-blue-6)`, // "viền quanh phía trên như timmycenter"
+                        position: 'relative',
                     }}
                 >
                     <Stack gap="xl">
@@ -81,7 +172,7 @@ export function LoginPage() {
                                     style={{
                                         width: rem(48),
                                         height: rem(48),
-                                        borderRadius: 'var(--mantine-radius-xl)',
+                                        borderRadius: 'var(--mantine-radius-md)',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
@@ -95,37 +186,46 @@ export function LoginPage() {
                                 </Box>
                             </Group>
                             <Title order={2} fw={800} style={{ trackingTight: '-0.02em' }}>
-                                Welcome back!
+                                Welcome to TimmyHub
                             </Title>
                             <Text c="dimmed" size="sm" mt={5}>
-                                Enter your credentials to access your account
+                                Please enter your details to sign in
                             </Text>
                         </Box>
 
                         <form onSubmit={form.onSubmit(handleSubmit)}>
-                            <Stack gap="md">
+                            <Stack gap="sm">
                                 <TextInput
-                                    label="Email address"
-                                    placeholder="hello@gmail.com"
+                                    label="Email"
+                                    placeholder="Enter your email"
                                     size="md"
                                     radius="md"
                                     leftSection={<IconAt size={16} stroke={1.5} />}
                                     {...form.getInputProps('email')}
                                 />
 
-                                <PasswordInput
-                                    label="Password"
-                                    placeholder="Your password"
-                                    size="md"
-                                    radius="md"
-                                    leftSection={<IconLock size={16} stroke={1.5} />}
-                                    {...form.getInputProps('password')}
-                                />
+                                <Box>
+                                    <PasswordInput
+                                        label="Password"
+                                        placeholder="Enter your password"
+                                        size="md"
+                                        radius="md"
+                                        leftSection={<IconLock size={16} stroke={1.5} />}
+                                        {...form.getInputProps('password')}
+                                    />
+
+                                    {/* Password Strength UI */}
+                                    <Group gap={5} grow mt="xs" mb="md">
+                                        {bars}
+                                    </Group>
+
+                                    <PasswordRequirement label="Has at least 6 characters" meets={form.values.password.length > 5} />
+                                    {checks}
+                                </Box>
 
                                 <Group justify="space-between" mt="xs">
                                     <Checkbox
                                         label="Remember me"
-                                        {...form.getInputProps('remember', { type: 'checkbox' })}
                                         style={{ cursor: 'pointer' }}
                                     />
                                     <Anchor component="button" size="sm" fw={600}>
@@ -139,11 +239,8 @@ export function LoginPage() {
                                     size="lg"
                                     radius="md"
                                     mt="xl"
-                                    loading={loading}
+                                    loading={loginMutation.isPending}
                                     rightSection={<IconArrowRight size={18} />}
-                                    style={{
-                                        transition: 'all 150ms ease',
-                                    }}
                                 >
                                     Sign in
                                 </Button>
@@ -153,14 +250,14 @@ export function LoginPage() {
                         <Text c="dimmed" size="sm" ta="center">
                             Don&apos;t have an account?{' '}
                             <Anchor component="button" size="sm" fw={700}>
-                                Create account
+                                Register here
                             </Anchor>
                         </Text>
                     </Stack>
                 </Paper>
 
                 <Text mt="xl" c="dimmed" size="xs" ta="center">
-                    &copy; 2026 TimmyHub. All rights reserved.
+                    &copy; 2026 TimmyHub. Secure Authentication.
                 </Text>
             </Container>
         </Box>

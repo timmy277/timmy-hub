@@ -63,9 +63,17 @@ export class AuthService {
             throw new UnauthorizedException('Tài khoản đã bị khóa');
         }
 
-        // Xử lý Device
-        const device = await this.prisma.device.create({
-            data: {
+        // Xử lý Device (Upsert để tránh lỗi Unique constraint nếu đã tồn tại)
+        const device = await this.prisma.device.upsert({
+            where: { userId: user.id },
+            update: {
+                ip,
+                userAgent,
+                deviceName: dto.deviceName || 'Thiết bị không xác định',
+                isActive: true,
+                lastActiveAt: new Date(),
+            },
+            create: {
                 userId: user.id,
                 ip,
                 userAgent,

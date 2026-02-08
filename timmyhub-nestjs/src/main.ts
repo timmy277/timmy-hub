@@ -13,7 +13,12 @@ async function bootstrap() {
   // Setup Swagger documentation
   setupSwagger(app);
 
-
+  // Enable CORS
+  app.enableCors({
+    origin: process.env.FRONTEND_URL?.split(',') || 'http://localhost:3000',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
   const port = process.env.PORT ?? 3001;
   await app.listen(port);
   console.log(`\n🚀 Application is running on: http://localhost:${port}`);
