@@ -1,10 +1,8 @@
 import axiosClient from '@/libs/axios';
-import { User, ApiResponse } from '@/types/auth';
+import { User } from '@/types/auth';
+import { ApiResponse } from '@/types/api';
+import { CreateUserInput } from '@/types/user';
 
-/**
- * Service quản lý người dùng
- * @author TimmyHub AI
- */
 export const userService = {
     /**
      * Lấy danh sách tất cả người dùng
@@ -32,5 +30,12 @@ export const userService = {
      */
     assignUserRoles: async (id: string, roleNames: string[]): Promise<ApiResponse<void>> => {
         return axiosClient.post(`/users/${id}/roles`, { roleNames });
+    },
+
+    /**
+     * Tạo người dùng mới
+     */
+    createUser: async (data: CreateUserInput): Promise<ApiResponse<User>> => {
+        return axiosClient.post('/users', data);
     },
 };

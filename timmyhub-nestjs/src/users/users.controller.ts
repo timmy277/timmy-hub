@@ -13,6 +13,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permissions } from '../common/decorators/permissions.decorator';
 import { ResponseDto } from '../common/dto/response.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -21,7 +23,16 @@ import { ResponseDto } from '../common/dto/response.dto';
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
+    @Post()
+    @Permissions('users:create')
+    @ApiOperation({ summary: 'Tạo người dùng mới' })
+    async createUser(@Body() dto: CreateUserDto) {
+        const user = await this.usersService.create(dto);
+        return ResponseDto.success('Tạo người dùng thành công', user);
+    }
+
     @Get()
+
     @Permissions('users:read')
     @ApiOperation({ summary: 'Lấy danh sách tất cả người dùng' })
     async getUsers() {

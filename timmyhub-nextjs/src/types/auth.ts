@@ -1,3 +1,5 @@
+import { UserRole } from './enums';
+
 export interface Device {
     id: string;
     name: string;
@@ -14,8 +16,9 @@ export interface User {
     id: string;
     email: string;
     phone?: string | null;
-    role: string;
+    role: UserRole;
     isActive: boolean;
+
     isBanned?: boolean;
     permissions: string[];
     profile?: Profile | null;
@@ -29,12 +32,6 @@ export interface LoginData {
     device: Device;
 }
 
-export interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
-    timestamp: string;
-}
 
 export interface LoginInput {
     email: string;

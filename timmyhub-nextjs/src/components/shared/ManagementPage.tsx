@@ -39,6 +39,8 @@ import {
 import { BaseDataTable } from '@/components/tables/BaseDataTable';
 import { DashboardShell } from '@/components/layout';
 import { TabItem } from '@/hooks/useManagementTabs';
+import { ManagementTabType } from '@/types/enums';
+
 
 // Ensure modules are registered for API usage
 ModuleRegistry.registerModules([
@@ -65,11 +67,6 @@ interface ManagementPageProps<T> {
     closeTab: (id: string) => void;
 }
 
-/**
- * Component dùng chung cho các trang quản trị (CRUD)
- * Refactored từ DashboardPage theo yêu cầu
- * @author TimmyHub AI
- */
 export function ManagementPage<T>({
     title,
     entityName,
@@ -89,11 +86,11 @@ export function ManagementPage<T>({
     const baseId = useId();
     const [gridApi, setGridApi] = useState<GridApi<T> | null>(null);
     const [quickFilterText, setQuickFilterText] = useState('');
-    const [columnPinnedState, setColumnPinnedState] = useState<Record<string, any>>({});
+    const [columnPinnedState, setColumnPinnedState] = useState<Record<string, boolean | 'left' | 'right' | null | undefined>>({});
 
     const onGridReady = (params: GridReadyEvent<T>) => {
         setGridApi(params.api);
-        const colState: Record<string, any> = {};
+        const colState: Record<string, boolean | 'left' | 'right' | null | undefined> = {};
         params.api.getAllGridColumns().forEach((col: Column) => {
             colState[col.getColId()] = col.getPinned();
         });
@@ -112,7 +109,7 @@ export function ManagementPage<T>({
             gridApi.applyColumnState({
                 state: columnDefs.map(col => ({
                     colId: col.colId || (col.field as string),
-                    pinned: col.pinned as any,
+                    pinned: col.pinned,
                     hide: false,
                     width: col.width
                 })),
@@ -136,9 +133,9 @@ export function ManagementPage<T>({
                             <Tabs.Tab
                                 key={tab.id}
                                 value={tab.id}
-                                leftSection={tab.id === 'list' ? (listIcon || <IconFileText size={16} />) : <IconFileText size={16} />}
+                                leftSection={tab.id === ManagementTabType.LIST ? (listIcon || <IconFileText size={16} />) : <IconFileText size={16} />}
                                 rightSection={
-                                    tab.id !== 'list' ? (
+                                    tab.id !== ManagementTabType.LIST ? (
                                         <ActionIcon
                                             size="sm"
                                             variant="subtle"
@@ -161,7 +158,7 @@ export function ManagementPage<T>({
 
                     {openTabs.map(tab => (
                         <Tabs.Panel key={tab.id} value={tab.id}>
-                            {tab.id === 'list' ? (
+                            {tab.id === ManagementTabType.LIST ? (
                                 <Stack gap="lg" mt="md">
                                     <Card shadow="sm" radius="md" withBorder padding="lg">
                                         <Stack gap="md">

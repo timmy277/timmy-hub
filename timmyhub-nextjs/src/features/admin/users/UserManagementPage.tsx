@@ -15,7 +15,10 @@ import {
     Button,
     Card,
     Divider,
+    TextInput,
+    PasswordInput,
 } from '@mantine/core';
+import { useForm } from '@mantine/form';
 import {
     IconEye,
     IconEdit,
@@ -27,16 +30,16 @@ import { ManagementPage } from '@/components/shared/ManagementPage';
 import {
     useUsers,
     useToggleUserStatusMutation,
-    useAssignUserRolesMutation
+    useAssignUserRolesMutation,
+    useCreateUserMutation
 } from '@/hooks/useUsers';
+
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';
 import { User } from '@/types/auth';
+import { CreateUserForm } from './CreateUserForm';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { ManagementTabType, UserRole } from '@/types/enums';
 
-/**
- * Trang quản lý người dùng sử dụng ManagementPage dùng chung
- * @author TimmyHub AI
- */
 export function UserManagementPage() {
     const { data: response, isLoading, refetch } = useUsers();
     const toggleStatusMutation = useToggleUserStatusMutation();
@@ -48,22 +51,29 @@ export function UserManagementPage() {
 
     const columnDefs = useMemo<ColDef<User>[]>(() => [
         {
-            headerName: 'Người dùng',
-            field: 'email',
-            minWidth: 250,
+            headerName: 'Avatar',
+            field: 'profile.avatar',
+            width: 100,
+            cellStyle: { display: 'flex', alignItems: 'center' },
             cellRenderer: (params: ICellRendererParams<User>) => (
-                <Group gap="sm" py={4}>
-                    <Avatar src={params.data?.profile?.avatar || ''} radius="xl" color="blue">
-                        {params.data?.profile?.firstName?.charAt(0) || params.data?.email.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Stack gap={0}>
-                        <Text size="sm" fw={500}>
-                            {params.data?.profile ? `${params.data.profile.firstName} ${params.data.profile.lastName}` : 'Chưa cập nhật'}
-                        </Text>
-                        <Text size="xs" c="dimmed">{params.data?.email}</Text>
-                    </Stack>
-                </Group>
+                <Avatar src={params.data?.profile?.avatar || ''} radius="xl" color="blue">
+                    {params.data?.profile?.firstName?.charAt(0) || params.data?.email.charAt(0).toUpperCase()}
+                </Avatar>
             )
+        },
+        {
+            headerName: 'Tên',
+            field: 'profile.firstName',
+            minWidth: 150,
+            valueGetter: (params) => {
+                if (!params.data?.profile) return 'Chưa cập nhật';
+                return `${params.data.profile.firstName} ${params.data.profile.lastName}`;
+            }
+        },
+        {
+            headerName: 'Email',
+            field: 'email',
+            minWidth: 200,
         },
         {
             headerName: 'Vai trò',
@@ -71,7 +81,7 @@ export function UserManagementPage() {
             width: 150,
             cellRenderer: (params: ICellRendererParams<User>) => (
                 <Badge
-                    color={params.value === 'ADMIN' || params.value === 'SUPER_ADMIN' ? 'red' : params.value === 'SELLER' ? 'blue' : 'gray'}
+                    color={params.value === UserRole.ADMIN || params.value === UserRole.SUPER_ADMIN ? 'red' : params.value === UserRole.SELLER ? 'blue' : 'gray'}
                     variant="light"
                     mt={10}
                 >
@@ -135,6 +145,7 @@ export function UserManagementPage() {
         }
     ], [handleAction, toggleStatusMutation.isPending, toggleStatusMutation.variables]);
 
+
     const handleUpdateRole = (userId: string) => {
         const role = selectedRoles[userId];
         if (role) {
@@ -143,6 +154,15 @@ export function UserManagementPage() {
     };
 
     const renderTabContent = (tab: TabItem<User>) => {
+        if (tab.type === ManagementTabType.CREATE) {
+            return (
+                <CreateUserForm
+                    onSuccess={() => closeTab(ManagementTabType.CREATE)}
+                    onCancel={() => closeTab(ManagementTabType.CREATE)}
+                />
+            );
+        }
+
         const user = tab.data;
         if (!user) return null;
 
@@ -151,7 +171,7 @@ export function UserManagementPage() {
                 <Stack>
                     <Group justify="space-between">
                         <Title order={3}>
-                            {tab.type === 'detail' ? 'Chi tiết' : 'Cập nhật'} người dùng: {user.email}
+                            {tab.type === ManagementTabType.DETAIL ? 'Chi tiết' : 'Cập nhật'} người dùng: {user.email}
                         </Title>
                         <Badge size="lg" color={user.isActive ? 'green' : 'red'}>
                             {user.isActive ? 'Hoạt động' : 'Bị khóa'}
@@ -180,15 +200,16 @@ export function UserManagementPage() {
                                         label="Thay đổi vai trò"
                                         placeholder="Chọn vai trò mới"
                                         data={[
-                                            { value: 'USER', label: 'User' },
-                                            { value: 'SELLER', label: 'Seller' },
-                                            { value: 'ADMIN', label: 'Admin' },
+                                            { value: UserRole.CUSTOMER, label: 'User' },
+                                            { value: UserRole.SELLER, label: 'Seller' },
+                                            { value: UserRole.ADMIN, label: 'Admin' },
                                         ]}
                                         value={selectedRoles[user.id] || user.role}
                                         onChange={(val) => val && setSelectedRoles(prev => ({ ...prev, [user.id]: val }))}
-                                        disabled={tab.type === 'detail'}
+                                        disabled={tab.type === ManagementTabType.DETAIL}
                                     />
-                                    {tab.type === 'update' && (
+
+                                    {tab.type === ManagementTabType.UPDATE && (
                                         <Button
                                             leftSection={<IconShieldCheck size={16} />}
                                             onClick={() => handleUpdateRole(user.id)}
@@ -215,6 +236,7 @@ export function UserManagementPage() {
             columnDefs={columnDefs}
             isLoading={isLoading}
             onRefresh={refetch}
+            onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
             searchPlaceholder="Tìm kiếm người dùng theo email, tên..."
             activeTab={activeTab}
@@ -223,4 +245,5 @@ export function UserManagementPage() {
             closeTab={closeTab}
         />
     );
+
 }
