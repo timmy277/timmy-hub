@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionIcon, Menu, rem, Tooltip } from '@mantine/core';
+import { ActionIcon, Menu, Tooltip } from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '@/stores/useThemeStore';
@@ -20,7 +20,7 @@ export function LanguageSwitcher() {
         <Menu shadow="md" width={140} position="bottom-end" transitionProps={{ transition: 'pop-top-right' }}>
             <Menu.Target>
                 <Tooltip label="Change language">
-                    <ActionIcon variant="default" size="lg" radius="md" suppressHydrationWarning>
+                    <ActionIcon variant="default" size="lg" radius="md">
                         {currentLanguage.startsWith('vi') ? <FlagVN /> : <FlagUK />}
                     </ActionIcon>
                 </Tooltip>

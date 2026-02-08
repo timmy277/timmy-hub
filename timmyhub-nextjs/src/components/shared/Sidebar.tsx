@@ -15,7 +15,6 @@ import {
 import {
     IconGauge,
     IconDeviceDesktopAnalytics,
-    IconFingerprint,
     IconCalendarStats,
     IconUser,
     IconSettings,
@@ -23,19 +22,20 @@ import {
     IconShoppingCart,
     IconPackage,
     IconUsers,
+    IconFingerprint,
+    IconProps,
 } from '@tabler/icons-react';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 
-// Constants matching shadcn's default feel
-const SIDEBAR_WIDTH = "280px";
-const SIDEBAR_WIDTH_ICON = "80px";
+// Định nghĩa type icon cụ thể thay vì dùng any
+type TablerIcon = React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>;
 
 interface SidebarItem {
-    icon: any;
+    icon: TablerIcon;
     label: string;
     link?: string;
     initiallyOpened?: boolean;
-    links?: { label: string; link: string; icon: any }[];
+    links?: { label: string; link: string; icon: TablerIcon }[];
 }
 
 const mockData: SidebarItem[] = [
@@ -65,27 +65,19 @@ const mockData: SidebarItem[] = [
 export function Sidebar() {
     const { collapsed } = useSidebarStore();
     const [active, setActive] = useState('Dashboard');
-    const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    if (!mounted) return <Box style={{ width: SIDEBAR_WIDTH }} />;
-
+    // Bỏ logmounted vì đã nạp dynamic ssr:false từ page.tsx
     return (
         <Box
-            component="nav"
-            data-state={collapsed ? "collapsed" : "expanded"}
-            className="group bg-zinc-50 dark:bg-zinc-950 flex flex-col h-screen sticky top-0 border-r border-zinc-200 dark:border-zinc-800 transition-[width] duration-300 ease-in-out shrink-0"
-            style={{
-                width: collapsed ? SIDEBAR_WIDTH_ICON : SIDEBAR_WIDTH,
-                "--sidebar-width": SIDEBAR_WIDTH,
-                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-            } as any}
+            className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out"
+            style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}
         >
             {/* Header - Logo Section */}
-            <Box className="h-[70px] flex items-center shrink-0 border-b border-zinc-200 dark:border-zinc-800 transition-all duration-300">
+            <Box
+                h={70}
+                className="flex items-center shrink-0 transition-all duration-300"
+                style={{ borderBottom: '1px solid var(--mantine-color-default-border)' }}
+            >
                 <Box className="w-full" px={collapsed ? 0 : 'md'}>
                     <Group
                         gap={collapsed ? 0 : rem(12)}
@@ -93,7 +85,7 @@ export function Sidebar() {
                         justify={collapsed ? 'center' : 'flex-start'}
                         className="transition-all duration-300"
                     >
-                        <Box className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20 transition-all duration-300">
+                        <Box className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">
                             <Text fw={900} c="white" size="lg" className="tracking-tighter pl-[1px]">T</Text>
                         </Box>
 
@@ -102,9 +94,10 @@ export function Sidebar() {
                             style={{
                                 maxWidth: collapsed ? 0 : "200px",
                                 opacity: collapsed ? 0 : 1,
+                                transform: `translateX(${collapsed ? '-10px' : '0'})`,
                             }}
                         >
-                            <Text fw={800} size="lg" className="tracking-tight text-zinc-900 dark:text-white ml-1">
+                            <Text fw={800} size="lg" className="tracking-tight ml-1">
                                 TIMMY<span className="text-blue-600">HUB</span>
                             </Text>
                         </Box>
@@ -116,7 +109,7 @@ export function Sidebar() {
             <Box
                 px={collapsed ? 0 : rem(12)}
                 py="md"
-                className="flex-1 overflow-y-auto overflow-x-hidden transition-all duration-300"
+                className="flex-1 overflow-y-auto overflow-x-hidden transition-all duration-150"
             >
                 <Stack gap={4} align={collapsed ? 'center' : 'stretch'} className="w-full">
                     {mockData.map((item) => (
@@ -135,7 +128,7 @@ export function Sidebar() {
             <Box
                 p={collapsed ? 0 : rem(12)}
                 py="md"
-                className="border-t border-zinc-200 dark:border-zinc-800 shrink-0 transition-all duration-300"
+                className="shrink-0 transition-all duration-150"
             >
                 <SidebarNavLink
                     item={{ label: 'Profile', icon: IconUser }}
@@ -187,12 +180,13 @@ function SidebarNavLink({
                 </Box>
             }
             active={active}
+            variant="filled"
             onClick={() => {
                 onActive();
                 if (hasLinks && !collapsed) setOpened((o) => !o);
             }}
             opened={opened && !collapsed}
-            className={`rounded-lg transition-all duration-200 ${active ? 'bg-blue-50 dark:bg-blue-900/10' : ''}`}
+            className="rounded-lg transition-all duration-200"
             rightSection={
                 <Box
                     className="overflow-hidden transition-all duration-300 ease-in-out"
@@ -226,7 +220,6 @@ function SidebarNavLink({
                 body: {
                     overflow: 'hidden',
                     flex: collapsed ? 0 : 1,
-                    // Keep body in DOM but manage width via label's Box for smooth transition
                     transition: 'all 0.3s ease-in-out',
                 },
             }}
@@ -242,16 +235,15 @@ function SidebarNavLink({
                             {navLink}
                         </Box>
                     </Menu.Target>
-                    <Menu.Dropdown p="xs" className="dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 ml-1 rounded-xl shadow-2xl">
-                        <Menu.Label className="font-bold text-zinc-900 dark:text-white pb-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
+                    <Menu.Dropdown p="xs" className="ml-1 rounded-xl shadow-2xl">
+                        <Menu.Label className="font-bold pb-2 border-b mb-1">
                             {item.label}
                         </Menu.Label>
                         {item.links?.map((link) => (
                             <Menu.Item
                                 key={link.label}
                                 leftSection={<link.icon size={18} stroke={1.5} />}
-                                className="rounded-lg font-medium py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                                onClick={() => onActive()}
+                                className="rounded-lg font-medium py-2 transition-colors"
                             >
                                 {link.label}
                             </Menu.Item>
@@ -278,7 +270,7 @@ function SidebarNavLink({
                             key={link.label}
                             label={<Text size="sm" fw={500}>{link.label}</Text>}
                             leftSection={<link.icon size={18} stroke={1.5} />}
-                            className="rounded-lg h-10 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                            className="rounded-lg h-10 transition-all"
                             styles={{
                                 root: { paddingLeft: rem(12) }
                             }}
