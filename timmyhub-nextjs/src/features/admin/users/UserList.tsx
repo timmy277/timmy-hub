@@ -1,21 +1,24 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColDef } from 'ag-grid-community';
-import { IconUsers } from '@tabler/icons-react';
+import { IconUsers, IconAlertTriangle } from '@tabler/icons-react';
+import { modals } from '@mantine/modals';
+import { Text } from '@mantine/core';
 import { User } from '@/types/auth';
 import { createUserColumns, createActionColumn } from '@/constants/column';
 import { ManagementPage } from '@/components/shared/ManagementPage';
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
-import { useUsers } from '@/hooks/useUsers';
+import { useUsers, useToggleUserStatusMutation } from '@/hooks/useUsers';
 import { CreateUpdateUser } from './CreateUpdateUser';
 import { UserDetail } from './UserDetail';
 
 export function UserList() {
     const { t } = useTranslation();
     const { data: response, isLoading, refetch } = useUsers();
+    const toggleStatusMutation = useToggleUserStatusMutation();
 
     const {
         activeTab,
@@ -60,17 +63,49 @@ export function UserList() {
         }
     };
 
+    const handleToggleStatus = useCallback((user: User) => {
+        const actionText = user.isActive ? t('userManagement.lockAccount') : t('userManagement.unlockAccount');
+        
+        modals.openConfirmModal({
+            title: (
+                <Text fw={600} size="lg">
+                    {actionText}
+                </Text>
+            ),
+            children: (
+                <Text size="sm">
+                    {user.isActive 
+                        ? t('userManagement.confirmLock', { email: user.email })
+                        : t('userManagement.confirmUnlock', { email: user.email })
+                    }
+                </Text>
+            ),
+            labels: { 
+                confirm: actionText, 
+                cancel: t('common.cancel') 
+            },
+            confirmProps: { 
+                color: user.isActive ? 'red' : 'green',
+                leftSection: <IconAlertTriangle size={16} />
+            },
+            onConfirm: () => {
+                toggleStatusMutation.mutate(user.id, {
+                    onSuccess: () => {
+                        refetch();
+                    }
+                });
+            },
+        });
+    }, [t, toggleStatusMutation, refetch]);
+
     const columnDefs = useMemo<ColDef<User>[]>(() => [
         ...createUserColumns({ t }),
         createActionColumn<User>({
             onDetail: (user) => handleAction('Detail', user),
             onUpdate: (user) => handleAction('Update', user),
-            onToggleStatus: async (user) => {
-                // TODO: Implement toggle status
-                console.log('Toggle status for user:', user);
-            },
+            onToggleStatus: handleToggleStatus,
         }, { t })
-    ], [t, handleAction]);
+    ], [t, handleAction, handleToggleStatus]);
 
     return (
         <ManagementPage<User>

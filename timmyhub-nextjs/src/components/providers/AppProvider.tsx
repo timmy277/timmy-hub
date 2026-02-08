@@ -2,7 +2,8 @@
 
 import { MantineProvider, createTheme } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import { useEffect, useState } from 'react';
+import { ModalsProvider } from '@mantine/modals';
+import { useState } from 'react';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -15,7 +16,6 @@ interface AppProviderProps {
 
 export function AppProvider({ children }: AppProviderProps) {
     const primaryColor = useThemeStore((state) => state.primaryColor);
-    const [mounted, setMounted] = useState(false);
 
     // TanStack Query Client initialization
     const [queryClient] = useState(
@@ -31,13 +31,9 @@ export function AppProvider({ children }: AppProviderProps) {
             })
     );
 
-    // Prevent hydration mismatch for client-side theme persistence
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     const theme = createTheme({
-        primaryColor: mounted ? primaryColor : 'blue',
+        primaryColor: primaryColor,
         fontFamily: 'var(--font-geist-sans), sans-serif',
         fontFamilyMonospace: 'var(--font-geist-mono), monospace',
         defaultRadius: 'md',
@@ -53,11 +49,21 @@ export function AppProvider({ children }: AppProviderProps) {
     return (
         <QueryClientProvider client={queryClient}>
             <MantineProvider theme={theme} defaultColorScheme="auto">
-                <Notifications />
-                <AuthSyncProvider>
-                    {children}
-                </AuthSyncProvider>
-                <ReactQueryDevtools initialIsOpen={false} />
+                <ModalsProvider
+                    modalProps={{
+                        centered: true,
+                        overlayProps: {
+                            backgroundOpacity: 0.55,
+                            blur: 3,
+                        },
+                    }}
+                >
+                    <Notifications />
+                    <AuthSyncProvider>
+                        {children}
+                    </AuthSyncProvider>
+                    <ReactQueryDevtools initialIsOpen={false} />
+                </ModalsProvider>
             </MantineProvider>
         </QueryClientProvider>
     );

@@ -9,7 +9,12 @@
     "forgotPassword": "Forgot password?",
     "signIn": "Sign in",
     "noAccount": "Don't have an account?",
-    "createAccount": "Create account"
+    "createAccount": "Create account",
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Update",
+    "save": "Save",
+    "delete": "Delete"
   },
   "auth": {
     "welcomeBack": "Welcome back!",
@@ -49,6 +54,10 @@
   "userManagement": {
     "title": "User Management",
     "searchPlaceholder": "Search users by email, name...",
+    "listTab": "List",
+    "createTab": "Create",
+    "updateTab": "Update",
+    "detailTab": "Details",
     "userDetails": "User Details: {{email}}",
     "createUser": "Create New User",
     "updateUser": "Update User: {{email}}",
@@ -67,28 +76,15 @@
     "phone": "Phone Number",
     "accountStatus": "Account Status",
     "bio": "Bio",
-    "id": "ID"
+    "id": "ID",
+    "lockAccount": "Lock Account",
+    "unlockAccount": "Unlock Account",
+    "confirmLock": "Are you sure you want to lock the account {{email}}? The user will not be able to log in after being locked.",
+    "confirmUnlock": "Are you sure you want to unlock the account {{email}}? The user will be able to log in again."
   },
   "validation": {
     "required": "{{field}} is required",
     "invalidEmail": "Invalid email address",
     "passwordMinLength": "Password must be at least {{min}} characters"
-  },
-  "common": {
-    "welcome": "Welcome to TimmyHub",
-    "login": "Login",
-    "logout": "Logout",
-    "email": "Email address",
-    "password": "Password",
-    "rememberMe": "Remember me",
-    "forgotPassword": "Forgot password?",
-    "signIn": "Sign in",
-    "noAccount": "Don't have an account?",
-    "createAccount": "Create account",
-    "cancel": "Cancel",
-    "create": "Create",
-    "update": "Update",
-    "save": "Save",
-    "delete": "Delete"
   }
 }

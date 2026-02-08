@@ -56,10 +56,6 @@ interface BaseDataTableProps<T> {
     height?: number | string;
 }
 
-/**
- * Component bảng dữ liệu sử dụng AG Grid theo chuẩn Project Plan
- * @author TimmyHub AI
- */
 export function BaseDataTable<T>({
     rowData,
     columnDefs,

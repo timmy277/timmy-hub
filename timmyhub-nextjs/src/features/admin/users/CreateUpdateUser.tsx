@@ -27,8 +27,7 @@ interface CreateUpdateUserProps {
 
 export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUserProps) {
     const { t } = useTranslation();
-    const isUpdateMode = !!user;
-    
+
     const createUserMutation = useCreateUserMutation();
     const updateUserMutation = useUpdateUserMutation();
 
@@ -49,7 +48,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                 return /^\S+@\S+$/.test(value) ? null : t('validation.invalidEmail');
             },
             password: (value) => {
-                if (isUpdateMode) return null;
+                if (!!user) return null;
                 if (!value) return t('validation.required', { field: t('userManagement.password') });
                 return value.length < 6 ? t('validation.passwordMinLength', { min: 6 }) : null;
             },
@@ -80,11 +79,10 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                 phoneNumber: user.phone || '',
             });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id]);
 
     const handleSubmit = (values: CreateUserInput & { phoneNumber?: string }) => {
-        if (isUpdateMode && user) {
+        if (!!user) {
             const updateData: Partial<CreateUserInput> = {
                 email: values.email,
                 firstName: values.firstName,
@@ -109,54 +107,54 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
         }
     };
 
-    const isPending = isUpdateMode ? updateUserMutation.isPending : createUserMutation.isPending;
+    const isPending = !!user ? updateUserMutation.isPending : createUserMutation.isPending;
 
     return (
         <Paper withBorder p="xl" radius="md" mt="md">
             <Title order={3} mb="lg">
-                {isUpdateMode 
+                {!!user
                     ? t('userManagement.updateUser', { email: user.email })
                     : t('userManagement.createUser')
                 }
             </Title>
-            
+
             <form onSubmit={form.onSubmit(handleSubmit)}>
                 <Stack>
                     <Group grow>
-                        <TextInput 
-                            label={t('userManagement.firstName')} 
+                        <TextInput
+                            label={t('userManagement.firstName')}
                             placeholder={t('userManagement.firstName')}
-                            withAsterisk 
-                            {...form.getInputProps('firstName')} 
+                            withAsterisk
+                            {...form.getInputProps('firstName')}
                         />
-                        <TextInput 
-                            label={t('userManagement.lastName')} 
+                        <TextInput
+                            label={t('userManagement.lastName')}
                             placeholder={t('userManagement.lastName')}
-                            withAsterisk 
-                            {...form.getInputProps('lastName')} 
+                            withAsterisk
+                            {...form.getInputProps('lastName')}
                         />
                     </Group>
 
-                    <TextInput 
-                        label={t('userManagement.email')} 
+                    <TextInput
+                        label={t('userManagement.email')}
                         placeholder={t('userManagement.email')}
-                        withAsterisk 
-                        disabled={isUpdateMode}
-                        {...form.getInputProps('email')} 
+                        withAsterisk
+                        disabled={!!user}
+                        {...form.getInputProps('email')}
                     />
 
-                    <PasswordInput 
-                        label={t('userManagement.password')} 
-                        placeholder={isUpdateMode ? t('userManagement.passwordOptional') : t('userManagement.password')}
-                        withAsterisk={!isUpdateMode}
-                        description={isUpdateMode ? t('userManagement.passwordUpdateHint') : undefined}
-                        {...form.getInputProps('password')} 
+                    <PasswordInput
+                        label={t('userManagement.password')}
+                        placeholder={!!user ? t('userManagement.passwordOptional') : t('userManagement.password')}
+                        withAsterisk={!user}
+                        description={!!user ? t('userManagement.passwordUpdateHint') : undefined}
+                        {...form.getInputProps('password')}
                     />
 
-                    <TextInput 
-                        label={t('userManagement.phone')} 
+                    <TextInput
+                        label={t('userManagement.phone')}
                         placeholder={t('userManagement.phone')}
-                        {...form.getInputProps('phoneNumber')} 
+                        {...form.getInputProps('phoneNumber')}
                     />
 
                     <Select
@@ -175,11 +173,11 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                         {...form.getInputProps('role')}
                     />
 
-                    {isUpdateMode && (
+                    {!!user && (
                         <Switch
                             label={t('userManagement.accountStatus')}
-                            description={form.values.isActive 
-                                ? t('table.status.active') 
+                            description={form.values.isActive
+                                ? t('table.status.active')
                                 : t('table.status.inactive')
                             }
                             checked={form.values.isActive}
@@ -193,7 +191,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                             {t('common.cancel')}
                         </Button>
                         <Button type="submit" loading={isPending}>
-                            {isUpdateMode ? t('common.update') : t('common.create')}
+                            {!!user ? t('common.update') : t('common.create')}
                         </Button>
                     </Group>
                 </Stack>

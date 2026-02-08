@@ -6,7 +6,6 @@ import { ColorSchemeScript } from "@mantine/core";
 import { AppProvider } from "@/components";
 import "@mantine/notifications/styles.css";
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

@@ -9,7 +9,12 @@
         "forgotPassword": "Quên mật khẩu?",
         "signIn": "Đăng nhập",
         "noAccount": "Chưa có tài khoản?",
-        "createAccount": "Tạo tài khoản"
+        "createAccount": "Tạo tài khoản",
+        "cancel": "Hủy",
+        "create": "Tạo",
+        "update": "Cập nhật",
+        "save": "Lưu",
+        "delete": "Xóa"
     },
     "auth": {
         "welcomeBack": "Chào mừng quay trở lại!",
@@ -49,6 +54,10 @@
     "userManagement": {
         "title": "Quản lý người dùng",
         "searchPlaceholder": "Tìm kiếm người dùng theo email, tên...",
+        "listTab": "Danh sách",
+        "createTab": "Tạo mới",
+        "updateTab": "Cập nhật",
+        "detailTab": "Chi tiết",
         "userDetails": "Chi tiết người dùng: {{email}}",
         "createUser": "Tạo người dùng mới",
         "updateUser": "Cập nhật người dùng: {{email}}",
@@ -67,28 +76,15 @@
         "phone": "Số điện thoại",
         "accountStatus": "Trạng thái tài khoản",
         "bio": "Giới thiệu",
-        "id": "ID"
+        "id": "ID",
+        "lockAccount": "Khóa tài khoản",
+        "unlockAccount": "Mở khóa tài khoản",
+        "confirmLock": "Bạn có chắc chắn muốn khóa tài khoản {{email}}? Người dùng sẽ không thể đăng nhập sau khi bị khóa.",
+        "confirmUnlock": "Bạn có chắc chắn muốn mở khóa tài khoản {{email}}? Người dùng sẽ có thể đăng nhập trở lại."
     },
     "validation": {
         "required": "{{field}} là bắt buộc",
         "invalidEmail": "Địa chỉ email không hợp lệ",
         "passwordMinLength": "Mật khẩu phải có ít nhất {{min}} ký tự"
-    },
-    "common": {
-        "welcome": "Chào mừng đến với TimmyHub",
-        "login": "Đăng nhập",
-        "logout": "Đăng xuất",
-        "email": "Địa chỉ Email",
-        "password": "Mật khẩu",
-        "rememberMe": "Ghi nhớ tôi",
-        "forgotPassword": "Quên mật khẩu?",
-        "signIn": "Đăng nhập",
-        "noAccount": "Chưa có tài khoản?",
-        "createAccount": "Tạo tài khoản",
-        "cancel": "Hủy",
-        "create": "Tạo",
-        "update": "Cập nhật",
-        "save": "Lưu",
-        "delete": "Xóa"
     }
 }
