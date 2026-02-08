@@ -92,4 +92,26 @@ export const useCreateUserMutation = () => {
     });
 };
 
+export const useUpdateUserMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation<ApiResponse<User>, AxiosError<ApiErrorResponse>, { id: string; data: Partial<CreateUserInput> }>({
+        mutationFn: ({ id, data }) => userService.updateUser(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Cập nhật thông tin người dùng thành công',
+                color: 'green',
+            });
+        },
+        onError: (error) => {
+            notifications.show({
+                title: 'Lỗi',
+                message: error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật',
+                color: 'red',
+            });
+        },
+    });
+};
+
 

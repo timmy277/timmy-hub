@@ -37,6 +37,7 @@ import {
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';
 import { User } from '@/types/auth';
 import { CreateUserForm } from './CreateUserForm';
+import { UpdateUserForm } from './UpdateUserForm';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { ManagementTabType, UserRole } from '@/types/enums';
 
@@ -148,10 +149,22 @@ export function UserManagementPage() {
     ], [handleAction, toggleStatusMutation.isPending, toggleStatusMutation.variables]);
 
 
-    const handleUpdateRole = (userId: string) => {
+    const handleUpdateRole = (userId: string, tabId: string) => {
         const role = selectedRoles[userId];
         if (role) {
-            assignRolesMutation.mutate({ id: userId, roleNames: [role] });
+            assignRolesMutation.mutate(
+                { id: userId, roleNames: [role] },
+                {
+                    onSuccess: () => {
+                        closeTab(tabId);
+                        setSelectedRoles(prev => {
+                            const newRoles = { ...prev };
+                            delete newRoles[userId];
+                            return newRoles;
+                        });
+                    }
+                }
+            );
         }
     };
 
@@ -168,12 +181,22 @@ export function UserManagementPage() {
         const user = tab.data;
         if (!user) return null;
 
+        if (tab.type === ManagementTabType.UPDATE) {
+            return (
+                <UpdateUserForm
+                    user={user}
+                    onSuccess={() => closeTab(tab.id)}
+                    onCancel={() => closeTab(tab.id)}
+                />
+            );
+        }
+
         return (
             <Paper withBorder p="xl" radius="md" mt="md">
                 <Stack>
                     <Group justify="space-between">
                         <Title order={3}>
-                            {tab.type === ManagementTabType.DETAIL ? 'Chi tiết' : 'Cập nhật'} người dùng: {user.email}
+                            Chi tiết người dùng: {user.email}
                         </Title>
                         <Badge size="lg" color={user.isActive ? 'green' : 'red'}>
                             {user.isActive ? 'Hoạt động' : 'Bị khóa'}
@@ -187,40 +210,16 @@ export function UserManagementPage() {
                             <Text fw={700}>Thông tin cơ bản</Text>
                             <Card withBorder padding="md">
                                 <Stack gap="xs">
+                                    <Group><Text fw={500} w={100}>Avatar:</Text>
+                                        <Avatar src={user.profile?.avatar || ''} radius="xl" color="blue">
+                                            {user.profile?.firstName?.charAt(0) || user.email.charAt(0).toUpperCase()}
+                                        </Avatar>
+                                    </Group>
+                                    <Group><Text fw={500} w={100}>Họ tên:</Text><Text>{user.profile?.firstName} {user.profile?.lastName}</Text></Group>
                                     <Group><Text fw={500} w={100}>Email:</Text><Text>{user.email}</Text></Group>
-                                    <Group><Text fw={500} w={100}>Role hiện tại:</Text><Text>{user.role}</Text></Group>
+                                    <Group><Text fw={500} w={100}>Role:</Text><Text>{user.role}</Text></Group>
+                                    <Group><Text fw={500} w={100}>Điện thoại:</Text><Text>{user.phone || 'N/A'}</Text></Group>
                                     <Group><Text fw={500} w={100}>ID:</Text><Text size="xs" c="dimmed">{user.id}</Text></Group>
-                                </Stack>
-                            </Card>
-                        </Stack>
-
-                        <Stack gap="xs" style={{ flex: 1 }}>
-                            <Text fw={700}>Quản lý quyền hạn</Text>
-                            <Card withBorder padding="md">
-                                <Stack gap="md">
-                                    <Select
-                                        label="Thay đổi vai trò"
-                                        placeholder="Chọn vai trò mới"
-                                        data={[
-                                            { value: UserRole.CUSTOMER, label: 'User' },
-                                            { value: UserRole.SELLER, label: 'Seller' },
-                                            { value: UserRole.ADMIN, label: 'Admin' },
-                                        ]}
-                                        value={selectedRoles[user.id] || user.role}
-                                        onChange={(val) => val && setSelectedRoles(prev => ({ ...prev, [user.id]: val }))}
-                                        disabled={tab.type === ManagementTabType.DETAIL}
-                                    />
-
-                                    {tab.type === ManagementTabType.UPDATE && (
-                                        <Button
-                                            leftSection={<IconShieldCheck size={16} />}
-                                            onClick={() => handleUpdateRole(user.id)}
-                                            loading={assignRolesMutation.isPending}
-                                            disabled={selectedRoles[user.id] === user.role}
-                                        >
-                                            Cập nhật vai trò
-                                        </Button>
-                                    )}
                                 </Stack>
                             </Card>
                         </Stack>

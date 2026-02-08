@@ -33,6 +33,13 @@ export const userService = {
     },
 
     /**
+     * Cập nhật thông tin người dùng
+     */
+    updateUser: async (id: string, data: Partial<CreateUserInput>): Promise<ApiResponse<User>> => {
+        return axiosClient.patch(`/users/${id}`, data);
+    },
+
+    /**
      * Tạo người dùng mới
      */
     createUser: async (data: CreateUserInput): Promise<ApiResponse<User>> => {

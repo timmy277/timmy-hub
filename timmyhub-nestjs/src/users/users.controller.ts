@@ -6,6 +6,7 @@ import {
     Param,
     Patch,
     UseGuards,
+    Put,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
@@ -14,6 +15,7 @@ import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permissions } from '../common/decorators/permissions.decorator';
 import { ResponseDto } from '../common/dto/response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 
 @ApiTags('Users')
@@ -67,5 +69,13 @@ export class UsersController {
         return ResponseDto.success(
             `Đã ${user.isActive ? 'kích hoạt' : 'khóa'} tài khoản thành công`,
         );
+    }
+
+    @Patch(':id')
+    @Permissions('users:update')
+    @ApiOperation({ summary: 'Cập nhật thông tin người dùng' })
+    async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+        const user = await this.usersService.update(id, dto);
+        return ResponseDto.success('Cập nhật người dùng thành công', user);
     }
 }

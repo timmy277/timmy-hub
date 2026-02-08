@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { Prisma, UserRole } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -23,7 +25,7 @@ export class UsersService {
             data: {
                 email: dto.email.toLowerCase(),
                 passwordHash: hashedPassword,
-                role: dto.role as any || 'CUSTOMER',
+                role: (dto.role as UserRole) || UserRole.CUSTOMER,
                 profile: {
                     create: {
                         firstName: dto.firstName,
@@ -34,6 +36,58 @@ export class UsersService {
             },
             include: {
                 profile: true,
+            },
+        });
+    }
+
+    async update(id: string, dto: UpdateUserDto) {
+        const user = await this.findOne(id);
+
+        if (dto.email && dto.email !== user.email) {
+            const existingEmail = await this.prisma.user.findUnique({
+                where: { email: dto.email },
+            });
+            if (existingEmail) {
+                throw new BadRequestException('Email đã tồn tại');
+            }
+        }
+
+        let hashedPassword: string | undefined = undefined;
+        if (dto.password) {
+            hashedPassword = await bcrypt.hash(dto.password, 12);
+        }
+
+        const updateData: Prisma.UserUpdateInput = {};
+        if (dto.email !== undefined) updateData.email = dto.email;
+        if (hashedPassword !== undefined) updateData.passwordHash = hashedPassword;
+        if (dto.role !== undefined) updateData.role = dto.role as UserRole;
+        if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
+        if (dto.phoneNumber !== undefined) updateData.phone = dto.phoneNumber;
+
+        // Prepare profile update
+        const profileUpdate: Prisma.ProfileUpdateInput = {};
+        if (dto.firstName) profileUpdate.firstName = dto.firstName;
+        if (dto.lastName) profileUpdate.lastName = dto.lastName;
+
+        // If name changes, update displayName
+        if (dto.firstName || dto.lastName) {
+            const currentProfile = user.profile;
+            const newFirst = dto.firstName || currentProfile?.firstName;
+            const newLast = dto.lastName || currentProfile?.lastName;
+            profileUpdate.displayName = `${newFirst} ${newLast}`;
+        }
+
+        const prismaUpdateData: Prisma.UserUpdateInput = { ...updateData };
+        if (Object.keys(profileUpdate).length > 0) {
+            prismaUpdateData.profile = { update: profileUpdate };
+        }
+
+        return this.prisma.user.update({
+            where: { id },
+            data: prismaUpdateData,
+            include: {
+                profile: true,
+                userRoles: { include: { role: true } },
             },
         });
     }
