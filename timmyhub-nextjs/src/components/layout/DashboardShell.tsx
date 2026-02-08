@@ -17,13 +17,15 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children, withFooter = true }: DashboardShellProps) {
     const { collapsed } = useSidebarStore();
+    const navbarWidth = collapsed ? 80 : 280;
 
     return (
         <AppShell
+            id="main-app-shell"
             layout="alt"
             header={{ height: 70 }}
             navbar={{
-                width: collapsed ? 80 : 280,
+                width: navbarWidth,
                 breakpoint: 'sm',
             }}
             padding="md"
@@ -38,8 +40,11 @@ export function DashboardShell({ children, withFooter = true }: DashboardShellPr
 
             <AppShell.Main
                 display="flex"
-                bg="body"
-                style={{ flexDirection: 'column', minHeight: '100vh' }}
+                style={{
+                    flexDirection: 'column',
+                    minHeight: '100vh',
+                    backgroundColor: 'var(--mantine-color-body)'
+                }}
             >
                 {/* Content Area */}
                 <div style={{ flex: 1 }}>

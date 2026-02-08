@@ -30,6 +30,7 @@ import {
     GridApi,
     GridOptions,
     GridReadyEvent,
+    FilterChangedEvent,
     PaginationChangedEvent,
     ColumnPinnedEvent,
     Column,
@@ -55,7 +56,8 @@ import {
     ValidationModule,
     themeQuartz,
     iconSetMaterial,
-    colorSchemeDarkBlue
+    colorSchemeDarkBlue,
+    QuickFilterModule
 } from 'ag-grid-community';
 import {
     IconSearch,
@@ -94,6 +96,7 @@ ModuleRegistry.registerModules([
     ColumnAutoSizeModule,
     CsvExportModule,
     ColumnApiModule,
+    QuickFilterModule,
     ...(process.env.NODE_ENV !== "production" ? [ValidationModule] : []),
 ]);
 
@@ -153,7 +156,7 @@ export function DashboardPage() {
     const [gridApi, setGridApi] = useState<GridApi<Product> | null>(null);
     const [quickFilterText, setQuickFilterText] = useState('');
     const [activePage, setActivePage] = useState(1);
-    const [pageSize, setPageSize] = useState(20);
+    const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(10);
 
     // Modal State
@@ -250,8 +253,7 @@ export function DashboardPage() {
     // Initial state on grid ready
     const onGridReady = (params: GridReadyEvent<Product>) => {
         setGridApi(params.api);
-        // params.api.sizeColumnsToFit();
-        setTotalPages(params.api.paginationGetTotalPages());
+        updatePaginationInfo(params.api);
 
         // Initialize column state
         const colState: Record<string, string | boolean | null | undefined> = {};
@@ -261,18 +263,49 @@ export function DashboardPage() {
         setColumnPinnedState(colState);
     };
 
-    const onPaginationChanged = useCallback((params: PaginationChangedEvent<Product>) => {
-        if (params.api) {
-            setActivePage(params.api.paginationGetCurrentPage() + 1);
-            setTotalPages(params.api.paginationGetTotalPages());
-            setPageSize(params.api.paginationGetPageSize());
-        }
+    const [paginationStatus, setPaginationStatus] = useState({ from: 1, to: 20, total: 200 });
+
+    // Function to calculate and update pagination info from grid api
+    const updatePaginationInfo = useCallback((api: GridApi<Product>) => {
+        const total = api.paginationGetRowCount();
+        const currentPage = api.paginationGetCurrentPage();
+        const size = api.paginationGetPageSize();
+        const totalP = api.paginationGetTotalPages();
+
+        const from = total === 0 ? 0 : (currentPage * size) + 1;
+        const to = Math.min((currentPage + 1) * size, total);
+
+        setPaginationStatus(prev => {
+            if (prev.from === from && prev.to === to && prev.total === total) return prev;
+            return { from, to, total };
+        });
+
+        setActivePage(prev => (prev === (currentPage + 1) ? prev : (currentPage + 1)));
+        setTotalPages(prev => (prev === totalP ? prev : totalP));
+        setPageSize(prev => (prev === size ? prev : size));
     }, []);
+
+    const onPaginationChanged = useCallback((event: PaginationChangedEvent<Product>) => {
+        updatePaginationInfo(event.api);
+    }, [updatePaginationInfo]);
+
+    const onFilterChanged = useCallback((event: FilterChangedEvent<Product>) => {
+        updatePaginationInfo(event.api);
+    }, [updatePaginationInfo]);
 
     const onPageChange = (page: number) => {
         if (gridApi) {
             gridApi.paginationGoToPage(page - 1);
-            setActivePage(page);
+        }
+    };
+
+    const onPageSizeChange = (val: string | null) => {
+        if (gridApi && val) {
+            const newSize = parseInt(val);
+            if (pageSize !== newSize) {
+                gridApi.setGridOption('paginationPageSize', newSize);
+                setPageSize(newSize);
+            }
         }
     };
 
@@ -288,7 +321,7 @@ export function DashboardPage() {
             headerName: "ID",
             width: 90,
             filter: 'agTextColumnFilter',
-            pinned: 'left'
+            // pinned: 'left'
         },
         {
             field: "sku",
@@ -423,11 +456,24 @@ export function DashboardPage() {
                             {/* Toolbar */}
                             <Group justify="space-between">
                                 <TextInput
-                                    placeholder="Search anything..."
-                                    leftSection={<IconSearch size={16} />}
+                                    id="dashboard-search-input"
+                                    placeholder="Search products, SKU, category..."
+                                    leftSection={<IconSearch size={16} stroke={1.5} />}
+                                    rightSection={
+                                        quickFilterText ? (
+                                            <ActionIcon variant="transparent" c="dimmed" onClick={() => {
+                                                setQuickFilterText('');
+                                                gridApi?.setGridOption('quickFilterText', '');
+                                            }}>
+                                                <IconX size={14} />
+                                            </ActionIcon>
+                                        ) : null
+                                    }
                                     value={quickFilterText}
                                     onChange={onFilterTextBoxChanged}
-                                    w={300}
+                                    w={350}
+                                    radius="md"
+                                    variant="filled"
                                 />
                                 <Group>
                                     <Button variant="outline" onClick={() => {
@@ -465,7 +511,7 @@ export function DashboardPage() {
                                     </Button>
                                     <Popover width={300} position="bottom-end" withArrow shadow="md">
                                         <Popover.Target>
-                                            <Button variant="outline" color="blue" leftSection={<IconColumns size={16} />}>
+                                            <Button id="column-mgmt-btn" variant="outline" color="blue" leftSection={<IconColumns size={16} />}>
                                                 Columns
                                             </Button>
                                         </Popover.Target>
@@ -565,18 +611,28 @@ export function DashboardPage() {
                                     theme={gridTheme}
                                     suppressPaginationPanel={true}
                                     onPaginationChanged={onPaginationChanged}
+                                    onFilterChanged={onFilterChanged}
                                     onColumnPinned={onColumnPinned}
                                 />
                             </Paper>
 
                             <Group justify="space-between">
-                                <Text size="sm" c="dimmed">
-                                    {rowData.length > 0 && !isNaN(activePage) && !isNaN(pageSize) ? (
-                                        `Showing ${((activePage - 1) * pageSize) + 1} - ${Math.min(activePage * pageSize, rowData.length)} of ${rowData.length} items`
-                                    ) : (
-                                        'Loading...'
-                                    )}
-                                </Text>
+                                <Group gap="sm">
+                                    <Text size="sm" c="dimmed">
+                                        Showing {paginationStatus.from} - {paginationStatus.to} of {paginationStatus.total} items
+                                    </Text>
+                                    <Group gap={5}>
+                                        <Text size="xs" c="dimmed">Items per page:</Text>
+                                        <Select
+                                            id="page-size-select"
+                                            size="xs"
+                                            w={80}
+                                            data={['10', '20', '50', '100']}
+                                            value={pageSize.toString()}
+                                            onChange={onPageSizeChange}
+                                        />
+                                    </Group>
+                                </Group>
                                 <Pagination
                                     total={totalPages}
                                     value={activePage}
