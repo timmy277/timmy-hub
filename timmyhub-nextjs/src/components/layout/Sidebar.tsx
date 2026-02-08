@@ -49,6 +49,7 @@ const mockData: SidebarItem[] = [
         initiallyOpened: true,
         links: [
             { label: 'Duyệt sản phẩm', link: '/admin/products', icon: IconCheck },
+            { label: 'Người dùng', link: '/admin/users', icon: IconUsers },
             { label: 'Danh mục', link: '/admin/categories', icon: IconTags },
         ],
     },

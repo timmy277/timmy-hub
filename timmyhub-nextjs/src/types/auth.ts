@@ -13,9 +13,13 @@ export interface Profile {
 export interface User {
     id: string;
     email: string;
+    phone?: string | null;
     role: string;
+    isActive: boolean;
+    isBanned?: boolean;
     permissions: string[];
     profile?: Profile | null;
+    createdAt?: string;
 }
 
 export interface LoginData {

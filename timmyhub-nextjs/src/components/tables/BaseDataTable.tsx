@@ -16,7 +16,9 @@ import {
     NumberFilterModule,
     DateFilterModule,
     QuickFilterModule,
-    ValidationModule
+    ValidationModule,
+    ColumnApiModule,
+    CsvExportModule
 } from 'ag-grid-community';
 import { useMantineColorScheme, Box } from '@mantine/core';
 
@@ -30,8 +32,18 @@ ModuleRegistry.registerModules([
     NumberFilterModule,
     DateFilterModule,
     QuickFilterModule,
-    ValidationModule
+    ValidationModule,
+    ColumnApiModule,
+    CsvExportModule
 ]);
+
+// Helper to determine the theme based on color scheme
+const getGridTheme = (colorScheme: string) => {
+    if (colorScheme === 'dark') {
+        return themeQuartz.withPart(colorSchemeDark);
+    }
+    return themeQuartz;
+};
 
 interface BaseDataTableProps<T> {
     rowData: T[];
@@ -70,7 +82,7 @@ export function BaseDataTable<T>({
     }), []);
 
     const gridTheme = useMemo(() => {
-        return themeQuartz.withPart(colorScheme === 'dark' ? colorSchemeDark : ({} as any));
+        return getGridTheme(colorScheme);
     }, [colorScheme]);
 
     return (
