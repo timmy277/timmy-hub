@@ -7,10 +7,10 @@ import {
     rem,
     NavLink,
     Box,
-    ActionIcon,
     Text,
     Group,
     Menu,
+    Collapse,
 } from '@mantine/core';
 import {
     IconGauge,
@@ -20,12 +20,15 @@ import {
     IconUser,
     IconSettings,
     IconChevronRight,
-    IconLayoutSidebarLeftCollapse,
-    IconLayoutSidebarRightCollapse,
     IconShoppingCart,
     IconPackage,
     IconUsers,
 } from '@tabler/icons-react';
+import { useSidebarStore } from '@/stores/useSidebarStore';
+
+// Constants matching shadcn's default feel
+const SIDEBAR_WIDTH = "280px";
+const SIDEBAR_WIDTH_ICON = "80px";
 
 interface SidebarItem {
     icon: any;
@@ -60,41 +63,62 @@ const mockData: SidebarItem[] = [
 ];
 
 export function Sidebar() {
-    const [collapsed, setCollapsed] = useState(false);
+    const { collapsed } = useSidebarStore();
     const [active, setActive] = useState('Dashboard');
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return <Box style={{ width: SIDEBAR_WIDTH }} />;
 
     return (
         <Box
             component="nav"
-            className="bg-white dark:bg-zinc-900 shadow-sm transition-all duration-300 flex flex-col h-screen sticky top-0 border-r border-zinc-200 dark:border-zinc-800 overflow-hidden"
+            data-state={collapsed ? "collapsed" : "expanded"}
+            className="group bg-zinc-50 dark:bg-zinc-950 flex flex-col h-screen sticky top-0 border-r border-zinc-200 dark:border-zinc-800 transition-[width] duration-300 ease-in-out shrink-0"
             style={{
-                width: collapsed ? rem(80) : rem(280),
-                minWidth: collapsed ? rem(80) : rem(280),
-            }}
+                width: collapsed ? SIDEBAR_WIDTH_ICON : SIDEBAR_WIDTH,
+                "--sidebar-width": SIDEBAR_WIDTH,
+                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+            } as any}
         >
-            {/* Header */}
-            <Box p="md" mb="md">
-                <Group justify={collapsed ? 'center' : 'space-between'} wrap="nowrap">
-                    {!collapsed && (
-                        <Text fw={900} size="xl" className="whitespace-nowrap bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-                            TIMMYHUB
-                        </Text>
-                    )}
-                    <ActionIcon
-                        onClick={() => setCollapsed((c) => !c)}
-                        variant="subtle"
-                        color="gray"
-                        size="lg"
-                        radius="md"
+            {/* Header - Logo Section */}
+            <Box className="h-[70px] flex items-center shrink-0 border-b border-zinc-200 dark:border-zinc-800 transition-all duration-300">
+                <Box className="w-full" px={collapsed ? 0 : 'md'}>
+                    <Group
+                        gap={collapsed ? 0 : rem(12)}
+                        wrap="nowrap"
+                        justify={collapsed ? 'center' : 'flex-start'}
+                        className="transition-all duration-300"
                     >
-                        {collapsed ? <IconLayoutSidebarRightCollapse size={22} /> : <IconLayoutSidebarLeftCollapse size={22} />}
-                    </ActionIcon>
-                </Group>
+                        <Box className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20 transition-all duration-300">
+                            <Text fw={900} c="white" size="lg" className="tracking-tighter pl-[1px]">T</Text>
+                        </Box>
+
+                        <Box
+                            className="overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap"
+                            style={{
+                                maxWidth: collapsed ? 0 : "200px",
+                                opacity: collapsed ? 0 : 1,
+                            }}
+                        >
+                            <Text fw={800} size="lg" className="tracking-tight text-zinc-900 dark:text-white ml-1">
+                                TIMMY<span className="text-blue-600">HUB</span>
+                            </Text>
+                        </Box>
+                    </Group>
+                </Box>
             </Box>
 
-            {/* Main Menu */}
-            <Box px="sm" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-                <Stack gap={4}>
+            {/* Main Content */}
+            <Box
+                px={collapsed ? 0 : rem(12)}
+                py="md"
+                className="flex-1 overflow-y-auto overflow-x-hidden transition-all duration-300"
+            >
+                <Stack gap={4} align={collapsed ? 'center' : 'stretch'} className="w-full">
                     {mockData.map((item) => (
                         <SidebarNavLink
                             key={item.label}
@@ -108,7 +132,11 @@ export function Sidebar() {
             </Box>
 
             {/* Footer */}
-            <Box p="sm" className="border-t border-zinc-100 dark:border-zinc-800">
+            <Box
+                p={collapsed ? 0 : rem(12)}
+                py="md"
+                className="border-t border-zinc-200 dark:border-zinc-800 shrink-0 transition-all duration-300"
+            >
                 <SidebarNavLink
                     item={{ label: 'Profile', icon: IconUser }}
                     collapsed={collapsed}
@@ -135,7 +163,6 @@ function SidebarNavLink({
     const hasLinks = Array.isArray(item.links);
     const Icon = item.icon;
 
-    // Sync opened state when sidebar expands/collapses
     useEffect(() => {
         if (collapsed) setOpened(false);
         else if (item.initiallyOpened) setOpened(true);
@@ -144,16 +171,18 @@ function SidebarNavLink({
     const navLink = (
         <NavLink
             label={
-                <Text
-                    size="sm"
-                    fw={600}
-                    className={`transition-opacity duration-200 ${collapsed ? 'opacity-0 w-0' : 'opacity-100'}`}
+                <Box
+                    className="overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap"
+                    style={{
+                        maxWidth: collapsed ? 0 : "200px",
+                        opacity: collapsed ? 0 : 1,
+                    }}
                 >
-                    {item.label}
-                </Text>
+                    <Text size="sm" fw={600} className="pl-1.5">{item.label}</Text>
+                </Box>
             }
             leftSection={
-                <Box className="flex items-center justify-center w-8">
+                <Box className={`flex items-center justify-center transition-all duration-300 ${collapsed ? 'w-full' : 'w-6'}`}>
                     <Icon size={22} stroke={1.5} />
                 </Box>
             }
@@ -163,52 +192,57 @@ function SidebarNavLink({
                 if (hasLinks && !collapsed) setOpened((o) => !o);
             }}
             opened={opened && !collapsed}
-            childrenOffset={collapsed ? 0 : 32}
-            className={`rounded-md transition-all duration-200 ${collapsed ? 'px-0 justify-center' : ''}`}
+            className={`rounded-lg transition-all duration-200 ${active ? 'bg-blue-50 dark:bg-blue-900/10' : ''}`}
             rightSection={
-                hasLinks && !collapsed ? (
+                <Box
+                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                    style={{
+                        maxWidth: (hasLinks && !collapsed) ? "30px" : 0,
+                        opacity: (hasLinks && !collapsed) ? 1 : 0
+                    }}
+                >
                     <IconChevronRight
-                        size="0.8rem"
-                        stroke={1.5}
-                        className={`transition-transform duration-200 ${opened ? 'rotate-90' : ''}`}
+                        size="0.9rem"
+                        stroke={2}
+                        className={`transition-transform duration-300 ${opened ? 'rotate-90' : ''}`}
                     />
-                ) : null
+                </Box>
             }
             styles={{
                 root: {
                     height: rem(48),
-                    paddingLeft: collapsed ? 0 : undefined,
-                    paddingRight: collapsed ? 0 : undefined,
+                    width: collapsed ? rem(48) : '100%',
+                    padding: collapsed ? 0 : rem(12),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                },
+                section: {
+                    margin: 0,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    flex: 'none',
                 },
                 body: {
-                    display: collapsed ? 'none' : 'block',
-                }
+                    overflow: 'hidden',
+                    flex: collapsed ? 0 : 1,
+                    // Keep body in DOM but manage width via label's Box for smooth transition
+                    transition: 'all 0.3s ease-in-out',
+                },
             }}
-        >
-            {!collapsed &&
-                item.links?.map((link) => (
-                    <NavLink
-                        key={link.label}
-                        label={<Text size="xs" fw={500}>{link.label}</Text>}
-                        leftSection={<link.icon size={18} stroke={1.5} />}
-                        className="rounded-md mb-0.5 h-10"
-                    />
-                ))}
-        </NavLink>
+        />
     );
 
     if (collapsed) {
         if (hasLinks) {
             return (
-                <Menu position="right-start" offset={20} withArrow shadow="xl" trigger="hover" openDelay={50}>
+                <Menu position="right-start" offset={20} withArrow shadow="xl" trigger="hover" openDelay={50} transitionProps={{ transition: 'pop-top-right', duration: 200 }}>
                     <Menu.Target>
                         <Box>
-                            <Tooltip label={item.label} position="right" withArrow offset={15} disabled={active}>
-                                {navLink}
-                            </Tooltip>
+                            {navLink}
                         </Box>
                     </Menu.Target>
-                    <Menu.Dropdown p="xs" className="dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 ml-1">
+                    <Menu.Dropdown p="xs" className="dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 ml-1 rounded-xl shadow-2xl">
                         <Menu.Label className="font-bold text-zinc-900 dark:text-white pb-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
                             {item.label}
                         </Menu.Label>
@@ -216,7 +250,8 @@ function SidebarNavLink({
                             <Menu.Item
                                 key={link.label}
                                 leftSection={<link.icon size={18} stroke={1.5} />}
-                                className="rounded-md font-medium py-2"
+                                className="rounded-lg font-medium py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                onClick={() => onActive()}
                             >
                                 {link.label}
                             </Menu.Item>
@@ -227,11 +262,30 @@ function SidebarNavLink({
         }
 
         return (
-            <Tooltip label={item.label} position="right" withArrow offset={15}>
+            <Tooltip label={item.label} position="right" withArrow offset={15} transitionProps={{ transition: 'fade', duration: 200 }}>
                 <Box>{navLink}</Box>
             </Tooltip>
         );
     }
 
-    return navLink;
+    return (
+        <>
+            {navLink}
+            <Collapse in={opened && !collapsed}>
+                <Stack gap={2} mt={2} className="ml-5 pl-2">
+                    {item.links?.map((link) => (
+                        <NavLink
+                            key={link.label}
+                            label={<Text size="sm" fw={500}>{link.label}</Text>}
+                            leftSection={<link.icon size={18} stroke={1.5} />}
+                            className="rounded-lg h-10 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                            styles={{
+                                root: { paddingLeft: rem(12) }
+                            }}
+                        />
+                    ))}
+                </Stack>
+            </Collapse>
+        </>
+    );
 }

@@ -12,13 +12,12 @@ import {
   Flex,
   Box,
 } from '@mantine/core';
-import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
-import { Sidebar } from '@/components/shared/Sidebar';
+import { Sidebar, Header } from '@/components';
 import { useTranslation } from 'react-i18next';
 
 export default function Home() {
   const { t } = useTranslation();
+
   return (
     <Flex>
       <Sidebar />
@@ -26,14 +25,12 @@ export default function Home() {
         style={{ flex: 1, minHeight: '100vh' }}
         className="bg-zinc-50/50 dark:bg-zinc-950/50"
       >
+        <Header />
+
         <Container size="sm" py="xl">
-          <Group justify="flex-end" mb="xl">
-            <LanguageSwitcher />
-            <ThemeSwitcher />
-          </Group>
           <Stack gap="xl">
             <Stack gap="xs">
-              <Title order={1} className="underline">
+              <Title order={1} className="underline" suppressHydrationWarning>
                 {t('common.welcome')}
               </Title>
               <Text size="lg" c="dimmed">
