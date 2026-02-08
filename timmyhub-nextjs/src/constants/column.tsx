@@ -15,43 +15,20 @@ import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { User } from '@/types/auth';
 import { UserRole } from '@/types/enums';
 import { TFunction } from 'i18next';
+import { formatDate } from '@/utils/date';
 
-// ============================================================================
-// Types & Interfaces
-// ============================================================================
-
-/**
- * Configuration for action column buttons
- */
 export interface ActionColumnProps<T> {
-    /** Callback for view/detail action */
     onDetail?: (data: T) => void;
-    /** Callback for update/edit action */
     onUpdate?: (data: T) => void;
-    /** Callback for toggle status action */
     onToggleStatus?: (data: T) => void;
-    /** Loading state for toggle action */
     isToggleLoading?: boolean;
-    /** ID of the item currently being toggled */
     toggleLoadingId?: string | null;
 }
 
-/**
- * Configuration options for column definitions
- */
 export interface ColumnConfigOptions {
-    /** i18next translation function */
     t: TFunction;
 }
 
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Get role color based on role type
- * Centralized mapping for consistent UI across the application
- */
 const getRoleColor = (role: UserRole): string => {
     const colorMap: Record<UserRole, string> = {
         [UserRole.SUPER_ADMIN]: 'red',
@@ -63,20 +40,6 @@ const getRoleColor = (role: UserRole): string => {
     };
     return colorMap[role] || 'gray';
 };
-
-const formatDate = (date: string | Date | null | undefined, fallback = '01/01/2024'): string => {
-    if (!date) return fallback;
-    try {
-        return new Date(date).toLocaleDateString();
-    } catch {
-        return fallback;
-    }
-};
-
-// ============================================================================
-// Column Definition Factories
-// ============================================================================
-
 
 export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] => {
     const { t } = options;
@@ -229,10 +192,6 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean }>
         },
     };
 };
-
-// ============================================================================
-// Legacy Exports (Deprecated - for backward compatibility)
-// ============================================================================
 
 export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
     props: ActionColumnProps<T>

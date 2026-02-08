@@ -1,7 +1,7 @@
-import { UserManagementPage } from '@/features/admin/users/UserManagementPage';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { UserList } from '@/features/admin/users/UserList';
 
 export default async function Page() {
     const queryClient = new QueryClient();
@@ -43,7 +43,7 @@ export default async function Page() {
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <UserManagementPage />
+            <UserList />
         </HydrationBoundary>
     );
 }
