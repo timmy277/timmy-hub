@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { AppShell, ScrollArea } from '@mantine/core';
+import { AppShell, ScrollArea, useMantineColorScheme } from '@mantine/core';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { ReactNode } from 'react';
 import { Footer } from './Footer';
@@ -36,7 +36,11 @@ export function DashboardShell({ children, withFooter = true }: DashboardShellPr
                 <Sidebar />
             </AppShell.Navbar>
 
-            <AppShell.Main display="flex" style={{ flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--mantine-color-gray-0)' }}>
+            <AppShell.Main
+                display="flex"
+                bg="body"
+                style={{ flexDirection: 'column', minHeight: '100vh' }}
+            >
                 {/* Content Area */}
                 <div style={{ flex: 1 }}>
                     {children}

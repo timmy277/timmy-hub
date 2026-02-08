@@ -19,7 +19,8 @@ import {
     Select,
     Pagination,
     Popover,
-    Checkbox
+    Checkbox,
+    useMantineColorScheme
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
@@ -53,7 +54,8 @@ import {
     ColumnApiModule,
     ValidationModule,
     themeQuartz,
-    iconSetMaterial
+    iconSetMaterial,
+    colorSchemeDarkBlue
 } from 'ag-grid-community';
 import {
     IconSearch,
@@ -71,7 +73,8 @@ import {
     IconPin,
     IconPinnedOff,
     IconArrowBarToLeft,
-    IconArrowBarToRight
+    IconArrowBarToRight,
+    IconRotateClockwise
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
@@ -93,12 +96,6 @@ ModuleRegistry.registerModules([
     ColumnApiModule,
     ...(process.env.NODE_ENV !== "production" ? [ValidationModule] : []),
 ]);
-
-const myTheme = themeQuartz
-    .withPart(iconSetMaterial)
-    .withParams({
-        iconSize: 18,
-    });
 
 // --- Mock Data Generation ---
 const CATEGORIES = ['Electronics', 'Clothing', 'Home & Garden', 'Books', 'Toys', 'Sports', 'Beauty'];
@@ -149,6 +146,8 @@ const generateMockData = (count: number): Product[] => {
 };
 
 export function DashboardPage() {
+    const { colorScheme } = useMantineColorScheme();
+
     // 1. State
     const [rowData, setRowData] = useState<Product[]>(generateMockData(200));
     const [gridApi, setGridApi] = useState<GridApi<Product> | null>(null);
@@ -241,6 +240,12 @@ export function DashboardPage() {
         });
         setColumnPinnedState(colState);
     }, []);
+
+    // Dynamic Theme
+    const gridTheme = useMemo(() => {
+        const base = themeQuartz.withPart(iconSetMaterial).withParams({ iconSize: 18 });
+        return colorScheme === 'dark' ? base.withPart(colorSchemeDarkBlue) : base;
+    }, [colorScheme]);
 
     // Initial state on grid ready
     const onGridReady = (params: GridReadyEvent<Product>) => {
@@ -360,6 +365,7 @@ export function DashboardPage() {
         },
         {
             headerName: "Actions",
+            colId: "actions",
             width: 140,
             pinned: 'right',
             cellRenderer: (params: ICellRendererParams) => {
@@ -427,8 +433,35 @@ export function DashboardPage() {
                                     <Button variant="outline" onClick={() => {
                                         setRowData(generateMockData(200));
                                         notifications.show({ message: 'Data refreshed!', color: 'green' });
-                                    }} leftSection={<IconSearch size={16} />}>
+                                    }} leftSection={<IconRefresh size={16} />}>
                                         Refresh Data
+                                    </Button>
+                                    <Button variant="outline" color="orange" onClick={() => {
+                                        if (gridApi) {
+                                            gridApi.setFilterModel(null);
+                                            // Reset column state (order, visibility, pinned, sort, width)
+                                            gridApi.applyColumnState({
+                                                state: columnDefs.map(col => ({
+                                                    colId: col.colId || (col.field as string),
+                                                    pinned: col.pinned as 'left' | 'right' | null | undefined,
+                                                    hide: false,
+                                                    width: col.width,
+                                                    // sort: null // handled by defaultState
+                                                })),
+                                                defaultState: { sort: null, pinned: null }
+                                            });
+
+                                            // Reset local pinned state
+                                            const colState: Record<string, string | boolean | null | undefined> = {};
+                                            gridApi.getAllGridColumns().forEach((col: Column) => {
+                                                colState[col.getColId()] = col.getPinned();
+                                            });
+                                            setColumnPinnedState(colState);
+
+                                            notifications.show({ message: 'Layout reset to default', color: 'blue' });
+                                        }
+                                    }} leftSection={<IconRotateClockwise size={16} />}>
+                                        Reset Layout
                                     </Button>
                                     <Popover width={300} position="bottom-end" withArrow shadow="md">
                                         <Popover.Target>
@@ -529,7 +562,7 @@ export function DashboardPage() {
                                     rowSelection="multiple"
                                     animateRows={true}
                                     rowHeight={48}
-                                    theme={myTheme}
+                                    theme={gridTheme}
                                     suppressPaginationPanel={true}
                                     onPaginationChanged={onPaginationChanged}
                                     onColumnPinned={onColumnPinned}
