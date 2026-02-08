@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -17,11 +18,64 @@ enum UserRole {
   SUPER_ADMIN
 }
 
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  PACKED
+  SHIPPING
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  RETURN_REQUESTED
+  RETURNED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  COD
+  STRIPE
+  VNPAY
+  WALLET
+}
+
 enum ResourceStatus {
   PENDING
   APPROVED
   REJECTED
   DELETED
+}
+
+enum ShipperStatus {
+  ONLINE
+  BUSY
+  OFFLINE
+}
+
+enum VoucherType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  PAYMENT
+  REFUND
+  SALE_INCOME
+  COMMISSION
+  REWARD
+  FEE
 }
 
 // ==================== USER & AUTH ====================
@@ -44,10 +98,18 @@ model User {
   deletedAt       DateTime?
 
   profile         Profile?
-  devices         Device?
-  refreshTokens   RefreshToken[]
-  userRoles       UserSystemRole[]
+  addresses       Address[]
+  orders          Order[]
+  reviews         Review[]
+  cart            Cart?
+  sellerProfile   SellerProfile?
+  brandProfile    BrandProfile?
   userPermissions UserPermission[]
+  userRoles       UserSystemRole[]
+  notifications   Notification[]
+  wallet          Wallet?
+  refreshTokens   RefreshToken[]
+  devices         Device?
   products        Product[]
 
   @@index([email])
@@ -65,6 +127,7 @@ model Profile {
   avatar      String?
   dateOfBirth DateTime?
   gender      String?
+  bio         String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -75,7 +138,7 @@ model Device {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userAgent    String?
   ip           String?
-  deviceName   String? // Tên thiết bị (ví dụ: "iPhone 13", "Chrome on Windows")
+  deviceName   String?
   isActive     Boolean  @default(true)
   lastActiveAt DateTime @updatedAt
   createdAt    DateTime @default(now())
@@ -89,7 +152,7 @@ model RefreshToken {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  deviceId  String? // Gắn token với thiết bị cụ thể
+  deviceId  String?
   device    Device?  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   token     String   @unique
   expiresAt DateTime
@@ -97,7 +160,6 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
-  @@index([deviceId])
   @@index([token])
 }
 
@@ -159,21 +221,186 @@ model UserPermission {
   @@unique([userId, permissionId])
 }
 
-// ==================== FEATURES ====================
+// ==================== ADDRESS ====================
+
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label        String?
+  fullName     String
+  phone        String
+  addressLine1 String
+  addressLine2 String?
+  ward         String
+  district     String
+  city         String
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ==================== SELLER & BRAND ====================
+
+model SellerProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shopName    String
+  shopSlug    String    @unique
+  shopLogo    String?
+  description String?
+  isVerified  Boolean   @default(false)
+  verifiedAt  DateTime?
+  rating      Float     @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@index([shopSlug])
+}
+
+model BrandProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brandName   String    @unique
+  brandSlug   String    @unique
+  brandLogo   String?
+  description String?
+  isVerified  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@index([brandSlug])
+}
+
+// ==================== PRODUCT & CATEGORY ====================
+
+model Category {
+  id          String     @id @default(cuid())
+  parentId    String?
+  parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryToCategory")
+  name        String
+  slug        String     @unique
+  image       String?
+  description String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  products    Product[]
+
+  @@index([slug])
+}
 
 model Product {
-  id           String         @id @default(cuid())
-  sellerId     String
-  seller       User           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  name         String
-  description  String?
-  price        Decimal        @db.Decimal(15, 2)
+  id         String        @id @default(cuid())
+  sellerId   String
+  seller     User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  brandId    String?
+  brand      BrandProfile? @relation(fields: [brandId], references: [id])
+  categoryId String?
+  category   Category?     @relation(fields: [categoryId], references: [id])
+
+  name        String
+  slug        String   @unique
+  description String?
+  price       Decimal  @db.Decimal(15, 2)
+  stock       Int      @default(0)
+  sku         String?  @unique
+  images      String[]
+
   status       ResourceStatus @default(PENDING)
-  reviewNote   String? // Lý do từ chối hoặc ghi chú duyệt
+  reviewNote   String?
   reviewedById String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews         Review[]
+  cartItems       CartItem[]
+  sellerProfile   SellerProfile? @relation(fields: [sellerProfileId], references: [id])
+  sellerProfileId String?
 
   @@index([sellerId])
+  @@index([categoryId])
   @@index([status])
+}
+
+// ==================== CART & ORDER ====================
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int     @default(1)
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  status        OrderStatus   @default(PENDING)
+  totalAmount   Decimal       @db.Decimal(15, 2)
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentMethod PaymentMethod
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ==================== OTHER ====================
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  rating    Int      @default(5)
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([userId])
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  balance   Decimal  @default(0) @db.Decimal(15, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }

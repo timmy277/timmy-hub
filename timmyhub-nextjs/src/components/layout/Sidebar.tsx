@@ -12,6 +12,7 @@ import {
     Menu,
     Collapse,
 } from '@mantine/core';
+import Link from 'next/link';
 import {
     IconGauge,
     IconDeviceDesktopAnalytics,
@@ -24,6 +25,9 @@ import {
     IconUsers,
     IconFingerprint,
     IconProps,
+    IconTable,
+    IconCheck,
+    IconTags,
 } from '@tabler/icons-react';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 
@@ -38,27 +42,26 @@ interface SidebarItem {
 }
 
 const mockData: SidebarItem[] = [
-    { label: 'Dashboard', icon: IconGauge },
+    { label: 'Dashboard', icon: IconGauge, link: '/dashboard' },
+    {
+        label: 'Quản trị',
+        icon: IconFingerprint,
+        initiallyOpened: true,
+        links: [
+            { label: 'Duyệt sản phẩm', link: '/admin/products', icon: IconCheck },
+            { label: 'Danh mục', link: '/admin/categories', icon: IconTags },
+        ],
+    },
     {
         label: 'E-commerce',
         icon: IconShoppingCart,
-        initiallyOpened: true,
         links: [
-            { label: 'Products', link: '/', icon: IconPackage },
-            { label: 'Orders', link: '/', icon: IconCalendarStats },
-            { label: 'Customers', link: '/', icon: IconUsers },
+            { label: 'Products', link: '/products', icon: IconPackage },
+            { label: 'Orders', link: '/orders', icon: IconCalendarStats },
+            { label: 'Customers', link: '/customers', icon: IconUsers },
         ],
     },
-    {
-        label: 'Analytics',
-        icon: IconDeviceDesktopAnalytics,
-        links: [
-            { label: 'Realtime', link: '/', icon: IconGauge },
-            { label: 'Reports', link: '/', icon: IconCalendarStats },
-        ],
-    },
-    { label: 'Security', icon: IconFingerprint },
-    { label: 'Settings', icon: IconSettings },
+    { label: 'Cài đặt', icon: IconSettings, link: '/settings' },
 ];
 
 export function Sidebar() {
@@ -161,6 +164,8 @@ function SidebarNavLink({
 
     const navLink = (
         <NavLink
+            component={(item.link ? Link : 'button') as any}
+            href={item.link || '#'}
             label={
                 <Box
                     className="overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap"
@@ -240,6 +245,8 @@ function SidebarNavLink({
                         {item.links?.map((link) => (
                             <Menu.Item
                                 key={link.label}
+                                component={Link}
+                                href={link.link}
                                 leftSection={<link.icon size={18} stroke={1.5} />}
                                 className="rounded-lg font-medium py-2 transition-colors"
                             >
@@ -266,6 +273,8 @@ function SidebarNavLink({
                     {item.links?.map((link) => (
                         <NavLink
                             key={link.label}
+                            component={Link}
+                            href={link.link}
                             label={<Text size="sm" fw={500}>{link.label}</Text>}
                             leftSection={<link.icon size={18} stroke={1.5} />}
                             className="rounded-lg h-10 transition-all"

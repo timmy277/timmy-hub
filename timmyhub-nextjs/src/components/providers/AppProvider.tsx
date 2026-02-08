@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { AuthSyncProvider } from './AuthSyncProvider';
 import '@/libs/i18n';
 
 interface AppProviderProps {
@@ -53,7 +54,9 @@ export function AppProvider({ children }: AppProviderProps) {
         <QueryClientProvider client={queryClient}>
             <MantineProvider theme={theme} defaultColorScheme="auto">
                 <Notifications />
-                {children}
+                <AuthSyncProvider>
+                    {children}
+                </AuthSyncProvider>
                 <ReactQueryDevtools initialIsOpen={false} />
             </MantineProvider>
         </QueryClientProvider>

@@ -3,10 +3,19 @@ export interface Device {
     name: string;
 }
 
+export interface Profile {
+    firstName: string;
+    lastName: string;
+    displayName?: string | null;
+    avatar?: string | null;
+}
+
 export interface User {
     id: string;
     email: string;
     role: string;
+    permissions: string[];
+    profile?: Profile | null;
 }
 
 export interface LoginData {

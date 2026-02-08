@@ -6,8 +6,8 @@ interface AuthState {
     user: User | null;
     device: Device | null;
     isAuthenticated: boolean;
-    setAuth: (user: User, device: Device) => void;
-    clearAuth: () => void;
+    setAuthData: (user: User, device: Device) => void;
+    clearAuthData: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -16,8 +16,8 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             device: null,
             isAuthenticated: false,
-            setAuth: (user, device) => set({ user, device, isAuthenticated: true }),
-            clearAuth: () => set({ user: null, device: null, isAuthenticated: false }),
+            setAuthData: (user, device) => set({ user, device, isAuthenticated: true }),
+            clearAuthData: () => set({ user: null, device: null, isAuthenticated: false }),
         }),
         {
             name: 'auth-storage',

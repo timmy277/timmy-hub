@@ -8,7 +8,7 @@ export const authService = {
     getProfile: async (): Promise<ApiResponse<User>> => {
         return axiosClient.get('/auth/profile');
     },
-    logout: async (refreshToken: string): Promise<ApiResponse<void>> => {
-        return axiosClient.post('/auth/logout', { refreshToken });
+    logout: async (): Promise<ApiResponse<void>> => {
+        return axiosClient.delete('/auth/logout');
     }
 };

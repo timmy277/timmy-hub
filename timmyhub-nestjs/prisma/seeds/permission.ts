@@ -15,8 +15,10 @@ export const seedingPermissionsData = async (prisma: PrismaClient) => {
         { name: 'users:read', displayName: 'Xem danh sách người dùng', module: 'USERS', action: 'READ' },
         { name: 'users:update', displayName: 'Cập nhật người dùng', module: 'USERS', action: 'UPDATE' },
 
-        // Product Permissions (Approval Flow)
-        { name: 'product:approve', displayName: 'Duyệt hoặc từ chối sản phẩm', module: 'PRODUCT', action: 'APPROVE' },
+        // Category Permissions
+        { name: 'category:create', displayName: 'Tạo danh mục', module: 'CATEGORY', action: 'CREATE' },
+        { name: 'category:update', displayName: 'Cập nhật danh mục', module: 'CATEGORY', action: 'UPDATE' },
+        { name: 'category:delete', displayName: 'Xóa danh mục', module: 'CATEGORY', action: 'DELETE' },
 
         // Admin All
         { name: 'admin:all', displayName: 'Toàn quyền hệ thống', module: 'ADMIN', action: 'ALL' },

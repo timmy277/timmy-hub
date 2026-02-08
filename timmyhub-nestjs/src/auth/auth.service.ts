@@ -93,11 +93,33 @@ export class AuthService {
             },
         });
 
+        // 5. Lấy danh sách quyền (Permissions)
+        const userWithPermissions = await this.prisma.user.findUnique({
+            where: { id: user.id },
+            include: {
+                userRoles: {
+                    include: {
+                        role: { include: { permissions: { include: { permission: true } } } },
+                    },
+                },
+                userPermissions: { include: { permission: true } },
+            },
+        });
+
+        const permissions = new Set<string>();
+        userWithPermissions?.userRoles.forEach((ur) => {
+            ur.role.permissions.forEach((rp) => permissions.add(rp.permission.name));
+        });
+        userWithPermissions?.userPermissions.forEach((up) => {
+            permissions.add(up.permission.name);
+        });
+
         return {
             user: {
                 id: user.id,
                 email: user.email,
                 role: user.role,
+                permissions: Array.from(permissions),
             },
             device: {
                 id: device.id,

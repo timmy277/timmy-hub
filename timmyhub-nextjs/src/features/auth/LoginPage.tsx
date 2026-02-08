@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import axios, { AxiosError } from 'axios';
+import Cookies from 'js-cookie';
 import {
     Button,
     Checkbox,
@@ -68,7 +69,7 @@ const schema = z.object({
 });
 
 export function LoginPage() {
-    const setAuth = useAuthStore((state) => state.setAuth);
+    const setAuthData = useAuthStore((state) => state.setAuthData);
     const router = useRouter();
     const loginMutation = useLoginMutation();
 
@@ -107,7 +108,11 @@ export function LoginPage() {
             const { user, device } = response.data;
 
             // Lưu thông tin người dùng vào Store (Zustand persist)
-            setAuth(user, device);
+            setAuthData(user, device);
+
+            // Lưu thông tin vào cookie không HttpOnly để Middleware có thể đọc nhanh (cho mục đích routing)
+            Cookies.set('user_role', user.role, { expires: 7 });
+            Cookies.set('user_permissions', JSON.stringify(user.permissions), { expires: 7 });
 
             notifications.show({
                 title: 'Success',
