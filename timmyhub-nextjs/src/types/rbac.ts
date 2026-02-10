@@ -37,3 +37,18 @@ export interface CreateRoleInput {
     isSystem?: boolean;
     permissionNames?: string[];
 }
+
+export interface CreatePermissionInput {
+    name: string;
+    displayName: string;
+    description?: string;
+    module: string;
+    action: string;
+}
+
+export interface UpdatePermissionInput {
+    displayName?: string;
+    description?: string;
+    module?: string;
+    action?: string;
+}

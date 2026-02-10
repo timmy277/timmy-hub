@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete, UseGuards, Put } from '@nes
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RbacService } from './rbac.service';
 import { CreateRoleDto } from './dto/create-role.dto';
+import { CreatePermissionDto, UpdatePermissionDto } from './dto/create-permission.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permissions } from '../common/decorators/permissions.decorator';
@@ -69,13 +70,35 @@ export class RbacController {
         return ResponseDto.success('Lấy danh sách quyền thành công', permissions);
     }
 
+    @Get('permissions/:id')
+    @Permissions('rbac:permissions:read')
+    @ApiOperation({ summary: 'Lấy chi tiết một quyền' })
+    async getPermission(@Param('id') id: string) {
+        const permission = await this.rbacService.findOnePermission(id);
+        return ResponseDto.success('Lấy chi tiết quyền thành công', permission);
+    }
+
     @Post('permissions')
     @Permissions('rbac:permissions:create')
     @ApiOperation({ summary: 'Tạo quyền mới' })
-    async createPermission(
-        @Body() data: { name: string; displayName: string; module: string; action: string },
-    ) {
-        const permission = await this.rbacService.createPermission(data);
+    async createPermission(@Body() dto: CreatePermissionDto) {
+        const permission = await this.rbacService.createPermission(dto);
         return ResponseDto.success('Tạo quyền thành công', permission);
+    }
+
+    @Put('permissions/:id')
+    @Permissions('rbac:permissions:update')
+    @ApiOperation({ summary: 'Cập nhật thông tin quyền' })
+    async updatePermission(@Param('id') id: string, @Body() dto: UpdatePermissionDto) {
+        const permission = await this.rbacService.updatePermission(id, dto);
+        return ResponseDto.success('Cập nhật quyền thành công', permission);
+    }
+
+    @Delete('permissions/:id')
+    @Permissions('rbac:permissions:delete')
+    @ApiOperation({ summary: 'Xóa quyền' })
+    async deletePermission(@Param('id') id: string) {
+        await this.rbacService.deletePermission(id);
+        return ResponseDto.success('Xóa quyền thành công');
     }
 }

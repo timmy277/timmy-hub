@@ -18,6 +18,7 @@ import {
     IconProps,
     IconTags,
     IconShieldLock,
+    IconKey,
 } from '@tabler/icons-react';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 
@@ -40,6 +41,7 @@ const mockData: SidebarItem[] = [
         links: [
             { label: 'Phân quyền', link: '/admin/roles', icon: IconShieldLock },
             { label: 'Người dùng', link: '/admin/users', icon: IconUsers },
+            { label: 'Quyền hạn', link: '/admin/permissions', icon: IconKey },
             { label: 'Danh mục', link: '/admin/categories', icon: IconTags },
         ],
     },

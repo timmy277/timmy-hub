@@ -1,7 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { rbacService } from '@/services/rbac.service';
 import { notifications } from '@mantine/notifications';
-import { Role, CreateRoleInput } from '@/types/rbac';
+import {
+    Role,
+    Permission,
+    CreateRoleInput,
+    CreatePermissionInput,
+    UpdatePermissionInput,
+} from '@/types/rbac';
 import { ApiErrorResponse, ApiResponse } from '@/types/api';
 import { AxiosError } from 'axios';
 
@@ -96,5 +102,76 @@ export const usePermissions = () => {
     return useQuery({
         queryKey: ['permissions'],
         queryFn: () => rbacService.getAllPermissions(),
+    });
+};
+
+export const useCreatePermissionMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation<ApiResponse<Permission>, AxiosError<ApiErrorResponse>, CreatePermissionInput>
+    ({
+        mutationFn: data => rbacService.createPermission(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['permissions'] });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Tạo quyền mới thành công',
+                color: 'green',
+            });
+        },
+        onError: error => {
+            notifications.show({
+                title: 'Lỗi',
+                message: error.response?.data?.message || 'Có lỗi xảy ra khi tạo quyền',
+                color: 'red',
+            });
+        },
+    });
+};
+
+export const useUpdatePermissionMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation<
+        ApiResponse<Permission>,
+        AxiosError<ApiErrorResponse>,
+        { id: string; data: UpdatePermissionInput }
+    >({
+        mutationFn: ({ id, data }) => rbacService.updatePermission(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['permissions'] });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Cập nhật quyền thành công',
+                color: 'green',
+            });
+        },
+        onError: error => {
+            notifications.show({
+                title: 'Lỗi',
+                message: error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật quyền',
+                color: 'red',
+            });
+        },
+    });
+};
+
+export const useDeletePermissionMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation<ApiResponse<void>, AxiosError<ApiErrorResponse>, string>({
+        mutationFn: id => rbacService.deletePermission(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['permissions'] });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Xóa quyền thành công',
+                color: 'green',
+            });
+        },
+        onError: error => {
+            notifications.show({
+                title: 'Lỗi',
+                message: error.response?.data?.message || 'Có lỗi xảy ra khi xóa quyền',
+                color: 'red',
+            });
+        },
     });
 };

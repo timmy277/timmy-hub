@@ -2,7 +2,7 @@ import { Badge, Group, ActionIcon, Tooltip, Avatar } from '@mantine/core';
 import { IconEye, IconEdit, IconLock, IconLockOpen } from '@tabler/icons-react';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { User } from '@/types/auth';
-import { Role } from '@/types/rbac';
+import { Role, Permission } from '@/types/rbac';
 import { UserRole } from '@/types/enums';
 import { TFunction } from 'i18next';
 import { formatDate } from '@/utils/date';
@@ -98,6 +98,60 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
         },
         {
             headerName: t('table.columns.memberSince'),
+            field: 'createdAt',
+            width: 150,
+            valueFormatter: params => formatDate(params.value),
+        },
+    ];
+};
+
+export const createPermissionColumns = (options: ColumnConfigOptions): ColDef<Permission>[] => {
+    const { t } = options;
+
+    return [
+        {
+            headerName: t('table.columns.permissionName'),
+            field: 'name',
+            minWidth: 150,
+            cellRenderer: (params: ICellRendererParams<Permission>) => (
+                <Badge variant="filled" color="cyan">
+                    {params.value}
+                </Badge>
+            ),
+        },
+        {
+            headerName: t('table.columns.displayName'),
+            field: 'displayName',
+            minWidth: 150,
+        },
+        {
+            headerName: t('table.columns.module'),
+            field: 'module',
+            width: 120,
+            cellRenderer: (params: ICellRendererParams<Permission>) => (
+                <Badge variant="light" color="indigo">
+                    {params.value}
+                </Badge>
+            ),
+        },
+        {
+            headerName: t('table.columns.action'),
+            field: 'action',
+            width: 120,
+            cellRenderer: (params: ICellRendererParams<Permission>) => (
+                <Badge variant="outline" color="teal">
+                    {params.value}
+                </Badge>
+            ),
+        },
+        {
+            headerName: t('table.columns.description'),
+            field: 'description',
+            minWidth: 200,
+            flex: 1,
+        },
+        {
+            headerName: t('table.columns.createdAt'),
             field: 'createdAt',
             width: 150,
             valueFormatter: params => formatDate(params.value),

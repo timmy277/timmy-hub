@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { AdminCategoriesPage } from '@/features/admin';
+import { PermissionList } from '@/features/admin/permissions';
 
 export default async function Page() {
     const queryClient = new QueryClient();
@@ -14,14 +14,14 @@ export default async function Page() {
     }
 
     await queryClient.prefetchQuery({
-        queryKey: ['categories', true],
+        queryKey: ['permissions'],
         queryFn: async () => {
             const apiUrl =
                 process.env.API_URL ||
                 process.env.NEXT_PUBLIC_API_URL ||
                 'http://localhost:3001/api';
 
-            const res = await fetch(`${apiUrl}/categories?all=true`, {
+            const res = await fetch(`${apiUrl}/rbac/permissions`, {
                 headers: {
                     Cookie: `access_token=${accessToken}`,
                 },
@@ -33,7 +33,7 @@ export default async function Page() {
             }
 
             if (!res.ok) {
-                throw new Error('Failed to fetch categories');
+                throw new Error('Failed to fetch permissions');
             }
 
             return res.json();
@@ -42,7 +42,7 @@ export default async function Page() {
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <AdminCategoriesPage />
+            <PermissionList />
         </HydrationBoundary>
     );
 }

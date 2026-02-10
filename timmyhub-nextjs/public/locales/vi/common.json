@@ -36,7 +36,10 @@
             "description": "Mô tả",
             "permissions": "Quyền hạn",
             "usersCount": "Số người dùng",
-            "createdAt": "Ngày tạo"
+            "createdAt": "Ngày tạo",
+            "permissionName": "Tên quyền",
+            "module": "Module",
+            "action": "Hành động"
         },
         "status": {
             "active": "Đang hoạt động",
@@ -113,6 +116,12 @@
         "confirmDelete": "Bạn có chắc chắn muốn xóa vai trò \"{{name}}\"? Hành động này không thể hoàn tác.",
         "assignedPermissions": "Các quyền đã gán",
         "noPermissionsAssigned": "Chưa có quyền nào được gán cho vai trò này",
-        "systemRole": "Hệ thống"
+        "systemRole": "Hệ thống",
+        "permissionsTitle": "Quản lý quyền hạn",
+        "searchPermissionPlaceholder": "Tìm kiếm quyền theo tên, module...",
+        "permissionName": "Tên quyền (mã định danh)",
+        "module": "Module",
+        "action": "Hành động",
+        "deletePermission": "Xóa quyền hạn"
     }
 }

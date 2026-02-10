@@ -36,7 +36,10 @@
             "description": "Description",
             "permissions": "Permissions",
             "usersCount": "Users",
-            "createdAt": "Created At"
+            "createdAt": "Created At",
+            "permissionName": "Permission Name",
+            "module": "Module",
+            "action": "Action"
         },
         "status": {
             "active": "Active",
@@ -113,6 +116,12 @@
         "confirmDelete": "Are you sure you want to delete role \"{{name}}\"? This action cannot be undone.",
         "assignedPermissions": "Assigned Permissions",
         "noPermissionsAssigned": "No permissions assigned to this role",
-        "systemRole": "System"
+        "systemRole": "System",
+        "permissionsTitle": "Permission Management",
+        "searchPermissionPlaceholder": "Search permissions by name, module...",
+        "permissionName": "Permission Name (Identifier)",
+        "module": "Module",
+        "action": "Action",
+        "deletePermission": "Delete Permission"
     }
 }

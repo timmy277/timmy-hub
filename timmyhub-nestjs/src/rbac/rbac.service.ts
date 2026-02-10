@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateRoleDto } from './dto/create-role.dto';
+import { CreatePermissionDto, UpdatePermissionDto } from './dto/create-permission.dto';
 
 @Injectable()
 export class RbacService {
@@ -71,7 +72,7 @@ export class RbacService {
     }
 
     async assignPermissionsToRole(roleId: string, permissionNames: string[]) {
-        const role = await this.findOneRole(roleId);
+        await this.findOneRole(roleId);
 
         return this.prisma.$transaction(async tx => {
             // Xóa tất cả quyền cũ
@@ -98,17 +99,41 @@ export class RbacService {
         return this.prisma.permission.findMany();
     }
 
-    async createPermission(data: {
-        name: string;
-        displayName: string;
-        module: string;
-        action: string;
-    }) {
+    async findOnePermission(id: string) {
+        const permission = await this.prisma.permission.findUnique({
+            where: { id },
+        });
+        if (!permission) throw new NotFoundException('Không tìm thấy quyền');
+        return permission;
+    }
+
+    async createPermission(dto: CreatePermissionDto) {
         const existing = await this.prisma.permission.findUnique({
-            where: { name: data.name },
+            where: { name: dto.name },
         });
         if (existing) throw new ConflictException('Tên quyền đã tồn tại');
 
-        return this.prisma.permission.create({ data });
+        return this.prisma.permission.create({ data: dto });
+    }
+
+    async updatePermission(id: string, dto: UpdatePermissionDto) {
+        await this.findOnePermission(id);
+        return this.prisma.permission.update({
+            where: { id },
+            data: dto,
+        });
+    }
+
+    async deletePermission(id: string) {
+        await this.findOnePermission(id);
+        // Kiểm tra xem quyền có đang được sử dụng không
+        const usageCount = await this.prisma.rolePermission.count({
+            where: { permissionId: id },
+        });
+        if (usageCount > 0) {
+            throw new ConflictException('Không thể xóa quyền đang được gán cho vai trò');
+        }
+
+        return this.prisma.permission.delete({ where: { id } });
     }
 }
