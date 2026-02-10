@@ -1,6 +1,6 @@
-import axiosClient from "@/libs/axios";
-import { Product, CreateProductInput } from "@/types/product";
-import { ApiResponse } from "@/types/api";
+import axiosClient from '@/libs/axios';
+import { Product, CreateProductInput } from '@/types/product';
+import { ApiResponse } from '@/types/api';
 
 /**
  * Service quản lý sản phẩm
@@ -47,5 +47,5 @@ export const productService = {
      */
     rejectProduct: async (id: string, note: string): Promise<ApiResponse<void>> => {
         return axiosClient.patch(`/products/${id}/reject`, { note });
-    }
+    },
 };

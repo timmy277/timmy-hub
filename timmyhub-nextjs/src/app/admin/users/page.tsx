@@ -18,7 +18,10 @@ export default async function Page() {
         queryKey: ['users'], // Giữ nguyên key ['users'] để khớp với useUsers hook ở client
         queryFn: async () => {
             // Ưu tiên dùng API_URL (server internal network) nếu có, fallback về NEXT_PUBLIC_API_URL
-            const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+            const apiUrl =
+                process.env.API_URL ||
+                process.env.NEXT_PUBLIC_API_URL ||
+                'http://localhost:3001/api';
 
             const res = await fetch(`${apiUrl}/users`, {
                 headers: {

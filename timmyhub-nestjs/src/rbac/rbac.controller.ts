@@ -1,13 +1,4 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Param,
-    Delete,
-    UseGuards,
-    Put,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, Put } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RbacService } from './rbac.service';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -21,7 +12,7 @@ import { ResponseDto } from '../common/dto/response.dto';
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('rbac')
 export class RbacController {
-    constructor(private readonly rbacService: RbacService) { }
+    constructor(private readonly rbacService: RbacService) {}
 
     // ==================== ROLES ====================
 

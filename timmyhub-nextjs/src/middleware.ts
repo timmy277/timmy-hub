@@ -55,7 +55,7 @@ export function middleware(request: NextRequest) {
             userPermissions = JSON.parse(decodeURIComponent(permissionsStr));
         }
     } catch (e) {
-        console.error("Failed to parse permissions cookie", e);
+        console.error('Failed to parse permissions cookie', e);
     }
 
     // Đặc cách cho SUPER_ADMIN
@@ -63,12 +63,16 @@ export function middleware(request: NextRequest) {
 
     if (token) {
         // A. Kiểm tra Role-based Paths
-        const isAdminPath = adminPaths.some(path => new RegExp(`^${path.replace('(.*)', '.*')}$`).test(pathname));
+        const isAdminPath = adminPaths.some(path =>
+            new RegExp(`^${path.replace('(.*)', '.*')}$`).test(pathname),
+        );
         if (isAdminPath && userRole !== 'ADMIN') {
             return NextResponse.redirect(new URL('/403', request.url));
         }
 
-        const isSellerPath = sellerPaths.some(path => new RegExp(`^${path.replace('(.*)', '.*')}$`).test(pathname));
+        const isSellerPath = sellerPaths.some(path =>
+            new RegExp(`^${path.replace('(.*)', '.*')}$`).test(pathname),
+        );
         if (isSellerPath && userRole !== 'SELLER') {
             return NextResponse.redirect(new URL('/403', request.url));
         }

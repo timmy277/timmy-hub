@@ -29,7 +29,7 @@ export const useToggleUserStatusMutation = () => {
     const queryClient = useQueryClient();
     return useMutation<ApiResponse<User>, AxiosError<ApiErrorResponse>, string>({
         mutationFn: (id: string) => userService.toggleUserStatus(id),
-        onSuccess: (response) => {
+        onSuccess: response => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
             notifications.show({
                 title: 'Thành công',
@@ -37,7 +37,7 @@ export const useToggleUserStatusMutation = () => {
                 color: 'green',
             });
         },
-        onError: (error) => {
+        onError: error => {
             notifications.show({
                 title: 'Lỗi',
                 message: error.response?.data?.message || 'Có lỗi xảy ra',
@@ -49,9 +49,12 @@ export const useToggleUserStatusMutation = () => {
 
 export const useAssignUserRolesMutation = () => {
     const queryClient = useQueryClient();
-    return useMutation<ApiResponse<void>, AxiosError<ApiErrorResponse>, { id: string; roleNames: string[] }>({
-        mutationFn: ({ id, roleNames }) =>
-            userService.assignUserRoles(id, roleNames),
+    return useMutation<
+        ApiResponse<void>,
+        AxiosError<ApiErrorResponse>,
+        { id: string; roleNames: string[] }
+    >({
+        mutationFn: ({ id, roleNames }) => userService.assignUserRoles(id, roleNames),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
             notifications.show({
@@ -60,7 +63,7 @@ export const useAssignUserRolesMutation = () => {
                 color: 'green',
             });
         },
-        onError: (error) => {
+        onError: error => {
             notifications.show({
                 title: 'Lỗi',
                 message: error.response?.data?.message || 'Có lỗi xảy ra',
@@ -82,7 +85,7 @@ export const useCreateUserMutation = () => {
                 color: 'green',
             });
         },
-        onError: (error) => {
+        onError: error => {
             notifications.show({
                 title: 'Lỗi',
                 message: error.response?.data?.message || 'Có lỗi xảy ra khi tạo người dùng',
@@ -94,7 +97,11 @@ export const useCreateUserMutation = () => {
 
 export const useUpdateUserMutation = () => {
     const queryClient = useQueryClient();
-    return useMutation<ApiResponse<User>, AxiosError<ApiErrorResponse>, { id: string; data: Partial<CreateUserInput> }>({
+    return useMutation<
+        ApiResponse<User>,
+        AxiosError<ApiErrorResponse>,
+        { id: string; data: Partial<CreateUserInput> }
+    >({
         mutationFn: ({ id, data }) => userService.updateUser(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -104,7 +111,7 @@ export const useUpdateUserMutation = () => {
                 color: 'green',
             });
         },
-        onError: (error) => {
+        onError: error => {
             notifications.show({
                 title: 'Lỗi',
                 message: error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật',
@@ -113,5 +120,3 @@ export const useUpdateUserMutation = () => {
         },
     });
 };
-
-

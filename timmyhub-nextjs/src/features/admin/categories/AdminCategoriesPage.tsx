@@ -24,7 +24,7 @@ import {
     useCategories,
     useCreateCategoryMutation,
     useUpdateCategoryMutation,
-    useDeleteCategoryMutation
+    useDeleteCategoryMutation,
 } from '@/hooks/useCategories';
 import { Category } from '@/types/category';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
@@ -46,8 +46,8 @@ export function AdminCategoriesPage() {
             isActive: true,
         },
         validate: {
-            name: (value) => (value.length < 2 ? 'Tên danh mục ít nhất 2 ký tự' : null),
-            slug: (value) => (!value ? 'Slug không được để trống' : null),
+            name: value => (value.length < 2 ? 'Tên danh mục ít nhất 2 ký tự' : null),
+            slug: value => (!value ? 'Slug không được để trống' : null),
         },
     });
 
@@ -83,57 +83,66 @@ export function AdminCategoriesPage() {
         }
     };
 
-    const columnDefs = useMemo<ColDef<Category>[]>(() => [
-        {
-            headerName: 'Tên danh mục',
-            field: 'name',
-            minWidth: 200,
-            cellRenderer: (params: ICellRendererParams<Category>) => (params.data?.name)
-        },
-        {
-            headerName: 'Slug',
-            field: 'slug',
-        },
-        {
-            headerName: 'Trạng thái',
-            field: 'isActive',
-            cellRenderer: (params: ICellRendererParams<Category>) => (
-                <Badge color={params.value ? 'green' : 'gray'} variant="light" mt={8}>
-                    {params.value ? 'Hoạt động' : 'Tạm khóa'}
-                </Badge>
-            )
-        },
-        {
-            headerName: 'Thao tác',
-            pinned: 'right',
-            width: 120,
-            sortable: false,
-            filter: false,
-            cellRenderer: (params: ICellRendererParams<Category>) => {
-                if (!params.data) return null;
-                const { id } = params.data;
-                return (
-                    <Group gap="xs" mt={4}>
-                        <Tooltip label="Chỉnh sửa">
-                            <ActionIcon variant="light" color="blue" onClick={() => handleOpenEdit(params.data!)}>
-                                <IconEdit size={16} />
-                            </ActionIcon>
-                        </Tooltip>
-                        <Tooltip label="Xóa">
-                            <ActionIcon
-                                variant="light"
-                                color="red"
-                                loading={deleteMutation.isPending && deleteMutation.variables === id}
-                                onClick={() => handleDelete(id)}
-                            >
-                                <IconTrash size={16} />
-                            </ActionIcon>
-                        </Tooltip>
-                    </Group>
-                );
-            }
-        }
-    ], [deleteMutation.isPending]);
+    const columnDefs = useMemo<ColDef<Category>[]>(
+        () => [
+            {
+                headerName: 'Tên danh mục',
+                field: 'name',
+                minWidth: 200,
+                cellRenderer: (params: ICellRendererParams<Category>) => params.data?.name,
+            },
+            {
+                headerName: 'Slug',
+                field: 'slug',
+            },
+            {
+                headerName: 'Trạng thái',
+                field: 'isActive',
+                cellRenderer: (params: ICellRendererParams<Category>) => (
+                    <Badge color={params.value ? 'green' : 'gray'} variant="light" mt={8}>
+                        {params.value ? 'Hoạt động' : 'Tạm khóa'}
+                    </Badge>
+                ),
+            },
+            {
+                headerName: 'Thao tác',
+                pinned: 'right',
+                width: 120,
+                sortable: false,
+                filter: false,
+                cellRenderer: (params: ICellRendererParams<Category>) => {
+                    if (!params.data) return null;
+                    const { id } = params.data;
+                    return (
+                        <Group gap="xs" mt={4}>
+                            <Tooltip label="Chỉnh sửa">
+                                <ActionIcon
+                                    variant="light"
+                                    color="blue"
+                                    onClick={() => handleOpenEdit(params.data!)}
+                                >
+                                    <IconEdit size={16} />
+                                </ActionIcon>
+                            </Tooltip>
+                            <Tooltip label="Xóa">
+                                <ActionIcon
+                                    variant="light"
+                                    color="red"
+                                    loading={
+                                        deleteMutation.isPending && deleteMutation.variables === id
+                                    }
+                                    onClick={() => handleDelete(id)}
+                                >
+                                    <IconTrash size={16} />
+                                </ActionIcon>
+                            </Tooltip>
+                        </Group>
+                    );
+                },
+            },
+        ],
+        [deleteMutation.isPending],
+    );
 
     return (
         <Container size="xl" py="md">
@@ -141,7 +150,9 @@ export function AdminCategoriesPage() {
                 <Group justify="space-between">
                     <div>
                         <Title order={2}>Quản lý danh mục</Title>
-                        <Text size="sm" c="dimmed">Quản lý cây danh mục sản phẩm của TimmyHub</Text>
+                        <Text size="sm" c="dimmed">
+                            Quản lý cây danh mục sản phẩm của TimmyHub
+                        </Text>
                     </div>
                     <Group>
                         <Button
@@ -152,10 +163,7 @@ export function AdminCategoriesPage() {
                         >
                             Làm mới
                         </Button>
-                        <Button
-                            leftSection={<IconPlus size={16} />}
-                            onClick={handleOpenCreate}
-                        >
+                        <Button leftSection={<IconPlus size={16} />} onClick={handleOpenCreate}>
                             Thêm danh mục
                         </Button>
                     </Group>
@@ -201,8 +209,13 @@ export function AdminCategoriesPage() {
                             {...form.getInputProps('isActive', { type: 'checkbox' })}
                         />
                         <Group justify="flex-end" mt="md">
-                            <Button variant="outline" onClick={() => setModalOpened(false)}>Hủy</Button>
-                            <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
+                            <Button variant="outline" onClick={() => setModalOpened(false)}>
+                                Hủy
+                            </Button>
+                            <Button
+                                type="submit"
+                                loading={createMutation.isPending || updateMutation.isPending}
+                            >
                                 {editingCategory ? 'Lưu thay đổi' : 'Thêm mới'}
                             </Button>
                         </Group>

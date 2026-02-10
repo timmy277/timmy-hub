@@ -29,7 +29,7 @@ export const useCreateProductMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (data: CreateProductInput) => productService.createProduct(data),
-        onSuccess: (response) => {
+        onSuccess: response => {
             queryClient.invalidateQueries({ queryKey: ['admin-products'] });
             notifications.show({
                 title: 'Thành công',
@@ -59,7 +59,8 @@ export const useApproveProductMutation = () => {
 export const useRejectProductMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, note }: { id: string, note: string }) => productService.rejectProduct(id, note),
+        mutationFn: ({ id, note }: { id: string; note: string }) =>
+            productService.rejectProduct(id, note),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-products'] });
             notifications.show({

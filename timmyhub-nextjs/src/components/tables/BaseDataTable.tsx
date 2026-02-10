@@ -18,7 +18,7 @@ import {
     QuickFilterModule,
     ValidationModule,
     ColumnApiModule,
-    CsvExportModule
+    CsvExportModule,
 } from 'ag-grid-community';
 import { useMantineColorScheme, Box } from '@mantine/core';
 
@@ -34,7 +34,7 @@ ModuleRegistry.registerModules([
     QuickFilterModule,
     ValidationModule,
     ColumnApiModule,
-    CsvExportModule
+    CsvExportModule,
 ]);
 
 // Helper to determine the theme based on color scheme
@@ -64,18 +64,21 @@ export function BaseDataTable<T>({
     pagination = true,
     paginationPageSize = 10,
     quickFilterText,
-    height = 500
+    height = 500,
 }: BaseDataTableProps<T>) {
     const { colorScheme } = useMantineColorScheme();
     const gridRef = useRef<AgGridReact<T>>(null);
 
-    const defaultColDef = useMemo<ColDef>(() => ({
-        flex: 1,
-        minWidth: 100,
-        filter: true,
-        sortable: true,
-        resizable: true,
-    }), []);
+    const defaultColDef = useMemo<ColDef>(
+        () => ({
+            flex: 1,
+            minWidth: 100,
+            filter: true,
+            sortable: true,
+            resizable: true,
+        }),
+        [],
+    );
 
     const gridTheme = useMemo(() => {
         return getGridTheme(colorScheme);

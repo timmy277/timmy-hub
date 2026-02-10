@@ -23,7 +23,12 @@ export const createEmailValidator = (t: TFunction, fieldKey: string) => {
     };
 };
 
-export const createPasswordValidator = (t: TFunction, fieldKey: string, minLength: number = 6, isOptional: boolean = false) => {
+export const createPasswordValidator = (
+    t: TFunction,
+    fieldKey: string,
+    minLength: number = 6,
+    isOptional: boolean = false,
+) => {
     return (value: string | undefined | null) => {
         if (isOptional && !value) {
             return null;
@@ -31,8 +36,8 @@ export const createPasswordValidator = (t: TFunction, fieldKey: string, minLengt
         if (!value) {
             return t('validation.required', { field: t(fieldKey) });
         }
-        return value.length < minLength 
-            ? t('validation.passwordMinLength', { min: minLength }) 
+        return value.length < minLength
+            ? t('validation.passwordMinLength', { min: minLength })
             : null;
     };
 };

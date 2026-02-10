@@ -42,7 +42,7 @@ const requirements = [
 function getStrength(password: string) {
     let multiplier = password.length > 5 ? 0 : 1;
 
-    requirements.forEach((requirement) => {
+    requirements.forEach(requirement => {
         if (!requirement.re.test(password)) {
             multiplier += 1;
         }
@@ -69,7 +69,7 @@ const schema = z.object({
 });
 
 export function LoginPage() {
-    const setAuthData = useAuthStore((state) => state.setAuthData);
+    const setAuthData = useAuthStore(state => state.setAuthData);
     const router = useRouter();
     const loginMutation = useLoginMutation();
 
@@ -85,7 +85,11 @@ export function LoginPage() {
     // Handle Password Strength
     const strength = getStrength(form.values.password);
     const checks = requirements.map((requirement, index) => (
-        <PasswordRequirement key={index} label={requirement.label} meets={requirement.re.test(form.values.password)} />
+        <PasswordRequirement
+            key={index}
+            label={requirement.label}
+            meets={requirement.re.test(form.values.password)}
+        />
     ));
     const bars = Array(4)
         .fill(0)
@@ -93,7 +97,11 @@ export function LoginPage() {
             <Progress
                 styles={{ section: { transitionDuration: '0ms' } }}
                 value={
-                    form.values.password.length > 0 && index === 0 ? 100 : strength >= ((index + 1) / 4) * 100 ? 100 : 0
+                    form.values.password.length > 0 && index === 0
+                        ? 100
+                        : strength >= ((index + 1) / 4) * 100
+                          ? 100
+                          : 0
                 }
                 color={strength > 80 ? 'teal' : strength > 50 ? 'yellow' : 'red'}
                 key={index}
@@ -177,7 +185,8 @@ export function LoginPage() {
                                         color: 'white',
                                         fontWeight: 'bold',
                                         fontSize: rem(24),
-                                        background: 'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5))'
+                                        background:
+                                            'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5))',
                                     }}
                                 >
                                     T
@@ -217,15 +226,15 @@ export function LoginPage() {
                                         {bars}
                                     </Group>
 
-                                    <PasswordRequirement label="Has at least 6 characters" meets={form.values.password.length > 5} />
+                                    <PasswordRequirement
+                                        label="Has at least 6 characters"
+                                        meets={form.values.password.length > 5}
+                                    />
                                     {checks}
                                 </Box>
 
                                 <Group justify="space-between" mt="xs">
-                                    <Checkbox
-                                        label="Remember me"
-                                        style={{ cursor: 'pointer' }}
-                                    />
+                                    <Checkbox label="Remember me" style={{ cursor: 'pointer' }} />
                                     <Anchor component="button" size="sm" fw={600}>
                                         Forgot password?
                                     </Anchor>

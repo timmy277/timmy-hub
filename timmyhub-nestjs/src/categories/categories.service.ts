@@ -1,4 +1,9 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+    Injectable,
+    ConflictException,
+    NotFoundException,
+    BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { Category } from '@prisma/client';
@@ -9,7 +14,7 @@ import { Category } from '@prisma/client';
  */
 @Injectable()
 export class CategoriesService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(private readonly prisma: PrismaService) {}
 
     /**
      * Tạo danh mục mới

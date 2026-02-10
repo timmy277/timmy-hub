@@ -8,4 +8,4 @@ import { RbacController } from './rbac.controller';
     providers: [RbacService],
     exports: [RbacService],
 })
-export class RbacModule { }
+export class RbacModule {}

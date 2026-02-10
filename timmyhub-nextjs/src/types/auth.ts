@@ -32,7 +32,6 @@ export interface LoginData {
     device: Device;
 }
 
-
 export interface LoginInput {
     email: string;
     password: string;

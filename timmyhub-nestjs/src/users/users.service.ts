@@ -7,8 +7,7 @@ import { Prisma, UserRole } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
-    constructor(private prisma: PrismaService) { }
-
+    constructor(private prisma: PrismaService) {}
 
     async create(dto: CreateUserDto) {
         const existingUser = await this.prisma.user.findUnique({
@@ -19,6 +18,15 @@ export class UsersService {
             throw new BadRequestException('Email đã tồn tại');
         }
 
+        if (dto.phoneNumber) {
+            const existingPhone = await this.prisma.user.findUnique({
+                where: { phone: dto.phoneNumber },
+            });
+            if (existingPhone) {
+                throw new BadRequestException('Số điện thoại đã tồn tại');
+            }
+        }
+
         const hashedPassword = await bcrypt.hash(dto.password, 12);
 
         return this.prisma.user.create({
@@ -26,6 +34,7 @@ export class UsersService {
                 email: dto.email.toLowerCase(),
                 passwordHash: hashedPassword,
                 role: (dto.role as UserRole) || UserRole.CUSTOMER,
+                phone: dto.phoneNumber || null,
                 profile: {
                     create: {
                         firstName: dto.firstName,
@@ -52,6 +61,20 @@ export class UsersService {
             }
         }
 
+        if (dto.phoneNumber !== undefined && dto.phoneNumber !== user.phone) {
+            // Treat empty string as null for phone number
+            const phoneToCheck = dto.phoneNumber === '' ? null : dto.phoneNumber;
+
+            if (phoneToCheck !== null) {
+                const existingPhone = await this.prisma.user.findUnique({
+                    where: { phone: phoneToCheck },
+                });
+                if (existingPhone) {
+                    throw new BadRequestException('Số điện thoại đã tồn tại');
+                }
+            }
+        }
+
         let hashedPassword: string | undefined = undefined;
         if (dto.password) {
             hashedPassword = await bcrypt.hash(dto.password, 12);
@@ -62,7 +85,10 @@ export class UsersService {
         if (hashedPassword !== undefined) updateData.passwordHash = hashedPassword;
         if (dto.role !== undefined) updateData.role = dto.role as UserRole;
         if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
-        if (dto.phoneNumber !== undefined) updateData.phone = dto.phoneNumber;
+
+        if (dto.phoneNumber !== undefined) {
+            updateData.phone = dto.phoneNumber === '' ? null : dto.phoneNumber;
+        }
 
         // Prepare profile update
         const profileUpdate: Prisma.ProfileUpdateInput = {};
@@ -93,7 +119,6 @@ export class UsersService {
     }
 
     async findAll() {
-
         return this.prisma.user.findMany({
             include: {
                 profile: true,
@@ -118,7 +143,7 @@ export class UsersService {
     async assignRoles(userId: string, roleNames: string[]) {
         await this.findOne(userId);
 
-        return this.prisma.$transaction(async (tx) => {
+        return this.prisma.$transaction(async tx => {
             await tx.userSystemRole.deleteMany({ where: { userId } });
 
             const roles = await tx.systemRole.findMany({
@@ -126,7 +151,7 @@ export class UsersService {
             });
 
             return tx.userSystemRole.createMany({
-                data: roles.map((r) => ({
+                data: roles.map(r => ({
                     userId,
                     roleId: r.id,
                 })),

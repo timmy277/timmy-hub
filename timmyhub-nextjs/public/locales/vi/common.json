@@ -30,7 +30,13 @@
             "status": "Trạng thái",
             "memberSince": "Thành viên từ",
             "actions": "Thao tác",
-            "notUpdated": "Chưa cập nhật"
+            "notUpdated": "Chưa cập nhật",
+            "roleName": "Tên vai trò",
+            "displayName": "Tên hiển thị",
+            "description": "Mô tả",
+            "permissions": "Quyền hạn",
+            "usersCount": "Số người dùng",
+            "createdAt": "Ngày tạo"
         },
         "status": {
             "active": "Đang hoạt động",
@@ -40,7 +46,8 @@
             "view": "Xem chi tiết",
             "edit": "Sửa",
             "lock": "Khóa",
-            "unlock": "Mở khóa"
+            "unlock": "Mở khóa",
+            "delete": "Xóa"
         }
     },
     "roles": {
@@ -86,5 +93,26 @@
         "required": "{{field}} là bắt buộc",
         "invalidEmail": "Địa chỉ email không hợp lệ",
         "passwordMinLength": "Mật khẩu phải có ít nhất {{min}} ký tự"
+    },
+    "rbac": {
+        "title": "Quản lý vai trò",
+        "searchPlaceholder": "Tìm kiếm vai trò theo tên...",
+        "roleName": "Tên vai trò (mã định danh)",
+        "roleNamePlaceholder": "Ví dụ: admin, moderator...",
+        "displayName": "Tên hiển thị",
+        "displayNamePlaceholder": "Ví dụ: Quản trị viên, Kiểm duyệt...",
+        "description": "Mô tả",
+        "descriptionPlaceholder": "Mô tả ngắn gọn về vai trò này...",
+        "permissions": "Quyền hạn",
+        "selectPermissions": "Chọn quyền cho vai trò này",
+        "isSystemRole": "Vai trò hệ thống",
+        "isSystemRoleDescription": "Vai trò hệ thống không thể xóa",
+        "createRole": "Tạo vai trò mới",
+        "updateRole": "Cập nhật vai trò: {{name}}",
+        "deleteRole": "Xóa vai trò",
+        "confirmDelete": "Bạn có chắc chắn muốn xóa vai trò \"{{name}}\"? Hành động này không thể hoàn tác.",
+        "assignedPermissions": "Các quyền đã gán",
+        "noPermissionsAssigned": "Chưa có quyền nào được gán cho vai trò này",
+        "systemRole": "Hệ thống"
     }
 }

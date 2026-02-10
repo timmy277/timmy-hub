@@ -11,7 +11,11 @@ export const useAuth = () => {
     const router = useRouter();
 
     // Query to get current profile (WhoAmI)
-    const { data: profileData, isLoading: isProfileLoading, refetch: refetchProfile } = useQuery({
+    const {
+        data: profileData,
+        isLoading: isProfileLoading,
+        refetch: refetchProfile,
+    } = useQuery({
         queryKey: ['profile'],
         queryFn: () => authService.getProfile(),
         enabled: isAuthenticated,
@@ -35,7 +39,7 @@ export const useAuth = () => {
         onError: () => {
             // Force logout local even if API fails
             handleLocalLogout();
-        }
+        },
     });
 
     const handleLocalLogout = () => {

@@ -22,7 +22,7 @@ export const useCreateCategoryMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (data: CreateCategoryInput) => categoryService.createCategory(data),
-        onSuccess: (response) => {
+        onSuccess: response => {
             queryClient.invalidateQueries({ queryKey: ['categories'] });
             notifications.show({
                 title: 'Thành công',
@@ -36,7 +36,7 @@ export const useCreateCategoryMutation = () => {
 export const useUpdateCategoryMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, data }: { id: string, data: Partial<CreateCategoryInput> }) =>
+        mutationFn: ({ id, data }: { id: string; data: Partial<CreateCategoryInput> }) =>
             categoryService.updateCategory(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['categories'] });

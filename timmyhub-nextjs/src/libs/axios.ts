@@ -25,25 +25,29 @@ const subscribeTokenRefresh = (cb: (token: string) => void) => {
 };
 
 const onRefreshed = (token: string) => {
-    refreshSubscribers.map((cb) => cb(token));
+    refreshSubscribers.map(cb => cb(token));
     refreshSubscribers = [];
 };
 
 axiosClient.interceptors.request.use(
-    (config) => {
+    config => {
         return config;
     },
-    (error) => Promise.reject(error)
+    error => Promise.reject(error),
 );
 
 axiosClient.interceptors.response.use(
-    (response) => {
+    response => {
         return response.data;
     },
     async (error: AxiosError) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && originalRequest && !originalRequest.url?.includes('/auth/login')) {
+        if (
+            error.response?.status === 401 &&
+            originalRequest &&
+            !originalRequest.url?.includes('/auth/login')
+        ) {
             if (!isRefreshing) {
                 isRefreshing = true;
 
@@ -53,7 +57,7 @@ axiosClient.interceptors.response.use(
                     await axios.post<RefreshResponse>(
                         `${axiosClient.defaults.baseURL}/auth/refresh`,
                         {},
-                        { withCredentials: true }
+                        { withCredentials: true },
                     );
 
                     isRefreshing = false;
@@ -68,7 +72,7 @@ axiosClient.interceptors.response.use(
                 }
             }
 
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 subscribeTokenRefresh(() => {
                     resolve(axiosClient(originalRequest));
                 });
@@ -76,7 +80,7 @@ axiosClient.interceptors.response.use(
         }
 
         return Promise.reject(error);
-    }
+    },
 );
 
 export default axiosClient;

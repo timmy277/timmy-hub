@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumber, Min, IsOptional, IsArray, IsDecimal } from 'class-validator';
+import {
+    IsNotEmpty,
+    IsString,
+    IsNumber,
+    Min,
+    IsOptional,
+    IsArray,
+    IsDecimal,
+} from 'class-validator';
 
 /**
  * DTO cho việc tạo sản phẩm mới
@@ -36,12 +44,20 @@ export class CreateProductDto {
     @IsOptional()
     sku?: string;
 
-    @ApiProperty({ example: 'uuid-category-id', description: 'ID danh mục sản phẩm', required: false })
+    @ApiProperty({
+        example: 'uuid-category-id',
+        description: 'ID danh mục sản phẩm',
+        required: false,
+    })
     @IsString()
     @IsOptional()
     categoryId?: string;
 
-    @ApiProperty({ example: ['https://example.com/img1.png'], description: 'Mảng URL hình ảnh sản phẩm', required: false })
+    @ApiProperty({
+        example: ['https://example.com/img1.png'],
+        description: 'Mảng URL hình ảnh sản phẩm',
+        required: false,
+    })
     @IsArray()
     @IsOptional()
     images?: string[];

@@ -65,7 +65,7 @@ export function ThemeSwitcher() {
                             Primary Color
                         </Text>
                         <Group gap={7}>
-                            {colors.map((color) => (
+                            {colors.map(color => (
                                 <UnstyledButton
                                     key={color}
                                     onClick={() => setPrimaryColor(color)}
@@ -83,7 +83,10 @@ export function ThemeSwitcher() {
                                     className="hover:scale-105 active:scale-95"
                                 >
                                     {primaryColor === color && (
-                                        <IconCheck style={{ width: rem(16), height: rem(16) }} stroke={3} />
+                                        <IconCheck
+                                            style={{ width: rem(16), height: rem(16) }}
+                                            stroke={3}
+                                        />
                                     )}
                                 </UnstyledButton>
                             ))}

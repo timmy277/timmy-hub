@@ -8,7 +8,7 @@ import { FlagVN, FlagUK } from '@/components/common';
 
 export function LanguageSwitcher() {
     const { i18n } = useTranslation();
-    const primaryColor = useThemeStore((state) => state.primaryColor);
+    const primaryColor = useThemeStore(state => state.primaryColor);
 
     const handleLanguageChange = (lang: string) => {
         i18n.changeLanguage(lang);
@@ -17,7 +17,12 @@ export function LanguageSwitcher() {
     const currentLanguage = i18n.language || 'en';
 
     return (
-        <Menu shadow="md" width={140} position="bottom-end" transitionProps={{ transition: 'pop-top-right' }}>
+        <Menu
+            shadow="md"
+            width={140}
+            position="bottom-end"
+            transitionProps={{ transition: 'pop-top-right' }}
+        >
             <Menu.Target>
                 <Tooltip label="Change language">
                     <ActionIcon variant="default" size="lg" radius="md">
@@ -31,14 +36,28 @@ export function LanguageSwitcher() {
                 <Menu.Item
                     leftSection={<FlagUK />}
                     onClick={() => handleLanguageChange('en')}
-                    rightSection={!currentLanguage.startsWith('vi') && <IconCheck size={14} color={`var(--mantine-color-${primaryColor}-filled)`} />}
+                    rightSection={
+                        !currentLanguage.startsWith('vi') && (
+                            <IconCheck
+                                size={14}
+                                color={`var(--mantine-color-${primaryColor}-filled)`}
+                            />
+                        )
+                    }
                 >
                     English
                 </Menu.Item>
                 <Menu.Item
                     leftSection={<FlagVN />}
                     onClick={() => handleLanguageChange('vi')}
-                    rightSection={currentLanguage.startsWith('vi') && <IconCheck size={14} color={`var(--mantine-color-${primaryColor}-filled)`} />}
+                    rightSection={
+                        currentLanguage.startsWith('vi') && (
+                            <IconCheck
+                                size={14}
+                                color={`var(--mantine-color-${primaryColor}-filled)`}
+                            />
+                        )
+                    }
                 >
                     Tiếng Việt
                 </Menu.Item>

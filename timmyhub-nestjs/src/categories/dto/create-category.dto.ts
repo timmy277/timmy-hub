@@ -10,17 +10,29 @@ export class CreateCategoryDto {
     @IsString()
     slug: string;
 
-    @ApiProperty({ example: 'uuid-parent-category', description: 'ID danh mục cha (nếu có)', required: false })
+    @ApiProperty({
+        example: 'uuid-parent-category',
+        description: 'ID danh mục cha (nếu có)',
+        required: false,
+    })
     @IsOptional()
     @IsString()
     parentId?: string;
 
-    @ApiProperty({ example: 'https://example.com/icon.png', description: 'URL icon danh mục', required: false })
+    @ApiProperty({
+        example: 'https://example.com/icon.png',
+        description: 'URL icon danh mục',
+        required: false,
+    })
     @IsOptional()
     @IsString()
     image?: string;
 
-    @ApiProperty({ example: 'Danh mục các thiết bị di động', description: 'Mô tả danh mục', required: false })
+    @ApiProperty({
+        example: 'Danh mục các thiết bị di động',
+        description: 'Mô tả danh mục',
+        required: false,
+    })
     @IsOptional()
     @IsString()
     description?: string;

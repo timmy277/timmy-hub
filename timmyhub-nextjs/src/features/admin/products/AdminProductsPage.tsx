@@ -18,7 +18,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import { IconCheck, IconX, IconEye, IconRefresh } from '@tabler/icons-react';
 import { BaseDataTable } from '@/components/tables/BaseDataTable';
-import { useAdminProducts, useApproveProductMutation, useRejectProductMutation } from '@/hooks/useProducts';
+import {
+    useAdminProducts,
+    useApproveProductMutation,
+    useRejectProductMutation,
+} from '@/hooks/useProducts';
 import { Product, ResourceStatus } from '@/types/product';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import dayjs from 'dayjs';
@@ -47,100 +51,111 @@ export function AdminProductsPage() {
         setRejectNote('');
     };
 
-    const columnDefs = useMemo<ColDef<Product>[]>(() => [
-        {
-            headerName: 'Sản phẩm',
-            field: 'name',
-            minWidth: 200,
-            cellRenderer: (params: ICellRendererParams<Product>) => (
-                <Stack gap={0} py={4}>
-                    <Text size="sm" fw={500}>{params.data?.name}</Text>
-                    <Text size="xs" c="dimmed">{params.data?.sku || 'No SKU'}</Text>
-                </Stack>
-            )
-        },
-        {
-            headerName: 'Danh mục',
-            valueGetter: (params) => params.data?.category?.name || 'Chưa phân loại',
-        },
-        {
-            headerName: 'Người bán',
-            valueGetter: (params) => {
-                const profile = params.data?.seller?.profile;
-                if (profile) return `${profile.firstName} ${profile.lastName}`;
-                return params.data?.seller?.email;
+    const columnDefs = useMemo<ColDef<Product>[]>(
+        () => [
+            {
+                headerName: 'Sản phẩm',
+                field: 'name',
+                minWidth: 200,
+                cellRenderer: (params: ICellRendererParams<Product>) => (
+                    <Stack gap={0} py={4}>
+                        <Text size="sm" fw={500}>
+                            {params.data?.name}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                            {params.data?.sku || 'No SKU'}
+                        </Text>
+                    </Stack>
+                ),
             },
-        },
-        {
-            headerName: 'Giá',
-            field: 'price',
-            valueFormatter: (params) => `${Number(params.value).toLocaleString()} ₫`,
-        },
-        {
-            headerName: 'Trạng thái',
-            field: 'status',
-            cellRenderer: (params: ICellRendererParams<Product>) => {
-                const status = params.value as ResourceStatus;
-                const config = {
-                    [ResourceStatus.PENDING]: { color: 'yellow', label: 'Chờ duyệt' },
-                    [ResourceStatus.APPROVED]: { color: 'green', label: 'Đã duyệt' },
-                    [ResourceStatus.REJECTED]: { color: 'red', label: 'Từ chối' },
-                    [ResourceStatus.DELETED]: { color: 'gray', label: 'Đã xóa' },
-                };
-                const { color, label } = config[status] || { color: 'gray', label: status };
-                return <Badge color={color} variant="light" mt={8}>{label}</Badge>;
-            }
-        },
-        {
-            headerName: 'Ngày tạo',
-            field: 'createdAt',
-            valueFormatter: (params) => dayjs(params.value).format('DD/MM/YYYY HH:mm'),
-        },
-        {
-            headerName: 'Thao tác',
-            pinned: 'right',
-            width: 150,
-            sortable: false,
-            filter: false,
-            cellRenderer: (params: ICellRendererParams<Product>) => {
-                if (!params.data) return null;
-                const { id, status } = params.data;
-                return (
-                    <Group gap="xs" mt={4}>
-                        <Tooltip label="Xem chi tiết">
-                            <ActionIcon variant="light" color="blue">
-                                <IconEye size={16} />
-                            </ActionIcon>
-                        </Tooltip>
+            {
+                headerName: 'Danh mục',
+                valueGetter: params => params.data?.category?.name || 'Chưa phân loại',
+            },
+            {
+                headerName: 'Người bán',
+                valueGetter: params => {
+                    const profile = params.data?.seller?.profile;
+                    if (profile) return `${profile.firstName} ${profile.lastName}`;
+                    return params.data?.seller?.email;
+                },
+            },
+            {
+                headerName: 'Giá',
+                field: 'price',
+                valueFormatter: params => `${Number(params.value).toLocaleString()} ₫`,
+            },
+            {
+                headerName: 'Trạng thái',
+                field: 'status',
+                cellRenderer: (params: ICellRendererParams<Product>) => {
+                    const status = params.value as ResourceStatus;
+                    const config = {
+                        [ResourceStatus.PENDING]: { color: 'yellow', label: 'Chờ duyệt' },
+                        [ResourceStatus.APPROVED]: { color: 'green', label: 'Đã duyệt' },
+                        [ResourceStatus.REJECTED]: { color: 'red', label: 'Từ chối' },
+                        [ResourceStatus.DELETED]: { color: 'gray', label: 'Đã xóa' },
+                    };
+                    const { color, label } = config[status] || { color: 'gray', label: status };
+                    return (
+                        <Badge color={color} variant="light" mt={8}>
+                            {label}
+                        </Badge>
+                    );
+                },
+            },
+            {
+                headerName: 'Ngày tạo',
+                field: 'createdAt',
+                valueFormatter: params => dayjs(params.value).format('DD/MM/YYYY HH:mm'),
+            },
+            {
+                headerName: 'Thao tác',
+                pinned: 'right',
+                width: 150,
+                sortable: false,
+                filter: false,
+                cellRenderer: (params: ICellRendererParams<Product>) => {
+                    if (!params.data) return null;
+                    const { id, status } = params.data;
+                    return (
+                        <Group gap="xs" mt={4}>
+                            <Tooltip label="Xem chi tiết">
+                                <ActionIcon variant="light" color="blue">
+                                    <IconEye size={16} />
+                                </ActionIcon>
+                            </Tooltip>
 
-                        {status === ResourceStatus.PENDING && (
-                            <>
-                                <Tooltip label="Duyệt sản phẩm">
-                                    <ActionIcon
-                                        variant="light"
-                                        color="green"
-                                        loading={approveMutation.isPending}
-                                        onClick={() => handleApprove(id)}
-                                    >
-                                        <IconCheck size={16} />
-                                    </ActionIcon>
-                                </Tooltip>
-                                <Tooltip label="Từ chối">
-                                    <ActionIcon
-                                        variant="light"
-                                        color="red"
-                                        onClick={() => setRejectingId(id)}
-                                    >
-                                        <IconX size={16} />
-                                    </ActionIcon>
-                                </Tooltip>
-                            </>
-                        )}
-                    </Group>
-                );
-            }
-        }
-    ], [approveMutation.isPending]);
+                            {status === ResourceStatus.PENDING && (
+                                <>
+                                    <Tooltip label="Duyệt sản phẩm">
+                                        <ActionIcon
+                                            variant="light"
+                                            color="green"
+                                            loading={approveMutation.isPending}
+                                            onClick={() => handleApprove(id)}
+                                        >
+                                            <IconCheck size={16} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                    <Tooltip label="Từ chối">
+                                        <ActionIcon
+                                            variant="light"
+                                            color="red"
+                                            onClick={() => setRejectingId(id)}
+                                        >
+                                            <IconX size={16} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                </>
+                            )}
+                        </Group>
+                    );
+                },
+            },
+        ],
+        [approveMutation.isPending],
+    );
 
     return (
         <Container size="xl" py="md">
@@ -148,7 +163,9 @@ export function AdminProductsPage() {
                 <Group justify="space-between">
                     <div>
                         <Title order={2}>Quản lý phê duyệt sản phẩm</Title>
-                        <Text size="sm" c="dimmed">Phê duyệt hoặc từ chối sản phẩm đăng bán từ người bán</Text>
+                        <Text size="sm" c="dimmed">
+                            Phê duyệt hoặc từ chối sản phẩm đăng bán từ người bán
+                        </Text>
                     </div>
                     <Button
                         leftSection={<IconRefresh size={16} />}
@@ -182,10 +199,12 @@ export function AdminProductsPage() {
                         placeholder="Vui lòng nhập lý do từ chối..."
                         minRows={4}
                         value={rejectNote}
-                        onChange={(e) => setRejectNote(e.currentTarget.value)}
+                        onChange={e => setRejectNote(e.currentTarget.value)}
                     />
                     <Group justify="flex-end">
-                        <Button variant="outline" onClick={() => setRejectingId(null)}>Hủy</Button>
+                        <Button variant="outline" onClick={() => setRejectingId(null)}>
+                            Hủy
+                        </Button>
                         <Button
                             color="red"
                             onClick={handleReject}

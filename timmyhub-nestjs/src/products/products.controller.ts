@@ -1,13 +1,4 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Param,
-    Patch,
-    UseGuards,
-    Req,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -17,11 +8,10 @@ import { Permissions } from '../common/decorators/permissions.decorator';
 import { ResponseDto } from '../common/dto/response.dto';
 import type { UserRequest } from '../auth/interfaces/auth.interface';
 
-
 @ApiTags('Products (Approval Flow Example)')
 @Controller('products')
 export class ProductsController {
-    constructor(private readonly productsService: ProductsService) { }
+    constructor(private readonly productsService: ProductsService) {}
 
     @Post()
     @UseGuards(JwtAuthGuard)
@@ -64,11 +54,7 @@ export class ProductsController {
     @Permissions('product:approve')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Từ chối sản phẩm (Hủy)' })
-    async reject(
-        @Param('id') id: string,
-        @Body('note') note: string,
-        @Req() req: UserRequest,
-    ) {
+    async reject(@Param('id') id: string, @Body('note') note: string, @Req() req: UserRequest) {
         await this.productsService.reject(id, req.user.id, note);
         return ResponseDto.success('Đã từ chối sản phẩm');
     }

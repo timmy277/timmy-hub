@@ -9,10 +9,10 @@ export function AuthSyncProvider({ children }: { children: ReactNode }) {
     const { user } = useAuthStore();
 
     useEffect(() => {
-        // Nếu đã authenticated trong store (từ persistence), 
+        // Nếu đã authenticated trong store (từ persistence),
         // hãy re-fetch profile để đảm bảo session vẫn còn hiệu lực ở server
         if (isAuthenticated) {
-            refetchProfile().then((result) => {
+            refetchProfile().then(result => {
                 if (result.isError) {
                     // Nếu lỗi (401), force logout để xóa store địa phương
                     logout();

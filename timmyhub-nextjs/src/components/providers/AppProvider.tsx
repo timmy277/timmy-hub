@@ -15,7 +15,7 @@ interface AppProviderProps {
 }
 
 export function AppProvider({ children }: AppProviderProps) {
-    const primaryColor = useThemeStore((state) => state.primaryColor);
+    const primaryColor = useThemeStore(state => state.primaryColor);
 
     // TanStack Query Client initialization
     const [queryClient] = useState(
@@ -28,9 +28,8 @@ export function AppProvider({ children }: AppProviderProps) {
                         retry: 1,
                     },
                 },
-            })
+            }),
     );
-
 
     const theme = createTheme({
         primaryColor: primaryColor,
@@ -59,9 +58,7 @@ export function AppProvider({ children }: AppProviderProps) {
                     }}
                 >
                     <Notifications />
-                    <AuthSyncProvider>
-                        {children}
-                    </AuthSyncProvider>
+                    <AuthSyncProvider>{children}</AuthSyncProvider>
                     <ReactQueryDevtools initialIsOpen={false} />
                 </ModalsProvider>
             </MantineProvider>

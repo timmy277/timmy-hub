@@ -41,11 +41,7 @@ export function UserDetail({ user }: UserDetailProps) {
                     <Title order={3}>
                         {t('userManagement.userDetails', { email: user.email })}
                     </Title>
-                    <Badge
-                        size="lg"
-                        color={user.isActive ? 'green' : 'red'}
-                        variant="dot"
-                    >
+                    <Badge size="lg" color={user.isActive ? 'green' : 'red'} variant="dot">
                         {user.isActive ? t('table.status.active') : t('table.status.inactive')}
                     </Badge>
                 </Group>
@@ -54,7 +50,9 @@ export function UserDetail({ user }: UserDetailProps) {
 
                 {/* Basic Information */}
                 <Stack gap="md">
-                    <Text fw={700} size="lg">{t('userManagement.basicInfo')}</Text>
+                    <Text fw={700} size="lg">
+                        {t('userManagement.basicInfo')}
+                    </Text>
                     <Card withBorder padding="md">
                         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                             <Group wrap="nowrap">
@@ -67,14 +65,15 @@ export function UserDetail({ user }: UserDetailProps) {
                                     size="lg"
                                     color="blue"
                                 >
-                                    {user.profile?.firstName?.charAt(0) || user.email.charAt(0).toUpperCase()}
+                                    {user.profile?.firstName?.charAt(0) ||
+                                        user.email.charAt(0).toUpperCase()}
                                 </Avatar>
                             </Group>
 
                             {renderInfoRow(
                                 t('userManagement.fullName'),
                                 `${user.profile?.firstName || ''} ${user.profile?.lastName || ''}`.trim() ||
-                                t('table.columns.notUpdated')
+                                    t('table.columns.notUpdated'),
                             )}
 
                             {renderInfoRow(t('userManagement.email'), user.email)}
@@ -83,17 +82,14 @@ export function UserDetail({ user }: UserDetailProps) {
                                 t('userManagement.role'),
                                 <Badge color="blue" variant="light">
                                     {t(`roles.${user.role}`)}
-                                </Badge>
+                                </Badge>,
                             )}
 
-                            {renderInfoRow(
-                                t('userManagement.phone'),
-                                user.phone || 'N/A'
-                            )}
+                            {renderInfoRow(t('userManagement.phone'), user.phone || 'N/A')}
 
                             {renderInfoRow(
                                 t('table.columns.memberSince'),
-                                formatDate(user.createdAt)
+                                formatDate(user.createdAt),
                             )}
                         </SimpleGrid>
 

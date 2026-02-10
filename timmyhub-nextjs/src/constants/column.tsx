@@ -1,26 +1,18 @@
-import {
-    Badge,
-    Group,
-    ActionIcon,
-    Tooltip,
-    Avatar,
-} from '@mantine/core';
-import {
-    IconEye,
-    IconEdit,
-    IconLock,
-    IconLockOpen,
-} from '@tabler/icons-react';
+import { Badge, Group, ActionIcon, Tooltip, Avatar } from '@mantine/core';
+import { IconEye, IconEdit, IconLock, IconLockOpen } from '@tabler/icons-react';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { User } from '@/types/auth';
+import { Role } from '@/types/rbac';
 import { UserRole } from '@/types/enums';
 import { TFunction } from 'i18next';
 import { formatDate } from '@/utils/date';
+import { IconTrash } from '@tabler/icons-react';
 
 export interface ActionColumnProps<T> {
     onDetail?: (data: T) => void;
     onUpdate?: (data: T) => void;
     onToggleStatus?: (data: T) => void;
+    onDelete?: (data: T) => void;
     isToggleLoading?: boolean;
     toggleLoadingId?: string | null;
 }
@@ -52,9 +44,10 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
             cellStyle: { display: 'flex', alignItems: 'center' },
             cellRenderer: (params: ICellRendererParams<User>) => {
                 const avatar = params.data?.profile?.avatar || '';
-                const initial = params.data?.profile?.firstName?.charAt(0) 
-                    || params.data?.email.charAt(0).toUpperCase();
-                
+                const initial =
+                    params.data?.profile?.firstName?.charAt(0) ||
+                    params.data?.email.charAt(0).toUpperCase();
+
                 return (
                     <Avatar src={avatar} radius="xl" color="blue" alt="User avatar">
                         {initial}
@@ -66,7 +59,7 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
             headerName: t('table.columns.name'),
             field: 'profile.firstName',
             minWidth: 150,
-            valueGetter: (params) => {
+            valueGetter: params => {
                 const profile = params.data?.profile;
                 if (!profile) return t('table.columns.notUpdated');
                 return `${profile.firstName} ${profile.lastName}`.trim();
@@ -84,11 +77,7 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
             cellRenderer: (params: ICellRendererParams<User>) => {
                 const role = params.value as UserRole;
                 return (
-                    <Badge
-                        color={getRoleColor(role)}
-                        variant="light"
-                        mt={10}
-                    >
+                    <Badge color={getRoleColor(role)} variant="light" mt={10}>
                         {t(`roles.${role}`)}
                     </Badge>
                 );
@@ -101,15 +90,8 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
             cellRenderer: (params: ICellRendererParams<User>) => {
                 const isActive = params.value;
                 return (
-                    <Badge
-                        color={isActive ? 'green' : 'red'}
-                        variant="dot"
-                        mt={10}
-                    >
-                        {isActive 
-                            ? t('table.status.active') 
-                            : t('table.status.inactive')
-                        }
+                    <Badge color={isActive ? 'green' : 'red'} variant="dot" mt={10}>
+                        {isActive ? t('table.status.active') : t('table.status.inactive')}
                     </Badge>
                 );
             },
@@ -118,14 +100,68 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
             headerName: t('table.columns.memberSince'),
             field: 'createdAt',
             width: 150,
-            valueFormatter: (params) => formatDate(params.value),
+            valueFormatter: params => formatDate(params.value),
+        },
+    ];
+};
+
+export const createRoleColumns = (options: ColumnConfigOptions): ColDef<Role>[] => {
+    const { t } = options;
+
+    return [
+        {
+            headerName: t('table.columns.roleName'),
+            field: 'name',
+            minWidth: 150,
+            cellRenderer: (params: ICellRendererParams<Role>) => (
+                <Badge variant="filled" color={params.data?.isSystem ? 'red' : 'blue'}>
+                    {params.value}
+                </Badge>
+            ),
+        },
+        {
+            headerName: t('table.columns.displayName'),
+            field: 'displayName',
+            minWidth: 150,
+        },
+        {
+            headerName: t('table.columns.description'),
+            field: 'description',
+            minWidth: 200,
+            flex: 1,
+        },
+        {
+            headerName: t('table.columns.permissions'),
+            field: '_count.permissions',
+            width: 120,
+            cellRenderer: (params: ICellRendererParams<Role>) => (
+                <Badge variant="light" color="cyan">
+                    {params.value || 0} {t('table.columns.permissions')}
+                </Badge>
+            ),
+        },
+        {
+            headerName: t('table.columns.usersCount'),
+            field: '_count.users',
+            width: 120,
+            cellRenderer: (params: ICellRendererParams<Role>) => (
+                <Badge variant="light" color="indigo">
+                    {params.value || 0} {t('common.users')}
+                </Badge>
+            ),
+        },
+        {
+            headerName: t('table.columns.createdAt'),
+            field: 'createdAt',
+            width: 150,
+            valueFormatter: params => formatDate(params.value),
         },
     ];
 };
 
 export const createActionColumn = <T extends { id: string; isActive?: boolean }>(
     props: ActionColumnProps<T>,
-    options: ColumnConfigOptions
+    options: ColumnConfigOptions,
 ): ColDef<T> => {
     const { t } = options;
 
@@ -138,7 +174,7 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean }>
         suppressHeaderMenuButton: true,
         cellRenderer: (params: ICellRendererParams<T>) => {
             if (!params.data) return null;
-            
+
             const item = params.data;
             const isActive = item.isActive ?? false;
             const isLoading = props.isToggleLoading && props.toggleLoadingId === item.id;
@@ -147,9 +183,9 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean }>
                 <Group gap="xs" mt={4}>
                     {props.onDetail && (
                         <Tooltip label={t('table.actions.view')} withArrow>
-                            <ActionIcon 
-                                variant="light" 
-                                color="blue" 
+                            <ActionIcon
+                                variant="light"
+                                color="blue"
                                 onClick={() => props.onDetail!(item)}
                                 aria-label={t('table.actions.view')}
                             >
@@ -157,12 +193,12 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean }>
                             </ActionIcon>
                         </Tooltip>
                     )}
-                    
+
                     {props.onUpdate && (
                         <Tooltip label={t('table.actions.edit')} withArrow>
-                            <ActionIcon 
-                                variant="light" 
-                                color="orange" 
+                            <ActionIcon
+                                variant="light"
+                                color="orange"
                                 onClick={() => props.onUpdate!(item)}
                                 aria-label={t('table.actions.edit')}
                             >
@@ -170,10 +206,10 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean }>
                             </ActionIcon>
                         </Tooltip>
                     )}
-                    
+
                     {props.onToggleStatus && (
-                        <Tooltip 
-                            label={isActive ? t('table.actions.lock') : t('table.actions.unlock')} 
+                        <Tooltip
+                            label={isActive ? t('table.actions.lock') : t('table.actions.unlock')}
                             withArrow
                         >
                             <ActionIcon
@@ -181,9 +217,27 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean }>
                                 color={isActive ? 'red' : 'green'}
                                 loading={isLoading}
                                 onClick={() => props.onToggleStatus!(item)}
-                                aria-label={isActive ? t('table.actions.lock') : t('table.actions.unlock')}
+                                aria-label={
+                                    isActive ? t('table.actions.lock') : t('table.actions.unlock')
+                                }
                             >
                                 {isActive ? <IconLock size={16} /> : <IconLockOpen size={16} />}
+                            </ActionIcon>
+                        </Tooltip>
+                    )}
+
+                    {props.onDelete && (
+                        <Tooltip label={t('table.actions.delete')} withArrow>
+                            <ActionIcon
+                                variant="light"
+                                color="red"
+                                onClick={() => props.onDelete!(item)}
+                                aria-label={t('table.actions.delete')}
+                                disabled={
+                                    'isSystem' in item && !!(item as unknown as Role).isSystem
+                                }
+                            >
+                                <IconTrash size={16} />
                             </ActionIcon>
                         </Tooltip>
                     )}
@@ -194,7 +248,7 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean }>
 };
 
 export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
-    props: ActionColumnProps<T>
+    props: ActionColumnProps<T>,
 ): ColDef<T> => ({
     headerName: 'Actions',
     pinned: 'right',
@@ -210,14 +264,22 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
             <Group gap="xs" mt={4}>
                 {props.onDetail && (
                     <Tooltip label="View details">
-                        <ActionIcon variant="light" color="blue" onClick={() => props.onDetail!(item)}>
+                        <ActionIcon
+                            variant="light"
+                            color="blue"
+                            onClick={() => props.onDetail!(item)}
+                        >
                             <IconEye size={16} />
                         </ActionIcon>
                     </Tooltip>
                 )}
                 {props.onUpdate && (
                     <Tooltip label="Edit">
-                        <ActionIcon variant="light" color="orange" onClick={() => props.onUpdate!(item)}>
+                        <ActionIcon
+                            variant="light"
+                            color="orange"
+                            onClick={() => props.onUpdate!(item)}
+                        >
                             <IconEdit size={16} />
                         </ActionIcon>
                     </Tooltip>
@@ -236,5 +298,5 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
                 )}
             </Group>
         );
-    }
+    },
 });

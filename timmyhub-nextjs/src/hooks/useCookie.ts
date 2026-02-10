@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 export function useCookie(
     key: string,
     initialValue: string | null = null,
-    options?: Cookies.CookieAttributes
+    options?: Cookies.CookieAttributes,
 ) {
     const [item, setItem] = useState<string | null>(() => {
         const cookie = Cookies.get(key);
@@ -17,7 +17,7 @@ export function useCookie(
             setItem(value);
             Cookies.set(key, value, cookieOptions || options);
         },
-        [key, options]
+        [key, options],
     );
 
     const removeItem = useCallback(() => {

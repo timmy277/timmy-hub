@@ -1,8 +1,4 @@
-import {
-    Injectable,
-    UnauthorizedException,
-    BadRequestException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
@@ -16,7 +12,7 @@ export class AuthService {
         private readonly prisma: PrismaService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
-    ) { }
+    ) {}
 
     async register(dto: RegisterDto) {
         const existingUser = await this.prisma.user.findUnique({
@@ -107,10 +103,10 @@ export class AuthService {
         });
 
         const permissions = new Set<string>();
-        userWithPermissions?.userRoles.forEach((ur) => {
-            ur.role.permissions.forEach((rp) => permissions.add(rp.permission.name));
+        userWithPermissions?.userRoles.forEach(ur => {
+            ur.role.permissions.forEach(rp => permissions.add(rp.permission.name));
         });
-        userWithPermissions?.userPermissions.forEach((up) => {
+        userWithPermissions?.userPermissions.forEach(up => {
             permissions.add(up.permission.name);
         });
 

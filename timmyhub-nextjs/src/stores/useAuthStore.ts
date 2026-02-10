@@ -12,7 +12,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set) => ({
+        set => ({
             user: null,
             device: null,
             isAuthenticated: false,
@@ -21,6 +21,6 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
-        }
-    )
+        },
+    ),
 );

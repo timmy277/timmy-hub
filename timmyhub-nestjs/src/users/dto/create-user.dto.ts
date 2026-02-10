@@ -35,4 +35,9 @@ export class CreateUserDto {
     @IsEnum(UserRole, { message: 'Vai trò không hợp lệ' })
     @IsOptional()
     role?: UserRole;
+
+    @ApiProperty({ example: '0123456789' })
+    @IsString()
+    @IsOptional()
+    phoneNumber?: string;
 }

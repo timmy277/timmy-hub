@@ -4,7 +4,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 
 @Injectable()
 export class RbacService {
-    constructor(private prisma: PrismaService) { }
+    constructor(private prisma: PrismaService) {}
 
     // ==================== ROLES ====================
 
@@ -37,7 +37,7 @@ export class RbacService {
         });
         if (existing) throw new ConflictException('Tên vai trò đã tồn tại');
 
-        return this.prisma.$transaction(async (tx) => {
+        return this.prisma.$transaction(async tx => {
             const role = await tx.systemRole.create({
                 data: {
                     name: dto.name,
@@ -53,7 +53,7 @@ export class RbacService {
                 });
 
                 await tx.rolePermission.createMany({
-                    data: permissions.map((p) => ({
+                    data: permissions.map(p => ({
                         roleId: role.id,
                         permissionId: p.id,
                     })),
@@ -73,7 +73,7 @@ export class RbacService {
     async assignPermissionsToRole(roleId: string, permissionNames: string[]) {
         const role = await this.findOneRole(roleId);
 
-        return this.prisma.$transaction(async (tx) => {
+        return this.prisma.$transaction(async tx => {
             // Xóa tất cả quyền cũ
             await tx.rolePermission.deleteMany({ where: { roleId } });
 
@@ -84,7 +84,7 @@ export class RbacService {
 
             // Tạo mapping mới
             return tx.rolePermission.createMany({
-                data: permissions.map((p) => ({
+                data: permissions.map(p => ({
                     roleId,
                     permissionId: p.id,
                 })),
@@ -98,7 +98,12 @@ export class RbacService {
         return this.prisma.permission.findMany();
     }
 
-    async createPermission(data: { name: string; displayName: string; module: string; action: string }) {
+    async createPermission(data: {
+        name: string;
+        displayName: string;
+        module: string;
+        action: string;
+    }) {
         const existing = await this.prisma.permission.findUnique({
             where: { name: data.name },
         });

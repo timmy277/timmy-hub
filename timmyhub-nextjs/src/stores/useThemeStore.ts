@@ -1,7 +1,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type PrimaryColor = 'blue' | 'cyan' | 'grape' | 'green' | 'indigo' | 'orange' | 'pink' | 'red' | 'teal' | 'violet';
+export type PrimaryColor =
+    | 'blue'
+    | 'cyan'
+    | 'grape'
+    | 'green'
+    | 'indigo'
+    | 'orange'
+    | 'pink'
+    | 'red'
+    | 'teal'
+    | 'violet';
 
 interface ThemeState {
     primaryColor: PrimaryColor;
@@ -10,12 +20,12 @@ interface ThemeState {
 
 export const useThemeStore = create<ThemeState>()(
     persist(
-        (set) => ({
+        set => ({
             primaryColor: 'blue',
-            setPrimaryColor: (color) => set({ primaryColor: color }),
+            setPrimaryColor: color => set({ primaryColor: color }),
         }),
         {
             name: 'theme-storage',
-        }
-    )
+        },
+    ),
 );

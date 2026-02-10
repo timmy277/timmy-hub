@@ -1,90 +1,118 @@
 {
-  "common": {
-    "welcome": "Welcome to TimmyHub",
-    "login": "Login",
-    "logout": "Logout",
-    "email": "Email address",
-    "password": "Password",
-    "rememberMe": "Remember me",
-    "forgotPassword": "Forgot password?",
-    "signIn": "Sign in",
-    "noAccount": "Don't have an account?",
-    "createAccount": "Create account",
-    "cancel": "Cancel",
-    "create": "Create",
-    "update": "Update",
-    "save": "Save",
-    "delete": "Delete"
-  },
-  "auth": {
-    "welcomeBack": "Welcome back!",
-    "loginSubtitle": "Enter your credentials to access your account",
-    "loginSuccess": "You have successfully logged in!"
-  },
-  "table": {
-    "columns": {
-      "avatar": "Avatar",
-      "name": "Name",
-      "email": "Email",
-      "role": "Role",
-      "status": "Status",
-      "memberSince": "Member Since",
-      "actions": "Actions",
-      "notUpdated": "Not updated"
+    "common": {
+        "welcome": "Welcome to TimmyHub",
+        "login": "Login",
+        "logout": "Logout",
+        "email": "Email address",
+        "password": "Password",
+        "rememberMe": "Remember me",
+        "forgotPassword": "Forgot password?",
+        "signIn": "Sign in",
+        "noAccount": "Don't have an account?",
+        "createAccount": "Create account",
+        "cancel": "Cancel",
+        "create": "Create",
+        "update": "Update",
+        "save": "Save",
+        "delete": "Delete"
     },
-    "status": {
-      "active": "Active",
-      "inactive": "Locked"
+    "auth": {
+        "welcomeBack": "Welcome back!",
+        "loginSubtitle": "Enter your credentials to access your account",
+        "loginSuccess": "You have successfully logged in!"
     },
-    "actions": {
-      "view": "View details",
-      "edit": "Edit",
-      "lock": "Lock",
-      "unlock": "Unlock"
+    "table": {
+        "columns": {
+            "avatar": "Avatar",
+            "name": "Name",
+            "email": "Email",
+            "role": "Role",
+            "status": "Status",
+            "memberSince": "Member Since",
+            "actions": "Actions",
+            "notUpdated": "Not updated",
+            "roleName": "Role Name",
+            "displayName": "Display Name",
+            "description": "Description",
+            "permissions": "Permissions",
+            "usersCount": "Users",
+            "createdAt": "Created At"
+        },
+        "status": {
+            "active": "Active",
+            "inactive": "Locked"
+        },
+        "actions": {
+            "view": "View details",
+            "edit": "Edit",
+            "lock": "Lock",
+            "unlock": "Unlock",
+            "delete": "Delete"
+        }
+    },
+    "roles": {
+        "CUSTOMER": "Customer",
+        "SELLER": "Seller",
+        "BRAND": "Brand",
+        "SHIPPER": "Shipper",
+        "ADMIN": "Admin",
+        "SUPER_ADMIN": "Super Admin"
+    },
+    "userManagement": {
+        "title": "User Management",
+        "searchPlaceholder": "Search users by email, name...",
+        "listTab": "List",
+        "createTab": "Create",
+        "updateTab": "Update",
+        "detailTab": "Details",
+        "userDetails": "User Details: {{email}}",
+        "createUser": "Create New User",
+        "updateUser": "Update User: {{email}}",
+        "basicInfo": "Basic Information",
+        "profileInfo": "Profile Information",
+        "avatar": "Avatar",
+        "fullName": "Full Name",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Email",
+        "password": "Password",
+        "passwordOptional": "Password (leave blank to keep current)",
+        "passwordUpdateHint": "Leave blank if you don't want to change password",
+        "role": "Role",
+        "selectRole": "Select role",
+        "phone": "Phone Number",
+        "accountStatus": "Account Status",
+        "bio": "Bio",
+        "id": "ID",
+        "lockAccount": "Lock Account",
+        "unlockAccount": "Unlock Account",
+        "confirmLock": "Are you sure you want to lock the account {{email}}? The user will not be able to log in after being locked.",
+        "confirmUnlock": "Are you sure you want to unlock the account {{email}}? The user will be able to log in again."
+    },
+    "validation": {
+        "required": "{{field}} is required",
+        "invalidEmail": "Invalid email address",
+        "passwordMinLength": "Password must be at least {{min}} characters"
+    },
+    "rbac": {
+        "title": "Role Management",
+        "searchPlaceholder": "Search roles by name...",
+        "roleName": "Role Name (Identifier)",
+        "roleNamePlaceholder": "e.g., admin, moderator...",
+        "displayName": "Display Name",
+        "displayNamePlaceholder": "e.g., Administrator, Moderator...",
+        "description": "Description",
+        "descriptionPlaceholder": "Brief description of this role...",
+        "permissions": "Permissions",
+        "selectPermissions": "Select permissions for this role",
+        "isSystemRole": "System Role",
+        "isSystemRoleDescription": "System roles cannot be deleted",
+        "createRole": "Create New Role",
+        "updateRole": "Update Role: {{name}}",
+        "deleteRole": "Delete Role",
+        "confirmDelete": "Are you sure you want to delete role \"{{name}}\"? This action cannot be undone.",
+        "assignedPermissions": "Assigned Permissions",
+        "noPermissionsAssigned": "No permissions assigned to this role",
+        "systemRole": "System"
     }
-  },
-  "roles": {
-    "CUSTOMER": "Customer",
-    "SELLER": "Seller",
-    "BRAND": "Brand",
-    "SHIPPER": "Shipper",
-    "ADMIN": "Admin",
-    "SUPER_ADMIN": "Super Admin"
-  },
-  "userManagement": {
-    "title": "User Management",
-    "searchPlaceholder": "Search users by email, name...",
-    "listTab": "List",
-    "createTab": "Create",
-    "updateTab": "Update",
-    "detailTab": "Details",
-    "userDetails": "User Details: {{email}}",
-    "createUser": "Create New User",
-    "updateUser": "Update User: {{email}}",
-    "basicInfo": "Basic Information",
-    "profileInfo": "Profile Information",
-    "avatar": "Avatar",
-    "fullName": "Full Name",
-    "firstName": "First Name",
-    "lastName": "Last Name",
-    "email": "Email",
-    "password": "Password",
-    "passwordOptional": "Password (leave blank to keep current)",
-    "passwordUpdateHint": "Leave blank if you don't want to change password",
-    "role": "Role",
-    "selectRole": "Select role",
-    "phone": "Phone Number",
-    "accountStatus": "Account Status",
-    "bio": "Bio",
-    "id": "ID",
-    "lockAccount": "Lock Account",
-    "unlockAccount": "Unlock Account",
-    "confirmLock": "Are you sure you want to lock the account {{email}}? The user will not be able to log in after being locked.",
-    "confirmUnlock": "Are you sure you want to unlock the account {{email}}? The user will be able to log in again."
-  },
-  "validation": {
-    "required": "{{field}} is required",
-    "invalidEmail": "Invalid email address",
-    "passwordMinLength": "Password must be at least {{min}} characters"
-  }
 }

@@ -8,8 +8,8 @@ import { Footer } from './Footer';
 import { useMounted } from '@mantine/hooks';
 
 // Nạp động các thành phần Client-only
-const Sidebar = dynamic(() => import('./Sidebar').then((m) => m.Sidebar), { ssr: false });
-const AppBar = dynamic(() => import('./AppBar').then((m) => m.AppBar), { ssr: false });
+const Sidebar = dynamic(() => import('./Sidebar').then(m => m.Sidebar), { ssr: false });
+const AppBar = dynamic(() => import('./AppBar').then(m => m.AppBar), { ssr: false });
 
 interface DashboardShellProps {
     children: ReactNode;
@@ -46,13 +46,11 @@ export function DashboardShell({ children, withFooter = true }: DashboardShellPr
                 style={{
                     flexDirection: 'column',
                     minHeight: '100vh',
-                    backgroundColor: 'var(--mantine-color-body)'
+                    backgroundColor: 'var(--mantine-color-body)',
                 }}
             >
                 {/* Content Area */}
-                <div style={{ flex: 1 }}>
-                    {children}
-                </div>
+                <div style={{ flex: 1 }}>{children}</div>
 
                 {/* Footer Section */}
                 {withFooter && <Footer />}

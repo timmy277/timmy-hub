@@ -1,6 +1,6 @@
-import axiosClient from "@/libs/axios";
-import { Category, CreateCategoryInput } from "@/types/category";
-import { ApiResponse } from "@/types/api";
+import axiosClient from '@/libs/axios';
+import { Category, CreateCategoryInput } from '@/types/category';
+import { ApiResponse } from '@/types/api';
 
 /**
  * Service quản lý danh mục
@@ -31,7 +31,10 @@ export const categoryService = {
     /**
      * Cập nhật danh mục
      */
-    updateCategory: async (id: string, data: Partial<CreateCategoryInput>): Promise<ApiResponse<Category>> => {
+    updateCategory: async (
+        id: string,
+        data: Partial<CreateCategoryInput>,
+    ): Promise<ApiResponse<Category>> => {
         return axiosClient.patch(`/categories/${id}`, data);
     },
 
@@ -40,5 +43,5 @@ export const categoryService = {
      */
     deleteCategory: async (id: string): Promise<ApiResponse<void>> => {
         return axiosClient.delete(`/categories/${id}`);
-    }
+    },
 };

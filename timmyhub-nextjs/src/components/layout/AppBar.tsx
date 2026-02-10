@@ -7,7 +7,7 @@ import {
     IconLogout,
     IconUser,
     IconLayoutSidebarLeftCollapse,
-    IconLayoutSidebarRightCollapse
+    IconLayoutSidebarRightCollapse,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useSidebarStore } from '@/stores/useSidebarStore';
@@ -63,8 +63,12 @@ export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBar
                                     src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png"
                                 />
                                 <Box className="hidden lg:block text-left">
-                                    <Text size="sm" fw={600} className="leading-tight">Timmy Hub</Text>
-                                    <Text size="xs" c="dimmed" className="leading-tight">Admin</Text>
+                                    <Text size="sm" fw={600} className="leading-tight">
+                                        Timmy Hub
+                                    </Text>
+                                    <Text size="xs" c="dimmed" className="leading-tight">
+                                        Admin
+                                    </Text>
                                 </Box>
                             </Group>
                         </UnstyledButton>

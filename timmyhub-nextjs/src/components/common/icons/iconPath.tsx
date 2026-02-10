@@ -15,7 +15,7 @@ export const FlagVN = ({ w = 20, h = 14, style, ...others }: IconProps) => (
             width: typeof w === 'number' ? rem(w) : w,
             height: typeof h === 'number' ? rem(h) : h,
             borderRadius: rem(2),
-            ...style
+            ...style,
         }}
         {...others}
     >
@@ -34,7 +34,7 @@ export const FlagUK = ({ w = 20, h = 14, style, ...others }: IconProps) => (
             width: typeof w === 'number' ? rem(w) : w,
             height: typeof h === 'number' ? rem(h) : h,
             borderRadius: rem(2),
-            ...style
+            ...style,
         }}
         {...others}
     >

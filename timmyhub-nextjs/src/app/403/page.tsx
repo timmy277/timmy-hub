@@ -11,11 +11,7 @@ export default function ForbiddenPage() {
         <Container py={80}>
             <Box pos="relative">
                 <Stack align="center" gap="lg">
-                    <IconLockOff
-                        size={120}
-                        stroke={1.5}
-                        color="var(--mantine-color-red-6)"
-                    />
+                    <IconLockOff size={120} stroke={1.5} color="var(--mantine-color-red-6)" />
 
                     <Title
                         order={1}
@@ -27,15 +23,9 @@ export default function ForbiddenPage() {
                         403 - Truy cập bị từ chối
                     </Title>
 
-                    <Text
-                        c="dimmed"
-                        size="lg"
-                        ta="center"
-                        maw={500}
-                        mx="auto"
-                    >
-                        Bạn không có quyền truy cập vào trang này. Nếu bạn tin rằng đây là một sự nhầm lẫn,
-                        vui lòng liên hệ với quản trị viên hệ thống.
+                    <Text c="dimmed" size="lg" ta="center" maw={500} mx="auto">
+                        Bạn không có quyền truy cập vào trang này. Nếu bạn tin rằng đây là một sự
+                        nhầm lẫn, vui lòng liên hệ với quản trị viên hệ thống.
                     </Text>
 
                     <Group justify="center" mt="md">

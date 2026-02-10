@@ -10,16 +10,16 @@ import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    DatabaseModule,
-    AuthModule,
-    RbacModule,
-    UsersModule,
-    ProductsModule,
-    CategoriesModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        DatabaseModule,
+        AuthModule,
+        RbacModule,
+        UsersModule,
+        ProductsModule,
+        CategoriesModule,
+    ],
+    controllers: [AppController],
+    providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

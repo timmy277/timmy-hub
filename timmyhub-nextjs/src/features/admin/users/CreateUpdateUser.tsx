@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@mantine/form';
 import {
@@ -18,7 +18,11 @@ import { CreateUserInput } from '@/types/user';
 import { UserRole } from '@/types/enums';
 import { useCreateUserMutation, useUpdateUserMutation } from '@/hooks/useUsers';
 import { User } from '@/types/auth';
-import { createRequiredValidator, createEmailValidator, createPasswordValidator } from '@/utils/validators';
+import {
+    createRequiredValidator,
+    createEmailValidator,
+    createPasswordValidator,
+} from '@/utils/validators';
 
 interface CreateUpdateUserProps {
     user?: User;
@@ -32,14 +36,17 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
     const createUserMutation = useCreateUserMutation();
     const updateUserMutation = useUpdateUserMutation();
 
-    const roleOptions = useMemo(() => [
-        { value: UserRole.CUSTOMER, label: t('roles.CUSTOMER') },
-        { value: UserRole.SELLER, label: t('roles.SELLER') },
-        { value: UserRole.BRAND, label: t('roles.BRAND') },
-        { value: UserRole.SHIPPER, label: t('roles.SHIPPER') },
-        { value: UserRole.ADMIN, label: t('roles.ADMIN') },
-        { value: UserRole.SUPER_ADMIN, label: t('roles.SUPER_ADMIN') },
-    ], [t]);
+    const roleOptions = useMemo(
+        () => [
+            { value: UserRole.CUSTOMER, label: t('roles.CUSTOMER') },
+            { value: UserRole.SELLER, label: t('roles.SELLER') },
+            { value: UserRole.BRAND, label: t('roles.BRAND') },
+            { value: UserRole.SHIPPER, label: t('roles.SHIPPER') },
+            { value: UserRole.ADMIN, label: t('roles.ADMIN') },
+            { value: UserRole.SUPER_ADMIN, label: t('roles.SUPER_ADMIN') },
+        ],
+        [t],
+    );
 
     const form = useForm<CreateUserInput & { phoneNumber?: string }>({
         initialValues: {
@@ -60,21 +67,6 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
         },
     });
 
-    // Fix: Add form.setValues to dependencies
-    useEffect(() => {
-        if (user) {
-            form.setValues({
-                email: user.email,
-                password: '',
-                firstName: user.profile?.firstName || '',
-                lastName: user.profile?.lastName || '',
-                role: user.role,
-                isActive: user.isActive,
-                phoneNumber: user.phone || '',
-            });
-        }
-    }, [user?.id, form.setValues, user, form]);
-
     const handleSubmit = (values: CreateUserInput & { phoneNumber?: string }) => {
         if (!!user) {
             const updateData: Partial<CreateUserInput> = {
@@ -92,11 +84,19 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
 
             updateUserMutation.mutate(
                 { id: user.id, data: updateData },
-                { onSuccess: () => { form.reset(); onSuccess(); } }
+                {
+                    onSuccess: () => {
+                        form.reset();
+                        onSuccess();
+                    },
+                },
             );
         } else {
             createUserMutation.mutate(values, {
-                onSuccess: () => { form.reset(); onSuccess(); }
+                onSuccess: () => {
+                    form.reset();
+                    onSuccess();
+                },
             });
         }
     };
@@ -108,8 +108,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
             <Title order={3} mb="lg">
                 {!!user
                     ? t('userManagement.updateUser', { email: user.email })
-                    : t('userManagement.createUser')
-                }
+                    : t('userManagement.createUser')}
             </Title>
 
             <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -139,7 +138,11 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
 
                     <PasswordInput
                         label={t('userManagement.password')}
-                        placeholder={!!user ? t('userManagement.passwordOptional') : t('userManagement.password')}
+                        placeholder={
+                            !!user
+                                ? t('userManagement.passwordOptional')
+                                : t('userManagement.password')
+                        }
                         withAsterisk={!user}
                         description={!!user ? t('userManagement.passwordUpdateHint') : undefined}
                         {...form.getInputProps('password')}
@@ -163,9 +166,10 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                     {!!user && (
                         <Switch
                             label={t('userManagement.accountStatus')}
-                            description={form.values.isActive
-                                ? t('table.status.active')
-                                : t('table.status.inactive')
+                            description={
+                                form.values.isActive
+                                    ? t('table.status.active')
+                                    : t('table.status.inactive')
                             }
                             checked={form.values.isActive}
                             {...form.getInputProps('isActive', { type: 'checkbox' })}

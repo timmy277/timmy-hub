@@ -5,9 +5,7 @@ import { Pool } from 'pg';
 import 'dotenv/config';
 
 @Injectable()
-export class PrismaService
-    extends PrismaClient
-    implements OnModuleInit, OnModuleDestroy {
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
     constructor() {
         const connectionString = process.env.DATABASE_URL;
         if (!connectionString) {
@@ -26,4 +24,3 @@ export class PrismaService
         await this.$disconnect();
     }
 }
-

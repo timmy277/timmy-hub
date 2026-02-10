@@ -32,4 +32,3 @@ export class ResponseDto<T> {
         return new ResponseDto<T>(false, message, undefined as any, error);
     }
 }
-
