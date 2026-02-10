@@ -5,9 +5,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 export function AuthSyncProvider({ children }: { children: ReactNode }) {
+    // ===== Hooks & Context =====
     const { isAuthenticated, refetchProfile, logout } = useAuth();
     const { user } = useAuthStore();
 
+    // ===== Component Logic =====
     useEffect(() => {
         // Nếu đã authenticated trong store (từ persistence),
         // hãy re-fetch profile để đảm bảo session vẫn còn hiệu lực ở server
@@ -20,6 +22,8 @@ export function AuthSyncProvider({ children }: { children: ReactNode }) {
             });
         }
     }, []);
+
+    // ===== Final Render =====
 
     return <>{children}</>;
 }

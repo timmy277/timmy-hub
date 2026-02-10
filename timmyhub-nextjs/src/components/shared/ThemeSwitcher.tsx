@@ -29,10 +29,12 @@ const colors: PrimaryColor[] = [
 ];
 
 export function ThemeSwitcher() {
+    // ===== Hooks & Context =====
     const { setColorScheme } = useMantineColorScheme();
     const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
     const { primaryColor, setPrimaryColor } = useThemeStore();
 
+    // ===== Final Render =====
     return (
         <Group gap="xs">
             {/* Light/Dark Toggle */}

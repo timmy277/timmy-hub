@@ -7,15 +7,19 @@ import { useThemeStore } from '@/stores/useThemeStore';
 import { FlagVN, FlagUK } from '@/components/common';
 
 export function LanguageSwitcher() {
+    // ===== Hooks & Context =====
     const { i18n } = useTranslation();
     const primaryColor = useThemeStore(state => state.primaryColor);
 
+    // ===== Event Handlers =====
     const handleLanguageChange = (lang: string) => {
         i18n.changeLanguage(lang);
     };
 
+    // ===== Component Logic =====
     const currentLanguage = i18n.language || 'en';
 
+    // ===== Final Render =====
     return (
         <Menu
             shadow="md"

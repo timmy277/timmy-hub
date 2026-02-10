@@ -25,9 +25,11 @@ interface RoleDetailProps {
 }
 
 export function RoleDetail({ role: initialRole }: RoleDetailProps) {
+    // ===== Hooks & Context =====
     const { t } = useTranslation();
     const { data: response, isLoading } = useRoleDetail(initialRole.id);
 
+    // ===== Component Logic =====
     // Use fetched data if available, otherwise fallback to initial role data
     const role = response?.data || initialRole;
 
@@ -50,6 +52,7 @@ export function RoleDetail({ role: initialRole }: RoleDetailProps) {
         );
     }
 
+    // ===== Final Render =====
     return (
         <Paper withBorder p="xl" radius="md" mt="md">
             <Stack>

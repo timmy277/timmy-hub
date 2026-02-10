@@ -7,9 +7,11 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 export const useAuth = () => {
+    // ===== Hooks & Context =====
     const { user, isAuthenticated, clearAuthData, setAuthData } = useAuthStore();
     const router = useRouter();
 
+    // ===== Component Logic =====
     // Query to get current profile (WhoAmI)
     const {
         data: profileData,

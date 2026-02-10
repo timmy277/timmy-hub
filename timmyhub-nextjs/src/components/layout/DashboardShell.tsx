@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { AppShell, ScrollArea, useMantineColorScheme } from '@mantine/core';
+import { AppShell } from '@mantine/core';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { ReactNode } from 'react';
 import { Footer } from './Footer';
@@ -17,11 +17,15 @@ interface DashboardShellProps {
 }
 
 export function DashboardShell({ children, withFooter = true }: DashboardShellProps) {
+    // ===== Hooks & Context =====
     const { collapsed } = useSidebarStore();
     const mounted = useMounted();
+
+    // ===== Component Logic =====
     const isCollapsed = mounted ? collapsed : false;
     const navbarWidth = isCollapsed ? 80 : 280;
 
+    // ===== Final Render =====
     return (
         <AppShell
             id="main-app-shell"

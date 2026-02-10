@@ -16,6 +16,7 @@ import { CreateUpdateRole } from './CreateUpdateRole';
 import { RoleDetail } from './RoleDetail';
 
 export function RoleList() {
+    // ===== Hooks & Context =====
     const { t } = useTranslation();
     const { data: response, isLoading, refetch } = useRoles();
     const deleteRoleMutation = useDeleteRoleMutation();
@@ -23,6 +24,7 @@ export function RoleList() {
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
         useManagementTabs<Role>('Role');
 
+    // ===== Component Logic =====
     const renderTabContent = (tab: TabItem<Role>) => {
         switch (tab.type) {
             case ManagementTabType.CREATE:
@@ -57,6 +59,7 @@ export function RoleList() {
         }
     };
 
+    // ===== Event Handlers =====
     const handleDeleteRole = useCallback(
         (role: Role) => {
             modals.openConfirmModal({
@@ -101,6 +104,7 @@ export function RoleList() {
         [t, handleAction, handleDeleteRole],
     );
 
+    // ===== Final Render =====
     return (
         <ManagementPage<Role>
             title={t('rbac.title')}

@@ -22,8 +22,10 @@ interface UserDetailProps {
 }
 
 export function UserDetail({ user }: UserDetailProps) {
+    // ===== Hooks & Context =====
     const { t } = useTranslation();
 
+    // ===== Component Logic =====
     const renderInfoRow = (label: string, value: string | React.ReactNode, fullWidth = false) => (
         <Group wrap="nowrap" style={fullWidth ? { gridColumn: '1 / -1' } : undefined}>
             <Text fw={500} w={140} style={{ flexShrink: 0 }}>
@@ -33,6 +35,7 @@ export function UserDetail({ user }: UserDetailProps) {
         </Group>
     );
 
+    // ===== Final Render =====
     return (
         <Paper withBorder p="xl" radius="md" mt="md">
             <Stack gap="lg">

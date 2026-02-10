@@ -15,6 +15,7 @@ import { usePermissions, useDeletePermissionMutation } from '@/hooks/useRbac';
 import { CreateUpdatePermission } from './CreateUpdatePermission';
 
 export function PermissionList() {
+    // ===== Hooks & Context =====
     const { t } = useTranslation();
     const { data: response, isLoading, refetch } = usePermissions();
     const deleteMutation = useDeletePermissionMutation();
@@ -22,6 +23,7 @@ export function PermissionList() {
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
         useManagementTabs<Permission>('Permission');
 
+    // ===== Component Logic =====
     const renderTabContent = (tab: TabItem<Permission>) => {
         switch (tab.type) {
             case ManagementTabType.CREATE:
@@ -54,6 +56,7 @@ export function PermissionList() {
         }
     };
 
+    // ===== Event Handlers =====
     const handleDelete = useCallback(
         (permission: Permission) => {
             modals.openConfirmModal({
@@ -97,6 +100,7 @@ export function PermissionList() {
         [t, handleAction, handleDelete],
     );
 
+    // ===== Final Render =====
     return (
         <ManagementPage<Permission>
             title={t('rbac.permissionsTitle')}

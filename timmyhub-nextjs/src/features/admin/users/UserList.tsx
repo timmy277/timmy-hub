@@ -16,6 +16,7 @@ import { CreateUpdateUser } from './CreateUpdateUser';
 import { UserDetail } from './UserDetail';
 
 export function UserList() {
+    // ===== Hooks & Context =====
     const { t } = useTranslation();
     const { data: response, isLoading, refetch } = useUsers();
     const toggleStatusMutation = useToggleUserStatusMutation();
@@ -23,6 +24,7 @@ export function UserList() {
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
         useManagementTabs<User>('User');
 
+    // ===== Component Logic =====
     // Render tab content based on tab type
     const renderTabContent = (tab: TabItem<User>) => {
         switch (tab.type) {
@@ -58,6 +60,7 @@ export function UserList() {
         }
     };
 
+    // ===== Event Handlers =====
     const handleToggleStatus = useCallback(
         (user: User) => {
             const actionText = user.isActive
@@ -108,6 +111,7 @@ export function UserList() {
         [t, handleAction, handleToggleStatus],
     );
 
+    // ===== Final Render =====
     return (
         <ManagementPage<User>
             title={t('userManagement.title')}

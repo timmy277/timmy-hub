@@ -31,11 +31,13 @@ interface CreateUpdateUserProps {
 }
 
 export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUserProps) {
+    // ===== Hooks & Context =====
     const { t } = useTranslation();
 
     const createUserMutation = useCreateUserMutation();
     const updateUserMutation = useUpdateUserMutation();
 
+    // ===== Component Logic =====
     const roleOptions = useMemo(
         () => [
             { value: UserRole.CUSTOMER, label: t('roles.CUSTOMER') },
@@ -67,6 +69,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
         },
     });
 
+    // ===== Event Handlers =====
     const handleSubmit = (values: CreateUserInput & { phoneNumber?: string }) => {
         if (!!user) {
             const updateData: Partial<CreateUserInput> = {
@@ -103,6 +106,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
 
     const isPending = !!user ? updateUserMutation.isPending : createUserMutation.isPending;
 
+    // ===== Final Render =====
     return (
         <Paper withBorder p="xl" radius="md" mt="md">
             <Title order={3} mb="lg">

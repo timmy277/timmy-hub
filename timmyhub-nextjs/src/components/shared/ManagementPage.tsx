@@ -81,6 +81,7 @@ export function ManagementPage<T>({
     openTabs,
     closeTab,
 }: ManagementPageProps<T>) {
+    // ===== Hooks & Context =====
     const baseId = useId();
     const [gridApi, setGridApi] = useState<GridApi<T> | null>(null);
     const [quickFilterText, setQuickFilterText] = useState('');
@@ -88,6 +89,7 @@ export function ManagementPage<T>({
         Record<string, boolean | 'left' | 'right' | null | undefined>
     >({});
 
+    // ===== Component Logic =====
     const onGridReady = (params: GridReadyEvent<T>) => {
         setGridApi(params.api);
 
@@ -103,6 +105,7 @@ export function ManagementPage<T>({
         params.api.addEventListener('columnPinned', updatePinnedState);
     };
 
+    // ===== Event Handlers =====
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const val = event.currentTarget.value;
         setQuickFilterText(val);
@@ -149,6 +152,7 @@ export function ManagementPage<T>({
         }
     };
 
+    // ===== Final Render =====
     return (
         <DashboardShell withFooter={false}>
             <Container fluid px="1rem" py="md">

@@ -19,11 +19,13 @@ interface CreateUpdateRoleProps {
 }
 
 export function CreateUpdateRole({ role, onSuccess, onCancel }: CreateUpdateRoleProps) {
+    // ===== Hooks & Context =====
     const { t } = useTranslation();
     const createRoleMutation = useCreateRoleMutation();
     const assignPermissionsMutation = useAssignPermissionsMutation();
     const { data: permissionsResponse } = usePermissions();
 
+    // ===== Component Logic =====
     const form = useForm<CreateRoleInput>({
         initialValues: {
             name: role?.name || '',
@@ -39,6 +41,7 @@ export function CreateUpdateRole({ role, onSuccess, onCancel }: CreateUpdateRole
         },
     });
 
+    // ===== Event Handlers =====
     const handleSubmit = async (values: CreateRoleInput) => {
         if (!!role) {
             // Update role permissions (currently backend only supports assigning permissions)
@@ -59,6 +62,7 @@ export function CreateUpdateRole({ role, onSuccess, onCancel }: CreateUpdateRole
 
     const isPending = !!role ? assignPermissionsMutation.isPending : createRoleMutation.isPending;
 
+    // ===== Final Render =====
     return (
         <Paper withBorder p="xl" radius="md" mt="md">
             <Title order={3} mb="lg">
