@@ -11,6 +11,7 @@ import {
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useSidebarStore } from '@/stores/useSidebarStore';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AppBarProps {
     withSidebarToggle?: boolean;
@@ -18,8 +19,10 @@ interface AppBarProps {
 }
 
 export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBarProps) {
+    // ===== Hooks & Context =====
     const { t } = useTranslation();
     const { collapsed, toggleSidebar } = useSidebarStore();
+    const { logout } = useAuth();
 
     return (
         <Group justify="space-between" h="100%" px="md">
@@ -75,19 +78,23 @@ export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBar
                     </Menu.Target>
 
                     <Menu.Dropdown>
-                        <Menu.Label>Application</Menu.Label>
+                        <Menu.Label>{t('common.application')}</Menu.Label>
                         <Menu.Item leftSection={<IconUser size={16} stroke={1.5} />}>
-                            Profile
+                            {t('common.profile')}
                         </Menu.Item>
                         <Menu.Item leftSection={<IconSettings size={16} stroke={1.5} />}>
-                            Settings
+                            {t('common.settings')}
                         </Menu.Item>
 
                         <Menu.Divider />
 
-                        <Menu.Label>Danger Zone</Menu.Label>
-                        <Menu.Item color="red" leftSection={<IconLogout size={16} stroke={1.5} />}>
-                            {t('common.logout')}
+                        <Menu.Label>{t('common.dangerZone')}</Menu.Label>
+                        <Menu.Item
+                            color="red"
+                            leftSection={<IconLogout size={16} stroke={1.5} />}
+                            onClick={() => logout()}
+                        >
+                            {t('auth.logout')}
                         </Menu.Item>
                     </Menu.Dropdown>
                 </Menu>

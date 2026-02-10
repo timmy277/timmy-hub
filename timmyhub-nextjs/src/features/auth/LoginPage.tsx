@@ -62,18 +62,21 @@ function PasswordRequirement({ meets, label }: { meets: boolean; label: string }
     );
 }
 
-// --- Validation Schema ---
+// ===== Validation Schema =====
 const schema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
     password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+    remember: z.boolean().optional(),
 });
 
 export function LoginPage() {
+    // ===== Hooks & Context =====
     const setAuthData = useAuthStore(state => state.setAuthData);
     const router = useRouter();
     const loginMutation = useLoginMutation();
 
-    const form = useForm({
+    // ===== Form Definition =====
+    const form = useForm<z.infer<typeof schema>>({
         initialValues: {
             email: '',
             password: '',
@@ -82,7 +85,7 @@ export function LoginPage() {
         validate: zodResolver(schema),
     });
 
-    // Handle Password Strength
+    // ===== Component Logic =====
     const strength = getStrength(form.values.password);
     const checks = requirements.map((requirement, index) => (
         <PasswordRequirement
@@ -100,8 +103,8 @@ export function LoginPage() {
                     form.values.password.length > 0 && index === 0
                         ? 100
                         : strength >= ((index + 1) / 4) * 100
-                          ? 100
-                          : 0
+                            ? 100
+                            : 0
                 }
                 color={strength > 80 ? 'teal' : strength > 50 ? 'yellow' : 'red'}
                 key={index}
@@ -110,6 +113,7 @@ export function LoginPage() {
             />
         ));
 
+    // ===== Event Handlers =====
     const handleSubmit = async (values: z.infer<typeof schema>) => {
         try {
             const response = await loginMutation.mutateAsync(values);
@@ -129,7 +133,7 @@ export function LoginPage() {
                 icon: <IconCheck size={18} />,
             });
 
-            router.push('/dashboard');
+            router.push('/admin'); // Redirect to admin instead of dashboard
         } catch (error: unknown) {
             let errorMessage = 'Failed to login. Please check your credentials.';
 

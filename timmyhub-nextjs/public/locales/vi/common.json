@@ -14,7 +14,24 @@
         "create": "Tạo",
         "update": "Cập nhật",
         "save": "Lưu",
-        "delete": "Xóa"
+        "delete": "Xóa",
+        "application": "Ứng dụng",
+        "profile": "Cá nhân",
+        "settings": "Cài đặt",
+        "dangerZone": "Vùng nguy hiểm"
+    },
+    "sidebar": {
+        "dashboard": "Bảng điều khiển",
+        "admin": "Quản trị",
+        "roles": "Phân quyền",
+        "users": "Người dùng",
+        "permissions": "Quyền hạn",
+        "categories": "Danh mục",
+        "ecommerce": "Thương mại điện tử",
+        "products": "Sản phẩm",
+        "orders": "Đơn hàng",
+        "customers": "Khách hàng",
+        "settings": "Cài đặt"
     },
     "auth": {
         "welcomeBack": "Chào mừng quay trở lại!",

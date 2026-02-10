@@ -21,9 +21,12 @@ import {
     IconKey,
 } from '@tabler/icons-react';
 import { useSidebarStore } from '@/stores/useSidebarStore';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 type TablerIcon = React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>;
 
+// ===== Types & Constants =====
 interface SidebarItem {
     icon: TablerIcon;
     label: string;
@@ -32,36 +35,40 @@ interface SidebarItem {
     links?: { label: string; link: string; icon: TablerIcon }[];
 }
 
-const mockData: SidebarItem[] = [
-    { label: 'Dashboard', icon: IconGauge, link: '/dashboard' },
+const getMockData = (t: TFunction): SidebarItem[] => [
+    { label: t('sidebar.dashboard'), icon: IconGauge, link: '/admin' },
     {
-        label: 'Quản trị',
+        label: t('sidebar.admin'),
         icon: IconFingerprint,
-        initiallyOpened: true, // This can be dynamic based on pathname too
+        initiallyOpened: true,
         links: [
-            { label: 'Phân quyền', link: '/admin/roles', icon: IconShieldLock },
-            { label: 'Người dùng', link: '/admin/users', icon: IconUsers },
-            { label: 'Quyền hạn', link: '/admin/permissions', icon: IconKey },
-            { label: 'Danh mục', link: '/admin/categories', icon: IconTags },
+            { label: t('sidebar.roles'), link: '/admin/roles', icon: IconShieldLock },
+            { label: t('sidebar.users'), link: '/admin/users', icon: IconUsers },
+            { label: t('sidebar.permissions'), link: '/admin/permissions', icon: IconKey },
+            { label: t('sidebar.categories'), link: '/admin/categories', icon: IconTags },
         ],
     },
     {
-        label: 'E-commerce',
+        label: t('sidebar.ecommerce'),
         icon: IconShoppingCart,
         links: [
-            { label: 'Products', link: '/products', icon: IconPackage },
-            { label: 'Orders', link: '/orders', icon: IconCalendarStats },
-            { label: 'Customers', link: '/customers', icon: IconUsers },
+            { label: t('sidebar.products'), link: '/admin/products', icon: IconPackage },
+            { label: t('sidebar.orders'), link: '/admin/orders', icon: IconCalendarStats },
+            { label: t('sidebar.customers'), link: '/admin/customers', icon: IconUsers },
         ],
     },
-    { label: 'Cài đặt', icon: IconSettings, link: '/settings' },
+    { label: t('sidebar.settings'), icon: IconSettings, link: '/admin/settings' },
 ];
 
 export function Sidebar() {
+    // ===== Hooks & Context =====
+    const { t } = useTranslation();
     const { collapsed } = useSidebarStore();
     const pathname = usePathname();
     const mounted = useMounted();
 
+    // ===== Component Logic =====
+    const mockData = getMockData(t);
     const isCollapsed = mounted ? collapsed : false;
 
     const isActive = (item: SidebarItem) => {
@@ -143,9 +150,9 @@ export function Sidebar() {
                 className="shrink-0 transition-all duration-150"
             >
                 <SidebarNavLink
-                    item={{ label: 'Profile', icon: IconUser, link: '/profile' }} // Added link
+                    item={{ label: t('common.profile'), icon: IconUser, link: '/admin/profile' }} // Added link
                     collapsed={isCollapsed}
-                    active={pathname === '/profile'}
+                    active={pathname === '/admin/profile'}
                     pathname={pathname}
                 />
             </Box>

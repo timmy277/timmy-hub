@@ -14,7 +14,24 @@
         "create": "Create",
         "update": "Update",
         "save": "Save",
-        "delete": "Delete"
+        "delete": "Delete",
+        "application": "Application",
+        "profile": "Profile",
+        "settings": "Settings",
+        "dangerZone": "Danger Zone"
+    },
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "admin": "Administration",
+        "roles": "Roles",
+        "users": "Users",
+        "permissions": "Permissions",
+        "categories": "Categories",
+        "ecommerce": "E-commerce",
+        "products": "Products",
+        "orders": "Orders",
+        "customers": "Customers",
+        "settings": "Settings"
     },
     "auth": {
         "welcomeBack": "Welcome back!",
