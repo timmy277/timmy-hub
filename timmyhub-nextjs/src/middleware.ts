@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getRoutePermissions } from '@/config/permissions';
 
 // Danh sách các route public (không cần đăng nhập)
 const publicPaths = [
@@ -77,17 +78,18 @@ export function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/403', request.url));
         }
 
-        // B. Kiểm tra Permission-based Paths (Ví dụ trang cụ thể)
-        const permissionRoutes: Record<string, string> = {
-            '/dashboard/products': 'products:read',
-            '/dashboard/orders': 'orders:read',
-            '/dashboard/users': 'users:read',
-        };
+        // B. Kiểm tra Permission-based Paths với Permission System
+        const requiredPermissions = getRoutePermissions(pathname);
+        
+        if (requiredPermissions.length > 0) {
+            // Check xem user có tất cả required permissions không
+            const hasAccess = requiredPermissions.every(perm =>
+                userPermissions.includes(perm),
+            );
 
-        // Tìm permission yêu cầu cho route hiện tại
-        const requiredPermission = permissionRoutes[pathname];
-        if (requiredPermission && !userPermissions.includes(requiredPermission)) {
-            return NextResponse.redirect(new URL('/403', request.url));
+            if (!hasAccess) {
+                return NextResponse.redirect(new URL('/403', request.url));
+            }
         }
     }
 

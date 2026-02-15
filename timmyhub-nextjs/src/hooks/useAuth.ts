@@ -46,8 +46,15 @@ export const useAuth = () => {
 
     const handleLocalLogout = () => {
         clearAuthData();
-        Cookies.remove('user_role');
-        Cookies.remove('user_permissions');
+        
+        const cookiesToRemove = ['user_role', 'user_permissions', 'access_token', 'refresh_token'];
+        cookiesToRemove.forEach(key => {
+            Cookies.remove(key, { 
+                path: '/', 
+                domain: window.location.hostname 
+            });
+        });
+        
         router.push('/login');
     };
 
@@ -69,5 +76,34 @@ export const useAuth = () => {
 export const useLoginMutation = () => {
     return useMutation({
         mutationFn: (data: LoginInput) => authService.login(data),
+    });
+};
+
+// Register types & mutation
+export interface RegisterInput {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+}
+
+export const useRegisterMutation = () => {
+    return useMutation({
+        mutationFn: (data: RegisterInput) => authService.register(data),
+    });
+};
+
+// Forgot Password mutation
+export const useForgotPasswordMutation = () => {
+    return useMutation({
+        mutationFn: (email: string) => authService.requestPasswordReset(email),
+    });
+};
+
+// Reset Password mutation
+export const useResetPasswordMutation = () => {
+    return useMutation({
+        mutationFn: (data: { token: string; newPassword: string }) =>
+            authService.resetPassword(data.token, data.newPassword),
     });
 };

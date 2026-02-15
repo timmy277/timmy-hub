@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import Cookies from 'js-cookie';
 import {
     Button,
@@ -17,50 +16,15 @@ import {
     TextInput,
     PasswordInput,
     rem,
-    Center,
-    Progress,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
-import { useInputState } from '@mantine/hooks';
 import { IconAt, IconLock, IconArrowRight, IconCheck, IconX } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
-import { authService } from '@/services/auth.service';
 import { useRouter } from 'next/navigation';
 import { useLoginMutation } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/useAuthStore';
-
-// --- Password Strength Components ---
-const requirements = [
-    { re: /[0-9]/, label: 'Includes number' },
-    { re: /[a-z]/, label: 'Includes lowercase letter' },
-    { re: /[A-Z]/, label: 'Includes uppercase letter' },
-    { re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: 'Includes special symbol' },
-];
-
-function getStrength(password: string) {
-    let multiplier = password.length > 5 ? 0 : 1;
-
-    requirements.forEach(requirement => {
-        if (!requirement.re.test(password)) {
-            multiplier += 1;
-        }
-    });
-
-    return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 0);
-}
-
-function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
-    return (
-        <Text component="div" c={meets ? 'teal' : 'red'} mt={5} size="sm">
-            <Center inline>
-                {meets ? <IconCheck size={14} stroke={1.5} /> : <IconX size={14} stroke={1.5} />}
-                <Box ml={7}>{label}</Box>
-            </Center>
-        </Text>
-    );
-}
 
 // ===== Validation Schema =====
 const schema = z.object({
@@ -86,32 +50,6 @@ export function LoginPage() {
     });
 
     // ===== Component Logic =====
-    const strength = getStrength(form.values.password);
-    const checks = requirements.map((requirement, index) => (
-        <PasswordRequirement
-            key={index}
-            label={requirement.label}
-            meets={requirement.re.test(form.values.password)}
-        />
-    ));
-    const bars = Array(4)
-        .fill(0)
-        .map((_, index) => (
-            <Progress
-                styles={{ section: { transitionDuration: '0ms' } }}
-                value={
-                    form.values.password.length > 0 && index === 0
-                        ? 100
-                        : strength >= ((index + 1) / 4) * 100
-                            ? 100
-                            : 0
-                }
-                color={strength > 80 ? 'teal' : strength > 50 ? 'yellow' : 'red'}
-                key={index}
-                size={4}
-                aria-label={`Password strength segment ${index + 1}`}
-            />
-        ));
 
     // ===== Event Handlers =====
     const handleSubmit = async (values: z.infer<typeof schema>) => {
@@ -215,31 +153,18 @@ export function LoginPage() {
                                     {...form.getInputProps('email')}
                                 />
 
-                                <Box>
-                                    <PasswordInput
-                                        label="Password"
-                                        placeholder="Enter your password"
-                                        size="md"
-                                        radius="md"
-                                        leftSection={<IconLock size={16} stroke={1.5} />}
-                                        {...form.getInputProps('password')}
-                                    />
-
-                                    {/* Password Strength UI */}
-                                    <Group gap={5} grow mt="xs" mb="md">
-                                        {bars}
-                                    </Group>
-
-                                    <PasswordRequirement
-                                        label="Has at least 6 characters"
-                                        meets={form.values.password.length > 5}
-                                    />
-                                    {checks}
-                                </Box>
+                                <PasswordInput
+                                    label="Password"
+                                    placeholder="Enter your password"
+                                    size="md"
+                                    radius="md"
+                                    leftSection={<IconLock size={16} stroke={1.5} />}
+                                    {...form.getInputProps('password')}
+                                />
 
                                 <Group justify="space-between" mt="xs">
                                     <Checkbox label="Remember me" style={{ cursor: 'pointer' }} />
-                                    <Anchor component="button" size="sm" fw={600}>
+                                    <Anchor href="/forgot-password" size="sm" fw={600}>
                                         Forgot password?
                                     </Anchor>
                                 </Group>
@@ -260,7 +185,7 @@ export function LoginPage() {
 
                         <Text c="dimmed" size="sm" ta="center">
                             Don&apos;t have an account?{' '}
-                            <Anchor component="button" size="sm" fw={700}>
+                            <Anchor href="/register" size="sm" fw={700}>
                                 Register here
                             </Anchor>
                         </Text>

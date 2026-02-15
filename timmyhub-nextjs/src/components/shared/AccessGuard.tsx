@@ -1,7 +1,8 @@
 'use client';
 
 import { useAuthStore } from '@/stores/useAuthStore';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
+import { hasPermissions } from '@/config/permissions';
 
 interface GuardProps {
     children: ReactNode;
@@ -13,23 +14,30 @@ interface GuardProps {
 /**
  * AccessGuard component to wrap protected UI elements.
  * It checks for authentication and optional permissions/roles.
+ * Sử dụng permission hierarchy system để check permissions.
  */
 export const AccessGuard = ({ children, permissions, role, fallback = null }: GuardProps) => {
     const { isAuthenticated, user } = useAuthStore();
 
+    // Check authentication
     if (!isAuthenticated || !user) {
         return <>{fallback}</>;
     }
 
+    // Super admin bypass all checks
+    if (user.role === 'SUPER_ADMIN') {
+        return <>{children}</>;
+    }
+
     // Check for specific role if provided
-    if (role && user.role !== role && user.role !== 'SUPER_ADMIN') {
+    if (role && user.role !== role) {
         return <>{fallback}</>;
     }
 
-    // Check for permissions if provided
-    if (permissions && permissions.length > 0 && user.role !== 'SUPER_ADMIN') {
-        const hasAllPermissions = permissions.every(p => user.permissions.includes(p));
-        if (!hasAllPermissions) {
+    // Check for permissions with hierarchy support
+    if (permissions && permissions.length > 0) {
+        const userHasPermissions = hasPermissions(user.permissions, permissions);
+        if (!userHasPermissions) {
             return <>{fallback}</>;
         }
     }
