@@ -103,7 +103,7 @@ export function BaseDataTable<T>({
                 quickFilterText={quickFilterText}
                 loading={isLoading}
                 animateRows={true}
-                rowDragManaged={true}
+                rowDragManaged={!pagination}
                 rowSelection={{ mode: 'multiRow' }}
             />
         </Box>

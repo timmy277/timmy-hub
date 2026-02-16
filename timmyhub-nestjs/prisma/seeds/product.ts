@@ -31,8 +31,8 @@ export const seedingProductsData = async (prisma: PrismaClient) => {
             stock: 50,
             sku: 'IP15PM-256',
             images: [
-                'https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png',
-                'https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max-titan-xanh.png',
+                'https://images.unsplash.com/photo-1696446701796-da61225697cc?q=80&w=800',
+                'https://images.unsplash.com/photo-1695048133142-1a20484d25fa?q=80&w=800',
             ],
             weight: 221,
             length: 15.9,
@@ -69,9 +69,7 @@ export const seedingProductsData = async (prisma: PrismaClient) => {
             discount: 22,
             stock: 30,
             sku: 'S24U-256',
-            images: [
-                'https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/s/ss-s24-ultra-xam-2.png',
-            ],
+            images: ['https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?q=80&w=800'],
             weight: 232,
             categoryId: catPhones?.id,
             sellerId: sellers[1].id,
@@ -97,9 +95,7 @@ export const seedingProductsData = async (prisma: PrismaClient) => {
             discount: 8,
             stock: 15,
             sku: 'G14-2024',
-            images: [
-                'https://dlcdnwebimgs.asus.com/gain/3D8A58BC-1D4B-4E9B-8D75-0CB5999E1A1A/w717/h525',
-            ],
+            images: ['https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?q=80&w=800'],
             weight: 1500,
             categoryId: catLaptops?.id,
             sellerId: sellers[2].id,
@@ -124,9 +120,7 @@ export const seedingProductsData = async (prisma: PrismaClient) => {
             discount: 16,
             stock: 100,
             sku: 'UQ-POLO-S',
-            images: [
-                'https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/455388/item/goods_00_455388.jpg',
-            ],
+            images: ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800'],
             categoryId: catFashion?.id,
             sellerId: sellers[0].id,
             status: ResourceStatus.APPROVED,
@@ -148,9 +142,7 @@ export const seedingProductsData = async (prisma: PrismaClient) => {
             discount: 12,
             stock: 20,
             sku: 'SONY-XM5',
-            images: [
-                'https://sony.scene7.com/is/image/sonyglobalsolutions/wh-1000xm5_primary_Black',
-            ],
+            images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800'],
             sellerId: sellers[1].id,
             status: ResourceStatus.APPROVED,
             soldCount: 68,
@@ -164,7 +156,11 @@ export const seedingProductsData = async (prisma: PrismaClient) => {
     for (const p of products) {
         const product = await prisma.product.upsert({
             where: { slug: p.slug },
-            update: {},
+            update: {
+                images: p.images,
+                price: p.price,
+                originalPrice: p.originalPrice,
+            },
             create: {
                 ...p,
                 price: p.price,

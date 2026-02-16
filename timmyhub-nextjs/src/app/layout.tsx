@@ -16,6 +16,8 @@ const geistMono = Geist_Mono({
     subsets: ['latin'],
 });
 
+export const viewport = 'width=device-width, initial-scale=1, maximum-scale=1';
+
 export const metadata: Metadata = {
     title: {
         default: 'TimmyHub | Modern E-commerce Platform',
@@ -25,7 +27,6 @@ export const metadata: Metadata = {
         'Hệ thống thương mại điện tử hiện đại, mạnh mẽ với quản trị RBAC linh hoạt và trải nghiệm người dùng tối ưu.',
     keywords: ['ecommerce', 'nextjs', 'mantine', 'marketplace', 'timmyhub'],
     authors: [{ name: 'TimmyHub Team' }],
-    viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
     icons: {
         icon: '/favicon.ico',
     },

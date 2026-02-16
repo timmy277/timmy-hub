@@ -247,6 +247,9 @@ export const createProductColumns = (options: ColumnConfigOptions): ColDef<Produ
             headerName: t('table.columns.image'),
             field: 'images',
             width: 100,
+            valueFormatter: () => '',
+            filter: false,
+            sortable: false,
             cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
             cellRenderer: (params: ICellRendererParams<Product>) => {
                 const imageUrl = params.value?.[0] || '';
