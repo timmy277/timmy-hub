@@ -5,6 +5,7 @@ import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { User } from '@/types/auth';
 import { Role, Permission } from '@/types/rbac';
 import { Product, ResourceStatus } from '@/types/product';
+import { Category } from '@/types/category';
 import { UserRole } from '@/types/enums';
 import { TFunction } from 'i18next';
 import { formatDate } from '@/utils/date';
@@ -552,3 +553,57 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
         );
     },
 });
+
+export const createCategoryColumns = ({ t }: ColumnConfigOptions): ColDef<Category>[] => {
+    return [
+        {
+            headerName: t('table.columns.image'),
+            field: 'image',
+            width: 100,
+            checkboxSelection: true,
+            headerCheckboxSelection: true,
+            cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
+            cellRenderer: (params: ICellRendererParams<Category>) => (
+                <Avatar src={params.value} size="sm" radius="md" />
+            ),
+        },
+        {
+            headerName: t('table.columns.name'),
+            field: 'name',
+            sortable: true,
+            filter: true,
+            flex: 1,
+            cellRenderer: (params: ICellRendererParams<Category>) => (
+                <Stack gap={0}>
+                    <Text size="sm" fw={500}>
+                        {params.value}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                        {params.data?.slug}
+                    </Text>
+                </Stack>
+            ),
+        },
+        {
+            headerName: t('table.columns.status'),
+            field: 'isActive',
+            width: 120,
+            cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
+            cellRenderer: (params: ICellRendererParams<Category>) => (
+                <Badge color={params.value ? 'green' : 'gray'} variant="light">
+                    {params.value ? t('table.status.active') : t('table.status.inactive')}
+                </Badge>
+            ),
+        },
+        {
+            headerName: t('table.columns.createdAt'),
+            field: 'createdAt',
+            width: 150,
+            valueFormatter: params => {
+                if (!params.value) return '';
+                return new Date(params.value).toLocaleDateString('vi-VN');
+            },
+        },
+    ];
+};
+

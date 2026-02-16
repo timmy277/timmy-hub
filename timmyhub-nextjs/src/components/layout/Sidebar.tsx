@@ -52,6 +52,7 @@ const getMockData = (t: TFunction): SidebarItem[] => [
         icon: IconShoppingCart,
         links: [
             { label: t('sidebar.products'), link: '/admin/products', icon: IconPackage },
+            { label: t('sidebar.categories'), link: '/admin/categories', icon: IconTags },
             { label: t('sidebar.orders'), link: '/admin/orders', icon: IconCalendarStats },
             { label: t('sidebar.customers'), link: '/admin/customers', icon: IconUsers },
         ],
