@@ -15,6 +15,7 @@ import {
     Grid,
     Table,
 } from '@mantine/core';
+import NextImage from 'next/image';
 import { useTranslation } from 'react-i18next';
 import { 
     IconStar, 
@@ -99,11 +100,14 @@ export function ProductDetail({ product }: ProductDetailProps) {
                     <Stack gap="xs">
                         {product.images?.[0] ? (
                             <Image
+                                component={NextImage}
                                 src={product.images[0]}
                                 radius="md"
-                                h={400}
+                                height={400}
+                                width={600}
                                 fallbackSrc="https://placehold.co/600x600?text=No+Image"
                                 alt={product.name}
+                                style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
                             />
                         ) : (
                             <Card withBorder h={400} radius="md" flex={1}>
@@ -120,11 +124,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
                                     {product.images.map((img, idx) => (
                                         <Image
                                             key={idx}
+                                            component={NextImage}
                                             src={img}
-                                            w={80}
-                                            h={80}
+                                            width={80}
+                                            height={80}
                                             radius="sm"
-                                            style={{ cursor: 'pointer', border: idx === 0 ? '2px solid var(--mantine-color-blue-6)' : 'none' }}
+                                            style={{ 
+                                                cursor: 'pointer', 
+                                                border: idx === 0 ? '2px solid var(--mantine-color-blue-6)' : 'none',
+                                                objectFit: 'cover'
+                                            }}
                                             alt={`${product.name} ${idx + 1}`}
                                         />
                                     ))}

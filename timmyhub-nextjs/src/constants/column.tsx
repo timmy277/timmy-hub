@@ -1,4 +1,5 @@
 import { Badge, Group, ActionIcon, Tooltip, Avatar, Stack, Text, Image } from '@mantine/core';
+import NextImage from 'next/image';
 import { IconEye, IconEdit, IconLock, IconLockOpen, IconCheck, IconX, IconStar } from '@tabler/icons-react';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { User } from '@/types/auth';
@@ -255,9 +256,10 @@ export const createProductColumns = (options: ColumnConfigOptions): ColDef<Produ
                 const imageUrl = params.value?.[0] || '';
                 return (
                     <Image
+                        component={NextImage}
                         src={imageUrl}
-                        h={35}
-                        w={35}
+                        height={35}
+                        width={35}
                         radius="md"
                         fallbackSrc="https://placehold.co/40x40?text=HP"
                         fit="cover"

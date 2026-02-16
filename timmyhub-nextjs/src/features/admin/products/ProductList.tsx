@@ -8,15 +8,21 @@ import {
     Button,
     Group,
     Stack,
+    Box,
 } from '@mantine/core';
 import { IconPackage } from '@tabler/icons-react';
-import { useAdminProducts, useApproveProductMutation, useRejectProductMutation } from '@/hooks/useProducts';
+import { useAdminProducts } from '@/hooks/useProducts';
+import { useAction } from 'next-safe-action/hooks';
+import { approveProductAction, rejectProductAction, createProductAction } from '@/actions/product.actions';
 import { Product } from '@/types/product';
 import { ManagementPage } from '@/components/shared/ManagementPage';
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
 import { createProductColumns, createActionColumn } from '@/constants/column';
 import { ProductDetail } from './ProductDetail';
+import { ProductForm, ProductFormValues } from './ProductForm';
+import { notifications } from '@mantine/notifications';
+import { IconCheck, IconX } from '@tabler/icons-react';
 
 /**
  * Trang quản lý sản phẩm cho Admin (Sử dụng ManagementPage pattern)
@@ -24,8 +30,70 @@ import { ProductDetail } from './ProductDetail';
 export function ProductList() {
     const { t } = useTranslation();
     const { data: response, isLoading, refetch } = useAdminProducts();
-    const approveMutation = useApproveProductMutation();
-    const rejectMutation = useRejectProductMutation();
+    
+    // Server Actions
+    const { execute: approve, isPending: isApproving } = useAction(approveProductAction, {
+        onSuccess: () => {
+            notifications.show({
+                title: t('common.success'),
+                message: t('productManagement.approvedSuccess', { defaultValue: 'Đã duyệt sản phẩm thành công' }),
+                color: 'green',
+                icon: <IconCheck size={18} />,
+            });
+            refetch(); // Refresh list after action
+        },
+        onError: ({ error }) => {
+            notifications.show({
+                title: t('common.error'),
+                message: error.serverError || 'Lỗi khi duyệt sản phẩm',
+                color: 'red',
+                icon: <IconX size={18} />,
+            });
+        }
+    });
+
+    const { execute: reject, isPending: isRejecting } = useAction(rejectProductAction, {
+        onSuccess: () => {
+            notifications.show({
+                title: t('common.success'),
+                message: t('productManagement.rejectedSuccess', { defaultValue: 'Đã từ chối sản phẩm' }),
+                color: 'orange',
+                icon: <IconCheck size={18} />,
+            });
+            setRejectingId(null);
+            setRejectNote('');
+            refetch(); // Refresh list after action
+        },
+        onError: ({ error }) => {
+            notifications.show({
+                title: t('common.error'),
+                message: error.serverError || 'Lỗi khi từ chối sản phẩm',
+                color: 'red',
+                icon: <IconX size={18} />,
+            });
+        }
+    });
+
+    const { execute: createProduct, isPending: isCreating } = useAction(createProductAction, {
+        onSuccess: () => {
+            notifications.show({
+                title: t('common.success'),
+                message: t('productManagement.createSuccess', { defaultValue: 'Tạo sản phẩm thành công' }),
+                color: 'green',
+                icon: <IconCheck size={18} />,
+            });
+            closeTab(ManagementTabType.CREATE);
+            refetch();
+        },
+        onError: ({ error }) => {
+            notifications.show({
+                title: t('common.error'),
+                message: error.serverError || 'Lỗi khi tạo sản phẩm',
+                color: 'red',
+                icon: <IconX size={18} />,
+            });
+        }
+    });
 
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
         useManagementTabs<Product>('Product');
@@ -34,16 +102,28 @@ export function ProductList() {
     const [rejectNote, setRejectNote] = useState('');
 
     // ===== Component Logic =====
+    const handleFormSubmit = (values: ProductFormValues) => {
+        createProduct(values);
+    };
+
     const renderTabContent = (tab: TabItem<Product>): ReactNode => {
         switch (tab.type) {
             case ManagementTabType.DETAIL:
                 return tab.data ? <ProductDetail product={tab.data} /> : null;
             case ManagementTabType.CREATE:
+                return (
+                    <Box p="xl">
+                        <ProductForm onSubmit={handleFormSubmit} isLoading={isCreating} />
+                    </Box>
+                );
             case ManagementTabType.UPDATE:
                 return (
-                    <Group p="xl">
-                        {t('common.featureDeveloping')}
-                    </Group>
+                    <Box p="xl">
+                        <ProductForm 
+                            initialValues={tab.data} 
+                            onSubmit={(values) => console.log('Update', values)} 
+                        />
+                    </Box>
                 );
             default:
                 return null;
@@ -52,21 +132,19 @@ export function ProductList() {
 
     const handleApprove = useCallback(
         async (product: Product) => {
-            await approveMutation.mutateAsync(product.id);
+            approve({ id: product.id });
         },
-        [approveMutation],
+        [approve],
     );
 
     const handleRejectClick = useCallback((product: Product) => {
         setRejectingId(product.id);
-    }, []);
+    }, [setRejectingId]);
 
     const handleConfirmReject = useCallback(async () => {
         if (!rejectingId) return;
-        await rejectMutation.mutateAsync({ id: rejectingId, note: rejectNote });
-        setRejectingId(null);
-        setRejectNote('');
-    }, [rejectingId, rejectNote, rejectMutation]);
+        reject({ id: rejectingId, note: rejectNote });
+    }, [rejectingId, rejectNote, reject]);
 
     const columnDefs = useMemo(
         () => [
@@ -89,7 +167,7 @@ export function ProductList() {
                 entityName="Product"
                 rowData={response?.data || []}
                 columnDefs={columnDefs}
-                isLoading={isLoading}
+                isLoading={isLoading || isApproving}
                 onRefresh={refetch}
                 onAdd={() => handleAction('Create')}
                 renderTabContent={renderTabContent}
@@ -122,7 +200,7 @@ export function ProductList() {
                         <Button
                             color="red"
                             onClick={handleConfirmReject}
-                            loading={rejectMutation.isPending}
+                            loading={isRejecting}
                             disabled={!rejectNote.trim()}
                         >
                             {t('common.confirmReject', { defaultValue: 'Xác nhận từ chối' })}

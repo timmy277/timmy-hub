@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { productService } from '@/services/product.service';
 import { Title, Text, Container, Image, Group, Badge, Stack, Grid, Card, Button } from '@mantine/core';
+import NextImage from 'next/image';
 import { notFound } from 'next/navigation';
 
 interface Props {
@@ -47,9 +48,13 @@ export default async function ProductDetailPage({ params }: Props) {
             <Grid gutter="xl">
                 <Grid.Col span={{ base: 12, md: 6 }}>
                     <Image
+                        component={NextImage}
                         src={product.images?.[0] || 'https://placehold.co/600x600?text=No+Image'}
                         radius="md"
+                        height={600}
+                        width={600}
                         alt={product.name}
+                        style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
                     />
                 </Grid.Col>
 
