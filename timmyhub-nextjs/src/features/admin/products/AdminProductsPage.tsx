@@ -1,9 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import {
     Container,
-    Title,
     Text,
     Stack,
     Group,
@@ -15,14 +14,9 @@ import {
     Button,
     Paper,
 } from '@mantine/core';
-import { useTranslation } from 'react-i18next';
+import { useAdminProducts, useApproveProductMutation, useRejectProductMutation } from '@/hooks/useProducts';
 import { IconCheck, IconX, IconEye, IconRefresh } from '@tabler/icons-react';
 import { BaseDataTable } from '@/components/tables/BaseDataTable';
-import {
-    useAdminProducts,
-    useApproveProductMutation,
-    useRejectProductMutation,
-} from '@/hooks/useProducts';
 import { Product, ResourceStatus } from '@/types/product';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import dayjs from 'dayjs';
@@ -32,7 +26,6 @@ import dayjs from 'dayjs';
  * @author TimmyHub AI
  */
 export function AdminProductsPage() {
-    const { t } = useTranslation();
     const { data: response, isLoading, refetch } = useAdminProducts();
     const approveMutation = useApproveProductMutation();
     const rejectMutation = useRejectProductMutation();
@@ -40,16 +33,19 @@ export function AdminProductsPage() {
     const [rejectingId, setRejectingId] = useState<string | null>(null);
     const [rejectNote, setRejectNote] = useState('');
 
-    const handleApprove = async (id: string) => {
-        await approveMutation.mutateAsync(id);
-    };
+    const handleApprove = useCallback(
+        async (id: string) => {
+            await approveMutation.mutateAsync(id);
+        },
+        [approveMutation],
+    );
 
-    const handleReject = async () => {
+    const handleReject = useCallback(async () => {
         if (!rejectingId) return;
         await rejectMutation.mutateAsync({ id: rejectingId, note: rejectNote });
         setRejectingId(null);
         setRejectNote('');
-    };
+    }, [rejectingId, rejectNote, rejectMutation]);
 
     const columnDefs = useMemo<ColDef<Product>[]>(
         () => [
@@ -154,19 +150,13 @@ export function AdminProductsPage() {
                 },
             },
         ],
-        [approveMutation.isPending],
+        [approveMutation.isPending, handleApprove],
     );
 
     return (
         <Container size="xl" py="md">
             <Stack gap="lg">
-                <Group justify="space-between">
-                    <div>
-                        <Title order={2}>Quản lý phê duyệt sản phẩm</Title>
-                        <Text size="sm" c="dimmed">
-                            Phê duyệt hoặc từ chối sản phẩm đăng bán từ người bán
-                        </Text>
-                    </div>
+                <Group justify="flex-end">
                     <Button
                         leftSection={<IconRefresh size={16} />}
                         variant="subtle"

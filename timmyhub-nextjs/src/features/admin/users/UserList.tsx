@@ -114,7 +114,6 @@ export function UserList() {
     // ===== Final Render =====
     return (
         <ManagementPage<User>
-            title={t('userManagement.title')}
             entityName="User"
             rowData={response?.data || []}
             columnDefs={columnDefs}

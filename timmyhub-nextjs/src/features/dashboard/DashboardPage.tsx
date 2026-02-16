@@ -141,7 +141,6 @@ export function DashboardPage() {
 
     return (
         <ManagementPage<Product>
-            title="Sản phẩm"
             entityName="Product"
             rowData={rowData}
             columnDefs={columnDefs}

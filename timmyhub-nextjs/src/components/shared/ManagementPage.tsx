@@ -13,7 +13,6 @@ import {
     ActionIcon,
     Popover,
     Checkbox,
-    Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
@@ -48,7 +47,6 @@ import { ManagementTabType } from '@/types/enums';
 ModuleRegistry.registerModules([ColumnApiModule, CsvExportModule, EventApiModule]);
 
 interface ManagementPageProps<T> {
-    title: string;
     entityName: string;
     rowData: T[];
     columnDefs: ColDef<T>[];
@@ -67,7 +65,6 @@ interface ManagementPageProps<T> {
 }
 
 export function ManagementPage<T>({
-    title,
     entityName,
     rowData,
     columnDefs,
@@ -160,9 +157,6 @@ export function ManagementPage<T>({
     return (
         <DashboardShell withFooter={false}>
             <Container fluid px="1rem" py="md">
-                <Title order={2} mb="xl">
-                    {title}
-                </Title>
                 <Tabs
                     id={`${baseId}-tabs`}
                     value={activeTab}

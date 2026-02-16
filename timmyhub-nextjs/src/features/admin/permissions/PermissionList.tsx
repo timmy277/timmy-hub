@@ -103,7 +103,6 @@ export function PermissionList() {
     // ===== Final Render =====
     return (
         <ManagementPage<Permission>
-            title={t('rbac.permissionsTitle')}
             entityName="Permission"
             rowData={response?.data || []}
             columnDefs={columnDefs}

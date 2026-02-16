@@ -107,7 +107,6 @@ export function RoleList() {
     // ===== Final Render =====
     return (
         <ManagementPage<Role>
-            title={t('rbac.title')}
             entityName="Role"
             rowData={response?.data || []}
             columnDefs={columnDefs}
