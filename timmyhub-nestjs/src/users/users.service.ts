@@ -52,6 +52,7 @@ export class UsersService {
                         firstName: dto.firstName,
                         lastName: dto.lastName,
                         displayName: `${dto.firstName} ${dto.lastName}`,
+                        avatar: dto.avatar || null,
                     },
                 },
                 userRoles: role
@@ -133,6 +134,7 @@ export class UsersService {
         const profileUpdate: Prisma.ProfileUpdateInput = {};
         if (dto.firstName) profileUpdate.firstName = dto.firstName;
         if (dto.lastName) profileUpdate.lastName = dto.lastName;
+        if (dto.avatar !== undefined) profileUpdate.avatar = dto.avatar;
 
         // If name changes, update displayName
         if (dto.firstName || dto.lastName) {

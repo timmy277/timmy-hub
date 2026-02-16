@@ -52,7 +52,7 @@ export class AuthController {
     @Post('refresh')
     @ApiOperation({ summary: 'Làm mới Access Token bằng Refresh Token' })
     async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        const refreshToken = req.cookies['refresh_token'];
+        const refreshToken = (req.cookies as Record<string, string>)['refresh_token'];
         const result = await this.authService.refreshTokens(refreshToken);
 
         res.cookie('access_token', result.accessToken, {
@@ -75,7 +75,7 @@ export class AuthController {
     @Delete('logout')
     @ApiOperation({ summary: 'Đăng xuất khỏi thiết bị hiện tại' })
     async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        const refreshToken = req.cookies['refresh_token'];
+        const refreshToken = (req.cookies as Record<string, string>)['refresh_token'];
         await this.authService.logout(refreshToken);
 
         res.clearCookie('access_token');

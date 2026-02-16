@@ -112,8 +112,6 @@ export class ProductsService {
      * Từ chối sản phẩm (Admin)
      */
     async reject(id: string, adminId: string, note: string): Promise<Product> {
-        const product = await this.findOne(id);
-
         return this.prisma.product.update({
             where: { id },
             data: {

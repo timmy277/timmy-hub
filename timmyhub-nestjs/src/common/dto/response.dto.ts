@@ -29,6 +29,6 @@ export class ResponseDto<T> {
     }
 
     static error<T>(message: string, error?: unknown): ResponseDto<T> {
-        return new ResponseDto<T>(false, message, undefined as any, error);
+        return new ResponseDto<T>(false, message, undefined, error);
     }
 }

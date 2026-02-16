@@ -8,6 +8,8 @@ import { RbacModule } from './rbac/rbac.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
+import { SupabaseModule } from './common/supabase/supabase.module';
+import { FilesModule } from './files/files.module';
 import { LoggerModule } from 'nestjs-pino';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
@@ -50,6 +52,8 @@ import { redisStore } from 'cache-manager-redis-yet';
         UsersModule,
         ProductsModule,
         CategoriesModule,
+        SupabaseModule,
+        FilesModule,
     ],
     controllers: [AppController],
     providers: [AppService],

@@ -19,6 +19,7 @@ import { UserRole } from '@/types/enums';
 import { useCreateUserMutation, useUpdateUserMutation } from '@/hooks/useUsers';
 import { useRoles } from '@/hooks/useRbac';
 import { User } from '@/types/auth';
+import { ImageUpload } from '@/components/shared';
 import {
     createRequiredValidator,
     createEmailValidator,
@@ -68,6 +69,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
             role: user?.role || UserRole.CUSTOMER,
             isActive: user?.isActive ?? true,
             phoneNumber: user?.phone || '',
+            avatar: user?.profile?.avatar || '',
         },
 
         validate: {
@@ -88,6 +90,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                 role: values.role,
                 isActive: values.isActive,
                 phoneNumber: values.phoneNumber,
+                avatar: values.avatar,
             };
 
             if (values.password && values.password.trim().length > 0) {
@@ -126,6 +129,12 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
 
             <form onSubmit={form.onSubmit(handleSubmit)}>
                 <Stack>
+                    <ImageUpload
+                        label={t('userManagement.avatar')}
+                        value={form.values.avatar}
+                        onChange={url => form.setFieldValue('avatar', url)}
+                    />
+
                     <Group grow>
                         <TextInput
                             label={t('userManagement.firstName')}

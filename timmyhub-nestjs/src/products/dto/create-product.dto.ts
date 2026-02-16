@@ -1,13 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-    IsNotEmpty,
-    IsString,
-    IsNumber,
-    Min,
-    IsOptional,
-    IsArray,
-    IsDecimal,
-} from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, Min, IsOptional, IsArray } from 'class-validator';
 
 /**
  * DTO cho việc tạo sản phẩm mới

@@ -45,4 +45,9 @@ export class CreateUserDto {
     @IsString({ each: true })
     @IsOptional()
     roleNames?: string[];
+
+    @ApiProperty({ example: 'https://example.com/avatar.png' })
+    @IsString()
+    @IsOptional()
+    avatar?: string;
 }
