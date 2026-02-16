@@ -44,10 +44,21 @@ export function ForgotPasswordPage() {
                 color: 'green',
                 icon: <IconCheck size={18} />,
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
+            let message = 'Không thể gửi email';
+
+            if (error instanceof Error) {
+                message = error.message;
+            }
+
+            const axiosError = error as { response?: { data?: { message?: string } } };
+            if (axiosError.response?.data?.message) {
+                message = axiosError.response.data.message;
+            }
+
             notifications.show({
                 title: 'Lỗi',
-                message: error.response?.data?.message || 'Không thể gửi email',
+                message: message,
                 color: 'red',
                 icon: <IconX size={18} />,
             });

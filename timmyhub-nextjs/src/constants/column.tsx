@@ -44,7 +44,7 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
             headerName: t('table.columns.avatar'),
             field: 'profile.avatar',
             width: 100,
-            cellStyle: { display: 'flex', alignItems: 'center' },
+            cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
             cellRenderer: (params: ICellRendererParams<User>) => {
                 const avatar = params.data?.profile?.avatar || '';
                 const initial =
@@ -247,17 +247,17 @@ export const createProductColumns = (options: ColumnConfigOptions): ColDef<Produ
             headerName: t('table.columns.image'),
             field: 'images',
             width: 100,
+            cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
             cellRenderer: (params: ICellRendererParams<Product>) => {
                 const imageUrl = params.value?.[0] || '';
                 return (
                     <Image
                         src={imageUrl}
-                        h={40}
-                        w={40}
+                        h={35}
+                        w={35}
                         radius="md"
                         fallbackSrc="https://placehold.co/40x40?text=HP"
                         fit="cover"
-                        mt={4}
                         alt={params.data?.name || 'Product'}
                     />
                 );

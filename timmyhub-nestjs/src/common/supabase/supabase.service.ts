@@ -1,10 +1,10 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SupabaseService {
-    private supabase: SupabaseClient<any, any, any>;
+    private supabase: ReturnType<typeof createClient>;
     private readonly logger = new Logger(SupabaseService.name);
     private readonly bucketName: string;
 

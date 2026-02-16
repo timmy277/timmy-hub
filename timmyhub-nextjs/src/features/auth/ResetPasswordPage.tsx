@@ -74,10 +74,21 @@ export function ResetPasswordPage() {
             });
 
             router.push('/login');
-        } catch (error: any) {
+        } catch (error: unknown) {
+            let message = 'Không thể đặt lại mật khẩu';
+
+            if (error instanceof Error) {
+                message = error.message;
+            }
+
+            const axiosError = error as { response?: { data?: { message?: string } } };
+            if (axiosError.response?.data?.message) {
+                message = axiosError.response.data.message;
+            }
+
             notifications.show({
                 title: 'Lỗi',
-                message: error.response?.data?.message || 'Không thể đặt lại mật khẩu',
+                message: message,
                 color: 'red',
                 icon: <IconX size={18} />,
             });

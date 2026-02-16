@@ -121,10 +121,21 @@ export function RegisterPage() {
             });
 
             router.push('/login');
-        } catch (error: any) {
+        } catch (error: unknown) {
+            let message = 'Không thể tạo tài khoản';
+
+            if (error instanceof Error) {
+                message = error.message;
+            }
+
+            const axiosError = error as { response?: { data?: { message?: string } } };
+            if (axiosError.response?.data?.message) {
+                message = axiosError.response.data.message;
+            }
+
             notifications.show({
                 title: 'Lỗi',
-                message: error.response?.data?.message || 'Không thể tạo tài khoản',
+                message: message,
                 color: 'red',
                 icon: <IconX size={18} />,
             });

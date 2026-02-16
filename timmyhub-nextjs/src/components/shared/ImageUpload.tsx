@@ -30,11 +30,23 @@ export function ImageUpload({ value, onChange, label }: ImageUploadProps) {
                 message: t('common.imageUploaded', { defaultValue: 'Ảnh đã được tải lên máy chủ' }),
                 color: 'green',
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Upload failed:', error);
+            let message = t('common.uploadError', { defaultValue: 'Có lỗi xảy ra khi tải ảnh' });
+            
+            if (error instanceof Error) {
+                message = error.message;
+            }
+            
+            // Check for axios error structure
+            const axiosError = error as { response?: { data?: { message?: string } } };
+            if (axiosError.response?.data?.message) {
+                message = axiosError.response.data.message;
+            }
+
             notifications.show({
                 title: t('common.uploadFailed', { defaultValue: 'Tải lên thất bại' }),
-                message: error.response?.data?.message || error.message || t('common.uploadError', { defaultValue: 'Có lỗi xảy ra khi tải ảnh' }),
+                message: message,
                 color: 'red',
             });
         } finally {

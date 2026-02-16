@@ -13,6 +13,8 @@ import { FilesModule } from './files/files.module';
 import { LoggerModule } from 'nestjs-pino';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
     imports: [
@@ -30,6 +32,16 @@ import { redisStore } from 'cache-manager-redis-yet';
                 }),
             }),
             inject: [ConfigService],
+        }),
+        ThrottlerModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (config: ConfigService) => [
+                {
+                    ttl: config.get('THROTTLE_TTL', 60),
+                    limit: config.get('THROTTLE_LIMIT', 10),
+                },
+            ],
         }),
         LoggerModule.forRoot({
             pinoHttp: {
@@ -56,6 +68,12 @@ import { redisStore } from 'cache-manager-redis-yet';
         FilesModule,
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [
+        AppService,
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
+    ],
 })
 export class AppModule {}
