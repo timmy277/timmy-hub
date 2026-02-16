@@ -30,7 +30,7 @@ export function HomePage() {
                             </Text>
 
                             <Group gap="sm">
-                                <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+                                <Link href="/admin" style={{ textDecoration: 'none' }}>
                                     <Button variant="filled">Go to Dashboard</Button>
                                 </Link>
                             </Group>

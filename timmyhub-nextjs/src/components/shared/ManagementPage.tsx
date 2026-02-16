@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, ReactNode } from 'react';
+import { useMounted } from '@mantine/hooks';
 import {
     Container,
     Tabs,
@@ -82,6 +83,7 @@ export function ManagementPage<T>({
     closeTab,
 }: ManagementPageProps<T>) {
     // ===== Hooks & Context =====
+    const mounted = useMounted();
     const baseId = entityName.toLowerCase();
     const [gridApi, setGridApi] = useState<GridApi<T> | null>(null);
     const [quickFilterText, setQuickFilterText] = useState('');
@@ -153,6 +155,8 @@ export function ManagementPage<T>({
     };
 
     // ===== Final Render =====
+    if (!mounted) return null;
+
     return (
         <DashboardShell withFooter={false}>
             <Container fluid px="1rem" py="md">

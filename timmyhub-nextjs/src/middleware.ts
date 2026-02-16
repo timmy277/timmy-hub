@@ -41,9 +41,9 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // 3. Nếu đã đăng nhập mà cố vào trang Login/Register -> Redirect về Home/Dashboard
+    // 3. Nếu đã đăng nhập mà cố vào trang Login/Register -> Redirect về Home/Dashboard (bây giờ là /admin)
     if (token && (pathname === '/login' || pathname === '/register')) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+        return NextResponse.redirect(new URL('/admin', request.url));
     }
 
     // 4. Kiểm tra quyền hạn nâng cao (Dựa vào User Role & Permissions)
