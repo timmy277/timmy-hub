@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -7,9 +7,12 @@ import { Prisma, UserRole } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
+    private readonly logger = new Logger(UsersService.name);
+
     constructor(private prisma: PrismaService) {}
 
     async create(dto: CreateUserDto) {
+        this.logger.log(`Tạo người dùng mới: ${dto.email}`);
         const existingUser = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });
@@ -65,6 +68,7 @@ export class UsersService {
     }
 
     async update(id: string, dto: UpdateUserDto) {
+        this.logger.log(`Cập nhật người dùng ID: ${id}`);
         const user = await this.findOne(id);
 
         if (dto.email && dto.email !== user.email) {

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
@@ -8,6 +8,8 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger(AuthService.name);
+
     constructor(
         private readonly prisma: PrismaService,
         private readonly jwtService: JwtService,
@@ -15,6 +17,7 @@ export class AuthService {
     ) {}
 
     async register(dto: RegisterDto) {
+        this.logger.log(`Yêu cầu đăng ký tài khoản mới: ${dto.email}`);
         const existingUser = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });
@@ -47,6 +50,7 @@ export class AuthService {
     }
 
     async login(dto: LoginDto, ip: string, userAgent: string) {
+        this.logger.log(`Yêu cầu đăng nhập: ${dto.email}`);
         const user = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });

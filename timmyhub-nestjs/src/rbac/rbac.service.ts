@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreatePermissionDto, UpdatePermissionDto } from './dto/create-permission.dto';
 
 @Injectable()
 export class RbacService {
+    private readonly logger = new Logger(RbacService.name);
+
     constructor(private prisma: PrismaService) {}
 
     // ==================== ROLES ====================
@@ -33,6 +35,7 @@ export class RbacService {
     }
 
     async createRole(dto: CreateRoleDto) {
+        this.logger.log(`Tạo vai trò mới: ${dto.name}`);
         const existing = await this.prisma.systemRole.findUnique({
             where: { name: dto.name },
         });
