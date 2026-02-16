@@ -6,9 +6,15 @@ import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { FlagVN, FlagUK } from '@/components/common';
 
+// ===== Data =====
+const languages = [
+    { code: 'en', label: 'English', flag: <FlagUK /> },
+    { code: 'vi', label: 'Tiếng Việt', flag: <FlagVN /> },
+];
+
 export function LanguageSwitcher() {
     // ===== Hooks & Context =====
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
     const primaryColor = useThemeStore(state => state.primaryColor);
 
     // ===== Event Handlers =====
@@ -23,12 +29,12 @@ export function LanguageSwitcher() {
     return (
         <Menu
             shadow="md"
-            width={140}
+            width={160}
             position="bottom-end"
             transitionProps={{ transition: 'pop-top-right' }}
         >
             <Menu.Target>
-                <Tooltip label="Change language">
+                <Tooltip label={t('Change language') || 'Change language'}>
                     <ActionIcon variant="default" size="lg" radius="md">
                         {currentLanguage.startsWith('vi') ? <FlagVN /> : <FlagUK />}
                     </ActionIcon>
@@ -36,35 +42,30 @@ export function LanguageSwitcher() {
             </Menu.Target>
 
             <Menu.Dropdown>
-                <Menu.Label>Select Language</Menu.Label>
-                <Menu.Item
-                    leftSection={<FlagUK />}
-                    onClick={() => handleLanguageChange('en')}
-                    rightSection={
-                        !currentLanguage.startsWith('vi') && (
-                            <IconCheck
-                                size={14}
-                                color={`var(--mantine-color-${primaryColor}-filled)`}
-                            />
-                        )
-                    }
-                >
-                    English
-                </Menu.Item>
-                <Menu.Item
-                    leftSection={<FlagVN />}
-                    onClick={() => handleLanguageChange('vi')}
-                    rightSection={
-                        currentLanguage.startsWith('vi') && (
-                            <IconCheck
-                                size={14}
-                                color={`var(--mantine-color-${primaryColor}-filled)`}
-                            />
-                        )
-                    }
-                >
-                    Tiếng Việt
-                </Menu.Item>
+                <Menu.Label>{t('Select Language') || 'Select Language'}</Menu.Label>
+                {languages.map(lang => {
+                    const isActive = currentLanguage.startsWith(lang.code);
+                    return (
+                        <Menu.Item
+                            key={lang.code}
+                            leftSection={lang.flag}
+                            onClick={() => handleLanguageChange(lang.code)}
+                            classNames={{
+                                itemLabel: 'whitespace-nowrap',
+                            }}
+                            rightSection={
+                                isActive && (
+                                    <IconCheck
+                                        size={14}
+                                        color={`var(--mantine-color-${primaryColor}-filled)`}
+                                    />
+                                )
+                            }
+                        >
+                            {lang.label}
+                        </Menu.Item>
+                    );
+                })}
             </Menu.Dropdown>
         </Menu>
     );

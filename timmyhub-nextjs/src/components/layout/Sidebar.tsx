@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Stack, Tooltip, rem, NavLink, Box, Text, Group, Menu, Collapse } from '@mantine/core';
+import { Logo } from '../common';
+import { Stack, Tooltip, rem, NavLink, Box, Text, Menu, Collapse } from '@mantine/core';
 import { useMounted } from '@mantine/hooks';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -91,36 +92,7 @@ export function Sidebar() {
                 style={{ borderBottom: '1px solid var(--mantine-color-default-border)' }}
             >
                 <Box className="w-full" px={collapsed ? 0 : 'md'}>
-                    <Group
-                        gap={collapsed ? 0 : rem(12)}
-                        wrap="nowrap"
-                        justify={collapsed ? 'center' : 'flex-start'}
-                        className="transition-all duration-300"
-                    >
-                        <Box className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">
-                            <Text
-                                fw={900}
-                                c="white"
-                                size="lg"
-                                className="tracking-tighter pl-[1px]"
-                            >
-                                T
-                            </Text>
-                        </Box>
-
-                        <Box
-                            className="overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap"
-                            style={{
-                                maxWidth: collapsed ? 0 : '200px',
-                                opacity: collapsed ? 0 : 1,
-                                transform: `translateX(${collapsed ? '-10px' : '0'})`,
-                            }}
-                        >
-                            <Text fw={800} size="lg" className="tracking-tight ml-1">
-                                TIMMY<span className="text-blue-600">HUB</span>
-                            </Text>
-                        </Box>
-                    </Group>
+                    <Logo collapsed={collapsed} />
                 </Box>
             </Box>
 

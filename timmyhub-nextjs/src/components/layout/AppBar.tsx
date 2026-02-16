@@ -2,6 +2,7 @@
 
 import { Group, Box, Avatar, Text, Menu, UnstyledButton, ActionIcon, Divider, Breadcrumbs, Anchor } from '@mantine/core';
 import { LanguageSwitcher, ThemeSwitcher } from '../shared';
+import { Logo } from '../common';
 import {
     IconSettings,
     IconLogout,
@@ -18,10 +19,9 @@ import Link from 'next/link';
 
 interface AppBarProps {
     withSidebarToggle?: boolean;
-    title?: string;
 }
 
-export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBarProps) {
+export function AppBar({ withSidebarToggle = true }: AppBarProps) {
     // ===== Hooks & Context =====
     const { t } = useTranslation();
     const { collapsed, toggleSidebar } = useSidebarStore();
@@ -29,6 +29,7 @@ export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBar
     const pathname = usePathname();
 
     // ===== Component Logic =====
+    const isAdminPage = pathname.startsWith('/admin');
     const segments = pathname.split('/').filter(p => p);
     
     const breadcrumbItems = [
@@ -56,9 +57,9 @@ export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBar
     ];
 
     return (
-        <Group justify="space-between" h="100%" px="md">
+        <Group justify="space-between" h="100%" px="2rem">
             <Group>
-                {withSidebarToggle && (
+                {withSidebarToggle && isAdminPage && (
                     <ActionIcon
                         onClick={toggleSidebar}
                         variant="subtle"
@@ -74,9 +75,13 @@ export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBar
                     </ActionIcon>
                 )}
 
-                <Breadcrumbs separator={<IconChevronRight size={14} opacity={0.5} />} ml="sm">
-                    {breadcrumbItems}
-                </Breadcrumbs>
+                {isAdminPage ? (
+                    <Breadcrumbs separator={<IconChevronRight size={14} opacity={0.5} />} ml="sm">
+                        {breadcrumbItems}
+                    </Breadcrumbs>
+                ) : (
+                    <Logo />
+                )}
             </Group>
 
             <Group gap="md">
