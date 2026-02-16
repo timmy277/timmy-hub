@@ -1,13 +1,17 @@
-import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Logger, Inject } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { CreatePermissionDto, UpdatePermissionDto } from './dto/create-permission.dto';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class RbacService {
     private readonly logger = new Logger(RbacService.name);
 
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    ) {}
 
     // ==================== ROLES ====================
 
@@ -87,12 +91,24 @@ export class RbacService {
             });
 
             // Tạo mapping mới
-            return tx.rolePermission.createMany({
+            const result = await tx.rolePermission.createMany({
                 data: permissions.map(p => ({
                     roleId,
                     permissionId: p.id,
                 })),
             });
+
+            // Tìm tất cả user đang có role này để xóa cache
+            const usersWithRole = await tx.userSystemRole.findMany({
+                where: { roleId },
+                select: { userId: true },
+            });
+
+            for (const u of usersWithRole) {
+                await this.cacheManager.del(`user_permissions:${u.userId}`);
+            }
+
+            return result;
         });
     }
 

@@ -1,15 +1,19 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma, UserRole } from '@prisma/client';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class UsersService {
     private readonly logger = new Logger(UsersService.name);
 
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    ) {}
 
     async create(dto: CreateUserDto) {
         this.logger.log(`Tạo người dùng mới: ${dto.email}`);
@@ -143,7 +147,7 @@ export class UsersService {
             prismaUpdateData.profile = { update: profileUpdate };
         }
 
-        return this.prisma.user.update({
+        const updatedUser = await this.prisma.user.update({
             where: { id },
             data: prismaUpdateData,
             include: {
@@ -151,6 +155,11 @@ export class UsersService {
                 userRoles: { include: { role: true } },
             },
         });
+
+        // Invalidate permission cache
+        await this.cacheManager.del(`user_permissions:${id}`);
+
+        return updatedUser;
     }
 
     async findAll() {
@@ -185,12 +194,17 @@ export class UsersService {
                 where: { name: { in: roleNames } },
             });
 
-            return tx.userSystemRole.createMany({
+            const result = await tx.userSystemRole.createMany({
                 data: roles.map(r => ({
                     userId,
                     roleId: r.id,
                 })),
             });
+
+            // Invalidate permission cache
+            await this.cacheManager.del(`user_permissions:${userId}`);
+
+            return result;
         });
     }
 

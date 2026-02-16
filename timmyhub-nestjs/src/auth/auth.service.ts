@@ -1,10 +1,17 @@
-import { Injectable, UnauthorizedException, BadRequestException, Logger } from '@nestjs/common';
+import {
+    Injectable,
+    UnauthorizedException,
+    BadRequestException,
+    Logger,
+    Inject,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +21,7 @@ export class AuthService {
         private readonly prisma: PrismaService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 
     async register(dto: RegisterDto) {
@@ -114,12 +122,17 @@ export class AuthService {
             permissions.add(up.permission.name);
         });
 
+        const permissionList = Array.from(permissions);
+
+        // Lưu vào Cache (10 phút) để tăng tốc request đầu tiên
+        await this.cacheManager.set(`user_permissions:${user.id}`, permissionList, 600000);
+
         return {
             user: {
                 id: user.id,
                 email: user.email,
                 role: user.role,
-                permissions: Array.from(permissions),
+                permissions: permissionList,
             },
             device: {
                 id: device.id,
