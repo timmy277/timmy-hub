@@ -84,7 +84,14 @@ export function UserDetail({ user }: UserDetailProps) {
                             {renderInfoRow(
                                 t('userManagement.role'),
                                 <Badge color="blue" variant="light">
-                                    {t(`roles.${user.role}`)}
+                                    {(() => {
+                                        const role = user.role as string;
+                                        const translatedRole = t(`roles.${role}`);
+                                        if (translatedRole !== `roles.${role}`) return translatedRole;
+                                        
+                                        const dynamicRole = user.userRoles?.find(ur => ur.role.name === role);
+                                        return dynamicRole?.role.displayName || role;
+                                    })()}
                                 </Badge>,
                             )}
 

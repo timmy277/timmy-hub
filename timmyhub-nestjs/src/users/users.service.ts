@@ -28,12 +28,17 @@ export class UsersService {
         }
 
         const hashedPassword = await bcrypt.hash(dto.password, 12);
+        const role = dto.role as UserRole;
+
+        // Xác định logic cho role: nếu là role trong enum thì gán vào trường role,
+        // nếu không (là role động mới) thì để mặc định CUSTOMER hoặc ADMIN tùy map
+        const finalEnumRole = Object.values(UserRole).includes(role) ? role : UserRole.CUSTOMER;
 
         return this.prisma.user.create({
             data: {
                 email: dto.email.toLowerCase(),
                 passwordHash: hashedPassword,
-                role: (dto.role as UserRole) || UserRole.CUSTOMER,
+                role: finalEnumRole,
                 phone: dto.phoneNumber || null,
                 profile: {
                     create: {
@@ -42,9 +47,19 @@ export class UsersService {
                         displayName: `${dto.firstName} ${dto.lastName}`,
                     },
                 },
+                userRoles: role
+                    ? {
+                          create: {
+                              role: {
+                                  connect: { name: role },
+                              },
+                          },
+                      }
+                    : undefined,
             },
             include: {
                 profile: true,
+                userRoles: { include: { role: true } },
             },
         });
     }
@@ -83,7 +98,23 @@ export class UsersService {
         const updateData: Prisma.UserUpdateInput = {};
         if (dto.email !== undefined) updateData.email = dto.email;
         if (hashedPassword !== undefined) updateData.passwordHash = hashedPassword;
-        if (dto.role !== undefined) updateData.role = dto.role as UserRole;
+
+        if (dto.role !== undefined) {
+            const role = dto.role as UserRole;
+            const finalEnumRole = Object.values(UserRole).includes(role) ? role : UserRole.CUSTOMER;
+            updateData.role = finalEnumRole;
+
+            // Sync userRoles relationship
+            updateData.userRoles = {
+                deleteMany: {},
+                create: {
+                    role: {
+                        connect: { name: role },
+                    },
+                },
+            };
+        }
+
         if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
 
         if (dto.phoneNumber !== undefined) {

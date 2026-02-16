@@ -17,6 +17,7 @@ import {
 import { CreateUserInput } from '@/types/user';
 import { UserRole } from '@/types/enums';
 import { useCreateUserMutation, useUpdateUserMutation } from '@/hooks/useUsers';
+import { useRoles } from '@/hooks/useRbac';
 import { User } from '@/types/auth';
 import {
     createRequiredValidator,
@@ -36,19 +37,27 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
 
     const createUserMutation = useCreateUserMutation();
     const updateUserMutation = useUpdateUserMutation();
+    const { data: rolesResponse } = useRoles();
 
     // ===== Component Logic =====
-    const roleOptions = useMemo(
-        () => [
-            { value: UserRole.CUSTOMER, label: t('roles.CUSTOMER') },
-            { value: UserRole.SELLER, label: t('roles.SELLER') },
-            { value: UserRole.BRAND, label: t('roles.BRAND') },
-            { value: UserRole.SHIPPER, label: t('roles.SHIPPER') },
-            { value: UserRole.ADMIN, label: t('roles.ADMIN') },
-            { value: UserRole.SUPER_ADMIN, label: t('roles.SUPER_ADMIN') },
-        ],
-        [t],
-    );
+    const roleOptions = useMemo(() => {
+        if (!rolesResponse?.data) {
+            // Hiển thị các role mặc định từ Enum nếu chưa load được từ API
+            return [
+                { value: UserRole.CUSTOMER, label: t('roles.CUSTOMER') },
+                { value: UserRole.SELLER, label: t('roles.SELLER') },
+                { value: UserRole.BRAND, label: t('roles.BRAND') },
+                { value: UserRole.SHIPPER, label: t('roles.SHIPPER') },
+                { value: UserRole.ADMIN, label: t('roles.ADMIN') },
+                { value: UserRole.SUPER_ADMIN, label: t('roles.SUPER_ADMIN') },
+            ];
+        }
+
+        return rolesResponse.data.map(role => ({
+            value: role.name,
+            label: role.displayName || role.name,
+        }));
+    }, [rolesResponse, t]);
 
     const form = useForm<CreateUserInput & { phoneNumber?: string }>({
         initialValues: {

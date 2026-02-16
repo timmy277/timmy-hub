@@ -12,16 +12,26 @@ export interface Profile {
     avatar?: string | null;
 }
 
+export interface UserRoleRelation {
+    roleId: string;
+    role: {
+        id: string;
+        name: string;
+        displayName: string;
+    };
+}
+
 export interface User {
     id: string;
     email: string;
     phone?: string | null;
-    role: UserRole;
+    role: UserRole | string;
     isActive: boolean;
 
     isBanned?: boolean;
     permissions: string[];
     profile?: Profile | null;
+    userRoles?: UserRoleRelation[];
     createdAt?: string;
 }
 

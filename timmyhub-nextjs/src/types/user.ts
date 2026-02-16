@@ -5,7 +5,7 @@ export interface CreateUserInput {
     password?: string;
     firstName: string;
     lastName: string;
-    role?: UserRole;
+    role?: UserRole | string;
     phoneNumber?: string;
     avatar?: string;
     isActive?: boolean;
