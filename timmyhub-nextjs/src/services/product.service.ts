@@ -29,6 +29,13 @@ export const productService = {
     },
 
     /**
+     * Lấy chi tiết sản phẩm qua Slug (Cho SEO)
+     */
+    getProductBySlug: async (slug: string): Promise<ApiResponse<Product>> => {
+        return axiosClient.get(`/products/slug/${slug}`);
+    },
+
+    /**
      * Tạo sản phẩm mới
      */
     createProduct: async (data: CreateProductInput): Promise<ApiResponse<Product>> => {

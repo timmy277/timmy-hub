@@ -8,6 +8,7 @@ const publicPaths = [
     '/register',
     '/forgot-password',
     '/',
+    '/product/(.*)',
     '/api/(.*)', // Các endpoint API thường có guard riêng hoặc public
 ];
 

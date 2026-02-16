@@ -83,9 +83,28 @@ export class ProductsService {
             include: {
                 seller: { select: { email: true, profile: true } },
                 category: true,
+                variants: true,
             },
         });
         if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
+        return product;
+    }
+
+    /**
+     * Lấy sản phẩm qua slug (Public)
+     */
+    async findBySlug(slug: string): Promise<Product> {
+        const product = await this.prisma.product.findUnique({
+            where: { slug },
+            include: {
+                category: true,
+                variants: true,
+            },
+        });
+        if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
+        if (product.status !== ResourceStatus.APPROVED) {
+            throw new BadRequestException('Sản phẩm này chưa được phê duyệt');
+        }
         return product;
     }
 

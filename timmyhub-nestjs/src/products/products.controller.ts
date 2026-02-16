@@ -49,6 +49,13 @@ export class ProductsController {
         return ResponseDto.success('Đã duyệt sản phẩm thành công');
     }
 
+    @Get('slug/:slug')
+    @ApiOperation({ summary: 'Lấy chi tiết sản phẩm qua slug (Public)' })
+    async findBySlug(@Param('slug') slug: string) {
+        const product = await this.productsService.findBySlug(slug);
+        return ResponseDto.success('Lấy chi tiết sản phẩm thành công', product);
+    }
+
     @Patch(':id/reject')
     @UseGuards(JwtAuthGuard, PermissionsGuard)
     @Permissions('product:approve')

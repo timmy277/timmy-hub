@@ -1,4 +1,5 @@
-import { NestFactory } from '@nestjs/core';
+import './instrument';
+import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setupSwagger } from './swagger';
 import cookieParser from 'cookie-parser';
@@ -6,6 +7,7 @@ import { Logger } from 'nestjs-pino';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import compression from 'compression';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -15,11 +17,17 @@ async function bootstrap() {
     app.use(helmet());
     app.use(compression());
 
+    const httpAdapterHost = app.get(HttpAdapterHost);
+    app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
+
     app.useGlobalPipes(
         new ValidationPipe({
             whitelist: true,
             transform: true,
             forbidNonWhitelisted: true,
+            transformOptions: {
+                enableImplicitConversion: true,
+            },
         }),
     );
 
