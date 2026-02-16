@@ -59,7 +59,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
         }));
     }, [rolesResponse, t]);
 
-    const form = useForm<CreateUserInput & { phoneNumber?: string }>({
+    const form = useForm<CreateUserInput>({
         initialValues: {
             email: user?.email || '',
             password: '',
@@ -79,7 +79,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
     });
 
     // ===== Event Handlers =====
-    const handleSubmit = (values: CreateUserInput & { phoneNumber?: string }) => {
+    const handleSubmit = (values: CreateUserInput) => {
         if (!!user) {
             const updateData: Partial<CreateUserInput> = {
                 email: values.email,

@@ -8,10 +8,26 @@ import { RbacModule } from './rbac/rbac.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
+        LoggerModule.forRoot({
+            pinoHttp: {
+                transport:
+                    process.env.NODE_ENV !== 'production'
+                        ? {
+                              target: 'pino-pretty',
+                              options: {
+                                  colorize: true,
+                                  singleLine: true,
+                                  translateTime: 'SYS:standard',
+                              },
+                          }
+                        : undefined,
+            },
+        }),
         DatabaseModule,
         AuthModule,
         RbacModule,

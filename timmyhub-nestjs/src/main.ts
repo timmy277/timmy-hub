@@ -2,11 +2,22 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setupSwagger } from './swagger';
 import cookieParser from 'cookie-parser';
+import { Logger } from 'nestjs-pino';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
+    app.useLogger(app.get(Logger));
     app.use(cookieParser());
+
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            transform: true,
+            forbidNonWhitelisted: true,
+        }),
+    );
 
     // Set global prefix for all routes except root and docs
     app.setGlobalPrefix('api', {
@@ -27,4 +38,7 @@ async function bootstrap() {
     console.log(`\n🚀 Application is running on: http://localhost:${port}`);
     console.log(`📚 Swagger docs: http://localhost:${port}/docs\n`);
 }
-bootstrap();
+bootstrap().catch(err => {
+    console.error('Failed to start application', err);
+    process.exit(1);
+});
