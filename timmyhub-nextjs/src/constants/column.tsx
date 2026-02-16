@@ -227,6 +227,12 @@ export const createRoleColumns = (options: ColumnConfigOptions): ColDef<Role>[] 
             width: 150,
             valueFormatter: params => formatDate(params.value),
         },
+        {
+            headerName: t('table.columns.updatedAt'),
+            field: 'updatedAt',
+            width: 150,
+            valueFormatter: params => formatDate(params.value),
+        },
     ];
 };
 
