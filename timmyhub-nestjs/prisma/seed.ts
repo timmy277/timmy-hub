@@ -8,6 +8,8 @@ import { parseArgs } from 'node:util';
 import { seedingPermissionsData } from './seeds/permission';
 import { seedingRolesData } from './seeds/role';
 import { seedingUsersData } from './seeds/user';
+import { seedingCategoriesData } from './seeds/category';
+import { seedingProductsData } from './seeds/product';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -23,9 +25,7 @@ async function seed() {
         allowPositionals: true,
     });
 
-    console.log(
-        `\n🌱 Starting seeding for ${environment || 'default'} environment...\n`,
-    );
+    console.log(`\n🌱 Starting seeding for ${environment || 'default'} environment...\n`);
 
     // Flow chung cho mọi môi trường (Foundation)
     // 1. Seed Permissions
@@ -36,6 +36,12 @@ async function seed() {
 
     // 3. Seed Users
     await seedingUsersData(prisma);
+
+    // 4. Seed Categories
+    await seedingCategoriesData(prisma);
+
+    // 5. Seed Products
+    await seedingProductsData(prisma);
 
     if (environment === 'development') {
         // Thêm các dữ liệu dev khác ở đây (Sản phẩm mẫu, Order mẫu...)
@@ -49,7 +55,7 @@ async function seed() {
     console.log('\n🎉 Seeding completed!\n');
 }
 
-seed().catch((error) => {
+seed().catch(error => {
     console.error('❌ Seeding failed:', error);
     process.exit(1);
 });

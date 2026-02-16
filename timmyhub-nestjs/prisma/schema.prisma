@@ -306,13 +306,35 @@ model Product {
   categoryId String?
   category   Category?     @relation(fields: [categoryId], references: [id])
 
-  name        String
-  slug        String   @unique
-  description String?
-  price       Decimal  @db.Decimal(15, 2)
-  stock       Int      @default(0)
-  sku         String?  @unique
-  images      String[]
+  name          String
+  slug          String   @unique
+  description   String?
+  price         Decimal  @db.Decimal(15, 2)
+  originalPrice Decimal? @db.Decimal(15, 2)
+  discount      Int?     @default(0)
+  stock         Int      @default(0)
+  sku           String?  @unique
+  images        String[]
+
+  // Shipping details
+  weight Float? // grams
+  length Float? // cm
+  width  Float? // cm
+  height Float? // cm
+
+  // Dynamic content
+  attributes     Json? // e.g. { "material": "Cotton", "style": "Casual" }
+  specifications Json? // Technical specifications
+
+  // Statistics
+  soldCount   Int   @default(0)
+  viewCount   Int   @default(0)
+  ratingAvg   Float @default(0)
+  ratingCount Int   @default(0)
+
+  // Flags
+  isFeatured Boolean @default(false)
+  isNew      Boolean @default(true)
 
   status       ResourceStatus @default(PENDING)
   reviewNote   String?
@@ -321,14 +343,33 @@ model Product {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  variants        ProductVariant[]
   reviews         Review[]
   cartItems       CartItem[]
-  sellerProfile   SellerProfile? @relation(fields: [sellerProfileId], references: [id])
+  sellerProfile   SellerProfile?   @relation(fields: [sellerProfileId], references: [id])
   sellerProfileId String?
 
   @@index([sellerId])
   @@index([categoryId])
   @@index([status])
+  @@index([isFeatured])
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  name  String // e.g. "Space Gray - 256GB"
+  sku   String? @unique
+  price Decimal @db.Decimal(15, 2)
+  stock Int     @default(0)
+  image String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
 }
 
 // ==================== CART & ORDER ====================

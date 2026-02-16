@@ -23,11 +23,13 @@
     "noFallthroughCasesInSwitch": false
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "prisma.config.ts",
+    "prisma/**/*.ts",
+    "test/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "prisma"
+    "dist"
   ]
 }

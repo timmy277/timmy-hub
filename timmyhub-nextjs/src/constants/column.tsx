@@ -1,8 +1,9 @@
-import { Badge, Group, ActionIcon, Tooltip, Avatar } from '@mantine/core';
-import { IconEye, IconEdit, IconLock, IconLockOpen } from '@tabler/icons-react';
+import { Badge, Group, ActionIcon, Tooltip, Avatar, Stack, Text, Image } from '@mantine/core';
+import { IconEye, IconEdit, IconLock, IconLockOpen, IconCheck, IconX, IconStar } from '@tabler/icons-react';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { User } from '@/types/auth';
 import { Role, Permission } from '@/types/rbac';
+import { Product, ResourceStatus } from '@/types/product';
 import { UserRole } from '@/types/enums';
 import { TFunction } from 'i18next';
 import { formatDate } from '@/utils/date';
@@ -13,6 +14,8 @@ export interface ActionColumnProps<T> {
     onUpdate?: (data: T) => void;
     onToggleStatus?: (data: T) => void;
     onDelete?: (data: T) => void;
+    onApprove?: (data: T) => void;
+    onReject?: (data: T) => void;
     isToggleLoading?: boolean;
     toggleLoadingId?: string | null;
 }
@@ -236,7 +239,148 @@ export const createRoleColumns = (options: ColumnConfigOptions): ColDef<Role>[] 
     ];
 };
 
-export const createActionColumn = <T extends { id: string; isActive?: boolean }>(
+export const createProductColumns = (options: ColumnConfigOptions): ColDef<Product>[] => {
+    const { t } = options;
+
+    return [
+        {
+            headerName: t('table.columns.image'),
+            field: 'images',
+            width: 100,
+            cellRenderer: (params: ICellRendererParams<Product>) => {
+                const imageUrl = params.value?.[0] || '';
+                return (
+                    <Image
+                        src={imageUrl}
+                        h={40}
+                        w={40}
+                        radius="md"
+                        fallbackSrc="https://placehold.co/40x40?text=HP"
+                        fit="cover"
+                        mt={4}
+                        alt={params.data?.name || 'Product'}
+                    />
+                );
+            },
+        },
+        {
+            headerName: t('table.columns.product'),
+            field: 'name',
+            minWidth: 200,
+            cellRenderer: (params: ICellRendererParams<Product>) => (
+                <Stack gap={0} py={4}>
+                    <Text size="sm" fw={500} truncate="end">
+                        {params.data?.name}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                        {params.data?.sku || 'No SKU'}
+                    </Text>
+                </Stack>
+            ),
+        },
+        {
+            headerName: t('table.columns.category'),
+            valueGetter: params => params.data?.category?.name || t('common.unclassified'),
+            width: 150,
+        },
+        {
+            headerName: t('table.columns.seller'),
+            width: 180,
+            valueGetter: params => {
+                const profile = params.data?.seller?.profile;
+                if (profile) return `${profile.firstName} ${profile.lastName}`;
+                return params.data?.seller?.email || 'N/A';
+            },
+        },
+        {
+            headerName: t('table.columns.price'),
+            field: 'price',
+            width: 160,
+            cellRenderer: (params: ICellRendererParams<Product>) => {
+                const price = Number(params.value);
+                const originalPrice = params.data?.originalPrice ? Number(params.data.originalPrice) : 0;
+                const discount = params.data?.discount;
+
+                return (
+                    <Stack gap={0} py={4}>
+                        <Text size="sm" fw={700} c="red">
+                            {price.toLocaleString()} ₫
+                        </Text>
+                        {originalPrice > price && (
+                            <Group gap={4}>
+                                <Text size="xs" c="dimmed" td="line-through">
+                                    {originalPrice.toLocaleString()} ₫
+                                </Text>
+                                <Badge size="xs" color="red" variant="filled" h={14} px={2} style={{ fontSize: '8px' }}>
+                                    -{discount}%
+                                </Badge>
+                            </Group>
+                        )}
+                    </Stack>
+                );
+            },
+        },
+        {
+            headerName: t('table.columns.stock'),
+            field: 'stock',
+            width: 90,
+            cellRenderer: (params: ICellRendererParams<Product>) => (
+                <Text size="sm" mt={10} fw={500} c={params.value < 10 ? 'red' : 'inherit'}>
+                    {params.value}
+                </Text>
+            ),
+        },
+        {
+            headerName: t('table.columns.soldCount'),
+            field: 'soldCount',
+            width: 90,
+            cellRenderer: (params: ICellRendererParams<Product>) => (
+                <Text size="sm" mt={10}>
+                    {params.value || 0}
+                </Text>
+            ),
+        },
+        {
+            headerName: t('table.columns.rating'),
+            field: 'ratingAvg',
+            width: 90,
+            cellRenderer: (params: ICellRendererParams<Product>) => (
+                <Group gap={4} mt={10}>
+                    <Text size="sm" fw={600}>{params.value || '0.0'}</Text>
+                    <IconStar size={14} color="var(--mantine-color-yellow-6)" fill="var(--mantine-color-yellow-6)" />
+                </Group>
+            ),
+        },
+        {
+            headerName: t('table.columns.status'),
+            field: 'status',
+            width: 110,
+            cellRenderer: (params: ICellRendererParams<Product>) => {
+                const status = params.value as ResourceStatus;
+                const config = {
+                    [ResourceStatus.PENDING]: { color: 'yellow', label: t('table.status.pending') },
+                    [ResourceStatus.APPROVED]: { color: 'green', label: t('table.status.approved') },
+                    [ResourceStatus.REJECTED]: { color: 'red', label: t('table.status.rejected') },
+                    [ResourceStatus.DELETED]: { color: 'gray', label: t('table.status.deleted') },
+                };
+                const { color, label } = config[status] || { color: 'gray', label: status };
+                return (
+                    <Badge color={color} variant="light" mt={10} size="sm">
+                        {label}
+                    </Badge>
+                );
+            },
+        },
+        {
+            headerName: t('table.columns.createdAt'),
+            field: 'createdAt',
+            width: 150,
+            valueFormatter: params => formatDate(params.value),
+        },
+    ];
+};
+
+export const createActionColumn = <T extends { id: string; isActive?: boolean; status?: string }>(
     props: ActionColumnProps<T>,
     options: ColumnConfigOptions,
 ): ColDef<T> => {
@@ -315,6 +459,32 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean }>
                                 }
                             >
                                 <IconTrash size={16} />
+                            </ActionIcon>
+                        </Tooltip>
+                    )}
+
+                    {props.onApprove && item.status === ResourceStatus.PENDING && (
+                        <Tooltip label={t('table.actions.approve')} withArrow>
+                            <ActionIcon
+                                variant="light"
+                                color="green"
+                                onClick={() => props.onApprove!(item)}
+                                aria-label={t('table.actions.approve')}
+                            >
+                                <IconCheck size={16} />
+                            </ActionIcon>
+                        </Tooltip>
+                    )}
+
+                    {props.onReject && item.status === ResourceStatus.PENDING && (
+                        <Tooltip label={t('table.actions.reject')} withArrow>
+                            <ActionIcon
+                                variant="light"
+                                color="red"
+                                onClick={() => props.onReject!(item)}
+                                aria-label={t('table.actions.reject')}
+                            >
+                                <IconX size={16} />
                             </ActionIcon>
                         </Tooltip>
                     )}

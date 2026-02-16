@@ -8,6 +8,18 @@ export enum ResourceStatus {
     DELETED = 'DELETED',
 }
 
+export interface ProductVariant {
+    id: string;
+    productId: string;
+    name: string;
+    sku?: string | null;
+    price: number;
+    stock: number;
+    image?: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface Product {
     id: string;
     sellerId: string;
@@ -19,13 +31,37 @@ export interface Product {
     slug: string;
     description?: string | null;
     price: number;
+    originalPrice?: number | null;
+    discount?: number | null;
     stock: number;
     sku?: string | null;
     images: string[];
+
+    // Shipping
+    weight?: number | null;
+    length?: number | null;
+    width?: number | null;
+    height?: number | null;
+
+    // Dynamic content
+    attributes?: Record<string, unknown> | null;
+    specifications?: Record<string, unknown> | null;
+
+    // Statistics
+    soldCount: number;
+    viewCount: number;
+    ratingAvg: number;
+    ratingCount: number;
+
+    // Flags
+    isFeatured: boolean;
+    isNew: boolean;
+
     status: ResourceStatus;
     reviewNote?: string | null;
     createdAt: string;
     updatedAt: string;
+    variants?: ProductVariant[];
 }
 
 export interface CreateProductInput {

@@ -40,16 +40,76 @@ export const seedingUsersData = async (prisma: PrismaClient) => {
     // 2. Create 10 Additional Random Users
     console.log('  - Seeding 10 additional users...');
     const usersToSeed = [
-        { email: 'customer1@example.com', role: UserRole.CUSTOMER, firstName: 'Bình', lastName: 'An', displayName: 'An Bình' },
-        { email: 'customer2@example.com', role: UserRole.CUSTOMER, firstName: 'Cường', lastName: 'Quốc', displayName: 'Quốc Cường' },
-        { email: 'seller1@example.com', role: UserRole.SELLER, firstName: 'Dũng', lastName: 'Việt', displayName: 'Việt Dũng Store' },
-        { email: 'seller2@example.com', role: UserRole.SELLER, firstName: 'Hoa', lastName: 'Mai', displayName: 'Mai Hoa Fashion' },
-        { email: 'shipper1@example.com', role: UserRole.SHIPPER, firstName: 'Tuấn', lastName: 'Anh', displayName: 'Tuấn Anh Express' },
-        { email: 'shipper2@example.com', role: UserRole.SHIPPER, firstName: 'Minh', lastName: 'Trần', displayName: 'Minh Trần Delivery' },
-        { email: 'brand1@example.com', role: UserRole.BRAND, firstName: 'Thảo', lastName: 'Lê', displayName: 'Lê Thảo Brand' },
-        { email: 'admin2@example.com', role: UserRole.ADMIN, firstName: 'Linh', lastName: 'Nguyễn', displayName: 'Linh Nguyễn Admin' },
-        { email: 'customer3@example.com', role: UserRole.CUSTOMER, firstName: 'Hùng', lastName: 'Phạm', displayName: 'Hùng Phạm' },
-        { email: 'seller3@example.com', role: UserRole.SELLER, firstName: 'Trang', lastName: 'Đỗ', displayName: 'Trang Đỗ Electronics' },
+        {
+            email: 'customer1@example.com',
+            role: UserRole.CUSTOMER,
+            firstName: 'Bình',
+            lastName: 'An',
+            displayName: 'An Bình',
+        },
+        {
+            email: 'customer2@example.com',
+            role: UserRole.CUSTOMER,
+            firstName: 'Cường',
+            lastName: 'Quốc',
+            displayName: 'Quốc Cường',
+        },
+        {
+            email: 'seller1@example.com',
+            role: UserRole.SELLER,
+            firstName: 'Dũng',
+            lastName: 'Việt',
+            displayName: 'Việt Dũng Store',
+        },
+        {
+            email: 'seller2@example.com',
+            role: UserRole.SELLER,
+            firstName: 'Hoa',
+            lastName: 'Mai',
+            displayName: 'Mai Hoa Fashion',
+        },
+        {
+            email: 'shipper1@example.com',
+            role: UserRole.SHIPPER,
+            firstName: 'Tuấn',
+            lastName: 'Anh',
+            displayName: 'Tuấn Anh Express',
+        },
+        {
+            email: 'shipper2@example.com',
+            role: UserRole.SHIPPER,
+            firstName: 'Minh',
+            lastName: 'Trần',
+            displayName: 'Minh Trần Delivery',
+        },
+        {
+            email: 'brand1@example.com',
+            role: UserRole.BRAND,
+            firstName: 'Thảo',
+            lastName: 'Lê',
+            displayName: 'Lê Thảo Brand',
+        },
+        {
+            email: 'admin2@example.com',
+            role: UserRole.ADMIN,
+            firstName: 'Linh',
+            lastName: 'Nguyễn',
+            displayName: 'Linh Nguyễn Admin',
+        },
+        {
+            email: 'customer3@example.com',
+            role: UserRole.CUSTOMER,
+            firstName: 'Hùng',
+            lastName: 'Phạm',
+            displayName: 'Hùng Phạm',
+        },
+        {
+            email: 'seller3@example.com',
+            role: UserRole.SELLER,
+            firstName: 'Trang',
+            lastName: 'Đỗ',
+            displayName: 'Trang Đỗ Electronics',
+        },
     ];
 
     for (const u of usersToSeed) {

@@ -55,19 +55,51 @@
             "createdAt": "Ngày tạo",
             "permissionName": "Tên quyền",
             "module": "Module",
-            "action": "Hành động"
+            "action": "Hành động",
+            "product": "Sản phẩm",
+            "image": "Hình ảnh",
+            "category": "Danh mục",
+            "seller": "Người bán",
+            "price": "Giá bán",
+            "originalPrice": "Giá niêm yết",
+            "discount": "Giảm giá",
+            "stock": "Tồn kho",
+            "sku": "Mã SKU",
+            "soldCount": "Đã bán",
+            "viewCount": "Lượt xem",
+            "rating": "Đánh giá",
+            "weight": "Trọng lượng",
+            "dimensions": "Kích thước",
+            "featured": "Nổi bật",
+            "new": "Mới",
+            "specifications": "Thông số kỹ thuật",
+            "attributes": "Đặc tính",
+            "variants": "Phiên bản"
         },
         "status": {
             "active": "Đang hoạt động",
-            "inactive": "Đã khóa"
+            "inactive": "Đã khóa",
+            "approved": "Đã duyệt",
+            "pending": "Chờ duyệt",
+            "rejected": "Từ chối",
+            "deleted": "Đã xóa"
         },
         "actions": {
             "view": "Xem chi tiết",
             "edit": "Sửa",
             "lock": "Khóa",
             "unlock": "Mở khóa",
-            "delete": "Xóa"
+            "delete": "Xóa",
+            "approve": "Duyệt sản phẩm",
+            "reject": "Từ chối"
         }
+    },
+    "productManagement": {
+        "title": "Quản lý sản phẩm",
+        "searchPlaceholder": "Tìm kiếm sản phẩm theo tên, SKU...",
+        "rejectReason": "Lý do từ chối sản phẩm",
+        "rejectPlaceholder": "Vui lòng nhập lý do từ chối...",
+        "confirmReject": "Xác nhận từ chối"
     },
     "roles": {
         "CUSTOMER": "Khách hàng",
