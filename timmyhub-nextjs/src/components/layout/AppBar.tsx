@@ -1,6 +1,6 @@
 'use client';
 
-import { Group, Box, Avatar, Text, Menu, UnstyledButton, ActionIcon, Divider } from '@mantine/core';
+import { Group, Box, Avatar, Text, Menu, UnstyledButton, ActionIcon, Divider, Breadcrumbs, Anchor } from '@mantine/core';
 import { LanguageSwitcher, ThemeSwitcher } from '../shared';
 import {
     IconSettings,
@@ -8,10 +8,13 @@ import {
     IconUser,
     IconLayoutSidebarLeftCollapse,
     IconLayoutSidebarRightCollapse,
+    IconChevronRight,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useAuth } from '@/hooks/useAuth';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 interface AppBarProps {
     withSidebarToggle?: boolean;
@@ -23,6 +26,34 @@ export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBar
     const { t } = useTranslation();
     const { collapsed, toggleSidebar } = useSidebarStore();
     const { logout } = useAuth();
+    const pathname = usePathname();
+
+    // ===== Component Logic =====
+    const segments = pathname.split('/').filter(p => p);
+    
+    const breadcrumbItems = [
+        <Anchor component={Link} href="/" key="home" size="sm" c="dimmed">
+            {t('sidebar.dashboard')}
+        </Anchor>,
+        ...segments.map((segment, index) => {
+            const path = `/${segments.slice(0, index + 1).join('/')}`;
+            // Try to get translation from sidebar or common, fallback to capitalized segment
+            const label = t(`sidebar.${segment}`, { 
+                defaultValue: segment.charAt(0).toUpperCase() + segment.slice(1) 
+            });
+            const isLast = index === segments.length - 1;
+
+            return isLast ? (
+                <Text key={path} size="sm" fw={600} c="blue">
+                    {label}
+                </Text>
+            ) : (
+                <Anchor component={Link} href={path} key={path} size="sm" c="dimmed">
+                    {label}
+                </Anchor>
+            );
+        }),
+    ];
 
     return (
         <Group justify="space-between" h="100%" px="md">
@@ -43,11 +74,9 @@ export function AppBar({ withSidebarToggle = true, title = 'Dashboard' }: AppBar
                     </ActionIcon>
                 )}
 
-                <Box className={`${withSidebarToggle ? 'hidden sm:block ml-2' : 'ml-1'}`}>
-                    <Text fw={800} size="xl" className="tracking-tight">
-                        TIMMY<span className="text-blue-600">HUB</span>
-                    </Text>
-                </Box>
+                <Breadcrumbs separator={<IconChevronRight size={14} opacity={0.5} />} ml="sm">
+                    {breadcrumbItems}
+                </Breadcrumbs>
             </Group>
 
             <Group gap="md">
