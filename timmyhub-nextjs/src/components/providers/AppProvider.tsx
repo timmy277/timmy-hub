@@ -57,7 +57,7 @@ export function AppProvider({ children }: AppProviderProps) {
                         },
                     }}
                 >
-                    <Notifications />
+                    <Notifications position="top-right" />
                     <AuthSyncProvider>{children}</AuthSyncProvider>
                     <ReactQueryDevtools initialIsOpen={false} />
                 </ModalsProvider>

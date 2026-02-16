@@ -216,4 +216,34 @@ export class AuthService {
             where: { deviceId, userId },
         });
     }
+
+    async getProfile(userId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                profile: true,
+                userRoles: {
+                    include: {
+                        role: { include: { permissions: { include: { permission: true } } } },
+                    },
+                },
+            },
+        });
+
+        if (!user) throw new UnauthorizedException('User not found');
+
+        const permissions = new Set<string>();
+        user.userRoles.forEach(ur => {
+            ur.role.permissions.forEach(rp => permissions.add(rp.permission.name));
+        });
+
+        return {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            isActive: user.isActive,
+            profile: user.profile,
+            permissions: Array.from(permissions),
+        };
+    }
 }

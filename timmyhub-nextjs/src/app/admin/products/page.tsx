@@ -21,7 +21,7 @@ export default async function Page() {
                 process.env.NEXT_PUBLIC_API_URL ||
                 'http://localhost:3001/api';
 
-            const res = await fetch(`${apiUrl}/products/admin`, { // Based on standard naming
+            const res = await fetch(`${apiUrl}/products/admin/pending`, { // Fix 404 admin products
                 headers: {
                     Cookie: `access_token=${accessToken}`,
                 },

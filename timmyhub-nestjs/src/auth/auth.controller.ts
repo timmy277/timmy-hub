@@ -103,4 +103,13 @@ export class AuthController {
         await this.authService.logoutDevice(userId, deviceId);
         return ResponseDto.success('Đã đăng xuất thiết bị');
     }
+
+    @Get('profile')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Lấy thông tin profile người dùng hiện tại' })
+    async getProfile(@Req() req: UserRequest) {
+        const profile = await this.authService.getProfile(req.user.id);
+        return ResponseDto.success('Lấy thông tin profile thành công', profile);
+    }
 }
