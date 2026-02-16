@@ -560,8 +560,6 @@ export const createCategoryColumns = ({ t }: ColumnConfigOptions): ColDef<Catego
             headerName: t('table.columns.image'),
             field: 'image',
             width: 100,
-            checkboxSelection: true,
-            headerCheckboxSelection: true,
             cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
             cellRenderer: (params: ICellRendererParams<Category>) => (
                 <Avatar src={params.value} size="sm" radius="md" />
