@@ -23,7 +23,7 @@ import {
 export default function CategoryList() {
     const { t } = useTranslation();
     const { data: response, isLoading, refetch } = useCategories(true);
-    const rowData = response?.data || [];
+    const rowData = useMemo(() => response?.data || [], [response?.data]);
 
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
         useManagementTabs<Category>('Category');

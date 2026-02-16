@@ -165,7 +165,7 @@ export function ProductList() {
         <>
             <ManagementPage<Product>
                 entityName="Product"
-                rowData={response?.data || []}
+                rowData={useMemo(() => response?.data || [], [response?.data])}
                 columnDefs={columnDefs}
                 isLoading={isLoading || isApproving}
                 onRefresh={refetch}

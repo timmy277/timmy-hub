@@ -104,7 +104,7 @@ export function PermissionList() {
     return (
         <ManagementPage<Permission>
             entityName="Permission"
-            rowData={response?.data || []}
+            rowData={useMemo(() => response?.data || [], [response?.data])}
             columnDefs={columnDefs}
             isLoading={isLoading}
             onRefresh={refetch}

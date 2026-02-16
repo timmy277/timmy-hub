@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, memo, ReactElement } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import {
     ModuleRegistry,
@@ -60,7 +60,7 @@ interface BaseDataTableProps<T> {
     height?: number | string;
 }
 
-export function BaseDataTable<T>({
+export const BaseDataTable = memo(function BaseDataTable<T>({
     rowData,
     columnDefs,
     onGridReady,
@@ -108,4 +108,4 @@ export function BaseDataTable<T>({
             />
         </Box>
     );
-}
+}) as <T>(props: BaseDataTableProps<T>) => ReactElement;

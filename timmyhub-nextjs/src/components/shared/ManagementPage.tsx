@@ -1,23 +1,19 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useCallback } from 'react';
 import { useMounted } from '@mantine/hooks';
 import {
     Container,
     Tabs,
     Stack,
-    Card,
     Group,
-    TextInput,
     Button,
     ActionIcon,
     Popover,
-    Checkbox,
     Paper,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
-    IconSearch,
     IconPlus,
     IconRefresh,
     IconX,
@@ -25,9 +21,6 @@ import {
     IconFileSpreadsheet,
     IconRotateClockwise,
     IconFileText,
-    IconArrowBarToLeft,
-    IconArrowBarToRight,
-    IconPinnedOff,
 } from '@tabler/icons-react';
 import {
     GridApi,
@@ -43,6 +36,10 @@ import { BaseDataTable } from '@/components/tables/BaseDataTable';
 import { DashboardShell } from '@/components/layout';
 import { TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
+
+// Sub-components
+import { SearchInput } from './management/SearchInput';
+import { ColumnManagement } from './management/ColumnManagement';
 
 // Ensure modules are registered for API usage
 ModuleRegistry.registerModules([ColumnApiModule, CsvExportModule, EventApiModule]);
@@ -84,13 +81,12 @@ export function ManagementPage<T>({
     const mounted = useMounted();
     const baseId = entityName.toLowerCase();
     const [gridApi, setGridApi] = useState<GridApi<T> | null>(null);
-    const [quickFilterText, setQuickFilterText] = useState('');
     const [columnPinnedState, setColumnPinnedState] = useState<
         Record<string, boolean | 'left' | 'right' | null | undefined>
     >({});
 
-    // ===== Component Logic =====
-    const onGridReady = (params: GridReadyEvent<T>) => {
+    // ===== Callbacks =====
+    const onGridReady = useCallback((params: GridReadyEvent<T>) => {
         setGridApi(params.api);
 
         const updatePinnedState = () => {
@@ -103,33 +99,28 @@ export function ManagementPage<T>({
 
         updatePinnedState();
         params.api.addEventListener('columnPinned', updatePinnedState);
-    };
+    }, []);
 
-    // ===== Event Handlers =====
-    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const val = event.currentTarget.value;
-        setQuickFilterText(val);
+    const handleSearch = useCallback((val: string) => {
         if (gridApi) {
             gridApi.setGridOption('quickFilterText', val);
         }
-    };
+    }, [gridApi]);
 
-    const handleRefresh = () => {
+    const handleRefresh = useCallback(() => {
         onRefresh();
         notifications.show({
             title: 'Đã làm mới',
             message: 'Dữ liệu đang được cập nhật...',
             color: 'blue',
         });
-    };
+    }, [onRefresh]);
 
-    const handleReset = () => {
-        setQuickFilterText('');
+    const handleReset = useCallback(() => {
         if (gridApi) {
             gridApi.setGridOption('quickFilterText', '');
             gridApi.setFilterModel(null);
 
-            // Only apply column state if we have valid column defs
             try {
                 const defaultState = columnDefs
                     .map(col => ({
@@ -138,7 +129,7 @@ export function ManagementPage<T>({
                         hide: false,
                         width: col.width,
                     }))
-                    .filter(state => state.colId); // Ensure we have a colId
+                    .filter(state => state.colId);
 
                 if (defaultState.length > 0) {
                     gridApi.applyColumnState({
@@ -150,7 +141,7 @@ export function ManagementPage<T>({
                 console.error('Error resetting column state:', error);
             }
         }
-    };
+    }, [gridApi, columnDefs]);
 
     // ===== Final Render =====
     if (!mounted) return null;
@@ -160,303 +151,129 @@ export function ManagementPage<T>({
             <Container fluid px="1rem" py="md">
                 <Paper shadow="md" radius="md" withBorder p="md">
                     <Tabs
-                    id={`${baseId}-tabs`}
-                    value={activeTab}
-                    onChange={setActiveTab}
-                    variant="outline"
-                    radius="md"
-                >
-                    <Tabs.List mb="md">
+                        id={`${baseId}-tabs`}
+                        value={activeTab}
+                        onChange={setActiveTab}
+                        variant="outline"
+                        radius="md"
+                    >
+                        <Tabs.List mb="md">
+                            {openTabs.map(tab => (
+                                <Tabs.Tab
+                                    key={tab.id}
+                                    value={tab.id}
+                                    leftSection={
+                                        tab.id === ManagementTabType.LIST ? (
+                                            listIcon || <IconFileText size={16} />
+                                        ) : (
+                                            <IconFileText size={16} />
+                                        )
+                                    }
+                                    rightSection={
+                                        tab.id !== ManagementTabType.LIST ? (
+                                            <ActionIcon
+                                                size="sm"
+                                                variant="subtle"
+                                                color="gray"
+                                                component="div"
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    closeTab(tab.id);
+                                                }}
+                                            >
+                                                <IconX size={14} />
+                                            </ActionIcon>
+                                        ) : null
+                                    }
+                                >
+                                    {tab.label}
+                                </Tabs.Tab>
+                            ))}
+                        </Tabs.List>
+
                         {openTabs.map(tab => (
-                            <Tabs.Tab
-                                key={tab.id}
-                                value={tab.id}
-                                leftSection={
-                                    tab.id === ManagementTabType.LIST ? (
-                                        listIcon || <IconFileText size={16} />
-                                    ) : (
-                                        <IconFileText size={16} />
-                                    )
-                                }
-                                rightSection={
-                                    tab.id !== ManagementTabType.LIST ? (
-                                        <ActionIcon
-                                            size="sm"
-                                            variant="subtle"
-                                            color="gray"
-                                            component="div"
-                                            onClick={e => {
-                                                e.stopPropagation();
-                                                closeTab(tab.id);
-                                            }}
-                                        >
-                                            <IconX size={14} />
-                                        </ActionIcon>
-                                    ) : null
-                                }
-                            >
-                                {tab.label}
-                            </Tabs.Tab>
-                        ))}
-                    </Tabs.List>
-
-                    {openTabs.map(tab => (
-                        <Tabs.Panel key={tab.id} value={tab.id}>
-                            {tab.id === ManagementTabType.LIST ? (
-                                <Stack gap="lg" mt="md">
-                                    <Stack gap="md">
-                                            <Group justify="space-between">
-                                                <TextInput
-                                                    id={`${baseId}-search`}
-                                                    placeholder={searchPlaceholder}
-                                                    leftSection={
-                                                        <IconSearch size={16} stroke={1.5} />
-                                                    }
-                                                    rightSection={
-                                                        quickFilterText ? (
-                                                            <ActionIcon
-                                                                variant="transparent"
-                                                                c="dimmed"
-                                                                onClick={() => {
-                                                                    setQuickFilterText('');
-                                                                    gridApi?.setGridOption(
-                                                                        'quickFilterText',
-                                                                        '',
-                                                                    );
-                                                                }}
-                                                            >
-                                                                <IconX size={14} />
-                                                            </ActionIcon>
-                                                        ) : null
-                                                    }
-                                                    value={quickFilterText}
-                                                    onChange={handleSearchChange}
-                                                    w={350}
-                                                    radius="md"
-                                                    variant="filled"
-                                                />
-                                                <Group>
-                                                    <Button
-                                                        variant="outline"
-                                                        onClick={handleRefresh}
-                                                        leftSection={<IconRefresh size={16} />}
-                                                        loading={isLoading}
-                                                    >
-                                                        Làm mới
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        color="orange"
-                                                        onClick={handleReset}
-                                                        leftSection={
-                                                            <IconRotateClockwise size={16} />
-                                                        }
-                                                    >
-                                                        Reset
-                                                    </Button>
-                                                    <Popover
-                                                        id={`${baseId}-columns-popover`}
-                                                        width={300}
-                                                        position="bottom-end"
-                                                        withArrow
-                                                        shadow="md"
-                                                    >
-                                                        <Popover.Target>
-                                                            <Button
-                                                                variant="outline"
-                                                                color="blue"
-                                                                leftSection={
-                                                                    <IconColumns size={16} />
-                                                                }
-                                                            >
-                                                                Cột
-                                                            </Button>
-                                                        </Popover.Target>
-                                                        <Popover.Dropdown>
-                                                            <Stack gap="xs">
-                                                                {columnDefs.map(col =>
-                                                                    col.field ? (
-                                                                        <Group
-                                                                            key={
-                                                                                col.colId ||
-                                                                                (col.field as string)
-                                                                            }
-                                                                            justify="space-between"
-                                                                        >
-                                                                            <Checkbox
-                                                                                label={
-                                                                                    col.headerName
-                                                                                }
-                                                                                defaultChecked
-                                                                                onChange={e =>
-                                                                                    gridApi?.setColumnsVisible(
-                                                                                        [
-                                                                                            col.colId ||
-                                                                                                (col.field as string),
-                                                                                        ],
-                                                                                        e
-                                                                                            .currentTarget
-                                                                                            .checked,
-                                                                                    )
-                                                                                }
-                                                                                style={{ flex: 1 }}
-                                                                            />
-                                                                            <Group gap={4}>
-                                                                                <ActionIcon
-                                                                                    variant={
-                                                                                        columnPinnedState[
-                                                                                            col.colId ||
-                                                                                                (col.field as string)
-                                                                                        ] === 'left'
-                                                                                            ? 'filled'
-                                                                                            : 'subtle'
-                                                                                    }
-                                                                                    color={
-                                                                                        columnPinnedState[
-                                                                                            col.colId ||
-                                                                                                (col.field as string)
-                                                                                        ] === 'left'
-                                                                                            ? 'blue'
-                                                                                            : 'gray'
-                                                                                    }
-                                                                                    size="sm"
-                                                                                    onClick={() =>
-                                                                                        gridApi?.applyColumnState(
-                                                                                            {
-                                                                                                state: [
-                                                                                                    {
-                                                                                                        colId:
-                                                                                                            col.colId ||
-                                                                                                            (col.field as string),
-                                                                                                        pinned: 'left',
-                                                                                                    },
-                                                                                                ],
-                                                                                            },
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    <IconArrowBarToLeft
-                                                                                        size={16}
-                                                                                    />
-                                                                                </ActionIcon>
-                                                                                <ActionIcon
-                                                                                    variant={
-                                                                                        !columnPinnedState[
-                                                                                            col.colId ||
-                                                                                                (col.field as string)
-                                                                                        ]
-                                                                                            ? 'filled'
-                                                                                            : 'subtle'
-                                                                                    }
-                                                                                    color={
-                                                                                        !columnPinnedState[
-                                                                                            col.colId ||
-                                                                                                (col.field as string)
-                                                                                        ]
-                                                                                            ? 'gray'
-                                                                                            : 'gray'
-                                                                                    }
-                                                                                    size="sm"
-                                                                                    onClick={() =>
-                                                                                        gridApi?.applyColumnState(
-                                                                                            {
-                                                                                                state: [
-                                                                                                    {
-                                                                                                        colId:
-                                                                                                            col.colId ||
-                                                                                                            (col.field as string),
-                                                                                                        pinned: null,
-                                                                                                    },
-                                                                                                ],
-                                                                                            },
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    <IconPinnedOff
-                                                                                        size={16}
-                                                                                    />
-                                                                                </ActionIcon>
-                                                                                <ActionIcon
-                                                                                    variant={
-                                                                                        columnPinnedState[
-                                                                                            col.colId ||
-                                                                                                (col.field as string)
-                                                                                        ] ===
-                                                                                        'right'
-                                                                                            ? 'filled'
-                                                                                            : 'subtle'
-                                                                                    }
-                                                                                    color={
-                                                                                        columnPinnedState[
-                                                                                            col.colId ||
-                                                                                                (col.field as string)
-                                                                                        ] ===
-                                                                                        'right'
-                                                                                            ? 'blue'
-                                                                                            : 'gray'
-                                                                                    }
-                                                                                    size="sm"
-                                                                                    onClick={() =>
-                                                                                        gridApi?.applyColumnState(
-                                                                                            {
-                                                                                                state: [
-                                                                                                    {
-                                                                                                        colId:
-                                                                                                            col.colId ||
-                                                                                                            (col.field as string),
-                                                                                                        pinned: 'right',
-                                                                                                    },
-                                                                                                ],
-                                                                                            },
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    <IconArrowBarToRight
-                                                                                        size={16}
-                                                                                    />
-                                                                                </ActionIcon>
-                                                                            </Group>
-                                                                        </Group>
-                                                                    ) : null,
-                                                                )}
-                                                            </Stack>
-                                                        </Popover.Dropdown>
-                                                    </Popover>
-                                                    <Button
-                                                        variant="outline"
-                                                        color="green"
-                                                        leftSection={
-                                                            <IconFileSpreadsheet size={16} />
-                                                        }
-                                                        onClick={() => gridApi?.exportDataAsCsv()}
-                                                    >
-                                                        Xuất CSV
-                                                    </Button>
-                                                    {onAdd && (
-                                                        <Button
-                                                            leftSection={<IconPlus size={16} />}
-                                                            onClick={onAdd}
-                                                        >
-                                                            Thêm {entityName}
-                                                        </Button>
-                                                    )}
-                                                </Group>
-                                            </Group>
-
-                                            <BaseDataTable
-                                                rowData={rowData}
-                                                columnDefs={columnDefs}
-                                                onGridReady={onGridReady}
-                                                isLoading={isLoading}
-                                                height="calc(100vh - 350px)"
+                            <Tabs.Panel key={tab.id} value={tab.id}>
+                                {tab.id === ManagementTabType.LIST ? (
+                                    <Stack gap="lg" mt="md">
+                                        <Group justify="space-between">
+                                            <SearchInput
+                                                placeholder={searchPlaceholder}
+                                                onSearch={handleSearch}
+                                                baseId={baseId}
                                             />
-                                        </Stack>
-                                </Stack>
-                            ) : (
-                                renderTabContent(tab)
-                            )}
-                        </Tabs.Panel>
-                    ))}
+                                            <Group>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={handleRefresh}
+                                                    leftSection={<IconRefresh size={16} />}
+                                                    loading={isLoading}
+                                                >
+                                                    Làm mới
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    color="orange"
+                                                    onClick={handleReset}
+                                                    leftSection={<IconRotateClockwise size={16} />}
+                                                >
+                                                    Reset
+                                                </Button>
+                                                <Popover
+                                                    id={`${baseId}-columns-popover`}
+                                                    width={300}
+                                                    position="bottom-end"
+                                                    withArrow
+                                                    shadow="md"
+                                                >
+                                                    <Popover.Target>
+                                                        <Button
+                                                            variant="outline"
+                                                            color="blue"
+                                                            leftSection={<IconColumns size={16} />}
+                                                        >
+                                                            Cột
+                                                        </Button>
+                                                    </Popover.Target>
+                                                    <Popover.Dropdown>
+                                                        <ColumnManagement 
+                                                            columnDefs={columnDefs} 
+                                                            gridApi={gridApi} 
+                                                            columnPinnedState={columnPinnedState} 
+                                                        />
+                                                    </Popover.Dropdown>
+                                                </Popover>
+                                                <Button
+                                                    variant="outline"
+                                                    color="green"
+                                                    leftSection={<IconFileSpreadsheet size={16} />}
+                                                    onClick={() => gridApi?.exportDataAsCsv()}
+                                                >
+                                                    Xuất CSV
+                                                </Button>
+                                                {onAdd && (
+                                                    <Button
+                                                        leftSection={<IconPlus size={16} />}
+                                                        onClick={onAdd}
+                                                    >
+                                                        Thêm {entityName}
+                                                    </Button>
+                                                )}
+                                            </Group>
+                                        </Group>
+
+                                        <BaseDataTable
+                                            rowData={rowData}
+                                            columnDefs={columnDefs}
+                                            onGridReady={onGridReady}
+                                            isLoading={isLoading}
+                                            height="calc(100vh - 350px)"
+                                        />
+                                    </Stack>
+                                ) : (
+                                    renderTabContent(tab)
+                                )}
+                            </Tabs.Panel>
+                        ))}
                     </Tabs>
                 </Paper>
             </Container>

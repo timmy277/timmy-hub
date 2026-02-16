@@ -108,7 +108,7 @@ export function RoleList() {
     return (
         <ManagementPage<Role>
             entityName="Role"
-            rowData={response?.data || []}
+            rowData={useMemo(() => response?.data || [], [response?.data])}
             columnDefs={columnDefs}
             isLoading={isLoading}
             onRefresh={refetch}
