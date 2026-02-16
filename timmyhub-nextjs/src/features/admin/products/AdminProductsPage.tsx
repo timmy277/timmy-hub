@@ -155,27 +155,27 @@ export function AdminProductsPage() {
 
     return (
         <Container size="xl" py="md">
-            <Stack gap="lg">
-                <Group justify="flex-end">
-                    <Button
-                        leftSection={<IconRefresh size={16} />}
-                        variant="subtle"
-                        onClick={() => refetch()}
-                        loading={isLoading}
-                    >
-                        Làm mới
-                    </Button>
-                </Group>
+            <Paper shadow="md" radius="md" withBorder p="xl">
+                <Stack gap="lg">
+                    <Group justify="flex-end">
+                        <Button
+                            leftSection={<IconRefresh size={16} />}
+                            variant="subtle"
+                            onClick={() => refetch()}
+                            loading={isLoading}
+                        >
+                            Làm mới
+                        </Button>
+                    </Group>
 
-                <Paper withBorder shadow="sm" radius="md">
                     <BaseDataTable
                         rowData={response?.data || []}
                         columnDefs={columnDefs}
                         isLoading={isLoading}
                         height={600}
                     />
-                </Paper>
-            </Stack>
+                </Stack>
+            </Paper>
 
             <Modal
                 opened={!!rejectingId}

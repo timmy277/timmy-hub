@@ -14,6 +14,7 @@ import {
     SimpleGrid,
     Loader,
     Center,
+    Box,
 } from '@mantine/core';
 import { IconCheck, IconShieldCheck, IconInfoCircle, IconUsers } from '@tabler/icons-react';
 import { Role, Permission } from '@/types/rbac';
@@ -54,7 +55,7 @@ export function RoleDetail({ role: initialRole }: RoleDetailProps) {
 
     // ===== Final Render =====
     return (
-        <Paper withBorder p="xl" radius="md" mt="md">
+        <Box mt="xl">
             <Stack>
                 <Group justify="space-between">
                     <Stack gap={0}>
@@ -159,6 +160,6 @@ export function RoleDetail({ role: initialRole }: RoleDetailProps) {
                     )}
                 </Stack>
             </Stack>
-        </Paper>
+        </Box>
     );
 }

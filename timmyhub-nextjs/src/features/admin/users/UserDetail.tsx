@@ -7,7 +7,6 @@ import {
     Text,
     Avatar,
     Stack,
-    Paper,
     Title,
     Card,
     Divider,
@@ -37,7 +36,7 @@ export function UserDetail({ user }: UserDetailProps) {
 
     // ===== Final Render =====
     return (
-        <Paper withBorder p="xl" radius="md" mt="md">
+        <Stack gap="lg" mt="md">
             <Stack gap="lg">
                 {/* Header */}
                 <Group justify="space-between" wrap="nowrap">
@@ -116,6 +115,6 @@ export function UserDetail({ user }: UserDetailProps) {
                     </Card>
                 </Stack>
             </Stack>
-        </Paper>
+        </Stack>
     );
 }

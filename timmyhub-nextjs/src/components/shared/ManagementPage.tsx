@@ -13,6 +13,7 @@ import {
     ActionIcon,
     Popover,
     Checkbox,
+    Paper,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
@@ -157,7 +158,8 @@ export function ManagementPage<T>({
     return (
         <DashboardShell withFooter={false}>
             <Container fluid px="1rem" py="md">
-                <Tabs
+                <Paper shadow="md" radius="md" withBorder p="md">
+                    <Tabs
                     id={`${baseId}-tabs`}
                     value={activeTab}
                     onChange={setActiveTab}
@@ -202,8 +204,7 @@ export function ManagementPage<T>({
                         <Tabs.Panel key={tab.id} value={tab.id}>
                             {tab.id === ManagementTabType.LIST ? (
                                 <Stack gap="lg" mt="md">
-                                    <Card shadow="sm" radius="md" withBorder padding="lg">
-                                        <Stack gap="md">
+                                    <Stack gap="md">
                                             <Group justify="space-between">
                                                 <TextInput
                                                     id={`${baseId}-search`}
@@ -450,14 +451,14 @@ export function ManagementPage<T>({
                                                 height="calc(100vh - 350px)"
                                             />
                                         </Stack>
-                                    </Card>
                                 </Stack>
                             ) : (
                                 renderTabContent(tab)
                             )}
                         </Tabs.Panel>
                     ))}
-                </Tabs>
+                    </Tabs>
+                </Paper>
             </Container>
         </DashboardShell>
     );

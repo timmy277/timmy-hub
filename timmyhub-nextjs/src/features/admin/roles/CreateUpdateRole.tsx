@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@mantine/form';
-import { TextInput, Textarea, Button, Group, Stack, Title, Paper, Switch } from '@mantine/core';
+import { TextInput, Textarea, Button, Group, Stack, Title, Box, Switch } from '@mantine/core';
 import { Role, CreateRoleInput } from '@/types/rbac';
 import {
     useCreateRoleMutation,
@@ -64,7 +64,7 @@ export function CreateUpdateRole({ role, onSuccess, onCancel }: CreateUpdateRole
 
     // ===== Final Render =====
     return (
-        <Paper withBorder p="xl" radius="md" mt="md">
+        <Box mt="xl">
             <Title order={3} mb="lg">
                 {!!role
                     ? t('rbac.updateRole', { name: role.displayName || role.name })
@@ -118,6 +118,6 @@ export function CreateUpdateRole({ role, onSuccess, onCancel }: CreateUpdateRole
                     </Group>
                 </Stack>
             </form>
-        </Paper>
+        </Box>
     );
 }

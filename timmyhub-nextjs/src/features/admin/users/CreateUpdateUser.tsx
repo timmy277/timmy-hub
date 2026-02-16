@@ -11,7 +11,7 @@ import {
     Group,
     Stack,
     Title,
-    Paper,
+    Box,
     Switch,
 } from '@mantine/core';
 import { CreateUserInput } from '@/types/user';
@@ -117,7 +117,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
 
     // ===== Final Render =====
     return (
-        <Paper withBorder p="xl" radius="md" mt="md">
+        <Box mt="md">
             <Title order={3} mb="lg">
                 {!!user
                     ? t('userManagement.updateUser', { email: user.email })
@@ -200,6 +200,6 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                     </Group>
                 </Stack>
             </form>
-        </Paper>
+        </Box>
     );
 }

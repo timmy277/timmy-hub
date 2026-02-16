@@ -50,7 +50,7 @@ export function DashboardShell({ children, withFooter = true }: DashboardShellPr
                 style={{
                     flexDirection: 'column',
                     minHeight: '100vh',
-                    backgroundColor: 'var(--mantine-color-body)',
+                    backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-8))',
                 }}
             >
                 {/* Content Area */}
