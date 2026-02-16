@@ -67,9 +67,9 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
             firstName: user?.profile?.firstName || '',
             lastName: user?.profile?.lastName || '',
             role: user?.role || UserRole.CUSTOMER,
-            isActive: user?.isActive ?? true,
             phoneNumber: user?.phone || '',
             avatar: user?.profile?.avatar || '',
+            ...(user ? { isActive: user.isActive } : {}),
         },
 
         validate: {

@@ -67,4 +67,30 @@ export const seedingRolesData = async (prisma: PrismaClient) => {
             },
         });
     }
+
+    // 3. Các vai trò cơ bản khác
+    const basicRoles = [
+        { name: 'ADMIN', displayName: 'Quản trị viên', description: 'Quản lý hệ thống' },
+        {
+            name: 'CUSTOMER',
+            displayName: 'Khách hàng',
+            description: 'Người mua hàng trên hệ thống',
+        },
+        { name: 'SELLER', displayName: 'Người bán', description: 'Người bán hàng trên hệ thống' },
+        { name: 'BRAND', displayName: 'Thương hiệu', description: 'Đại diện thương hiệu' },
+        { name: 'SHIPPER', displayName: 'Người giao hàng', description: 'Nhân viên giao vận' },
+    ];
+
+    for (const role of basicRoles) {
+        await prisma.systemRole.upsert({
+            where: { name: role.name },
+            update: {},
+            create: {
+                name: role.name,
+                displayName: role.displayName,
+                description: role.description,
+                isSystem: true,
+            },
+        });
+    }
 };

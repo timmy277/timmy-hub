@@ -174,6 +174,10 @@ export const seedingProductsData = async (prisma: PrismaClient) => {
 
         // Thêm một số variant mẫu nếu là iPhone
         if (p.slug.includes('iphone')) {
+            await prisma.productVariant.deleteMany({
+                where: { productId: product.id },
+            });
+
             await prisma.productVariant.createMany({
                 data: [
                     {
