@@ -69,6 +69,7 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
             headerName: t('table.columns.email'),
             field: 'email',
             minWidth: 200,
+            editable: true,
         },
         {
             headerName: t('table.columns.role'),

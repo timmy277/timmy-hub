@@ -19,6 +19,8 @@ import {
     ValidationModule,
     ColumnApiModule,
     CsvExportModule,
+    TextEditorModule,
+    RowDragModule,
 } from 'ag-grid-community';
 import { useMantineColorScheme, Box } from '@mantine/core';
 
@@ -35,6 +37,8 @@ ModuleRegistry.registerModules([
     ValidationModule,
     ColumnApiModule,
     CsvExportModule,
+    TextEditorModule,
+    RowDragModule,
 ]);
 
 // Helper to determine the theme based on color scheme
@@ -99,6 +103,7 @@ export function BaseDataTable<T>({
                 quickFilterText={quickFilterText}
                 loading={isLoading}
                 animateRows={true}
+                rowDragManaged={true}
                 rowSelection={{ mode: 'multiRow' }}
             />
         </Box>

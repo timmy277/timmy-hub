@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, ReactNode, useId } from 'react';
+import { useState, ReactNode } from 'react';
 import {
     Container,
     Tabs,
@@ -12,7 +12,7 @@ import {
     ActionIcon,
     Popover,
     Checkbox,
-    Text,
+    Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
@@ -82,7 +82,7 @@ export function ManagementPage<T>({
     closeTab,
 }: ManagementPageProps<T>) {
     // ===== Hooks & Context =====
-    const baseId = useId();
+    const baseId = entityName.toLowerCase();
     const [gridApi, setGridApi] = useState<GridApi<T> | null>(null);
     const [quickFilterText, setQuickFilterText] = useState('');
     const [columnPinnedState, setColumnPinnedState] = useState<
@@ -156,6 +156,9 @@ export function ManagementPage<T>({
     return (
         <DashboardShell withFooter={false}>
             <Container fluid px="1rem" py="md">
+                <Title order={2} mb="xl">
+                    {title}
+                </Title>
                 <Tabs
                     id={`${baseId}-tabs`}
                     value={activeTab}
