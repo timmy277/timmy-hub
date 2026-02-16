@@ -30,11 +30,13 @@ export function middleware(request: NextRequest) {
         return pathname === path;
     });
 
-    // Lấy access_token từ cookie
+    // Lấy access_token và refresh_token từ cookie
     const token = request.cookies.get('access_token')?.value;
+    const refreshToken = request.cookies.get('refresh_token')?.value;
 
-    // 2. Nếu truy cập trang bảo vệ mà không có token -> Redirect về Login
-    if (!isPublicPath && !token) {
+    // 2. Nếu truy cập trang bảo vệ mà không có cả access_token và refresh_token -> Redirect về Login
+    // Nếu chỉ thiếu access_token nhưng còn refresh_token, cho phép vào để Axios interceptor xử lý refresh
+    if (!isPublicPath && !token && !refreshToken) {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
         // Lưu lại url định truy cập để sau khi login quay lại

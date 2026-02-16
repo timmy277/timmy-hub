@@ -1,4 +1,6 @@
 import { Controller, Post, Body, Req, Res, Get, UseGuards, Delete, Param } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -11,7 +13,10 @@ import type { UserRequest } from './interfaces/auth.interface';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor(
+        private readonly authService: AuthService,
+        private readonly configService: ConfigService,
+    ) {}
 
     @Post('register')
     @ApiOperation({ summary: 'Đăng ký tài khoản mới' })
@@ -32,18 +37,21 @@ export class AuthController {
         const result = await this.authService.login(dto, ip, userAgent);
 
         // Set cookies
+        const accessMaxAge = this.authService.getAccessCookieMaxAge();
+        const refreshMaxAge = this.authService.getRefreshCookieMaxAge();
+
         res.cookie('access_token', result.accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 15 * 60 * 1000, // 15 phút
+            maxAge: accessMaxAge,
         });
 
         res.cookie('refresh_token', result.refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+            maxAge: refreshMaxAge,
         });
 
         return ResponseDto.success('Đăng nhập thành công', result);
@@ -55,18 +63,21 @@ export class AuthController {
         const refreshToken = (req.cookies as Record<string, string>)['refresh_token'];
         const result = await this.authService.refreshTokens(refreshToken);
 
+        const accessMaxAge = this.authService.getAccessCookieMaxAge();
+        const refreshMaxAge = this.authService.getRefreshCookieMaxAge();
+
         res.cookie('access_token', result.accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 15 * 60 * 1000,
+            maxAge: accessMaxAge,
         });
 
         res.cookie('refresh_token', result.refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+            maxAge: refreshMaxAge,
         });
 
         return ResponseDto.success('Làm mới token thành công', result);

@@ -92,12 +92,13 @@ export class AuthService {
         const tokens = await this.generateTokens(user.id, device.id);
 
         // Lưu Refresh Token
+        const refreshMaxAge = this.getRefreshCookieMaxAge();
         await this.prisma.refreshToken.create({
             data: {
                 userId: user.id,
                 deviceId: device.id,
                 token: tokens.refreshToken,
-                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 ngày
+                expiresAt: new Date(Date.now() + refreshMaxAge),
             },
         });
 
@@ -167,12 +168,13 @@ export class AuthService {
         const tokens = await this.generateTokens(tokenDoc.userId, tokenDoc.deviceId);
 
         // Lưu Refresh Token mới
+        const refreshMaxAge = this.getRefreshCookieMaxAge();
         await this.prisma.refreshToken.create({
             data: {
                 userId: tokenDoc.userId,
                 deviceId: tokenDoc.deviceId,
                 token: tokens.refreshToken,
-                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                expiresAt: new Date(Date.now() + refreshMaxAge),
             },
         });
 
@@ -185,7 +187,7 @@ export class AuthService {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
                 secret: this.configService.get('JWT_SECRET'),
-                expiresIn: this.configService.get('JWT_EXPIRES_IN') || '15m',
+                expiresIn: this.configService.get('JWT_ACCESS_EXPIRES_IN') || '1h',
             }),
             this.jwtService.signAsync(payload, {
                 secret: this.configService.get('JWT_REFRESH_SECRET'),
@@ -245,5 +247,33 @@ export class AuthService {
             profile: user.profile,
             permissions: Array.from(permissions),
         };
+    }
+    getRefreshCookieMaxAge(): number {
+        const duration = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d';
+        return this.parseDurationToMs(duration);
+    }
+
+    getAccessCookieMaxAge(): number {
+        const duration = this.configService.get<string>('JWT_ACCESS_EXPIRES_IN') || '1h';
+        return this.parseDurationToMs(duration);
+    }
+
+    private parseDurationToMs(duration: string): number {
+        const value = parseInt(duration, 10);
+        if (isNaN(value)) return 0;
+
+        const unit = duration.toLowerCase().slice(-1);
+        switch (unit) {
+            case 'd':
+                return value * 24 * 60 * 60 * 1000;
+            case 'h':
+                return value * 60 * 60 * 1000;
+            case 'm':
+                return value * 60 * 1000;
+            case 's':
+                return value * 1000;
+            default:
+                return value;
+        }
     }
 }
