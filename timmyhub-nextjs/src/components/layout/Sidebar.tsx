@@ -45,7 +45,6 @@ const getMockData = (t: TFunction): SidebarItem[] => [
             { label: t('sidebar.roles'), link: '/admin/roles', icon: IconShieldLock },
             { label: t('sidebar.users'), link: '/admin/users', icon: IconUsers },
             { label: t('sidebar.permissions'), link: '/admin/permissions', icon: IconKey },
-            { label: t('sidebar.categories'), link: '/admin/categories', icon: IconTags },
         ],
     },
     {

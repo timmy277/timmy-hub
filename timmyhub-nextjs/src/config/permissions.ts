@@ -37,13 +37,6 @@ export const PERMISSIONS = {
         PROCESS: 'orders:process',
         CANCEL: 'orders:cancel',
     },
-    // Danh mục
-    CATEGORIES: {
-        READ: 'category:read',
-        CREATE: 'category:create',
-        UPDATE: 'category:update',
-        DELETE: 'category:delete',
-    },
 } as const;
 
 // ===== ROUTE-PERMISSION MAPPING =====
@@ -71,9 +64,6 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // Orders
     '/admin/orders': [PERMISSIONS.ORDERS.READ],
-
-    // Categories
-    '/admin/categories': [PERMISSIONS.CATEGORIES.READ],
 };
 
 // ===== HELPERS =====
