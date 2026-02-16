@@ -38,6 +38,7 @@ async function bootstrap() {
     console.log(`\n🚀 Application is running on: http://localhost:${port}`);
     console.log(`📚 Swagger docs: http://localhost:${port}/docs\n`);
 }
+// Trigger restart after Redis is up
 bootstrap().catch(err => {
     console.error('Failed to start application', err);
     process.exit(1);
