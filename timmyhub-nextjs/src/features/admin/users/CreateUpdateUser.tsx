@@ -132,7 +132,7 @@ export function CreateUpdateUser({ user, onSuccess, onCancel }: CreateUpdateUser
                     <ImageUpload
                         label={t('userManagement.avatar')}
                         value={form.values.avatar}
-                        onChange={url => form.setFieldValue('avatar', url)}
+                        onChange={url => form.setFieldValue('avatar', url as string)}
                     />
 
                     <Group grow>
