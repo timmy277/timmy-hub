@@ -66,7 +66,6 @@ import { APP_GUARD } from '@nestjs/core';
         ProductsModule,
         CategoriesModule,
         SupabaseModule,
-        SupabaseModule,
         FilesModule,
         CaslModule,
     ],

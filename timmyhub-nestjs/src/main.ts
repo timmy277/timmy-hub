@@ -46,9 +46,10 @@ async function bootstrap() {
         credentials: true,
     });
     const port = process.env.PORT ?? 3001;
+    const logger = app.get(Logger);
     await app.listen(port);
-    console.log(`\n🚀 Application is running on: http://localhost:${port}`);
-    console.log(`📚 Swagger docs: http://localhost:${port}/docs\n`);
+    logger.log(`\n🚀 Application is running on: http://localhost:${port}`);
+    logger.log(`📚 Swagger docs: http://localhost:${port}/docs\n`);
 }
 // Trigger restart after Redis is up
 bootstrap().catch(err => {

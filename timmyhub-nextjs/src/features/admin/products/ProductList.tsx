@@ -121,7 +121,14 @@ export function ProductList() {
                     <Box p="xl">
                         <ProductForm 
                             initialValues={tab.data} 
-                            onSubmit={(values) => console.log('Update', values)} 
+                            onSubmit={(values) => {
+                                // TODO: Implement updateProductAction
+                                notifications.show({
+                                    title: t('common.info'),
+                                    message: 'Update product feature is coming soon',
+                                    color: 'blue',
+                                });
+                            }} 
                         />
                     </Box>
                 );
