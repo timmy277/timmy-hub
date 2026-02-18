@@ -33,7 +33,15 @@ async function bootstrap() {
 
     // Set global prefix for all routes except root and docs
     app.setGlobalPrefix('api', {
-        exclude: ['/', 'docs', 'docs/{*path}'],
+        exclude: [
+            '/',
+            'health',
+            'health/{*path}',
+            'metrics',
+            'metrics/{*path}',
+            'docs',
+            'docs/{*path}',
+        ],
     });
 
     // Setup Swagger documentation
