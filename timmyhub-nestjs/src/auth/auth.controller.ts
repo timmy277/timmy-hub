@@ -123,4 +123,24 @@ export class AuthController {
         const profile = await this.authService.getProfile(req.user.id);
         return ResponseDto.success('Lấy thông tin profile thành công', profile);
     }
+
+    @Post('cleanup-expired-tokens')
+    @ApiOperation({
+        summary: 'Dọn dẹp refresh tokens đã hết hạn (Cron job hoặc manual)',
+        description: 'Xóa tất cả refresh tokens đã expire hoặc bị revoked khỏi database',
+    })
+    async cleanupExpiredTokens() {
+        const deleted = await this.authService.cleanupExpiredTokens();
+        return ResponseDto.success('Đã dọn dẹp tokens hết hạn', { deletedCount: deleted });
+    }
+
+    @Get('token-statistics')
+    @ApiOperation({
+        summary: 'Thống kê refresh tokens trong database',
+        description: 'Xem số lượng tokens: total, expired, revoked, valid',
+    })
+    async getTokenStatistics() {
+        const stats = await this.authService.getTokenStatistics();
+        return ResponseDto.success('Lấy thống kê tokens thành công', stats);
+    }
 }

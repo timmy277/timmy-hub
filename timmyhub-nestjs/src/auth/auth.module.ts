@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { AuthCleanupService } from './auth-cleanup.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RbacModule } from '../rbac/rbac.module';
@@ -25,7 +26,7 @@ import { CaslModule } from '../casl/casl.module';
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy],
-    exports: [AuthService],
+    providers: [AuthService, AuthCleanupService, JwtStrategy],
+    exports: [AuthService, AuthCleanupService],
 })
 export class AuthModule {}

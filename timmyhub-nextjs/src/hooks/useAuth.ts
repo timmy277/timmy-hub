@@ -8,7 +8,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 export const useAuth = () => {
     // ===== Hooks & Context =====
-    const { user, isAuthenticated, clearAuthData, setAuthData } = useAuthStore();
+    const { user, isAuthenticated, clearAuthData } = useAuthStore();
     const router = useRouter();
 
     // ===== Component Logic =====
@@ -49,11 +49,15 @@ export const useAuth = () => {
         
         const cookiesToRemove = ['user_role', 'user_permissions', 'access_token', 'refresh_token'];
         cookiesToRemove.forEach(key => {
-            Cookies.remove(key, { 
-                path: '/', 
-                domain: window.location.hostname 
-            });
+            Cookies.remove(key, { path: '/' });
+            // Try both with and without domain
+            Cookies.remove(key, { path: '/', domain: window.location.hostname });
         });
+        
+        // Clear localStorage
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('auth-storage');
+        }
         
         router.push('/login');
     };

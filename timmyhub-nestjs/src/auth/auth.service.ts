@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { RbacService } from '../rbac/rbac.service';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { AuthCleanupService } from './auth-cleanup.service';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,7 @@ export class AuthService {
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
         private readonly rbacService: RbacService,
         private readonly caslAbilityFactory: CaslAbilityFactory,
+        private readonly authCleanupService: AuthCleanupService,
     ) {}
 
     async register(dto: RegisterDto) {
@@ -150,14 +152,35 @@ export class AuthService {
     }
 
     async refreshTokens(refreshToken: string) {
+        // Validate input
+        if (!refreshToken) {
+            this.logger.warn('❌ Refresh token missing in request');
+            throw new UnauthorizedException('Refresh token không tồn tại');
+        }
+
         const tokenDoc = await this.prisma.refreshToken.findUnique({
             where: { token: refreshToken },
             include: { device: true },
         });
 
-        if (!tokenDoc || tokenDoc.isRevoked || tokenDoc.expiresAt < new Date()) {
-            throw new UnauthorizedException('Phiên đăng nhập không hợp lệ hoặc đã hết hạn');
+        if (!tokenDoc) {
+            this.logger.warn('❌ Refresh token not found in database');
+            throw new UnauthorizedException('Phiên đăng nhập không tồn tại');
         }
+
+        if (tokenDoc.isRevoked) {
+            this.logger.warn(`❌ Refresh token was revoked for user ${tokenDoc.userId}`);
+            throw new UnauthorizedException('Phiên đăng nhập đã bị thu hồi');
+        }
+
+        if (tokenDoc.expiresAt < new Date()) {
+            this.logger.warn(`❌ Refresh token expired for user ${tokenDoc.userId}`);
+            // Auto cleanup expired token
+            await this.prisma.refreshToken.delete({ where: { id: tokenDoc.id } });
+            throw new UnauthorizedException('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại');
+        }
+
+        this.logger.log(`✅ Refreshing tokens for user ${tokenDoc.userId}`);
 
         // Revoke token cũ
         await this.prisma.refreshToken.update({
@@ -276,5 +299,13 @@ export class AuthService {
             default:
                 return value;
         }
+    }
+
+    async cleanupExpiredTokens(): Promise<number> {
+        return this.authCleanupService.cleanupExpiredTokens();
+    }
+
+    async getTokenStatistics() {
+        return this.authCleanupService.getTokenStatistics();
     }
 }

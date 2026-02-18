@@ -32,6 +32,12 @@ export interface Device {
     name: string;
 }
 
+export interface LoginInput {
+    email: string;
+    password: string;
+    deviceName?: string;
+}
+
 export interface LoginResponse {
     user: User;
     device: Device;
