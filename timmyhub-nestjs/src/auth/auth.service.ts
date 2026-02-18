@@ -12,6 +12,8 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { RbacService } from '../rbac/rbac.service';
+import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,8 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
+        private readonly rbacService: RbacService,
+        private readonly caslAbilityFactory: CaslAbilityFactory,
     ) {}
 
     async register(dto: RegisterDto) {
@@ -71,7 +75,6 @@ export class AuthService {
             throw new UnauthorizedException('Tài khoản đã bị khóa');
         }
 
-        // Xử lý Device (Upsert để tránh lỗi Unique constraint nếu đã tồn tại)
         const device = await this.prisma.device.upsert({
             where: { userId: user.id },
             update: {
@@ -91,7 +94,6 @@ export class AuthService {
 
         const tokens = await this.generateTokens(user.id, device.id);
 
-        // Lưu Refresh Token
         const refreshMaxAge = this.getRefreshCookieMaxAge();
         await this.prisma.refreshToken.create({
             data: {
@@ -102,30 +104,27 @@ export class AuthService {
             },
         });
 
-        // 5. Lấy danh sách quyền (Permissions)
-        const userWithPermissions = await this.prisma.user.findUnique({
-            where: { id: user.id },
-            include: {
-                userRoles: {
-                    include: {
-                        role: { include: { permissions: { include: { permission: true } } } },
-                    },
-                },
-                userPermissions: { include: { permission: true } },
-            },
-        });
+        // 5. Build permissions & Ability
+        const userWithPermissions = await this.rbacService.getUserWithPermissions(user.id);
+
+        if (!userWithPermissions) {
+            throw new UnauthorizedException('Không thể lấy thông tin phân quyền người dùng');
+        }
+
+        // Build CASL Ability
+        const ability = this.caslAbilityFactory.createForUser(userWithPermissions);
 
         const permissions = new Set<string>();
-        userWithPermissions?.userRoles.forEach(ur => {
+        userWithPermissions.userRoles.forEach(ur => {
             ur.role.permissions.forEach(rp => permissions.add(rp.permission.name));
         });
-        userWithPermissions?.userPermissions.forEach(up => {
+        userWithPermissions.userPermissions.forEach(up => {
             permissions.add(up.permission.name);
         });
 
         const permissionList = Array.from(permissions);
 
-        // Lưu vào Cache (10 phút) để tăng tốc request đầu tiên
+        // Update Cache
         await this.cacheManager.set(`user_permissions:${user.id}`, permissionList, 600000);
 
         return {
@@ -134,6 +133,7 @@ export class AuthService {
                 email: user.email,
                 role: user.role,
                 permissions: permissionList,
+                rules: ability.rules, // Send CASL rules to FE
             },
             device: {
                 id: device.id,
@@ -220,23 +220,22 @@ export class AuthService {
     }
 
     async getProfile(userId: string) {
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            include: {
-                profile: true,
-                userRoles: {
-                    include: {
-                        role: { include: { permissions: { include: { permission: true } } } },
-                    },
-                },
-            },
-        });
+        // Use Cached Service
+        const user = await this.rbacService.getUserWithPermissions(userId);
 
         if (!user) throw new UnauthorizedException('User not found');
 
+        // Build CASL Ability
+        const ability = this.caslAbilityFactory.createForUser(user);
+
+        // Build string permissions (Legacy/Simple)
         const permissions = new Set<string>();
         user.userRoles.forEach(ur => {
             ur.role.permissions.forEach(rp => permissions.add(rp.permission.name));
+        });
+
+        user.userPermissions.forEach(up => {
+            permissions.add(up.permission.name);
         });
 
         return {
@@ -246,8 +245,10 @@ export class AuthService {
             isActive: user.isActive,
             profile: user.profile,
             permissions: Array.from(permissions),
+            rules: ability.rules, // CASL rules
         };
     }
+
     getRefreshCookieMaxAge(): number {
         const duration = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d';
         return this.parseDurationToMs(duration);

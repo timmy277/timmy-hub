@@ -4,6 +4,8 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { CreatePermissionDto, UpdatePermissionDto } from './dto/create-permission.dto';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
+import { UserWithPermissions } from '../casl/casl-ability.factory';
+
 @Injectable()
 export class RbacService {
     private readonly logger = new Logger(RbacService.name);
@@ -12,6 +14,45 @@ export class RbacService {
         private prisma: PrismaService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
+
+    async getUserWithPermissions(userId: string): Promise<UserWithPermissions | null> {
+        const cacheKey = `user_permissions_full:${userId}`;
+        const cached = await this.cacheManager.get<UserWithPermissions>(cacheKey);
+        if (cached) {
+            return cached;
+        }
+
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                userRoles: {
+                    include: {
+                        role: {
+                            include: {
+                                permissions: {
+                                    include: {
+                                        permission: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                userPermissions: {
+                    include: {
+                        permission: true,
+                    },
+                },
+                profile: true, // Include profile explicitly as it is used in auth.service
+            },
+        });
+
+        if (user) {
+            await this.cacheManager.set(cacheKey, user, 600000); // 10 minutes
+        }
+
+        return user as UserWithPermissions;
+    }
 
     // ==================== ROLES ====================
 
@@ -106,6 +147,7 @@ export class RbacService {
 
             for (const u of usersWithRole) {
                 await this.cacheManager.del(`user_permissions:${u.userId}`);
+                await this.cacheManager.del(`user_permissions_full:${u.userId}`);
             }
 
             return result;

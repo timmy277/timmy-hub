@@ -1,15 +1,6 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export enum UserRole {
-    CUSTOMER = 'CUSTOMER',
-    SELLER = 'SELLER',
-    BRAND = 'BRAND',
-    SHIPPER = 'SHIPPER',
-    ADMIN = 'ADMIN',
-    SUPER_ADMIN = 'SUPER_ADMIN',
-}
-
 export class CreateUserDto {
     @ApiProperty({ example: 'user@example.com' })
     @IsEmail({}, { message: 'Email không hợp lệ' })

@@ -1,3 +1,4 @@
+import { CaslModule } from './casl/casl.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -65,7 +66,9 @@ import { APP_GUARD } from '@nestjs/core';
         ProductsModule,
         CategoriesModule,
         SupabaseModule,
+        SupabaseModule,
         FilesModule,
+        CaslModule,
     ],
     controllers: [AppController],
     providers: [

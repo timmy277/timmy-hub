@@ -1,10 +1,14 @@
-import { Controller, Get, Post, Body, Param, Patch, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, UseGuards, Req, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { PoliciesGuard } from '../casl/policies.guard';
 import { Permissions } from '../common/decorators/permissions.decorator';
+import { CheckPolicies } from '../casl/check-policies.decorator';
+import { Action } from '../casl/action.enum';
+import { AppAbility } from '../casl/casl-ability.factory';
 import { ResponseDto } from '../common/dto/response.dto';
 import type { UserRequest } from '../auth/interfaces/auth.interface';
 
@@ -64,5 +68,42 @@ export class ProductsController {
     async reject(@Param('id') id: string, @Body('note') note: string, @Req() req: UserRequest) {
         await this.productsService.reject(id, req.user.id, note);
         return ResponseDto.success('Đã từ chối sản phẩm');
+    }
+
+    // ==================== CASL POLICIES EXAMPLES ====================
+    // Sử dụng @CheckPolicies cho attribute-based access control (ABAC)
+
+    @Patch(':id')
+    @UseGuards(JwtAuthGuard, PoliciesGuard)
+    @CheckPolicies((ability: AppAbility) => ability.can(Action.Update, 'Product'))
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Cập nhật sản phẩm (CASL Policy)',
+        description:
+            'Sử dụng CASL Policies: Chỉ SELLER owner hoặc ADMIN mới được update. Defined in CaslAbilityFactory.',
+    })
+    async update(
+        @Param('id') id: string,
+        @Body() dto: Partial<CreateProductDto>,
+        @Req() req: UserRequest,
+    ) {
+        // Service sẽ check ownership
+        const product = await this.productsService.update(id, req.user.id, dto);
+        return ResponseDto.success('Cập nhật sản phẩm thành công', product);
+    }
+
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard, PoliciesGuard)
+    @CheckPolicies((ability: AppAbility) => ability.can(Action.Delete, 'Product'))
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Xóa sản phẩm (CASL Policy với điều kiện)',
+        description:
+            'Sử dụng CASL Policies: Chỉ được xóa nếu soldCount = 0. Conditional rule defined in CaslAbilityFactory.',
+    })
+    async delete(@Param('id') id: string, @Req() req: UserRequest) {
+        // Service sẽ check soldCount > 0 hoặc không
+        await this.productsService.delete(id, req.user.id);
+        return ResponseDto.success('Xóa sản phẩm thành công');
     }
 }

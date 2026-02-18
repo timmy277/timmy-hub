@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Logo } from '../common';
 import { Stack, Tooltip, rem, NavLink, Box, Text, Menu, Collapse } from '@mantine/core';
 import { useMounted } from '@mantine/hooks';
@@ -24,6 +24,8 @@ import {
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { useAbility } from '@/contexts/AbilityContext';
+import { Action, Subject } from '@/libs/ability';
 
 type TablerIcon = React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>;
 
@@ -33,32 +35,83 @@ interface SidebarItem {
     label: string;
     link?: string;
     initiallyOpened?: boolean;
-    links?: { label: string; link: string; icon: TablerIcon }[];
+    links?: { label: string; link: string; icon: TablerIcon; permission?: PermissionCheck }[];
+    permission?: PermissionCheck;
+}
+
+interface PermissionCheck {
+    action: Action;
+    subject: Subject;
 }
 
 const getMockData = (t: TFunction): SidebarItem[] => [
-    { label: t('sidebar.dashboard'), icon: IconGauge, link: '/admin' },
+    {
+        label: t('sidebar.dashboard'),
+        icon: IconGauge,
+        link: '/admin',
+    },
     {
         label: t('sidebar.admin'),
         icon: IconFingerprint,
         initiallyOpened: true,
+        permission: { action: Action.Read, subject: 'SystemRole' },
         links: [
-            { label: t('sidebar.roles'), link: '/admin/roles', icon: IconShieldLock },
-            { label: t('sidebar.users'), link: '/admin/users', icon: IconUsers },
-            { label: t('sidebar.permissions'), link: '/admin/permissions', icon: IconKey },
+            {
+                label: t('sidebar.roles'),
+                link: '/admin/roles',
+                icon: IconShieldLock,
+                permission: { action: Action.Read, subject: 'SystemRole' },
+            },
+            {
+                label: t('sidebar.users'),
+                link: '/admin/users',
+                icon: IconUsers,
+                permission: { action: Action.Read, subject: 'User' },
+            },
+            {
+                label: t('sidebar.permissions'),
+                link: '/admin/permissions',
+                icon: IconKey,
+                permission: { action: Action.Read, subject: 'Permission' },
+            },
         ],
     },
     {
         label: t('sidebar.ecommerce'),
         icon: IconShoppingCart,
+        permission: { action: Action.Read, subject: 'Product' },
         links: [
-            { label: t('sidebar.products'), link: '/admin/products', icon: IconPackage },
-            { label: t('sidebar.categories'), link: '/admin/categories', icon: IconTags },
-            { label: t('sidebar.orders'), link: '/admin/orders', icon: IconCalendarStats },
-            { label: t('sidebar.customers'), link: '/admin/customers', icon: IconUsers },
+            {
+                label: t('sidebar.products'),
+                link: '/admin/products',
+                icon: IconPackage,
+                permission: { action: Action.Read, subject: 'Product' },
+            },
+            {
+                label: t('sidebar.categories'),
+                link: '/admin/categories',
+                icon: IconTags,
+                permission: { action: Action.Read, subject: 'Category' },
+            },
+            {
+                label: t('sidebar.orders'),
+                link: '/admin/orders',
+                icon: IconCalendarStats,
+                permission: { action: Action.Read, subject: 'Order' },
+            },
+            {
+                label: t('sidebar.customers'),
+                link: '/admin/customers',
+                icon: IconUsers,
+                permission: { action: Action.Read, subject: 'User' },
+            },
         ],
     },
-    { label: t('sidebar.settings'), icon: IconSettings, link: '/admin/settings' },
+    {
+        label: t('sidebar.settings'),
+        icon: IconSettings,
+        link: '/admin/settings',
+    },
 ];
 
 export function Sidebar() {
@@ -67,10 +120,32 @@ export function Sidebar() {
     const { collapsed } = useSidebarStore();
     const pathname = usePathname();
     const mounted = useMounted();
+    const ability = useAbility();
 
     // ===== Component Logic =====
     const mockData = getMockData(t);
     const isCollapsed = mounted ? collapsed : false;
+
+    // Filter menu items based on permissions
+    const filteredData = useMemo(() => {
+        const hasPermission = (permission?: PermissionCheck) => {
+            if (!permission) return true;
+            return ability.can(permission.action, permission.subject);
+        };
+
+        return mockData
+            .filter(item => hasPermission(item.permission))
+            .map(item => {
+                if (item.links) {
+                    const filteredLinks = item.links.filter(link => hasPermission(link.permission));
+                    // Only show parent if it has visible children
+                    if (filteredLinks.length === 0) return null;
+                    return { ...item, links: filteredLinks };
+                }
+                return item;
+            })
+            .filter((item): item is SidebarItem => item !== null);
+    }, [mockData, ability]);
 
     const isActive = (item: SidebarItem) => {
         if (item.link && pathname === item.link) return true;
@@ -103,7 +178,7 @@ export function Sidebar() {
                 className="flex-1 overflow-y-auto overflow-x-hidden transition-all duration-150"
             >
                 <Stack gap={4} align={collapsed ? 'center' : 'stretch'} className="w-full">
-                    {mockData.map(item => (
+                    {filteredData.map(item => (
                         <SidebarNavLink
                             key={item.label}
                             item={item}

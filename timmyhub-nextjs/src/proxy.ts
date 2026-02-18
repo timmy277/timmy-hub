@@ -18,7 +18,7 @@ const adminPaths = ['/admin(.*)'];
 // Danh sách các route dành cho người bán
 const sellerPaths = ['/seller(.*)'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // 1. Kiểm tra nếu là public path
@@ -83,7 +83,7 @@ export function middleware(request: NextRequest) {
 
         // B. Kiểm tra Permission-based Paths với Permission System
         const requiredPermissions = getRoutePermissions(pathname);
-        
+
         if (requiredPermissions.length > 0) {
             // Check xem user có tất cả required permissions không
             const hasAccess = requiredPermissions.every(perm =>
