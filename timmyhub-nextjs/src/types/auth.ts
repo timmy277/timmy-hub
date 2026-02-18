@@ -1,6 +1,7 @@
 
 import { RawRuleOf } from '@casl/ability';
 import { AppAbility } from '@/libs/ability';
+import { Role } from './rbac';
 
 export enum UserRole {
     CUSTOMER = 'CUSTOMER',
@@ -18,6 +19,13 @@ export interface Profile {
     avatar?: string;
 }
 
+export interface UserSystemRole {
+    id: string;
+    userId: string;
+    roleId: string;
+    role: Role;
+}
+
 export interface User {
     id: string;
     email: string;
@@ -25,6 +33,10 @@ export interface User {
     permissions: string[];
     profile?: Profile;
     rules?: RawRuleOf<AppAbility>[];
+    userRoles?: UserSystemRole[];
+    isActive?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface Device {
