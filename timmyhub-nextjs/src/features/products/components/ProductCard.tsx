@@ -17,6 +17,7 @@ import {
 } from '@mantine/core';
 import { IconHeart, IconStar, IconFlame } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { Product } from '@/types/product';
 import { AddToCartButton } from '@/components/cart/AddToCartButton';
 
@@ -34,6 +35,8 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
         ? Math.min((product.soldCount / (product.soldCount + product.stock)) * 100, 100)
         : 100;
 
+    const productLink = `/product/${product.slug}`;
+
     // Flash Sale variant
     if (viewMode === 'flash-sale') {
         return (
@@ -43,7 +46,16 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                 transition={{ duration: 0.3 }}
                 whileHover={{ y: -2 }}
             >
-                <Card shadow="sm" padding="xs" radius="md" withBorder h="100%">
+                <Card
+                    shadow="sm"
+                    padding="xs"
+                    radius="md"
+                    withBorder
+                    h="100%"
+                    component={Link}
+                    href={productLink}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                >
                     <Card.Section>
                         <Box pos="relative" h={180}>
                             <Image
@@ -105,7 +117,15 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                 transition={{ duration: 0.3 }}
                 whileHover={{ y: -2 }}
             >
-                <Card shadow="sm" padding="md" radius="md" withBorder>
+                <Card
+                    shadow="sm"
+                    padding="md"
+                    radius="md"
+                    withBorder
+                    component={Link}
+                    href={productLink}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                >
                     <Grid>
                         <Grid.Col span={3}>
                             <Box h={180}>
@@ -136,7 +156,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                         {product.description || 'Chưa có mô tả'}
                                     </Text>
                                 </Stack>
-                                <Group justify="space-between" mt="md">
+                                <Group justify="space-between" mt="md" onClick={(e) => e.stopPropagation()}>
                                     <Stack gap={0}>
                                         <Text size="xl" fw={800} c="blue">
                                             {product.price.toLocaleString()}đ
@@ -173,7 +193,16 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
             transition={{ duration: 0.3 }}
             whileHover={{ y: -5 }}
         >
-            <Card shadow="sm" padding="md" radius="md" withBorder h="100%">
+            <Card
+                shadow="sm"
+                padding="md"
+                radius="md"
+                withBorder
+                h="100%"
+                component={Link}
+                href={productLink}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+            >
                 <Card.Section>
                     <Box pos="relative" h={220}>
                         <Image
@@ -206,6 +235,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                             pos="absolute"
                             bottom={10}
                             right={10}
+                            onClick={(e) => e.stopPropagation()}
                         >
                             <IconHeart size={18} />
                         </ActionIcon>
@@ -228,7 +258,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                     </Stack>
 
                     <Stack gap="xs" mt="md">
-                        <Group justify="space-between" align="center">
+                        <Group justify="space-between" align="center" onClick={(e) => e.stopPropagation()}>
                             <Stack gap={0}>
                                 <Text size="xl" fw={800} c="blue">
                                     {product.price.toLocaleString()}đ
