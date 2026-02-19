@@ -12,6 +12,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { SupabaseModule } from './common/supabase/supabase.module';
 import { FilesModule } from './files/files.module';
 import { HealthModule } from './health/health.module';
+import { CartModule } from './cart/cart.module';
 import { LoggerModule } from 'nestjs-pino';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
@@ -71,6 +72,7 @@ import { MetricsMiddleware } from './common/middleware/metrics.middleware';
         SupabaseModule,
         FilesModule,
         CaslModule,
+        CartModule,
     ],
     controllers: [AppController],
     providers: [

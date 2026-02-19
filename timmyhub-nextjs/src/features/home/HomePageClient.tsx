@@ -16,7 +16,6 @@ import {
 } from '@mantine/core';
 import { IconLayoutGrid, IconList } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
-import { MainShell } from '@/components/layout';
 import { ProductGrid } from '@/features/products/components/ProductGrid';
 import { Product } from '@/types/product';
 
@@ -55,9 +54,8 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
     const isDark = computedColorScheme === 'dark';
 
     return (
-        <MainShell>
-            <Container size="xl" py="lg">
-                <Stack gap="xl">
+        <Container size="xl" py="lg">
+            <Stack gap="xl">
                     {/* Hero Section */}
                     <HeroCarousel />
 
@@ -140,10 +138,9 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                         </Stack>
                     </motion.div>
 
-                    {/* Footer Promo */}
-                    <FooterPromo />
-                </Stack>
-            </Container>
-        </MainShell>
+                {/* Footer Promo */}
+                <FooterPromo />
+            </Stack>
+        </Container>
     );
 }

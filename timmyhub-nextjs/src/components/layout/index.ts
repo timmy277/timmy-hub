@@ -3,3 +3,4 @@ export * from './Sidebar';
 export * from './Footer';
 export * from './DashboardShell';
 export * from './MainShell';
+export * from './UserLayout';

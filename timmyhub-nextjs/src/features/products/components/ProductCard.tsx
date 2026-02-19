@@ -15,9 +15,10 @@ import {
     Flex,
     Progress,
 } from '@mantine/core';
-import { IconHeart, IconShoppingCart, IconStar, IconFlame } from '@tabler/icons-react';
+import { IconHeart, IconStar, IconFlame } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { Product } from '@/types/product';
+import { AddToCartButton } from '@/components/cart/AddToCartButton';
 
 interface ProductCardProps {
     product: Product;
@@ -150,9 +151,11 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                         <Button variant="light" color="gray" leftSection={<IconHeart size={16} />}>
                                             Yêu thích
                                         </Button>
-                                        <Button variant="filled" color="blue" leftSection={<IconShoppingCart size={16} />}>
-                                            Thêm vào giỏ
-                                        </Button>
+                                        <AddToCartButton
+                                            productId={product.id}
+                                            variant="button"
+                                            disabled={product.stock === 0}
+                                        />
                                     </Group>
                                 </Group>
                             </Flex>
@@ -236,9 +239,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                     </Text>
                                 )}
                             </Stack>
-                            <ActionIcon variant="filled" color="blue" size="lg" radius="md">
-                                <IconShoppingCart size={18} />
-                            </ActionIcon>
+                            <AddToCartButton productId={product.id} disabled={product.stock === 0} />
                         </Group>
 
                         {product.stock <= 10 && product.stock > 0 && (

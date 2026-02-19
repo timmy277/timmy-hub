@@ -3,6 +3,7 @@
 import { Group, Box, Avatar, Text, Menu, UnstyledButton, ActionIcon, Divider, Breadcrumbs, Anchor } from '@mantine/core';
 import { LanguageSwitcher, ThemeSwitcher } from '../shared';
 import { Logo } from '../common';
+import { CartBadge } from '../cart/CartBadge';
 import {
     IconSettings,
     IconLogout,
@@ -31,7 +32,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
     // ===== Component Logic =====
     const isAdminPage = pathname.startsWith('/admin');
     const segments = pathname.split('/').filter(p => p);
-    
+
     const breadcrumbItems = [
         <Anchor component={Link} href="/" key="home" size="sm" c="dimmed">
             {t('sidebar.dashboard')}
@@ -39,8 +40,8 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
         ...segments.map((segment, index) => {
             const path = `/${segments.slice(0, index + 1).join('/')}`;
             // Try to get translation from sidebar or common, fallback to capitalized segment
-            const label = t(`sidebar.${segment}`, { 
-                defaultValue: segment.charAt(0).toUpperCase() + segment.slice(1) 
+            const label = t(`sidebar.${segment}`, {
+                defaultValue: segment.charAt(0).toUpperCase() + segment.slice(1)
             });
             const isLast = index === segments.length - 1;
 
@@ -85,6 +86,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
             </Group>
 
             <Group gap="md">
+                {!isAdminPage && <CartBadge />}
                 <LanguageSwitcher />
                 <ThemeSwitcher />
 
@@ -92,7 +94,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
 
                 <Menu shadow="md" width={200} position="bottom-end">
                     <Menu.Target>
-                        <UnstyledButton className="p-1 px-2 rounded-md transition-colors hover:bg-[var(--mantine-color-gray-hover)] dark:hover:bg-[var(--mantine-color-dark-6)]">
+                        <UnstyledButton className="p-1 px-2 rounded-md transition-colors hover:bg-(--mantine-color-gray-hover) dark:hover:bg-(--mantine-color-dark-6)">
                             <Group gap="sm">
                                 <Avatar
                                     radius="xl"

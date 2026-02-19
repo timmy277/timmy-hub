@@ -1,23 +1,30 @@
-import { productService } from '@/services/product.service';
 import { HomePageClient } from './HomePageClient';
 import { Product } from '@/types/product';
 
+const API_URL =
+    process.env.API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://localhost:3001/api';
+
 /**
  * Server Component - HomePage chính
- * Fetches approved products từ API và truyền xuống client component
+ * Dùng native fetch để tương thích với Node.js (axios dùng js-cookie/window, chỉ chạy trên browser)
  */
 export default async function HomePage() {
-    // Fetch approved products từ server
     let products: Product[] = [];
 
     try {
-        const response = await productService.getProducts();
-        if (response.success && response.data) {
-            products = response.data;
+        const res = await fetch(`${API_URL}/products`, {
+            next: { revalidate: 60 },
+        });
+        if (res.ok) {
+            const json = await res.json();
+            if (json.success && json.data) {
+                products = json.data;
+            }
         }
-    } catch (error) {
-        console.error('Failed to fetch products:', error);
-        // Continue with empty products array
+    } catch {
+        // Continue with empty products
     }
 
     return <HomePageClient initialProducts={products} />;
