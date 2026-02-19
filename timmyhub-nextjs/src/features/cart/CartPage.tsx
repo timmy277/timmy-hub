@@ -19,14 +19,12 @@ import { IconTrash, IconShoppingCart, IconAlertTriangle } from '@tabler/icons-re
 import { modals } from '@mantine/modals';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useDebouncedCallback } from '@mantine/hooks';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export function CartPage() {
     const { user } = useAuth();
-    const router = useRouter();
     const {
         cart,
         isLoading,
@@ -38,12 +36,6 @@ export function CartPage() {
         isClearing,
     } = useCart();
     const [quantities, setQuantities] = useState<Record<string, number>>({});
-
-    useEffect(() => {
-        if (!user) {
-            router.push('/login?callbackUrl=/cart');
-        }
-    }, [user, router]);
 
     const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
         try {

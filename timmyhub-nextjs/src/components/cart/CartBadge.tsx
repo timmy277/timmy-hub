@@ -18,8 +18,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const MAX_PREVIEW_ITEMS = 3;
-
 export function CartBadge() {
     const { user } = useAuth();
     const { cart, isLoading } = useCart();
@@ -53,8 +51,8 @@ export function CartBadge() {
         );
     }
 
-    const previewItems = cart?.items?.slice(0, MAX_PREVIEW_ITEMS) ?? [];
-    const hasMore = (cart?.items?.length ?? 0) > MAX_PREVIEW_ITEMS;
+
+    const cartItems = cart?.items ?? [];
 
     return (
         <Menu
@@ -86,7 +84,7 @@ export function CartBadge() {
                 </Box>
                 <Divider />
 
-                {previewItems.length === 0 ? (
+                {cartItems.length === 0 ? (
                     <Stack p="lg" align="center" gap="md">
                         <Text size="sm" c="dimmed">
                             Giỏ hàng trống
@@ -103,8 +101,16 @@ export function CartBadge() {
                     </Stack>
                 ) : (
                     <>
-                        <Stack gap={0} p="xs">
-                            {previewItems.map(item => (
+                        <Stack 
+                            gap={0} 
+                            p="xs"
+                            style={{ 
+                                maxHeight: 400, 
+                                overflowY: 'auto',
+                                overflowX: 'hidden'
+                            }}
+                        >
+                            {cartItems.map(item => (
                                 <Group
                                     key={item.id}
                                     gap="sm"
@@ -142,11 +148,6 @@ export function CartBadge() {
                                     </Stack>
                                 </Group>
                             ))}
-                            {hasMore && (
-                                <Text size="xs" c="dimmed" px="xs" pb="xs">
-                                    +{(cart?.items?.length ?? 0) - MAX_PREVIEW_ITEMS} sản phẩm khác
-                                </Text>
-                            )}
                         </Stack>
                         <Divider />
                         <Group justify="space-between" p="md">

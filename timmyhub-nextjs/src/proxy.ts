@@ -18,16 +18,33 @@ const adminPaths = ['/admin(.*)'];
 // Danh sách các route dành cho người bán
 const sellerPaths = ['/seller(.*)'];
 
+// Danh sách các route user thông thường (chỉ cần đăng nhập, không cần permissions đặc biệt)
+const userRoutes = ['/cart', '/profile', '/orders'];
+
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
+    
+    // Normalize pathname (remove trailing slash)
+    const normalizedPathname = pathname.replace(/\/$/, '') || '/';
+    
+    // Cho phép API routes luôn
+    if (normalizedPathname.startsWith('/api')) {
+        return NextResponse.next();
+    }
+    
+    // Cho phép user routes (chỉ cần đăng nhập)
+    const isUserRoute = userRoutes.some(route => normalizedPathname.startsWith(route));
+    if (isUserRoute) {
+        return NextResponse.next();
+    }
 
     // 1. Kiểm tra nếu là public path
     const isPublicPath = publicPaths.some(path => {
         if (path.includes('(.*)')) {
             const regex = new RegExp(`^${path.replace('(.*)', '.*')}$`);
-            return regex.test(pathname);
+            return regex.test(normalizedPathname);
         }
-        return pathname === path;
+        return normalizedPathname === path;
     });
 
     // Lấy access_token và refresh_token từ cookie
@@ -40,17 +57,23 @@ export function proxy(request: NextRequest) {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
         // Lưu lại url định truy cập để sau khi login quay lại
-        url.searchParams.set('callbackUrl', pathname);
+        url.searchParams.set('callbackUrl', normalizedPathname);
         return NextResponse.redirect(url);
     }
+    
+    // Lấy userRole sớm để dùng cho redirect logic
+    const userRole = request.cookies.get('user_role')?.value;
 
-    // 3. Nếu đã đăng nhập mà cố vào trang Login/Register -> Redirect về Home/Dashboard (bây giờ là /admin)
-    if (token && (pathname === '/login' || pathname === '/register')) {
-        return NextResponse.redirect(new URL('/admin', request.url));
+    // 3. Nếu đã đăng nhập mà cố vào trang Login/Register -> Redirect về trang phù hợp với role
+    if (token && (normalizedPathname === '/login' || normalizedPathname === '/register')) {
+        // Redirect về trang phù hợp với role của user
+        const redirectPath = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN' 
+            ? '/admin' 
+            : '/'; // CUSTOMER hoặc SELLER về trang chủ
+        return NextResponse.redirect(new URL(redirectPath, request.url));
     }
 
     // 4. Kiểm tra quyền hạn nâng cao (Dựa vào User Role & Permissions)
-    const userRole = request.cookies.get('user_role')?.value;
     const permissionsStr = request.cookies.get('user_permissions')?.value;
     let userPermissions: string[] = [];
 
@@ -68,21 +91,21 @@ export function proxy(request: NextRequest) {
     if (token) {
         // A. Kiểm tra Role-based Paths
         const isAdminPath = adminPaths.some(path =>
-            new RegExp(`^${path.replace('(.*)', '.*')}$`).test(pathname),
+            new RegExp(`^${path.replace('(.*)', '.*')}$`).test(normalizedPathname),
         );
         if (isAdminPath && userRole !== 'ADMIN') {
             return NextResponse.redirect(new URL('/403', request.url));
         }
 
         const isSellerPath = sellerPaths.some(path =>
-            new RegExp(`^${path.replace('(.*)', '.*')}$`).test(pathname),
+            new RegExp(`^${path.replace('(.*)', '.*')}$`).test(normalizedPathname),
         );
         if (isSellerPath && userRole !== 'SELLER') {
             return NextResponse.redirect(new URL('/403', request.url));
         }
 
         // B. Kiểm tra Permission-based Paths với Permission System
-        const requiredPermissions = getRoutePermissions(pathname);
+        const requiredPermissions = getRoutePermissions(normalizedPathname);
 
         if (requiredPermissions.length > 0) {
             // Check xem user có tất cả required permissions không
