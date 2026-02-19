@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { AppShell, useComputedColorScheme } from '@mantine/core';
+import { AppShell } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { Footer } from './Footer';
 
@@ -12,23 +12,24 @@ interface UserLayoutProps {
 }
 
 export function UserLayout({ children }: UserLayoutProps) {
-    const computedColorScheme = useComputedColorScheme('light');
-    const isDark = computedColorScheme === 'dark';
-
     return (
         <AppShell header={{ height: 70 }} padding="md">
             <AppShell.Header
-                withBorder={isDark}
                 style={{
-                    boxShadow: isDark ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    boxShadow: 'light-dark(0 4px 12px rgba(0, 0, 0, 0.05), none)',
                 }}
+                suppressHydrationWarning
             >
                 <AppBar withSidebarToggle={false} />
             </AppShell.Header>
 
             <AppShell.Main
                 display="flex"
-                style={{ flexDirection: 'column', minHeight: '100vh' }}
+                style={{
+                    flexDirection: 'column',
+                    minHeight: '100vh',
+                    backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-8))',
+                }}
             >
                 <div className="flex-1">{children}</div>
                 <Footer />

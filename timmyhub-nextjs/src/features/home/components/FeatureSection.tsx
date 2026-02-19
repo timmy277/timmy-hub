@@ -1,9 +1,10 @@
 'use client';
 
-import { SimpleGrid, Group, Text, ThemeIcon, Stack } from '@mantine/core';
+import { SimpleGrid, Group, Text, ThemeIcon, Stack, Paper } from '@mantine/core';
 import { IconTruck, IconShieldCheck, IconPhoneCall, IconClock } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { ComponentType } from 'react';
+import { useComputedColorScheme } from '@mantine/core';
 
 interface Feature {
     icon: ComponentType<{ size?: number }>;
@@ -27,6 +28,9 @@ const staggerContainer = {
 };
 
 export function FeatureSection() {
+    const computedColorScheme = useComputedColorScheme('light');
+    const isDark = computedColorScheme === 'dark';
+    
     const features: Feature[] = [
         { icon: IconTruck, title: 'Miễn Phí Vận Chuyển', desc: 'Cho đơn từ 199k' },
         { icon: IconShieldCheck, title: 'Bảo Hành Chính Hãng', desc: 'Cam kết 100%' },
@@ -49,15 +53,26 @@ export function FeatureSection() {
                             key={i}
                             variants={fadeInUp}
                         >
-                            <Group gap="sm">
-                                <ThemeIcon size={42} radius="md" variant="light" color="blue">
-                                    <Icon size={24} />
-                                </ThemeIcon>
-                                <Stack gap={0}>
-                                    <Text fw={600} size="sm">{f.title}</Text>
-                                    <Text size="xs" c="dimmed">{f.desc}</Text>
-                                </Stack>
-                            </Group>
+                            <Paper
+                                p="md"
+                                radius="md"
+                                withBorder
+                                style={{
+                                    backgroundColor: isDark 
+                                        ? 'var(--mantine-color-dark-7)' 
+                                        : 'var(--mantine-color-white)',
+                                }}
+                            >
+                                <Group gap="sm">
+                                    <ThemeIcon size={42} radius="md" variant="light" color="blue">
+                                        <Icon size={24} />
+                                    </ThemeIcon>
+                                    <Stack gap={0}>
+                                        <Text fw={600} size="sm">{f.title}</Text>
+                                        <Text size="xs" c="dimmed">{f.desc}</Text>
+                                    </Stack>
+                                </Group>
+                            </Paper>
                         </motion.div>
                     );
                 })}

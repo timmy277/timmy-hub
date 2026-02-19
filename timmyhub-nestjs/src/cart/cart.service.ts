@@ -20,6 +20,9 @@ export class CartService {
             where: { userId },
             include: {
                 items: {
+                    orderBy: {
+                        id: 'asc',
+                    },
                     include: {
                         product: {
                             include: {
