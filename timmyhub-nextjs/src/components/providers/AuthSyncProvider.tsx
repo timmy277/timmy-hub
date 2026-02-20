@@ -50,7 +50,7 @@ export function AuthSyncProvider({ children }: { children: ReactNode }) {
         };
 
         syncAuth();
-    }, []);
+    }, [isAuthenticated, user, setAuthData, clearAuthData, refetchProfile, logout]);
 
     // ===== Final Render =====
 

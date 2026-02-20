@@ -30,7 +30,7 @@ import { IconCheck, IconX } from '@tabler/icons-react';
 export function ProductList() {
     const { t } = useTranslation();
     const { data: response, isLoading, refetch } = useAdminProducts();
-    
+
     // Server Actions
     const { execute: approve, isPending: isApproving } = useAction(approveProductAction, {
         onSuccess: () => {
@@ -119,16 +119,16 @@ export function ProductList() {
             case ManagementTabType.UPDATE:
                 return (
                     <Box p="xl">
-                        <ProductForm 
-                            initialValues={tab.data} 
-                            onSubmit={(values) => {
+                        <ProductForm
+                            initialValues={tab.data}
+                            onSubmit={() => {
                                 // TODO: Implement updateProductAction
                                 notifications.show({
                                     title: t('common.info'),
                                     message: 'Update product feature is coming soon',
                                     color: 'blue',
                                 });
-                            }} 
+                            }}
                         />
                     </Box>
                 );
