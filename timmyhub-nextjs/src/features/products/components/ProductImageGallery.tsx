@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { Box, Image, Group, ActionIcon, Modal, Stack } from '@mantine/core';
 import { IconZoomIn, IconX } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
-import { motion, AnimatePresence } from 'framer-motion';
-
 interface ProductImageGalleryProps {
     images: string[];
     productName: string;
@@ -141,10 +139,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                         color="dark"
                         size="lg"
                         radius="md"
-                        pos="absolute"
-                        top={10}
-                        right={10}
-                        zIndex={10}
+                        className="absolute top-[10px] right-[10px] z-10"
                         onClick={closeZoom}
                     >
                         <IconX size={20} />

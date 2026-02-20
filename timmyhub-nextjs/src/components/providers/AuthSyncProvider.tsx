@@ -28,7 +28,7 @@ export function AuthSyncProvider({ children }: { children: ReactNode }) {
                     const response = await authService.getProfile();
                     const profileUser = response.data;
                     console.log('👤 Profile fetched:', profileUser);
-                    setAuthData(profileUser, { deviceId: 'web', userAgent: navigator.userAgent });
+                    setAuthData(profileUser, { id: 'web', name: 'web', deviceId: 'web' });
                 } catch (error) {
                     console.error('❌ Failed to fetch profile, clearing auth:', error);
                     clearAuthData();

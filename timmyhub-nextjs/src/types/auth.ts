@@ -29,6 +29,7 @@ export interface UserSystemRole {
 export interface User {
     id: string;
     email: string;
+    phone?: string;
     role: UserRole;
     permissions: string[];
     profile?: Profile;
@@ -42,6 +43,15 @@ export interface User {
 export interface Device {
     id: string;
     name: string;
+    deviceId?: string;
+}
+
+/** Response shape from POST /auth/login */
+export interface LoginData {
+    user: User;
+    device: Device;
+    accessToken: string;
+    refreshToken: string;
 }
 
 export interface LoginInput {

@@ -94,7 +94,7 @@ export function UserDetail({ user }: UserDetailProps) {
                                 </Badge>,
                             )}
 
-                            {renderInfoRow(t('userManagement.phone'), user.phone || 'N/A')}
+                            {renderInfoRow(t('userManagement.phone'), user.phone ?? 'N/A')}
 
                             {renderInfoRow(
                                 t('table.columns.memberSince'),
