@@ -110,7 +110,7 @@ export class VnpayService {
         const expireDate = new Date(createDate.getTime() + 15 * 60 * 1000);
         const ipAddr = this.getClientIp(req);
         // OrderInfo: tieng Viet khong dau, khong ky tu dac biet (theo tai lieu VNPay)
-        const orderInfo = `Thanh toan don hang Timmy Trip ${orderId}`;
+        const orderInfo = `Thanh toan don hang TimmyHub ${orderId}`;
 
         const url = this.vnpay.buildPaymentUrl({
             vnp_Amount: amountVnd,
