@@ -1,17 +1,8 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createHmac } from 'crypto';
+import { VNPay, dateFormat, VnpLocale, HashAlgorithm } from 'vnpay';
 import { PrismaService } from '../database/prisma.service';
 import { OrderStatus, PaymentStatus } from '@prisma/client';
-import {
-    VNPAY_VERSION,
-    VNPAY_COMMAND,
-    VNPAY_CURRENCY,
-    VNPAY_LOCALE_VN,
-    VNPAY_ORDER_TYPE,
-} from './constants/vnpay.constants';
-
-const VNPAY_HASH_ALGORITHM = 'sha512';
 
 export interface VnpayReturnParams {
     vnp_Amount: string;
@@ -33,9 +24,7 @@ export interface VnpayReturnParams {
 @Injectable()
 export class VnpayService {
     private readonly logger = new Logger(VnpayService.name);
-    private readonly tmnCode: string;
-    private readonly hashSecret: string;
-    private readonly baseUrl: string;
+    private readonly vnpay: VNPay;
     private readonly returnUrl: string;
     private readonly ipnUrl: string;
 
@@ -43,27 +32,27 @@ export class VnpayService {
         private readonly config: ConfigService,
         private readonly prisma: PrismaService,
     ) {
-        this.tmnCode = this.config.get<string>('VNPAY_TMN_CODE') ?? '';
-        this.hashSecret = this.config.get<string>('VNPAY_HASH_SECRET') ?? '';
-        this.baseUrl =
+        const tmnCode = this.config.get<string>('VNPAY_TMN_CODE') ?? '';
+        const secureSecret = this.config.get<string>('VNPAY_HASH_SECRET') ?? '';
+        const fullUrl =
             this.config.get<string>('VNPAY_URL') ??
             'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+        const vnpayHost = fullUrl.startsWith('http') ? new URL(fullUrl).origin : fullUrl;
+
+        this.vnpay = new VNPay({
+            tmnCode,
+            secureSecret,
+            vnpayHost,
+            testMode: true,
+            hashAlgorithm: HashAlgorithm.SHA512,
+        });
+
         this.returnUrl =
             this.config.get<string>('VNPAY_RETURN_URL') ??
             'http://localhost:3001/api/payments/vnpay/return';
         this.ipnUrl =
-            this.config.get<string>('VNPAY_IPN_URL') ?? 'http://localhost:3001/api/payments/vnpay/ipn';
-    }
-
-    private signParams(params: Record<string, string>): string {
-        const sortedKeys = Object.keys(params).sort();
-        const signData = sortedKeys
-            .filter((k) => params[k] !== '' && params[k] !== undefined)
-            .map((k) => `${k}=${params[k]}`)
-            .join('&');
-        return createHmac(VNPAY_HASH_ALGORITHM, this.hashSecret)
-            .update(Buffer.from(signData, 'utf8'))
-            .digest('hex');
+            this.config.get<string>('VNPAY_IPN_URL') ??
+            'http://localhost:3001/api/payments/vnpay/ipn';
     }
 
     private getClientIp(req: {
@@ -99,7 +88,6 @@ export class VnpayService {
         }
 
         const amountVnd = Math.round(Number(order.totalAmount));
-        const amountVnpay = amountVnd * 100;
 
         let payment = order.payment;
         if (!payment || payment.status === PaymentStatus.FAILED) {
@@ -119,58 +107,29 @@ export class VnpayService {
         }
 
         const createDate = new Date();
-        const vnpCreateDate = [
-            createDate.getFullYear(),
-            String(createDate.getMonth() + 1).padStart(2, '0'),
-            String(createDate.getDate()).padStart(2, '0'),
-            String(createDate.getHours()).padStart(2, '0'),
-            String(createDate.getMinutes()).padStart(2, '0'),
-            String(createDate.getSeconds()).padStart(2, '0'),
-        ]
-            .join('')
-            .slice(0, 14);
-
+        const expireDate = new Date(createDate.getTime() + 15 * 60 * 1000);
         const ipAddr = this.getClientIp(req);
-        const params: Record<string, string> = {
-            vnp_Version: VNPAY_VERSION,
-            vnp_Command: VNPAY_COMMAND,
-            vnp_TmnCode: this.tmnCode,
-            vnp_Amount: String(amountVnpay),
-            vnp_CurrCode: VNPAY_CURRENCY,
-            vnp_TxnRef: payment.vnpayTxnRef!,
-            vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
-            vnp_OrderType: VNPAY_ORDER_TYPE,
-            vnp_Locale: VNPAY_LOCALE_VN,
-            vnp_ReturnUrl: this.returnUrl,
-            vnp_IpnUrl: this.ipnUrl,
-            vnp_CreateDate: vnpCreateDate,
+        // OrderInfo: tieng Viet khong dau, khong ky tu dac biet (theo tai lieu VNPay)
+        const orderInfo = `Thanh toan don hang Timmy Trip ${orderId}`;
+
+        const url = this.vnpay.buildPaymentUrl({
+            vnp_Amount: amountVnd,
             vnp_IpAddr: ipAddr,
-        };
-
-        const secureHash = this.signParams(params);
-        params.vnp_SecureHashType = 'HMACSHA512';
-        params.vnp_SecureHash = secureHash;
-
-        const query = new URLSearchParams(params).toString();
-        const url = `${this.baseUrl}?${query}`;
+            vnp_ReturnUrl: this.returnUrl,
+            vnp_TxnRef: payment.vnpayTxnRef!,
+            vnp_OrderInfo: orderInfo,
+            vnp_Locale: VnpLocale.VN,
+            vnp_CreateDate: dateFormat(createDate),
+            vnp_ExpireDate: dateFormat(expireDate),
+        });
 
         this.logger.log(`VNPay URL created for order ${orderId}`);
         return { url, paymentId: payment.id };
     }
 
     verifyReturnQuery(query: Record<string, string>): boolean {
-        const secureHash = query.vnp_SecureHash;
-        const secureHashType = query.vnp_SecureHashType;
-        if (!secureHash) return false;
-
-        const filtered: Record<string, string> = {};
-        for (const [k, v] of Object.entries(query)) {
-            if (k !== 'vnp_SecureHash' && k !== 'vnp_SecureHashType' && v !== '') {
-                filtered[k] = v;
-            }
-        }
-        const expectedHash = this.signParams(filtered);
-        return secureHashType === 'HMACSHA512' && secureHash === expectedHash;
+        const result = this.vnpay.verifyReturnUrl(query as never);
+        return result.isVerified;
     }
 
     async processReturn(query: VnpayReturnParams): Promise<{
@@ -228,7 +187,7 @@ export class VnpayService {
             };
         }
 
-        await this.prisma.$transaction(async (tx) => {
+        await this.prisma.$transaction(async tx => {
             await tx.payment.update({
                 where: { id: payment.id },
                 data: {
@@ -261,7 +220,8 @@ export class VnpayService {
             if (v !== undefined && v !== '') params[k] = String(v);
         }
 
-        if (!this.verifyReturnQuery(params)) {
+        const result = this.vnpay.verifyIpnCall(params as never);
+        if (!result.isVerified) {
             this.logger.warn('VNPay IPN invalid signature');
             return { RspCode: 97, Message: 'Invalid signature' };
         }
@@ -294,7 +254,7 @@ export class VnpayService {
             return { RspCode: 0, Message: 'Confirm success' };
         }
 
-        await this.prisma.$transaction(async (tx) => {
+        await this.prisma.$transaction(async tx => {
             await tx.payment.update({
                 where: { id: payment.id },
                 data: {
