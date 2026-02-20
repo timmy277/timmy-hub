@@ -405,8 +405,43 @@ model Order {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
+  orderItems OrderItem[]
+  payment   Payment?
+
   @@index([userId])
   @@index([status])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  name      String
+  image     String?
+  price     Decimal @db.Decimal(15, 2)
+  quantity  Int     @default(1)
+  subtotal  Decimal @db.Decimal(15, 2)
+
+  @@index([orderId])
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  orderId      String        @unique
+  order        Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method       String        // VNPAY, COD, ...
+  status       PaymentStatus @default(PENDING)
+  amount       Decimal       @db.Decimal(15, 2)
+  vnpayTxnRef  String?       @unique
+  vnpayTransNo String?
+  paidAt       DateTime?
+  metadata     Json?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([orderId])
+  @@index([vnpayTxnRef])
 }
 
 // ==================== OTHER ====================
