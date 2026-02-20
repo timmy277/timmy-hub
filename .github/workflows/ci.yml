@@ -1,0 +1,178 @@
+name: CI
+
+# Tránh chạy nhiều workflow cùng lúc (push mới cancel run cũ)
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+    schedule:
+        # Nhiều giờ khác nhau: thêm nhiều dòng cron
+        # Format: phút giờ ngày tháng thứ (UTC)
+        - cron: '0 2 * * *'   # 2h UTC = 9h sáng VN
+        - cron: '0 8 * * *'   # 8h UTC = 15h chiều VN
+        - cron: '0 14 * * *'  # 14h UTC = 21h tối VN
+        # - cron: '0 */6 * * *'  # Mỗi 6 giờ (0h, 6h, 12h, 18h UTC)
+        # - cron: '30 1 * * 1-5' # 1h30 UTC các ngày thứ 2–6
+
+jobs:
+    changes:
+        name: Detect changes
+        runs-on: ubuntu-latest
+        outputs:
+            backend: ${{ steps.set-outputs.outputs.backend }}
+            frontend: ${{ steps.set-outputs.outputs.frontend }}
+        steps:
+            - uses: actions/checkout@v4
+            
+            - name: Detect file changes
+              id: filter
+              if: github.event_name != 'schedule'
+              uses: dorny/paths-filter@v3
+              with:
+                  filters: |
+                      backend:
+                        - 'timmyhub-nestjs/**'
+                        - '.github/workflows/ci.yml'
+                      frontend:
+                        - 'timmyhub-nextjs/**'
+                        - '.github/workflows/ci.yml'
+            
+            - name: Set outputs
+              id: set-outputs
+              run: |
+                  if [ "${{ github.event_name }}" == "schedule" ]; then
+                    echo "backend=true" >> $GITHUB_OUTPUT
+                    echo "frontend=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "backend=${{ steps.filter.outputs.backend }}" >> $GITHUB_OUTPUT
+                    echo "frontend=${{ steps.filter.outputs.frontend }}" >> $GITHUB_OUTPUT
+                  fi
+
+    backend:
+        name: Backend (NestJS)
+        runs-on: ubuntu-latest
+        needs: changes
+        if: needs.changes.outputs.backend == 'true'
+
+        steps:
+            - name: Checkout source
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "pnpm"
+                  cache-dependency-path: timmyhub-nestjs/pnpm-lock.yaml
+
+            - name: Install dependencies
+              working-directory: timmyhub-nestjs
+              run: pnpm install --frozen-lockfile
+
+            - name: Generate Prisma Client
+              working-directory: timmyhub-nestjs
+              run: pnpm run prisma:generate
+
+            - name: Lint
+              working-directory: timmyhub-nestjs
+              run: pnpm run lint
+
+            - name: Type check
+              working-directory: timmyhub-nestjs
+              run: pnpm exec tsc --noEmit
+
+            - name: Run tests
+              working-directory: timmyhub-nestjs
+              run: pnpm test -- --passWithNoTests
+
+            - name: Build
+              working-directory: timmyhub-nestjs
+              run: pnpm run build
+
+    frontend:
+        name: Frontend (Next.js)
+        runs-on: ubuntu-latest
+        needs: changes
+        if: needs.changes.outputs.frontend == 'true'
+
+        steps:
+            - name: Checkout source
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "pnpm"
+                  cache-dependency-path: timmyhub-nextjs/pnpm-lock.yaml
+
+            - name: Install dependencies
+              working-directory: timmyhub-nextjs
+              run: pnpm install --frozen-lockfile
+
+            - name: Lint
+              working-directory: timmyhub-nextjs
+              run: pnpm run lint
+
+            - name: Type check
+              working-directory: timmyhub-nextjs
+              run: pnpm exec tsc --noEmit
+
+            - name: Build
+              working-directory: timmyhub-nextjs
+              run: pnpm run build
+              env:
+                  # Next.js build cần env vars (nếu có)
+                  NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:3001' }}
+
+    # Job tổng hợp - chỉ pass khi cả 2 jobs trên pass
+    ci-success:
+        name: CI Success
+        runs-on: ubuntu-latest
+        needs: [changes, backend, frontend]
+        if: always()
+
+        steps:
+            - name: Check job results
+              run: |
+                  backend_result="${{ needs.backend.result }}"
+                  frontend_result="${{ needs.frontend.result }}"
+
+                  # Skip nếu job không chạy (do paths filter) và không phải scheduled run
+                  if [ "$backend_result" == "skipped" ] && [ "$frontend_result" == "skipped" ] && [ "${{ github.event_name }}" != "schedule" ]; then
+                    echo "ℹ️ No changes detected, skipping CI"
+                    exit 0
+                  fi
+                  
+                  # Scheduled run luôn pass nếu không có lỗi
+                  if [ "${{ github.event_name }}" == "schedule" ]; then
+                    if [ "$backend_result" == "failure" ] || [ "$frontend_result" == "failure" ]; then
+                      echo "❌ Scheduled CI failed"
+                      exit 1
+                    fi
+                    echo "✅ Scheduled CI passed"
+                    exit 0
+                  fi
+
+                  # Fail nếu có job nào fail
+                  if [ "$backend_result" == "failure" ] || [ "$frontend_result" == "failure" ]; then
+                    echo "❌ CI failed"
+                    exit 1
+                  fi
+
+                  echo "✅ All checks passed"
