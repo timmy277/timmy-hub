@@ -1,16 +1,7 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import { ProductListSkeleton } from '@/components/shared/LoadingFallback';
-
-const ProductList = dynamic(
-    () => import('@/features/admin').then(mod => ({ default: mod.ProductList })),
-    { 
-        loading: () => <ProductListSkeleton />,
-        ssr: false
-    }
-);
+import { AdminProductListClient } from './AdminProductListClient';
 
 export default async function Page() {
     const queryClient = new QueryClient();
@@ -51,7 +42,7 @@ export default async function Page() {
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <ProductList />
+            <AdminProductListClient />
         </HydrationBoundary>
     );
 }
