@@ -18,7 +18,8 @@
         "application": "Ứng dụng",
         "profile": "Cá nhân",
         "settings": "Cài đặt",
-        "dangerZone": "Vùng nguy hiểm"
+        "dangerZone": "Vùng nguy hiểm",
+        "guest": "Khách"
     },
     "sidebar": {
         "dashboard": "Bảng điều khiển",

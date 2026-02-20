@@ -22,11 +22,17 @@ interface AppBarProps {
     withSidebarToggle?: boolean;
 }
 
+function displayName(user: { profile?: { firstName?: string; lastName?: string; displayName?: string }; email?: string }): string {
+    const p = user?.profile;
+    if (p?.displayName) return p.displayName;
+    if (p?.firstName || p?.lastName) return [p.firstName, p.lastName].filter(Boolean).join(' ').trim();
+    return user?.email ?? '';
+}
+
 export function AppBar({ withSidebarToggle = true }: AppBarProps) {
-    // ===== Hooks & Context =====
     const { t } = useTranslation();
     const { collapsed, toggleSidebar } = useSidebarStore();
-    const { logout } = useAuth();
+    const { user, logout, isProfileLoading } = useAuth();
     const pathname = usePathname();
 
     // ===== Component Logic =====
@@ -99,14 +105,17 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                                 <Avatar
                                     radius="xl"
                                     size="md"
-                                    src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png"
-                                />
+                                    src={user?.profile?.avatar}
+                                    alt={user ? displayName(user) : ''}
+                                >
+                                    {user ? (displayName(user) || '?').slice(0, 2).toUpperCase() : 'G'}
+                                </Avatar>
                                 <Box className="hidden lg:block text-left">
                                     <Text size="sm" fw={600} className="leading-tight">
-                                        Timmy Hub
+                                        {user ? displayName(user) || user.email : t('common.guest')}
                                     </Text>
                                     <Text size="xs" c="dimmed" className="leading-tight">
-                                        Admin
+                                        {user?.role ?? (isProfileLoading ? '...' : '')}
                                     </Text>
                                 </Box>
                             </Group>

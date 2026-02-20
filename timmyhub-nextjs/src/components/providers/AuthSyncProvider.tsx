@@ -1,58 +1,37 @@
 'use client';
 
-import { useEffect, ReactNode } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useEffect, useRef, ReactNode } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
-import Cookies from 'js-cookie';
 import { authService } from '@/services/auth.service';
 
 export function AuthSyncProvider({ children }: { children: ReactNode }) {
-    // ===== Hooks & Context =====
-    const { isAuthenticated, refetchProfile, logout } = useAuth();
-    const { user, setAuthData, clearAuthData } = useAuthStore();
+    const { user, setAuthData } = useAuthStore();
+    const hasFetchedRef = useRef(false);
 
-    // ===== Component Logic =====
     useEffect(() => {
-        const syncAuth = async () => {
-            const accessToken = Cookies.get('access_token');
+        if (!user) {
+            hasFetchedRef.current = false;
+            return;
+        }
+        // Đã có đủ profile (avatar/displayName) thì không fetch lại
+        if (user.profile?.firstName != null || user.profile?.displayName) {
+            return;
+        }
+        if (hasFetchedRef.current) return;
 
-            console.log('🔄 AuthSync:', {
-                hasToken: !!accessToken,
-                isAuthenticated,
-                hasUserInStore: !!user,
-            });
-
-            if (accessToken && !user) {
-                console.log('🔑 Token exists but no user in store, fetching profile...');
-                try {
-                    const response = await authService.getProfile();
-                    const profileUser = response.data;
-                    console.log('👤 Profile fetched:', profileUser);
-                    setAuthData(profileUser, { id: 'web', name: 'web', deviceId: 'web' });
-                } catch (error) {
-                    console.error('❌ Failed to fetch profile, clearing auth:', error);
-                    clearAuthData();
-                    Cookies.remove('access_token');
-                    Cookies.remove('refresh_token');
-                }
-            } else if (isAuthenticated && user) {
-                console.log('✅ Already authenticated, re-validating session...');
-                refetchProfile().then(result => {
-                    if (result.isError) {
-                        console.warn('⚠️ Session invalid, logging out...');
-                        logout();
-                    }
-                });
-            } else if (!accessToken && isAuthenticated) {
-                console.warn('⚠️ No token but store says authenticated, clearing...');
-                clearAuthData();
+        hasFetchedRef.current = true;
+        const syncProfile = async () => {
+            try {
+                const response = await authService.getProfile();
+                const profileUser = response.data;
+                const device = useAuthStore.getState().device ?? { id: 'web', name: 'web', deviceId: 'web' };
+                setAuthData(profileUser, device);
+            } catch {
+                hasFetchedRef.current = false;
             }
         };
-
-        syncAuth();
-    }, [isAuthenticated, user, setAuthData, clearAuthData, refetchProfile, logout]);
-
-    // ===== Final Render =====
+        void syncProfile();
+    }, [setAuthData, user]);
 
     return <>{children}</>;
 }

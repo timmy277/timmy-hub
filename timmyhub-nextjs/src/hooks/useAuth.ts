@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { LoginInput } from '@/types/auth';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { authService } from '@/services/auth.service';
@@ -7,12 +8,9 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 export const useAuth = () => {
-    // ===== Hooks & Context =====
-    const { user, isAuthenticated, clearAuthData } = useAuthStore();
+    const { user, isAuthenticated, clearAuthData, setAuthData } = useAuthStore();
     const router = useRouter();
 
-    // ===== Component Logic =====
-    // Query to get current profile (WhoAmI)
     const {
         data: profileData,
         isLoading: isProfileLoading,
@@ -23,6 +21,12 @@ export const useAuth = () => {
         enabled: isAuthenticated,
         retry: false,
     });
+
+    useEffect(() => {
+        if (!profileData?.data) return;
+        const device = useAuthStore.getState().device ?? { id: 'web', name: 'web', deviceId: 'web' };
+        setAuthData(profileData.data, device);
+    }, [profileData?.data, setAuthData]);
 
     // Logout mutation
     const logoutMutation = useMutation({
@@ -46,19 +50,19 @@ export const useAuth = () => {
 
     const handleLocalLogout = () => {
         clearAuthData();
-        
+
         const cookiesToRemove = ['user_role', 'user_permissions', 'access_token', 'refresh_token'];
         cookiesToRemove.forEach(key => {
             Cookies.remove(key, { path: '/' });
             // Try both with and without domain
             Cookies.remove(key, { path: '/', domain: window.location.hostname });
         });
-        
+
         // Clear localStorage
         if (typeof window !== 'undefined') {
             localStorage.removeItem('auth-storage');
         }
-        
+
         router.push('/login');
     };
 

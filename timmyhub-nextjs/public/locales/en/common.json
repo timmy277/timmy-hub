@@ -18,7 +18,8 @@
         "application": "Application",
         "profile": "Profile",
         "settings": "Settings",
-        "dangerZone": "Danger Zone"
+        "dangerZone": "Danger Zone",
+        "guest": "Guest"
     },
     "sidebar": {
         "dashboard": "Dashboard",
