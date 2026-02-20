@@ -1,0 +1,88 @@
+---
+description: TimmyHub project conventions and standards
+alwaysApply: true
+---
+
+# TimmyHub Project Conventions
+
+## Project Identity
+
+- **Name**: TimmyHub
+- **Slogan**: "Tìm mọi thứ"
+- **Description**: E-commerce marketplace (Shopee-like) enterprise-level
+- **Roles**: CUSTOMER, SELLER, BRAND, SHIPPER, ADMIN, SUPER_ADMIN
+- **Languages**: vi (default), en, zh, ko, ja
+- **Currency**: VND (default), USD
+
+## Tech Stack
+
+- **Frontend**: Next.js 14+ (App Router), TypeScript strict
+- **UI**: Mantine + Tailwind CSS (không dùng Styled Components, không inline style)
+- **Data**: React Query (TanStack Query), Zustand (client state)
+- **Table**: AG Grid
+- **Backend**: NestJS, TypeScript strict
+- **Database**: PostgreSQL + Prisma ORM
+- **Cache**: Redis (ioredis)
+- **Search**: Elasticsearch
+- **Realtime**: Socket.io
+- **Storage**: Supabase Storage
+- **Payment**: Stripe, VNPay
+- **Auth**: JWT in HTTPOnly Cookie, Helmet.js, RBAC
+- **i18n**: nestjs-i18n (backend), react-i18next (frontend)
+- **QR**: qrcode (backend), qrcode.react (frontend)
+- **AI**: OpenAI API
+- **Monitoring**: Sentry
+- **CI/CD**: GitHub Actions, Docker
+
+## Naming Conventions
+
+- **Variables/Functions**: English
+- **Comments**: Vietnamese when explanation needed
+- **Files**: kebab-case (e.g., `user-service.ts`, `product-card.tsx`)
+
+## Code Organization
+
+- Backend: `timmyhub-nestjs/`
+- Frontend: `timmyhub-nextjs/`
+- Shared types: Define in respective projects
+- Services: Separate service layer for API calls
+- Components: Feature-based organization
+
+## General Rules
+
+1. **TUYỆT ĐỐI không `any`** - Dùng `unknown`, generic, hoặc type cụ thể
+2. **No `@ts-ignore`** - Sửa đúng type, không bỏ qua
+3. **Explicit return types** - Mọi function phải khai báo return type
+4. **Typed parameters** - Mọi parameter phải có type
+5. **File comments** - Mọi file cần comment mô tả
+6. **No hardcoding** - ConfigService/env; magic number/string → đưa vào constant
+7. **Constants** - Hằng số (số, chuỗi cố định, config) đặt trong file constant (ví dụ: `constants/*.ts`)
+8. **Enums** - Dùng enum cho tập giá trị cố định (status, role, type...); ưu tiên enum từ Prisma khi có
+9. **i18n bắt buộc** - Mọi text hiển thị cho user phải qua i18n (translation key), không hardcode chuỗi
+10. **No inline style** - Không dùng `style={{ ... }}`; dùng Tailwind class hoặc CSS module
+11. **Error handling** - Luôn xử lý lỗi đúng cách
+12. **Logging** - Dùng NestJS Logger (backend), không console.log
+13. **Validation** - Luôn validate input
+
+## AG Grid Checklist
+
+Every table must have:
+- [ ] Column defs with types
+- [ ] Server-side pagination, sort, filter
+- [ ] Custom cell renderers
+- [ ] Row selection
+- [ ] Export CSV/Excel
+- [ ] Loading/Empty overlay
+
+## Code Review & Optimization
+
+**QUAN TRỌNG**: Khi làm việc với code, nếu thấy:
+- Code thủ công khi có thể dùng library/tool → **NHẮC NGAY**
+- Công nghệ cũ khi có phiên bản mới tốt hơn → **NHẮC NGAY**
+- Code lặp lại khi có thể dùng pattern/abstraction → **NHẮC NGAY**
+- Performance issues → **NHẮC NGAY**
+- Security issues → **NHẮC NGAY**
+
+Xem chi tiết trong:
+- Frontend: `react-frontend.mdc` → Code Review & Optimization Suggestions
+- Backend: `nestjs-backend.mdc` → Code Review & Optimization Suggestions

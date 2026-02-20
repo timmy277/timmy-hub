@@ -1,0 +1,139 @@
+---
+description: TypeScript coding standards - strict typing rules
+globs: **/*.ts
+alwaysApply: false
+---
+
+# TypeScript Coding Standards
+
+## Type Safety Rules
+
+### ❌ TUYỆT ĐỐI không dùng `any`
+```typescript
+// ❌ BAD
+function processData(data: any) {
+  return data.value;
+}
+
+// ✅ GOOD
+function processData<T extends { value: unknown }>(data: T): T['value'] {
+  return data.value;
+}
+
+// ✅ GOOD - Use unknown when type is truly unknown
+function processData(data: unknown): number {
+  if (typeof data === 'object' && data !== null && 'value' in data) {
+    return Number(data.value);
+  }
+  throw new Error('Invalid data');
+}
+```
+
+### ❌ NEVER Use `@ts-ignore` or `@ts-expect-error`
+```typescript
+// ❌ BAD
+// @ts-ignore
+const result = someFunction();
+
+// ✅ GOOD - Fix the type issue properly
+const result: ReturnType<typeof someFunction> = someFunction();
+```
+
+### ✅ Always Declare Return Types
+```typescript
+// ❌ BAD
+function calculateTotal(items: Item[]) {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}
+
+// ✅ GOOD
+function calculateTotal(items: Item[]): number {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}
+```
+
+### ✅ Always Type Parameters
+```typescript
+// ❌ BAD
+function createUser(email, password) {
+  // ...
+}
+
+// ✅ GOOD
+function createUser(email: string, password: string): Promise<User> {
+  // ...
+}
+```
+
+## Type vs Interface
+
+- Use `interface` for object shapes
+- Use `type` for unions, intersections, or computed types
+
+```typescript
+// ✅ GOOD - Interface for object shape
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+}
+
+// ✅ GOOD - Type for union
+type Status = 'pending' | 'approved' | 'rejected';
+
+// ✅ GOOD - Type for intersection
+type AdminUser = User & { permissions: Permission[] };
+```
+
+## Constants
+
+Mọi hằng số (số, chuỗi cố định, config dùng lại) đặt trong file constant, không viết trực tiếp trong code.
+
+```typescript
+// ❌ BAD
+if (password.length < 8) ...
+const MAX = 100;
+
+// ✅ GOOD - constants/validation.ts
+export const PASSWORD_MIN_LENGTH = 8;
+export const MAX_PAGINATION_SIZE = 100;
+```
+
+## Enums
+
+- Ưu tiên enum từ Prisma cho dữ liệu DB.
+- Dùng TypeScript enum (hoặc const object as const) cho tập giá trị cố định trong code (status, type, role...).
+
+```typescript
+// ✅ GOOD - Prisma enum
+import { UserRole } from '@prisma/client';
+
+// ✅ GOOD - Enum khi không có trong Prisma
+enum ApiErrorCode {
+  UNAUTHORIZED = 'UNAUTHORIZED',
+  RATE_LIMIT = 'RATE_LIMIT',
+}
+
+// ✅ GOOD - Const object
+const ORDER_STATUS = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+} as const;
+type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
+```
+
+## Prisma Enums
+
+- Dùng enum được generate từ Prisma khi có sẵn.
+- Không tạo enum TS trùng với enum Prisma.
+
+```typescript
+// ✅ GOOD - Import từ Prisma
+import { UserRole } from '@prisma/client';
+
+// ❌ BAD - Trùng với Prisma
+enum UserRole {
+  CUSTOMER = 'CUSTOMER',
+  SELLER = 'SELLER',
+}
+```

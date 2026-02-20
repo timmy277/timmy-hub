@@ -1,0 +1,286 @@
+---
+description: NestJS backend patterns and conventions
+globs: timmyhub-nestjs/**/*.ts
+alwaysApply: false
+---
+
+# NestJS Backend Patterns
+
+## API Response Format
+
+All API responses must follow `ResponseDto<T>` pattern. Message (và mọi text trả về cho client) phải qua i18n (translation key), không hardcode chuỗi.
+
+```typescript
+// ✅ GOOD
+@Get(':id')
+@ApiOperation({ summary: 'Get user by ID' })
+async getUser(@Param('id') id: string): Promise<ResponseDto<User>> {
+  const user = await this.userService.findById(id);
+  return {
+    success: true,
+    data: user,
+    message: this.i18n.t('user.retrieved'), // message hiển thị phải qua i18n
+  };
+}
+```
+
+## Error Handling
+
+Always use NestJS exceptions, never throw raw errors:
+
+```typescript
+// ❌ BAD
+if (!user) {
+  throw new Error('User not found');
+}
+
+// ✅ GOOD
+import { NotFoundException } from '@nestjs/common';
+
+if (!user) {
+  throw new NotFoundException('User not found');
+}
+```
+
+## Input Validation
+
+All inputs must be validated using class-validator:
+
+```typescript
+// ✅ GOOD
+import { IsEmail, IsString, MinLength } from 'class-validator';
+
+export class CreateUserDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(8)
+  password: string;
+}
+```
+
+## Database Queries
+
+All DB queries must have error handling:
+
+```typescript
+// ✅ GOOD
+async findById(id: string): Promise<User> {
+  try {
+    return await this.prisma.user.findUniqueOrThrow({
+      where: { id },
+    });
+  } catch (error) {
+    this.logger.error(`Failed to find user ${id}`, error);
+    throw new NotFoundException(`User with ID ${id} not found`);
+  }
+}
+```
+
+## Logging
+
+Never use `console.log`, always use NestJS Logger:
+
+```typescript
+// ❌ BAD
+console.log('User created:', userId);
+
+// ✅ GOOD
+import { Logger } from '@nestjs/common';
+
+private readonly logger = new Logger(UserService.name);
+
+this.logger.log(`User created: ${userId}`);
+this.logger.error('Failed to create user', error);
+```
+
+## Constants & Enums
+
+- Hằng số (số, chuỗi cố định) đặt trong file constant (ví dụ: `constants/*.ts`), không hardcode trong service.
+- Dùng enum cho tập giá trị cố định (status, type, error code...); ưu tiên enum từ Prisma khi có.
+
+```typescript
+// constants/bcrypt.constants.ts
+export const BCRYPT_SALT_ROUNDS = 12;
+
+// constants/pagination.ts
+export const DEFAULT_PAGE_SIZE = 20;
+export const MAX_PAGE_SIZE = 100;
+```
+
+## Configuration
+
+Never hardcode values, use ConfigService:
+
+```typescript
+// ❌ BAD
+const apiKey = 'sk-1234567890';
+
+// ✅ GOOD
+import { ConfigService } from '@nestjs/config';
+
+constructor(private configService: ConfigService) {}
+
+const apiKey = this.configService.get<string>('OPENAI_API_KEY');
+```
+
+## Swagger Documentation
+
+All endpoints must have Swagger decorators:
+
+```typescript
+// ✅ GOOD
+@Post()
+@ApiOperation({ summary: 'Create new user' })
+@ApiResponse({ status: 201, description: 'User created successfully' })
+@ApiResponse({ status: 400, description: 'Invalid input' })
+async createUser(@Body() dto: CreateUserDto): Promise<ResponseDto<User>> {
+  // ...
+}
+```
+
+## Password Hashing
+
+Always use bcryptjs with salt rounds = 12:
+
+```typescript
+// ✅ GOOD
+import * as bcrypt from 'bcryptjs';
+
+import { BCRYPT_SALT_ROUNDS } from '../constants/bcrypt.constants';
+const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+const isValid = await bcrypt.compare(password, hashedPassword);
+```
+
+## Code Review & Optimization Suggestions
+
+**QUAN TRỌNG**: Khi làm việc với code, nếu thấy các trường hợp sau, **PHẢI NHẮC NGAY** cho user:
+
+### 1. Code thủ công khi có thể dùng library/tool
+
+```typescript
+// ❌ BAD - Code thủ công
+function hashPassword(password: string) {
+  // Manual hash implementation
+}
+
+// ✅ GOOD - Dùng bcryptjs (đã có trong project)
+import * as bcrypt from 'bcryptjs';
+const hashed = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+```
+
+**Nhắc khi thấy:**
+- Hash password thủ công → Dùng `bcryptjs` (đã có)
+- JWT thủ công → Dùng `@nestjs/jwt`
+- Validation thủ công → Dùng `class-validator` (đã có)
+- Date manipulation thủ công → Dùng `date-fns` hoặc `dayjs`
+- Slug generation thủ công → Dùng `slugify` library
+- File upload thủ công → Dùng `@nestjs/platform-express` multer
+- Email sending thủ công → Dùng `@nestjs-modules/mailer` hoặc service như SendGrid
+
+### 2. Công nghệ cũ khi có phiên bản mới tốt hơn
+
+**Nhắc khi thấy:**
+- `any` type → Fix type đúng (TUYỆT ĐỐI không any)
+- Raw SQL queries → Dùng Prisma ORM (đã có)
+- Manual error handling → Dùng NestJS Exception filters
+- Manual validation → Dùng class-validator decorators (đã có)
+- Manual logging → Dùng NestJS Logger (đã có)
+- Manual config → Dùng ConfigService (đã có)
+- Manual pagination → Dùng Prisma pagination helpers
+- Manual transactions → Dùng Prisma `$transaction`
+
+### 3. Code lặp lại khi có thể dùng pattern/abstraction
+
+```typescript
+// ❌ BAD - Code lặp lại
+async findUser(id: string) {
+  try {
+    return await this.prisma.user.findUniqueOrThrow({ where: { id } });
+  } catch (error) {
+    throw new NotFoundException(`User ${id} not found`);
+  }
+}
+
+async findProduct(id: string) {
+  try {
+    return await this.prisma.product.findUniqueOrThrow({ where: { id } });
+  } catch (error) {
+    throw new NotFoundException(`Product ${id} not found`);
+  }
+}
+
+// ✅ GOOD - Tạo base service hoặc generic helper
+class BaseService<T> {
+  async findById(id: string, model: string): Promise<T> {
+    try {
+      return await this.prisma[model].findUniqueOrThrow({ where: { id } });
+    } catch (error) {
+      throw new NotFoundException(`${model} ${id} not found`);
+    }
+  }
+}
+```
+
+**Nhắc khi thấy:**
+- CRUD operations lặp lại → Tạo base service hoặc dùng NestJS CRUD generator
+- Error handling pattern giống nhau → Tạo exception filter
+- Validation pattern giống nhau → Tạo custom validator decorator
+- Response format giống nhau → Tạo interceptor
+
+### 4. Performance issues
+
+**Nhắc khi thấy:**
+- N+1 queries → Dùng Prisma `include` hoặc batch queries
+- Không có pagination → Thêm pagination cho list endpoints
+- Không có caching → Dùng Redis cache (đã có)
+- Không có indexing → Thêm Prisma `@@index`
+- Heavy computation trong request → Move ra background job (BullMQ)
+- Large response → Thêm pagination hoặc field selection
+- Sequential database calls → Dùng `Promise.all` hoặc Prisma batch
+
+### 5. Có thể dùng NestJS features tốt hơn
+
+**Nhắc khi thấy:**
+- Manual dependency injection → Dùng NestJS DI (đã có)
+- Manual middleware → Dùng NestJS middleware decorator
+- Manual guards → Dùng NestJS guards (đã có cho auth)
+- Manual interceptors → Dùng NestJS interceptors cho logging/transformation
+- Manual pipes → Dùng NestJS pipes cho validation/transformation
+- Manual exception filters → Dùng NestJS exception filters
+- Manual modules → Dùng NestJS modules (đã có)
+
+### 6. Security issues
+
+**Nhắc khi thấy:**
+- Raw SQL queries → Có thể SQL injection, dùng Prisma
+- Không validate input → Dùng class-validator (đã có)
+- Không check permissions → Dùng @Permissions decorator (đã có)
+- Hardcoded secrets → Dùng ConfigService/env
+- Không rate limit → Thêm rate limiting
+- Không sanitize output → Sanitize user input/output
+
+### Ví dụ cách nhắc:
+
+```
+⚠️ **Gợi ý tối ưu**: 
+- Bạn đang hash password thủ công. Nên dùng `bcryptjs`: `await bcrypt.hash(password, BCRYPT_SALT_ROUNDS)`
+- Query này có N+1 problem, nên dùng Prisma `include` hoặc batch
+- Logic này lặp lại ở nhiều service, nên tạo base service hoặc helper
+- Endpoint này không có pagination, nên thêm pagination cho performance
+```
+
+## Backend Checklist
+
+Every service method must have:
+- [ ] Clear return type
+- [ ] Typed parameters
+- [ ] Error handling with NestJS exceptions
+- [ ] Input validation via DTO
+- [ ] Permission check via @Permissions decorator
+- [ ] Audit log for important actions
+- [ ] Cache invalidation when data changes
+- [ ] Notification trigger when needed
+- [ ] Transaction for multi-step operations
+- [ ] Pagination for list endpoints

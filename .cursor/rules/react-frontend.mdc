@@ -1,0 +1,852 @@
+---
+description: React/Next.js frontend patterns and conventions
+globs: timmyhub-nextjs/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# React/Next.js Frontend Patterns
+
+## Component Props
+
+Luôn định nghĩa interface cho props; TUYỆT ĐỐI không dùng `any`:
+
+```typescript
+// ❌ BAD
+function UserCard(props: any) {
+  return <div>{props.name}</div>;
+}
+
+// ✅ GOOD
+interface UserCardProps {
+  user: User;
+  onEdit?: (id: string) => void;
+}
+
+function UserCard({ user, onEdit }: UserCardProps) {
+  return (
+    <div>
+      <h3>{user.name}</h3>
+      {onEdit && <button onClick={() => onEdit(user.id)}>Edit</button>}
+    </div>
+  );
+}
+```
+
+## State Management
+
+- Server state: Use React Query (TanStack Query)
+- Client state: Use Zustand
+
+```typescript
+// ✅ GOOD - Server state with React Query
+import { useQuery } from '@tanstack/react-query';
+
+function UserList() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => userService.getAll(),
+  });
+  // ...
+}
+
+// ✅ GOOD - Client state with Zustand
+import { create } from 'zustand';
+
+interface CartStore {
+  items: CartItem[];
+  addItem: (item: CartItem) => void;
+}
+
+const useCartStore = create<CartStore>((set) => ({
+  items: [],
+  addItem: (item) => set((state) => ({ items: [...state.items, item] })),
+}));
+```
+
+## API Calls
+
+Never call API directly in components, always use service layer:
+
+```typescript
+// ❌ BAD
+function UserList() {
+  useEffect(() => {
+    fetch('/api/users').then(res => res.json());
+  }, []);
+}
+
+// ✅ GOOD
+// services/user.service.ts
+export const userService = {
+  getAll: async (): Promise<User[]> => {
+    const response = await api.get<ResponseDto<User[]>>('/users');
+    return response.data.data;
+  },
+};
+
+// components/UserList.tsx
+function UserList() {
+  const { data } = useQuery({
+    queryKey: ['users'],
+    queryFn: userService.getAll,
+  });
+}
+```
+
+## Component Architecture
+
+### Chia nhỏ component hợp lý
+
+- Mỗi component chỉ làm 1 việc (Single Responsibility).
+- Tách UI component (presentational) và logic component (container).
+- Component nhỏ hơn 200 dòng; nếu lớn hơn → tách nhỏ.
+
+```typescript
+// ❌ BAD - Component quá lớn, làm nhiều việc
+function ProductPage() {
+  // 500+ dòng code với nhiều logic
+}
+
+// ✅ GOOD - Chia nhỏ
+// components/product/ProductHeader.tsx
+function ProductHeader({ product }: { product: Product }) { ... }
+
+// components/product/ProductGallery.tsx
+function ProductGallery({ images }: { images: string[] }) { ... }
+
+// components/product/ProductInfo.tsx
+function ProductInfo({ product }: { product: Product }) { ... }
+
+// app/products/[id]/page.tsx
+export default async function ProductPage({ params }: { params: { id: string } }) {
+  const product = await getProduct(params.id);
+  return (
+    <div>
+      <ProductHeader product={product} />
+      <ProductGallery images={product.images} />
+      <ProductInfo product={product} />
+    </div>
+  );
+}
+```
+
+### Server Components vs Client Components
+
+**Mặc định dùng Server Component** (không cần 'use client'). Chỉ dùng Client Component khi:
+- Cần interactivity (onClick, onChange, useState, useEffect)
+- Cần browser APIs (localStorage, window, document)
+- Cần hooks (useState, useEffect, useContext)
+- Cần event listeners
+
+```typescript
+// ✅ GOOD - Server Component (mặc định)
+// app/products/page.tsx
+export default async function ProductsPage() {
+  const products = await getProducts(); // Fetch từ server
+  return <ProductList products={products} />;
+}
+
+// ✅ GOOD - Client Component (cần interactivity)
+// components/ProductCard.tsx
+'use client';
+
+import { useState } from 'react';
+
+export function ProductCard({ product }: { product: Product }) {
+  const [liked, setLiked] = useState(false);
+  return (
+    <Card onClick={() => setLiked(!liked)}>
+      {product.name}
+    </Card>
+  );
+}
+
+// ✅ GOOD - Hybrid: Server fetch, Client interact
+// app/products/page.tsx
+export default async function ProductsPage() {
+  const products = await getProducts(); // Server fetch
+  return <ProductListClient products={products} />; // Pass data to client
+}
+
+// components/ProductListClient.tsx
+'use client';
+export function ProductListClient({ products }: { products: Product[] }) {
+  const [filter, setFilter] = useState('');
+  return <div>{/* Interactive UI */}</div>;
+}
+```
+
+## Data Fetching Strategy
+
+### SSR (Server-Side) - Ưu tiên cho:
+- **SEO-critical data**: Product details, category pages, blog posts
+- **Initial page load**: Homepage, product listing
+- **Public data**: Categories, featured products, static content
+- **User-agnostic data**: Không phụ thuộc user session
+
+```typescript
+// ✅ GOOD - SSR cho SEO
+// app/products/[id]/page.tsx
+export default async function ProductPage({ params }: { params: { id: string } }) {
+  const product = await getProduct(params.id); // Server fetch
+  return <ProductDetails product={product} />;
+}
+
+// ✅ GOOD - SSR cho initial load
+// app/page.tsx
+export default async function HomePage() {
+  const [featured, categories] = await Promise.all([
+    getFeaturedProducts(),
+    getCategories(),
+  ]);
+  return <HomePageClient featured={featured} categories={categories} />;
+}
+```
+
+### CSR (Client-Side) - Dùng cho:
+- **User-specific data**: Cart, wishlist, user profile (sau khi auth)
+- **Real-time updates**: Notifications, chat, live data
+- **Interactive filters**: Search, filters, pagination (sau initial load)
+- **Heavy computations**: Charts, analytics (không block initial render)
+
+```typescript
+// ✅ GOOD - CSR cho user data
+'use client';
+function UserCart() {
+  const { data: cart } = useQuery({
+    queryKey: ['cart'],
+    queryFn: () => cartService.getMyCart(),
+  });
+  return <CartItems items={cart} />;
+}
+
+// ✅ GOOD - CSR cho filters (sau SSR initial)
+'use client';
+function ProductFilters({ initialProducts }: { initialProducts: Product[] }) {
+  const [filters, setFilters] = useState({});
+  const { data: filtered } = useQuery({
+    queryKey: ['products', filters],
+    queryFn: () => productService.search(filters),
+    initialData: initialProducts, // Use SSR data as initial
+  });
+  return <ProductList products={filtered} />;
+}
+```
+
+### Quy tắc chọn SSR vs CSR:
+
+1. **Có thể SSR?** → Dùng SSR (tốt cho SEO, performance)
+2. **Cần interactivity?** → Client Component với data từ Server
+3. **User-specific?** → CSR sau khi auth
+4. **Real-time?** → CSR với WebSocket/Socket.io
+
+## Query Optimization
+
+### Tối ưu React Query:
+
+```typescript
+// ✅ GOOD - Query key đúng, staleTime hợp lý
+const { data } = useQuery({
+  queryKey: ['products', categoryId, page], // Specific key
+  queryFn: () => productService.getByCategory(categoryId, page),
+  staleTime: 5 * 60 * 1000, // 5 phút cho data ít thay đổi
+  gcTime: 10 * 60 * 1000, // Cache 10 phút
+});
+
+// ✅ GOOD - Parallel queries
+const { data: products, data: categories } = useQueries({
+  queries: [
+    { queryKey: ['products'], queryFn: getProducts },
+    { queryKey: ['categories'], queryFn: getCategories },
+  ],
+});
+
+// ✅ GOOD - Prefetch cho navigation
+const queryClient = useQueryClient();
+const prefetchProduct = (id: string) => {
+  queryClient.prefetchQuery({
+    queryKey: ['product', id],
+    queryFn: () => getProduct(id),
+  });
+};
+
+// ❌ BAD - Query không tối ưu
+const { data } = useQuery({
+  queryKey: ['data'], // Key quá generic
+  queryFn: fetchAll, // Fetch quá nhiều data
+  staleTime: 0, // Luôn refetch
+});
+```
+
+### Tối ưu Server Components:
+
+```typescript
+// ✅ GOOD - Parallel fetching
+export default async function Page() {
+  const [products, categories, banners] = await Promise.all([
+    getProducts(),
+    getCategories(),
+    getBanners(),
+  ]);
+  return <HomePage products={products} categories={categories} banners={banners} />;
+}
+
+// ✅ GOOD - Selective data fetching
+export default async function ProductCard({ id }: { id: string }) {
+  const product = await getProduct(id, { 
+    select: { id: true, name: true, price: true, image: true } // Chỉ fetch cần thiết
+  });
+  return <Card product={product} />;
+}
+
+// ❌ BAD - Sequential fetching
+export default async function Page() {
+  const products = await getProducts(); // Chờ xong
+  const categories = await getCategories(); // Rồi mới fetch tiếp
+  return <Page products={products} categories={categories} />;
+}
+```
+
+## Performance Best Practices
+
+### Checklist khi code component:
+
+- [ ] **Component size**: < 200 dòng, nếu lớn → tách nhỏ
+- [ ] **Server vs Client**: Mặc định Server Component, chỉ 'use client' khi cần
+- [ ] **Data fetching**: SSR cho SEO/public data, CSR cho user-specific/real-time
+- [ ] **Query keys**: Specific, không generic
+- [ ] **Parallel fetching**: Dùng Promise.all() thay vì sequential
+- [ ] **Selective fields**: Chỉ fetch data cần thiết (Prisma select)
+- [ ] **StaleTime**: Set hợp lý (5-10 phút cho static data)
+- [ ] **Prefetch**: Prefetch data khi hover vào link
+- [ ] **Code splitting**: Dynamic import cho heavy components
+- [ ] **Memoization**: useMemo/useCallback cho expensive computations
+
+```typescript
+// ✅ GOOD - Dynamic import
+const HeavyChart = dynamic(() => import('./HeavyChart'), {
+  loading: () => <Skeleton height={400} />,
+  ssr: false, // Không cần SSR cho chart
+});
+
+// ✅ GOOD - Memoization
+const expensiveValue = useMemo(() => {
+  return computeExpensive(data);
+}, [data]);
+
+const handleClick = useCallback((id: string) => {
+  onSelect(id);
+}, [onSelect]);
+```
+
+## Internationalization
+
+All display strings must use i18n:
+
+```typescript
+// ❌ BAD
+<h1>Welcome to TimmyHub</h1>
+
+// ✅ GOOD
+import { useTranslation } from 'react-i18next';
+
+function WelcomePage() {
+  const { t } = useTranslation();
+  return <h1>{t('welcome.title')}</h1>;
+}
+```
+
+## Styling
+
+Dùng Mantine + Tailwind CSS. **KHÔNG** dùng Styled Components. **KHÔNG** dùng inline style.
+
+```typescript
+// ✅ GOOD - Mantine + Tailwind class
+import { Button, Card } from '@mantine/core';
+
+<Card className="rounded-2xl bg-linear-to-br from-indigo-500 to-purple-600 shadow-lg">
+  <Button className="mt-4 w-full">Submit</Button>
+</Card>
+
+// ❌ BAD - Inline style
+<div style={{ padding: 16, borderRadius: 8 }}>
+
+// ❌ BAD - Styled Components
+import styled from 'styled-components';
+const CustomCard = styled(Card)`...`;
+```
+
+## Text & Translation
+
+Mọi text hiển thị cho user **bắt buộc** qua i18n. Thêm text mới thì phải thêm key dịch (translation).
+
+```typescript
+// ❌ BAD
+<button>Submit</button>
+<span>Welcome to TimmyHub</span>
+
+// ✅ GOOD
+const { t } = useTranslation();
+<button>{t('common.submit')}</button>
+<span>{t('welcome.title')}</span>
+```
+
+## Constants & Enums
+
+- Magic number/string đặt trong file constant (ví dụ: `constants/validation.ts`, `constants/routes.ts`).
+- Tập giá trị cố định (status, type, role...) dùng enum hoặc const object as const.
+
+```typescript
+// constants/validation.ts
+export const PASSWORD_MIN_LENGTH = 8;
+export const MAX_FILE_SIZE_MB = 5;
+
+// constants/status.ts hoặc dùng enum
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  SHIPPED = 'SHIPPED',
+}
+```
+
+## Component Checklist
+
+Every component must have:
+- [ ] TypeScript interface for props (TUYỆT ĐỐI không `any`)
+- [ ] Component size < 200 dòng (nếu lớn → tách nhỏ)
+- [ ] Xác định Server Component hay Client Component ('use client' chỉ khi cần)
+- [ ] Data fetching strategy (SSR vs CSR) hợp lý
+- [ ] Loading state (Skeleton)
+- [ ] Error state (và Error Boundary nếu cần)
+- [ ] Empty state
+- [ ] Responsive (Mobile first)
+- [ ] Mọi text qua i18n (có translation)
+- [ ] Accessibility (ARIA)
+- [ ] React Query cho CSR (với query key specific, staleTime hợp lý)
+- [ ] Mantine + Tailwind (không inline style, không Styled Components)
+- [ ] Query optimization (parallel fetch, selective fields, prefetch)
+- [ ] Form: Mantine Form + Zod validation (nếu là form)
+- [ ] Image: Next.js Image component (không dùng <img>)
+- [ ] SEO: Metadata cho page (static hoặc generateMetadata)
+- [ ] Route protection: Check auth/authorization nếu là protected route
+
+## Form Handling
+
+Dùng Mantine Form + Zod validation. Mọi form phải có validation và error handling.
+
+```typescript
+// ✅ GOOD - Mantine Form + Zod
+import { useForm } from '@mantine/form';
+import { zodResolver } from 'mantine-form-zod-resolver';
+import { z } from 'zod';
+import { TextInput, Button } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
+
+const schema = z.object({
+  email: z.string().email('validation.email.invalid'),
+  password: z.string().min(8, 'validation.password.min'),
+});
+
+export function LoginForm() {
+  const { t } = useTranslation();
+  const form = useForm({
+    initialValues: { email: '', password: '' },
+    validate: zodResolver(schema),
+    transformValues: (values) => schema.parse(values),
+  });
+
+  return (
+    <form onSubmit={form.onSubmit(handleSubmit)}>
+      <TextInput
+        label={t('form.email')}
+        {...form.getInputProps('email')}
+        error={form.errors.email && t(form.errors.email)}
+      />
+      <Button type="submit">{t('common.submit')}</Button>
+    </form>
+  );
+}
+
+// ❌ BAD - Không có validation
+function LoginForm() {
+  const [email, setEmail] = useState('');
+  return <input value={email} onChange={(e) => setEmail(e.target.value)} />;
+}
+```
+
+## Error Boundaries
+
+Dùng Error Boundary cho error handling toàn cục. Mỗi route/page nên có error boundary.
+
+```typescript
+// ✅ GOOD - Error Boundary
+'use client';
+
+import { Component, ReactNode } from 'react';
+import { Button } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
+
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+}
+
+export class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): State {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || <ErrorFallback />;
+    }
+    return this.props.children;
+  }
+}
+
+function ErrorFallback() {
+  const { t } = useTranslation();
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1>{t('error.somethingWentWrong')}</h1>
+      <Button onClick={() => window.location.reload()}>
+        {t('common.reload')}
+      </Button>
+    </div>
+  );
+}
+```
+
+## AG Grid Patterns
+
+Mọi AG Grid table phải có: typed column defs, server-side operations, custom renderers.
+
+```typescript
+// ✅ GOOD - AG Grid với types và server-side
+import { AgGridReact } from 'ag-grid-react';
+import { ColDef } from 'ag-grid-community';
+import { useQuery } from '@tanstack/react-query';
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+}
+
+const columnDefs: ColDef<Product>[] = [
+  { field: 'name', headerName: 'Tên sản phẩm', sortable: true, filter: true },
+  { 
+    field: 'price', 
+    headerName: 'Giá',
+    cellRenderer: (params: { value: number }) => {
+      return `${params.value.toLocaleString('vi-VN')} đ`;
+    },
+  },
+  { field: 'stock', headerName: 'Tồn kho', type: 'numberColumn' },
+];
+
+export function ProductTable() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: () => productService.getAll(),
+  });
+
+  return (
+    <div className="ag-theme-alpine h-[600px]">
+      <AgGridReact
+        rowData={data}
+        columnDefs={columnDefs}
+        pagination={true}
+        paginationPageSize={20}
+        loading={isLoading}
+        rowSelection="multiple"
+        onGridReady={(params) => {
+          params.api.sizeColumnsToFit();
+        }}
+      />
+    </div>
+  );
+}
+```
+
+## Route Protection
+
+Protected routes phải check authentication/authorization. Dùng middleware hoặc HOC.
+
+```typescript
+// ✅ GOOD - Route protection với middleware
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('auth-token');
+  
+  if (!token && request.nextUrl.pathname.startsWith('/admin')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/admin/:path*', '/dashboard/:path*'],
+};
+
+// ✅ GOOD - Component-level protection
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+
+export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) return <LoadingSkeleton />;
+  if (!user) return null;
+  
+  return <>{children}</>;
+}
+```
+
+## Image Optimization
+
+Luôn dùng Next.js Image component, không dùng `<img>` tag.
+
+```typescript
+// ✅ GOOD - Next.js Image
+import Image from 'next/image';
+
+<Image
+  src={product.image}
+  alt={product.name}
+  width={400}
+  height={400}
+  className="rounded-lg"
+  priority={isAboveFold} // Cho ảnh trên fold
+  placeholder="blur"
+  blurDataURL={blurDataUrl}
+/>
+
+// ❌ BAD - HTML img tag
+<img src={product.image} alt={product.name} />
+```
+
+## SEO Patterns
+
+Mọi page phải có metadata. Dùng generateMetadata cho dynamic pages.
+
+```typescript
+// ✅ GOOD - Static metadata
+export const metadata = {
+  title: 'TimmyHub - Tìm mọi thứ',
+  description: 'Sàn thương mại điện tử đa vai trò',
+  openGraph: {
+    title: 'TimmyHub',
+    description: 'Tìm mọi thứ bạn cần',
+    images: ['/og-image.jpg'],
+  },
+};
+
+// ✅ GOOD - Dynamic metadata
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const product = await getProduct(params.id);
+  return {
+    title: product.name,
+    description: product.description,
+    openGraph: {
+      images: [product.image],
+    },
+  };
+}
+```
+
+## File Upload Patterns
+
+File upload phải có validation (size, type), preview, và error handling.
+
+```typescript
+// ✅ GOOD - File upload với validation
+'use client';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { MAX_FILE_SIZE_MB, ALLOWED_IMAGE_TYPES } from '@/constants/upload';
+
+export function ImageUpload({ onUpload }: { onUpload: (file: File) => void }) {
+  const { t } = useTranslation();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileChange = (file: File | null) => {
+    if (!file) return;
+
+    // Validate size
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      setError(t('upload.error.size', { max: MAX_FILE_SIZE_MB }));
+      return;
+    }
+
+    // Validate type
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError(t('upload.error.type'));
+      return;
+    }
+
+    setError(null);
+    onUpload(file);
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={(e) => handleFileChange(e.target.files?.[0] || null)} />
+      {error && <span className="text-red-500">{error}</span>}
+    </div>
+  );
+}
+```
+
+## Code Review & Optimization Suggestions
+
+**QUAN TRỌNG**: Khi làm việc với code, nếu thấy các trường hợp sau, **PHẢI NHẮC NGAY** cho user:
+
+### 1. Code thủ công khi có thể dùng library/tool
+
+```typescript
+// ❌ BAD - Code thủ công
+function formatDate(date: Date) {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+// ✅ GOOD - Dùng date-fns hoặc dayjs
+import { format } from 'date-fns';
+format(date, 'dd/MM/yyyy');
+```
+
+**Nhắc khi thấy:**
+- Format date/time thủ công → Dùng `date-fns` hoặc `dayjs`
+- Parse URL thủ công → Dùng `URL` API hoặc library
+- Debounce/throttle thủ công → Dùng `lodash.debounce` hoặc `use-debounce` hook
+- Deep clone thủ công → Dùng `structuredClone` hoặc `lodash.cloneDeep`
+- Slug generation thủ công → Dùng `slugify` library
+- Validation thủ công → Dùng Zod/Yup (đã có trong project)
+
+### 2. Công nghệ cũ khi có phiên bản mới tốt hơn
+
+**Nhắc khi thấy:**
+- `useEffect` + `useState` cho data fetching → Dùng React Query (đã có)
+- Class components → Chuyển sang functional components + hooks
+- `fetch` API trực tiếp → Dùng service layer (đã có)
+- `any` type → Fix type đúng (TUYỆT ĐỐI không any)
+- Inline styles → Dùng Tailwind classes
+- Styled Components → Dùng Tailwind (đã có rule)
+- `createContext` + `useContext` cho global state → Dùng Zustand (đã có)
+- Manual pagination → Dùng React Query với pagination
+- Manual cache → Dùng React Query cache (đã có)
+
+### 3. Code lặp lại khi có thể dùng pattern/abstraction
+
+```typescript
+// ❌ BAD - Code lặp lại
+function UserCard({ user }: { user: User }) {
+  const { data: avatar } = useQuery({
+    queryKey: ['avatar', user.id],
+    queryFn: () => fetchAvatar(user.id),
+  });
+  // ...
+}
+
+function ProductCard({ product }: { product: Product }) {
+  const { data: image } = useQuery({
+    queryKey: ['image', product.id],
+    queryFn: () => fetchImage(product.id),
+  });
+  // ...
+}
+
+// ✅ GOOD - Tạo custom hook
+function useImage(id: string, type: 'avatar' | 'product') {
+  return useQuery({
+    queryKey: [type, id],
+    queryFn: () => type === 'avatar' ? fetchAvatar(id) : fetchImage(id),
+  });
+}
+```
+
+**Nhắc khi thấy:**
+- Logic lặp lại > 2 lần → Tạo custom hook hoặc utility function
+- Component structure giống nhau → Tạo base component hoặc HOC
+- API call pattern giống nhau → Tạo generic service function
+- Form validation giống nhau → Tạo shared schema hoặc validation helper
+
+### 4. Performance issues
+
+**Nhắc khi thấy:**
+- Component re-render không cần thiết → Dùng `React.memo`, `useMemo`, `useCallback`
+- Fetch data không cần thiết → Dùng `enabled` trong React Query
+- Large bundle size → Dùng dynamic import (`next/dynamic`)
+- N+1 queries → Batch queries hoặc dùng `Promise.all`
+- Heavy computation trong render → Dùng `useMemo` hoặc move ra `useEffect`
+- Large list không virtualized → Dùng `react-window` hoặc `@tanstack/react-virtual`
+
+### 5. Có thể dùng Next.js features tốt hơn
+
+**Nhắc khi thấy:**
+- Client-side routing thủ công → Dùng Next.js `Link` component
+- Manual loading state → Dùng Next.js `loading.tsx`
+- Manual error handling → Dùng Next.js `error.tsx`
+- Manual metadata → Dùng `metadata` hoặc `generateMetadata`
+- Manual image optimization → Dùng Next.js `Image` component
+- Manual API routes → Dùng Server Actions (Next.js 14+)
+
+### 6. Có thể dùng Mantine features tốt hơn
+
+**Nhắc khi thấy:**
+- Custom modal/dialog → Dùng `@mantine/core` Modal
+- Custom notification → Dùng `@mantine/notifications`
+- Custom date picker → Dùng `@mantine/dates`
+- Custom form → Dùng `@mantine/form` (đã có rule)
+- Custom table → Dùng Mantine Table hoặc AG Grid (đã có)
+
+### Ví dụ cách nhắc:
+
+```
+⚠️ **Gợi ý tối ưu**: 
+- Bạn đang format date thủ công. Có thể dùng `date-fns`: `format(date, 'dd/MM/yyyy')`
+- Component này re-render nhiều, nên dùng `React.memo` hoặc `useMemo`
+- Logic này lặp lại ở 3 nơi, nên tạo custom hook `useImage()`
+```
+
+## File Comments
+
+Every file must have a comment describing its purpose:
+
+```typescript
+/**
+ * UserCard Component
+ *
+ * Displays user information card with edit functionality
+ * Used in user list and profile pages
+ */
+import { User } from '@/types/user';
+
+// ... component code
+```
