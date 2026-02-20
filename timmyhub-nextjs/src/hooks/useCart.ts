@@ -38,6 +38,7 @@ export function useCart() {
         data: cart = EMPTY_CART,
         isLoading,
         error,
+        refetch: refetchCart,
     } = useQuery({
         queryKey: CART_QUERY_KEY,
         queryFn: async () => {
@@ -138,6 +139,7 @@ export function useCart() {
         cart,
         isLoading,
         error,
+        refetch: refetchCart,
         addToCart: addToCart.mutateAsync,
         updateQuantity: updateQuantity.mutateAsync,
         updateQuantityOptimistic,

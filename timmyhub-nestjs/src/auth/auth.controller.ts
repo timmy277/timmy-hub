@@ -7,8 +7,21 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResponseDto } from '../common/dto/response.dto';
 import type { Request, Response } from 'express';
+import type { CookieOptions } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import type { UserRequest } from './interfaces/auth.interface';
+
+function getCookieOptions(configService: ConfigService, maxAge: number): CookieOptions {
+    const crossSite =
+        configService.get<string>('COOKIE_SAME_SITE_NONE') === 'true' ||
+        configService.get<string>('COOKIE_CROSS_SITE') === 'true';
+    return {
+        httpOnly: true,
+        secure: crossSite || process.env.NODE_ENV === 'production',
+        sameSite: crossSite ? ('none' as const) : ('lax' as const),
+        maxAge,
+    };
+}
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -36,24 +49,18 @@ export class AuthController {
         const userAgent = req.headers['user-agent'] || 'unknown';
         const result = await this.authService.login(dto, ip, userAgent);
 
-        // Set cookies
         const accessMaxAge = this.authService.getAccessCookieMaxAge();
         const refreshMaxAge = this.authService.getRefreshCookieMaxAge();
-
-        res.cookie('access_token', result.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: accessMaxAge,
-        });
-
-        res.cookie('refresh_token', result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: refreshMaxAge,
-        });
-
+        res.cookie(
+            'access_token',
+            result.accessToken,
+            getCookieOptions(this.configService, accessMaxAge),
+        );
+        res.cookie(
+            'refresh_token',
+            result.refreshToken,
+            getCookieOptions(this.configService, refreshMaxAge),
+        );
         return ResponseDto.success('Đăng nhập thành công', result);
     }
 
@@ -65,21 +72,16 @@ export class AuthController {
 
         const accessMaxAge = this.authService.getAccessCookieMaxAge();
         const refreshMaxAge = this.authService.getRefreshCookieMaxAge();
-
-        res.cookie('access_token', result.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: accessMaxAge,
-        });
-
-        res.cookie('refresh_token', result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: refreshMaxAge,
-        });
-
+        res.cookie(
+            'access_token',
+            result.accessToken,
+            getCookieOptions(this.configService, accessMaxAge),
+        );
+        res.cookie(
+            'refresh_token',
+            result.refreshToken,
+            getCookieOptions(this.configService, refreshMaxAge),
+        );
         return ResponseDto.success('Làm mới token thành công', result);
     }
 
@@ -89,8 +91,9 @@ export class AuthController {
         const refreshToken = (req.cookies as Record<string, string>)['refresh_token'];
         await this.authService.logout(refreshToken);
 
-        res.clearCookie('access_token');
-        res.clearCookie('refresh_token');
+        const opts = getCookieOptions(this.configService, 0);
+        res.clearCookie('access_token', { path: '/', ...opts });
+        res.clearCookie('refresh_token', { path: '/', ...opts });
 
         return ResponseDto.success('Đăng xuất thành công');
     }

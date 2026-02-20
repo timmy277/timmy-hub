@@ -310,7 +310,7 @@ export function CartPage() {
                             </Text>
                         </Group>
 
-                        <Button size="lg" fullWidth mt="md">
+                        <Button component={Link} href="/checkout" size="lg" fullWidth mt="md">
                             Thanh toán
                         </Button>
 

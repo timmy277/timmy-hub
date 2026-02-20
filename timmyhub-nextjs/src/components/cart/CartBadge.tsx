@@ -150,19 +150,19 @@ export function CartBadge() {
                             ))}
                         </Stack>
                         <Divider />
-                        <Group justify="space-between" p="md">
+                        <Group justify="space-between" p="md" wrap="wrap" gap="xs">
                             <Text size="sm" fw={600}>
                                 Tạm tính:{' '}
                                 {cart?.totalAmount?.toLocaleString() ?? 0}đ
                             </Text>
-                            <Button
-                                component={Link}
-                                href="/cart"
-                                size="sm"
-                                variant="filled"
-                            >
-                                Xem giỏ hàng
-                            </Button>
+                            <Group gap="xs">
+                                <Button component={Link} href="/cart" size="sm" variant="light">
+                                    Xem giỏ hàng
+                                </Button>
+                                <Button component={Link} href="/checkout" size="sm" variant="filled">
+                                    Thanh toán
+                                </Button>
+                            </Group>
                         </Group>
                     </>
                 )}
