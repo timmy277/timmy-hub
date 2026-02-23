@@ -1,16 +1,27 @@
-import { Controller, Get, Param, Post, Body, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Param, Post, Body, UseGuards, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { User } from '@prisma/client';
 import { ResponseDto } from '../common/dto/response.dto';
+import { OrderStatus } from '@prisma/client';
 
 @ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) {}
+
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Danh sách đơn hàng của tôi' })
+    @ApiQuery({ name: 'status', required: false, enum: OrderStatus })
+    async findAll(@CurrentUser() user: User, @Query('status') status?: OrderStatus) {
+        const orders = await this.ordersService.findAll(user.id, status);
+        return ResponseDto.success('OK', orders);
+    }
 
     @Post('from-cart')
     @UseGuards(JwtAuthGuard)

@@ -49,7 +49,7 @@ function PaymentResultContent() {
                     )}
                     <Group justify="center" mt="md">
                         {orderId && (
-                            <Button component={Link} href={`/orders/${orderId}`} variant="light">
+                            <Button component={Link} href={`/profile/orders/${orderId}`} variant="light">
                                 Xem đơn hàng
                             </Button>
                         )}

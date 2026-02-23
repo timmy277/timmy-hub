@@ -118,9 +118,14 @@ export function OrderDetailPage() {
                 </Group>
             </Paper>
 
-            <Button component={Link} href="/" variant="light" mt="lg">
-                Về trang chủ
-            </Button>
+            <Group mt="lg" gap="sm">
+                <Button component={Link} href="/profile/orders" variant="light">
+                    Đơn hàng của tôi
+                </Button>
+                <Button component={Link} href="/" variant="subtle">
+                    Về trang chủ
+                </Button>
+            </Group>
         </Container>
     );
 }

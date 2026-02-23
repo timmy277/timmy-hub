@@ -1,5 +1,6 @@
-import { OrderDetailPage } from '@/features/orders/OrderDetailPage';
+import { redirect } from 'next/navigation';
 
-export default function Page() {
-    return <OrderDetailPage />;
+export default async function OrderDetailRedirect({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    redirect(`/profile/orders/${id}`);
 }

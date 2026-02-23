@@ -84,6 +84,18 @@ export class OrdersService {
         return order!;
     }
 
+    async findAll(userId: string, status?: OrderStatus) {
+        const where: { userId: string; status?: OrderStatus } = { userId };
+        if (status) where.status = status;
+
+        const orders = await this.prisma.order.findMany({
+            where,
+            include: { orderItems: true },
+            orderBy: { createdAt: 'desc' },
+        });
+        return orders;
+    }
+
     async findOne(id: string, userId: string) {
         const order = await this.prisma.order.findFirst({
             where: { id, userId },
