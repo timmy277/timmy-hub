@@ -124,7 +124,11 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
 
                     <Menu.Dropdown>
                         <Menu.Label>{t('common.application')}</Menu.Label>
-                        <Menu.Item leftSection={<IconUser size={16} stroke={1.5} />}>
+                        <Menu.Item
+                            component={Link}
+                            href="/profile"
+                            leftSection={<IconUser size={16} stroke={1.5} />}
+                        >
                             {t('common.profile')}
                         </Menu.Item>
                         <Menu.Item leftSection={<IconSettings size={16} stroke={1.5} />}>

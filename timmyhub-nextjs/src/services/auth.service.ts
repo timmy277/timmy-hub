@@ -7,23 +7,32 @@ export const authService = {
     login: async (data: LoginInput): Promise<ApiResponse<LoginData>> => {
         return axiosClient.post('/auth/login', data);
     },
-    
+
     register: async (data: RegisterInput): Promise<ApiResponse<User>> => {
         return axiosClient.post('/auth/register', data);
     },
-    
+
     getProfile: async (): Promise<ApiResponse<User>> => {
         return axiosClient.get('/auth/profile');
     },
-    
+
+    updateProfile: async (data: {
+        firstName?: string;
+        lastName?: string;
+        displayName?: string;
+        avatar?: string;
+    }): Promise<ApiResponse<User>> => {
+        return axiosClient.patch('/auth/profile', data);
+    },
+
     logout: async (): Promise<ApiResponse<void>> => {
         return axiosClient.delete('/auth/logout');
     },
-    
+
     requestPasswordReset: async (email: string): Promise<ApiResponse<void>> => {
         return axiosClient.post('/auth/forgot-password', { email });
     },
-    
+
     resetPassword: async (token: string, newPassword: string): Promise<ApiResponse<void>> => {
         return axiosClient.post('/auth/reset-password', { token, newPassword });
     },

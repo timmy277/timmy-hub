@@ -1,10 +1,22 @@
-import { Controller, Post, Body, Req, Res, Get, UseGuards, Delete, Param } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    Req,
+    Res,
+    Get,
+    UseGuards,
+    Delete,
+    Param,
+    Patch,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ResponseDto } from '../common/dto/response.dto';
 import type { Request, Response } from 'express';
 import type { CookieOptions } from 'express';
@@ -125,6 +137,15 @@ export class AuthController {
     async getProfile(@Req() req: UserRequest) {
         const profile = await this.authService.getProfile(req.user.id);
         return ResponseDto.success('Lấy thông tin profile thành công', profile);
+    }
+
+    @Patch('profile')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Cập nhật profile người dùng hiện tại' })
+    async updateProfile(@Req() req: UserRequest, @Body() dto: UpdateProfileDto) {
+        const profile = await this.authService.updateProfile(req.user.id, dto);
+        return ResponseDto.success('Cập nhật profile thành công', profile);
     }
 
     @Post('cleanup-expired-tokens')

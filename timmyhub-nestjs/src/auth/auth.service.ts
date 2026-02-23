@@ -10,6 +10,7 @@ import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { RbacService } from '../rbac/rbac.service';
@@ -240,6 +241,49 @@ export class AuthService {
         await this.prisma.refreshToken.deleteMany({
             where: { deviceId, userId },
         });
+    }
+
+    async updateProfile(userId: string, dto: UpdateProfileDto) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            include: { profile: true },
+        });
+        if (!user) throw new UnauthorizedException('User not found');
+
+        const profileUpdate: Record<string, string> = {};
+        if (dto.firstName !== undefined) profileUpdate.firstName = dto.firstName;
+        if (dto.lastName !== undefined) profileUpdate.lastName = dto.lastName;
+        if (dto.displayName !== undefined) profileUpdate.displayName = dto.displayName;
+        if (dto.avatar !== undefined) profileUpdate.avatar = dto.avatar;
+
+        if (Object.keys(profileUpdate).length === 0) {
+            return this.getProfile(userId);
+        }
+
+        if (dto.firstName !== undefined || dto.lastName !== undefined) {
+            const newFirst = dto.firstName ?? user.profile?.firstName ?? '';
+            const newLast = dto.lastName ?? user.profile?.lastName ?? '';
+            const combined = `${newFirst} ${newLast}`.trim();
+            if (combined) profileUpdate.displayName = combined;
+        }
+
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                profile: user.profile
+                    ? { update: profileUpdate }
+                    : {
+                          create: {
+                              firstName: dto.firstName ?? '',
+                              lastName: dto.lastName ?? '',
+                              displayName: profileUpdate.displayName,
+                              avatar: dto.avatar,
+                          },
+                      },
+            },
+        });
+
+        return this.getProfile(userId);
     }
 
     async getProfile(userId: string) {
