@@ -6,6 +6,7 @@ import { User } from '@/types/auth';
 import { Role, Permission } from '@/types/rbac';
 import { Product, ResourceStatus } from '@/types/product';
 import { Category } from '@/types/category';
+import type { Order, OrderStatus } from '@/types/order';
 import { UserRole } from '@/types/enums';
 import { TFunction } from 'i18next';
 import { formatDate } from '@/utils/date';
@@ -83,7 +84,7 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
             cellRenderer: (params: ICellRendererParams<User>) => {
                 const role = params.value as string;
                 const translatedRole = t(`roles.${role}`);
-                
+
                 // If translation is missing (returns the key), try to use displayName from userRoles
                 let displayRole = translatedRole;
                 if (translatedRole === `roles.${role}` && params.data?.userRoles?.length) {
@@ -601,6 +602,83 @@ export const createCategoryColumns = ({ t }: ColumnConfigOptions): ColDef<Catego
                 if (!params.value) return '';
                 return new Date(params.value).toLocaleDateString('vi-VN');
             },
+        },
+    ];
+};
+
+const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+    PENDING: 'Chờ xử lý',
+    CONFIRMED: 'Đã xác nhận',
+    PROCESSING: 'Đang xử lý',
+    PACKED: 'Đã đóng gói',
+    SHIPPING: 'Đang giao',
+    DELIVERED: 'Đã giao',
+    COMPLETED: 'Hoàn thành',
+    CANCELLED: 'Đã hủy',
+    RETURN_REQUESTED: 'Yêu cầu trả hàng',
+    RETURNED: 'Đã trả hàng',
+    REFUNDED: 'Đã hoàn tiền',
+};
+
+export const createOrderColumns = (options: ColumnConfigOptions): ColDef<Order>[] => {
+    const { t } = options;
+    return [
+        {
+            headerName: 'Mã đơn',
+            field: 'id',
+            width: 120,
+            valueGetter: params => (params.data?.id ? `#${params.data.id.slice(-8)}` : ''),
+        },
+        {
+            headerName: 'Khách hàng',
+            field: 'user',
+            minWidth: 200,
+            valueGetter: params => {
+                const user = params.data?.user;
+                if (!user) return '-';
+                const p = user.profile;
+                const name = (p?.displayName ?? [p?.firstName, p?.lastName].filter(Boolean).join(' ').trim()) || '';
+                return name ? `${name} (${user.email ?? ''})` : (user.email ?? '-');
+            },
+        },
+        {
+            headerName: 'Trạng thái',
+            field: 'status',
+            width: 140,
+            cellRenderer: (params: ICellRendererParams<Order>) => {
+                const status = params.value as OrderStatus;
+                const color =
+                    status === 'COMPLETED' || status === 'DELIVERED'
+                        ? 'green'
+                        : status === 'CANCELLED' || status === 'REFUNDED'
+                            ? 'red'
+                            : status === 'PENDING'
+                                ? 'gray'
+                                : 'blue';
+                return (
+                    <Badge size="sm" variant="light" color={color}>
+                        {ORDER_STATUS_LABELS[status] ?? status}
+                    </Badge>
+                );
+            },
+        },
+        {
+            headerName: 'Thanh toán',
+            field: 'paymentStatus',
+            width: 120,
+        },
+        {
+            headerName: 'Tổng tiền',
+            field: 'totalAmount',
+            width: 130,
+            valueFormatter: params =>
+                params.value != null ? `${Number(params.value).toLocaleString()}đ` : '',
+        },
+        {
+            headerName: t('table.columns.createdAt'),
+            field: 'createdAt',
+            width: 150,
+            valueFormatter: params => (params.value ? formatDate(params.value) : ''),
         },
     ];
 };

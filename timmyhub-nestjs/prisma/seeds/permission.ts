@@ -60,6 +60,20 @@ export const seedingPermissionsData = async (prisma: PrismaClient) => {
             action: 'DELETE',
         },
 
+        // Order (Admin)
+        {
+            name: 'orders:read',
+            displayName: 'Xem danh sách đơn hàng',
+            module: 'ORDERS',
+            action: 'READ',
+        },
+        {
+            name: 'orders:process',
+            displayName: 'Xử lý / cập nhật trạng thái đơn hàng',
+            module: 'ORDERS',
+            action: 'UPDATE',
+        },
+
         // Admin All
         { name: 'admin:all', displayName: 'Toàn quyền hệ thống', module: 'ADMIN', action: 'ALL' },
     ];

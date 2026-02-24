@@ -106,4 +106,55 @@ export class OrdersService {
         }
         return order;
     }
+
+    async findAllAdmin(status?: OrderStatus) {
+        const where = status ? { status } : {};
+        return this.prisma.order.findMany({
+            where,
+            include: {
+                orderItems: true,
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true, displayName: true } },
+                    },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async findOneAdmin(id: string) {
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+            include: {
+                orderItems: true,
+                payment: true,
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true, displayName: true } },
+                    },
+                },
+            },
+        });
+        if (!order) {
+            throw new NotFoundException('Đơn hàng không tồn tại');
+        }
+        return order;
+    }
+
+    async updateStatus(id: string, status: OrderStatus) {
+        const order = await this.prisma.order.findUnique({ where: { id } });
+        if (!order) {
+            throw new NotFoundException('Đơn hàng không tồn tại');
+        }
+        return this.prisma.order.update({
+            where: { id },
+            data: { status },
+            include: { orderItems: true, payment: true },
+        });
+    }
 }

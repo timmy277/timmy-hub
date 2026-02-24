@@ -43,7 +43,7 @@ export const PERMISSIONS = {
 // Định nghĩa các route yêu cầu quyền truy cập cụ thể
 export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/admin': [PERMISSIONS.USERS.READ],
-    
+
     // Users
     '/admin/users': [PERMISSIONS.USERS.READ],
     '/admin/users/create': [PERMISSIONS.USERS.CREATE],
@@ -64,6 +64,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // Orders
     '/admin/orders': [PERMISSIONS.ORDERS.READ],
+    '/admin/orders/[id]': [PERMISSIONS.ORDERS.READ],
 };
 
 // ===== HELPERS =====

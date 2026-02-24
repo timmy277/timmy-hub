@@ -26,6 +26,18 @@ export interface OrderItem {
     subtotal: number | string;
 }
 
+export interface OrderUserProfile {
+    firstName?: string;
+    lastName?: string;
+    displayName?: string | null;
+}
+
+export interface OrderUser {
+    id: string;
+    email?: string;
+    profile?: OrderUserProfile | null;
+}
+
 export interface Order {
     id: string;
     userId: string;
@@ -37,6 +49,8 @@ export interface Order {
     updatedAt: string;
     orderItems?: OrderItem[];
     payment?: Payment;
+    /** Present when fetched by admin (list/detail) */
+    user?: OrderUser;
 }
 
 export interface Payment {

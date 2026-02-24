@@ -8,6 +8,24 @@
     },
     "supabase": {
       "enabled": true
+    },
+    "prisma": {
+      "enabled": true
+    },
+    "cursor-team-kit": {
+      "enabled": true
+    },
+    "figma": {
+      "enabled": true
+    },
+    "deploy-on-aws": {
+      "enabled": true
+    },
+    "browserstack": {
+      "enabled": true
+    },
+    "database-skills": {
+      "enabled": true
     }
   }
 }

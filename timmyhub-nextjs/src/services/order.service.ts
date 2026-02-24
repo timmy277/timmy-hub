@@ -15,4 +15,17 @@ export const orderService = {
     async getOrder(orderId: string): Promise<ApiResponse<Order>> {
         return axios.get(`/orders/${orderId}`) as Promise<ApiResponse<Order>>;
     },
+
+    async getAdminOrders(status?: OrderStatus): Promise<ApiResponse<Order[]>> {
+        const params = status ? { status } : {};
+        return axios.get('/orders/admin', { params }) as Promise<ApiResponse<Order[]>>;
+    },
+
+    async getAdminOrder(orderId: string): Promise<ApiResponse<Order>> {
+        return axios.get(`/orders/admin/${orderId}`) as Promise<ApiResponse<Order>>;
+    },
+
+    async updateOrderStatus(orderId: string, status: OrderStatus): Promise<ApiResponse<Order>> {
+        return axios.patch(`/orders/admin/${orderId}/status`, { status }) as Promise<ApiResponse<Order>>;
+    },
 };
