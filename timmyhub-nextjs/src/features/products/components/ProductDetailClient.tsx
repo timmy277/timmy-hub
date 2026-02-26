@@ -51,7 +51,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
 
     const breadcrumbItems = breadcrumbData.map((item, index) => (
         <Anchor
-            key={index}
+            key={item.href}
             component={Link}
             href={item.href}
             size="sm"

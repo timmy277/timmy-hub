@@ -15,7 +15,7 @@ import {
     useComputedColorScheme,
 } from '@mantine/core';
 import { IconLayoutGrid, IconList } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ProductGrid } from '@/features/products/components/ProductGrid';
 import { Product } from '@/types/product';
 
@@ -72,14 +72,14 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                     <FlashSaleBanner products={initialProducts} />
 
                     {/* Main Products */}
-                    <motion.div
+                    <m.div
                         variants={staggerContainer}
                         initial="initial"
                         whileInView="animate"
                         viewport={{ once: true, amount: 0.2 }}
                     >
                         <Stack gap="md" id="products-section">
-                            <motion.div variants={fadeInUp}>
+                            <m.div variants={fadeInUp}>
                                 <Group justify="space-between" align="center">
                                     <Box>
                                         <Title order={2} mb={4}>Gợi Ý Hôm Nay</Title>
@@ -118,25 +118,25 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                                         </Group>
                                     </Group>
                                 </Group>
-                            </motion.div>
+                            </m.div>
 
-                            <motion.div variants={fadeInUp}>
+                            <m.div variants={fadeInUp}>
                                 <ProductGrid
                                     products={initialProducts}
                                     viewMode={viewMode}
                                     activeTab={activeTab || 'all'}
                                 />
-                            </motion.div>
+                            </m.div>
 
-                            <motion.div variants={fadeInUp}>
+                            <m.div variants={fadeInUp}>
                                 <Center mt="xl">
-                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                    <m.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                         <Button variant="outline" size="md" radius="xl" px={40}>Xem Thêm Sản Phẩm</Button>
-                                    </motion.div>
+                                    </m.div>
                                 </Center>
-                            </motion.div>
+                            </m.div>
                         </Stack>
-                    </motion.div>
+                    </m.div>
 
                 {/* Footer Promo */}
                 <FooterPromo />

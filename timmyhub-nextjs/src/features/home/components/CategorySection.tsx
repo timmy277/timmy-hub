@@ -3,7 +3,7 @@
 import { Carousel } from '@mantine/carousel';
 import { Box, Group, Title, Button, Paper, Text, ThemeIcon, useMantineTheme } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -33,16 +33,16 @@ const CATEGORIES: Category[] = [
 export function CategorySection() {
     const theme = useMantineTheme();
     return (
-        <motion.div variants={fadeInUp} initial="initial" whileInView="animate" viewport={{ once: true, amount: 0.3 }}>
+        <m.div variants={fadeInUp} initial="initial" whileInView="animate" viewport={{ once: true, amount: 0.3 }}>
             <Box py="xl">
                 <Group justify="space-between" mb="lg">
                     <Title order={3}>Danh Mục Nổi Bật</Title>
                     <Button variant="subtle" rightSection={<IconArrowRight size={16} />}>Xem tất cả</Button>
                 </Group>
                 <Carousel slideSize={{ base: '33%', sm: '20%', md: '14%' }} slideGap="md" withControls>
-                    {CATEGORIES.map((cat, idx) => (
-                        <Carousel.Slide key={idx}>
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    {CATEGORIES.map((cat) => (
+                        <Carousel.Slide key={cat.name}>
+                            <m.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                 <Paper
                                     p="md" radius="md" withBorder
                                     style={{
@@ -56,11 +56,11 @@ export function CategorySection() {
                                     </ThemeIcon>
                                     <Text size="sm" fw={600} truncate>{cat.name}</Text>
                                 </Paper>
-                            </motion.div>
+                            </m.div>
                         </Carousel.Slide>
                     ))}
                 </Carousel>
             </Box>
-        </motion.div>
+        </m.div>
     )
 }

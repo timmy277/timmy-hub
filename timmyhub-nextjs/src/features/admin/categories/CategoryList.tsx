@@ -96,13 +96,13 @@ export default function CategoryList() {
     });
 
     // ===== Event Handlers =====
-    const handleCreate = (values: CategoryFormValues) => {
+    const handleCreate = useCallback((values: CategoryFormValues) => {
         createCategory(values);
-    };
+    }, [createCategory]);
 
-    const handleUpdate = (id: string, values: CategoryFormValues) => {
+    const handleUpdate = useCallback((id: string, values: CategoryFormValues) => {
         updateCategory({ id, data: values });
-    };
+    }, [updateCategory]);
 
     const handleDelete = useCallback((category: Category) => {
         if (window.confirm(`Bạn có chắc muốn xóa danh mục "${category.name}"?`)) {
@@ -120,7 +120,7 @@ export default function CategoryList() {
         return [...baseCols, actionCol];
     }, [t, handleAction, handleDelete]);
 
-    const renderTabContent = (tab: TabItem<Category>): ReactNode => {
+    const renderTabContent = useCallback((tab: TabItem<Category>): ReactNode => {
         switch (tab.type) {
             case ManagementTabType.CREATE:
                 return (
@@ -141,7 +141,7 @@ export default function CategoryList() {
             default:
                 return null;
         }
-    };
+    }, [handleCreate, handleUpdate, isCreating, isUpdating]);
 
     return (
         <ManagementPage<Category>

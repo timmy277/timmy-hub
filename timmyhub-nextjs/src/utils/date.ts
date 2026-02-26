@@ -4,14 +4,9 @@ export const formatDate = (
 ): string => {
     if (!date) return fallback;
 
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
     try {
-        const dateObj = typeof date === 'string' ? new Date(date) : date;
-
-        // Check if date is valid
-        if (isNaN(dateObj.getTime())) {
-            return fallback;
-        }
-
+        if (isNaN(dateObj.getTime())) return fallback;
         return dateObj.toLocaleDateString();
     } catch {
         return fallback;
@@ -24,13 +19,11 @@ export const formatDateTime = (
 ): string => {
     if (!date) return fallback;
 
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
     try {
-        const dateObj = typeof date === 'string' ? new Date(date) : date;
-
         if (isNaN(dateObj.getTime())) {
             return fallback;
         }
-
         return dateObj.toLocaleString();
     } catch {
         return fallback;

@@ -2,7 +2,7 @@
 
 import { SimpleGrid, Group, Text, ThemeIcon, Stack, Paper } from '@mantine/core';
 import { IconTruck, IconShieldCheck, IconPhoneCall, IconClock } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ComponentType } from 'react';
 import { useComputedColorScheme } from '@mantine/core';
 
@@ -39,18 +39,18 @@ export function FeatureSection() {
     ];
 
     return (
-        <motion.div
+        <m.div
             variants={staggerContainer}
             initial="initial"
             whileInView="animate"
             viewport={{ once: true, amount: 0.5 }}
         >
             <SimpleGrid cols={{ base: 2, md: 4 }} spacing="lg" my="xl">
-                {features.map((f, i) => {
+                {features.map((f) => {
                     const Icon = f.icon;
                     return (
-                        <motion.div
-                            key={i}
+                        <m.div
+                            key={f.title}
                             variants={fadeInUp}
                         >
                             <Paper
@@ -73,10 +73,10 @@ export function FeatureSection() {
                                     </Stack>
                                 </Group>
                             </Paper>
-                        </motion.div>
+                        </m.div>
                     );
                 })}
             </SimpleGrid>
-        </motion.div>
+        </m.div>
     )
 }

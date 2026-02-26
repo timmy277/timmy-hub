@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColDef } from 'ag-grid-community';
 import { IconCalendarStats } from '@tabler/icons-react';
@@ -22,14 +22,14 @@ export function OrderList() {
 
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } = useManagementTabs<Order>('Order');
 
-    const renderTabContent = (tab: TabItem<Order>) => {
+    const renderTabContent = useCallback((tab: TabItem<Order>) => {
         switch (tab.type) {
             case ManagementTabType.DETAIL:
                 return tab.data ? <OrderDetail key={tab.id} order={tab.data} /> : null;
             default:
                 return null;
         }
-    };
+    }, []);
 
     const columnDefs = useMemo<ColDef<Order>[]>(
         () => [

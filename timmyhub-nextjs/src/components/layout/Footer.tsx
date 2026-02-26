@@ -88,12 +88,12 @@ export function Footer() {
                     </Grid.Col>
 
                     {/* Links Columns */}
-                    {FOOTER_LINKS.map((group, index) => (
-                        <Grid.Col key={index} span={{ base: 6, sm: 4, md: 2, lg: 2 }}>
+                    {FOOTER_LINKS.map((group) => (
+                        <Grid.Col key={group.title} span={{ base: 6, sm: 4, md: 2, lg: 2 }}>
                             <Title order={5} mb="md">{group.title}</Title>
                             <Stack gap="xs">
-                                {group.links.map((link, idx) => (
-                                    <Link key={idx} href={link.link} style={{ textDecoration: 'none' }}>
+                                {group.links.map((link) => (
+                                    <Link key={link.label} href={link.link} style={{ textDecoration: 'none' }}>
                                         <Text size="sm" c="dimmed" style={{ transition: 'color 0.2s' }}
                                             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--mantine-color-blue-6)')}
                                             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--mantine-color-dimmed)')}

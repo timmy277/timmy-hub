@@ -21,10 +21,14 @@ export function AuthSyncProvider({ children }: { children: ReactNode }) {
 
         hasFetchedRef.current = true;
         const syncProfile = async () => {
+            const storeDevice = useAuthStore.getState().device;
+            let device = storeDevice;
+            if (!device) {
+                device = { id: 'web', name: 'web', deviceId: 'web' };
+            }
             try {
                 const response = await authService.getProfile();
                 const profileUser = response.data;
-                const device = useAuthStore.getState().device ?? { id: 'web', name: 'web', deviceId: 'web' };
                 setAuthData(profileUser, device);
             } catch {
                 hasFetchedRef.current = false;

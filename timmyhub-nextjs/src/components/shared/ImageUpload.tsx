@@ -8,6 +8,10 @@ import { useTranslation } from 'react-i18next';
 import { fileService } from '@/services/file.service';
 import { notifications } from '@mantine/notifications';
 
+function getUploadError(error: unknown, fallback: string): string {
+    return error instanceof Error ? error.message : fallback;
+}
+
 interface ImageUploadProps {
     value?: string | string[];
     onChange: (url: string | string[]) => void;
@@ -24,39 +28,37 @@ export function ImageUpload({ value, onChange, label, description, multiple = fa
 
     const handleDrop = async (files: FileWithPath[]) => {
         if (files.length === 0) return;
-        
+        setLoading(true);
+        let urls: string[] = [];
         try {
-            setLoading(true);
-            
             const uploadPromises = files.map(file => fileService.upload(file));
             const results = await Promise.all(uploadPromises);
-            const urls = results.map(r => r.url);
-
-            if (multiple) {
-                onChange([...values, ...urls]);
-            } else {
-                onChange(urls[0]);
-            }
-
-            notifications.show({
-                title: t('common.success', { defaultValue: 'Thành công' }),
-                message: t('common.uploadSuccess', { defaultValue: 'Tải lên thành công' }),
-                color: 'green',
-            });
+            urls = results.map(r => r.url);
         } catch (error: unknown) {
             console.error('Upload failed:', error);
-            let message = t('common.uploadError', { defaultValue: 'Có lỗi xảy ra khi tải ảnh' });
-            
-            if (error instanceof Error) message = error.message;
-
+            const message = getUploadError(
+                error,
+                t('common.uploadError', { defaultValue: 'Có lỗi xảy ra khi tải ảnh' }),
+            );
             notifications.show({
                 title: t('common.uploadFailed', { defaultValue: 'Tải lên thất bại' }),
-                message: message,
+                message,
                 color: 'red',
             });
-        } finally {
             setLoading(false);
+            return;
         }
+        if (multiple) {
+            onChange([...values, ...urls]);
+        } else {
+            onChange(urls[0]);
+        }
+        notifications.show({
+            title: t('common.success', { defaultValue: 'Thành công' }),
+            message: t('common.uploadSuccess', { defaultValue: 'Tải lên thành công' }),
+            color: 'green',
+        });
+        setLoading(false);
     };
 
     const handleRemove = (index: number) => {
@@ -75,23 +77,23 @@ export function ImageUpload({ value, onChange, label, description, multiple = fa
                 {label && <Text size="sm" fw={500}>{label}</Text>}
                 {description && <Text size="xs" c="dimmed">{description}</Text>}
             </Box>
-            
+
             <Box pos="relative">
                 <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
-                
+
                 <Stack gap="md">
                     {values.length > 0 && (
                         <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
                             {values.map((url, index) => (
-                                <Paper key={index} withBorder p="xs" pos="relative">
+                                <Paper key={url} withBorder p="xs" pos="relative">
                                     <Stack align="center" gap="xs">
                                         <Avatar src={url} size={100} radius="md" />
-                                        <ActionIcon 
-                                            variant="filled" 
-                                            color="red" 
-                                            size="sm" 
-                                            pos="absolute" 
-                                            top={-10} 
+                                        <ActionIcon
+                                            variant="filled"
+                                            color="red"
+                                            size="sm"
+                                            pos="absolute"
+                                            top={-10}
                                             right={-10}
                                             onClick={() => handleRemove(index)}
                                             radius="xl"

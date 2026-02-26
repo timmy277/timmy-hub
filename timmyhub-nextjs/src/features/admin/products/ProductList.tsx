@@ -102,11 +102,11 @@ export function ProductList() {
     const [rejectNote, setRejectNote] = useState('');
 
     // ===== Component Logic =====
-    const handleFormSubmit = (values: ProductFormValues) => {
+    const handleFormSubmit = useCallback((values: ProductFormValues) => {
         createProduct(values);
-    };
+    }, [createProduct]);
 
-    const renderTabContent = (tab: TabItem<Product>): ReactNode => {
+    const renderTabContent = useCallback((tab: TabItem<Product>): ReactNode => {
         switch (tab.type) {
             case ManagementTabType.DETAIL:
                 return tab.data ? <ProductDetail product={tab.data} /> : null;
@@ -135,7 +135,7 @@ export function ProductList() {
             default:
                 return null;
         }
-    };
+    }, [handleFormSubmit, isCreating, t]);
 
     const handleApprove = useCallback(
         async (product: Product) => {

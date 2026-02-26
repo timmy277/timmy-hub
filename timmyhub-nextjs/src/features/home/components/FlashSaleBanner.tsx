@@ -3,7 +3,7 @@
 import { Carousel } from '@mantine/carousel';
 import { Paper, Group, Title, Badge, Button, Text, useComputedColorScheme } from '@mantine/core';
 import { IconFlame } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { Product } from '@/types/product';
 
@@ -27,7 +27,7 @@ export function FlashSaleBanner({ products }: FlashSaleBannerProps) {
         .slice(0, 5); // Limit to 5 products for carousel
 
     return (
-        <motion.div variants={scaleIn} initial="initial" whileInView="animate" viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.8 }}>
+        <m.div variants={scaleIn} initial="initial" whileInView="animate" viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.8 }}>
             <Paper p="xl" radius="lg" bg={isDark ? 'red.9' : 'red.0'} style={{ border: '2px solid var(--mantine-color-red-filled)' }} my="xl">
                 <Group justify="space-between" mb="lg" align="flex-end">
                     <Group gap="xs">
@@ -57,6 +57,6 @@ export function FlashSaleBanner({ products }: FlashSaleBannerProps) {
                     </Paper>
                 )}
             </Paper>
-        </motion.div>
+        </m.div>
     )
 }

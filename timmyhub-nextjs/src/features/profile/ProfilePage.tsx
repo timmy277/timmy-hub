@@ -5,7 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/services/auth.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { User } from '@/types/auth';
 
 function displayName(profile: { firstName?: string; lastName?: string; displayName?: string } | null | undefined): string {
     if (!profile) return '';
@@ -13,20 +14,18 @@ function displayName(profile: { firstName?: string; lastName?: string; displayNa
     return [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim();
 }
 
-export function ProfilePage() {
-    const { user, refetchProfile } = useAuth();
-    const queryClient = useQueryClient();
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [displayNameVal, setDisplayNameVal] = useState('');
+interface ProfileFormProps {
+    user: User;
+    refetchProfile: () => void;
+}
 
-    useEffect(() => {
-        if (user?.profile) {
-            setFirstName(user.profile.firstName ?? '');
-            setLastName(user.profile.lastName ?? '');
-            setDisplayNameVal(user.profile.displayName ?? displayName(user.profile));
-        }
-    }, [user?.profile]);
+function ProfileForm({ user, refetchProfile }: ProfileFormProps) {
+    const queryClient = useQueryClient();
+    const [form, setForm] = useState({
+        firstName: user.profile?.firstName ?? '',
+        lastName: user.profile?.lastName ?? '',
+        displayNameVal: user.profile?.displayName ?? displayName(user.profile),
+    });
 
     const updateMutation = useMutation({
         mutationFn: (data: { firstName?: string; lastName?: string; displayName?: string }) =>
@@ -37,9 +36,10 @@ export function ProfilePage() {
             notifications.show({ title: 'Thành công', message: 'Đã cập nhật thông tin', color: 'green' });
         },
         onError: (err: { response?: { data?: { message?: string } } }) => {
+            const msg = err?.response?.data?.message;
             notifications.show({
                 title: 'Lỗi',
-                message: err?.response?.data?.message ?? 'Cập nhật thất bại',
+                message: typeof msg === 'string' ? msg : 'Cập nhật thất bại',
                 color: 'red',
             });
         },
@@ -48,11 +48,62 @@ export function ProfilePage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         updateMutation.mutate({
-            firstName: firstName.trim() || undefined,
-            lastName: lastName.trim() || undefined,
-            displayName: displayNameVal.trim() || undefined,
+            firstName: form.firstName.trim() || undefined,
+            lastName: form.lastName.trim() || undefined,
+            displayName: form.displayNameVal.trim() || undefined,
         });
     };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <Stack gap="md" maw={400}>
+                <Group>
+                    <Avatar
+                        src={user.profile?.avatar}
+                        size="lg"
+                        radius="xl"
+                        color="blue"
+                    >
+                        {(user.profile?.firstName?.charAt(0) || user.email?.charAt(0) || '?').toUpperCase()}
+                    </Avatar>
+                    <Box>
+                        <Text fw={500}>{displayName(user.profile) || user.email}</Text>
+                        <Text size="sm" c="dimmed">{user.email}</Text>
+                    </Box>
+                </Group>
+
+                <TextInput
+                    label="Họ"
+                    placeholder="Nhập họ"
+                    value={form.firstName}
+                    onChange={e => setForm(prev => ({ ...prev, firstName: e.target.value }))}
+                />
+                <TextInput
+                    label="Tên"
+                    placeholder="Nhập tên"
+                    value={form.lastName}
+                    onChange={e => setForm(prev => ({ ...prev, lastName: e.target.value }))}
+                />
+                <TextInput
+                    label="Tên hiển thị"
+                    placeholder="Tên hiển thị (tùy chọn)"
+                    value={form.displayNameVal}
+                    onChange={e => setForm(prev => ({ ...prev, displayNameVal: e.target.value }))}
+                />
+
+                <Button
+                    type="submit"
+                    loading={updateMutation.isPending}
+                >
+                    Lưu thay đổi
+                </Button>
+            </Stack>
+        </form>
+    );
+}
+
+export function ProfilePage() {
+    const { user, refetchProfile } = useAuth();
 
     if (!user) {
         return (
@@ -68,51 +119,7 @@ export function ProfilePage() {
             <Title order={3} mb="lg">
                 Thông tin cá nhân
             </Title>
-
-            <form onSubmit={handleSubmit}>
-                <Stack gap="md" maw={400}>
-                    <Group>
-                        <Avatar
-                            src={user.profile?.avatar}
-                            size="lg"
-                            radius="xl"
-                            color="blue"
-                        >
-                            {(user.profile?.firstName?.charAt(0) || user.email?.charAt(0) || '?').toUpperCase()}
-                        </Avatar>
-                        <Box>
-                            <Text fw={500}>{displayName(user.profile) || user.email}</Text>
-                            <Text size="sm" c="dimmed">{user.email}</Text>
-                        </Box>
-                    </Group>
-
-                    <TextInput
-                        label="Họ"
-                        placeholder="Nhập họ"
-                        value={firstName}
-                        onChange={e => setFirstName(e.target.value)}
-                    />
-                    <TextInput
-                        label="Tên"
-                        placeholder="Nhập tên"
-                        value={lastName}
-                        onChange={e => setLastName(e.target.value)}
-                    />
-                    <TextInput
-                        label="Tên hiển thị"
-                        placeholder="Tên hiển thị (tùy chọn)"
-                        value={displayNameVal}
-                        onChange={e => setDisplayNameVal(e.target.value)}
-                    />
-
-                    <Button
-                        type="submit"
-                        loading={updateMutation.isPending}
-                    >
-                        Lưu thay đổi
-                    </Button>
-                </Stack>
-            </form>
+            <ProfileForm key={user.id} user={user} refetchProfile={refetchProfile} />
         </Box>
     );
 }

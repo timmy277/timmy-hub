@@ -60,9 +60,3 @@ export interface LoginInput {
     deviceName?: string;
 }
 
-export interface LoginResponse {
-    user: User;
-    device: Device;
-    accessToken: string;
-    refreshToken: string;
-}

@@ -1,6 +1,7 @@
 'use client';
 
 import { MantineProvider, createTheme } from '@mantine/core';
+import { LazyMotion, domAnimation } from 'framer-motion';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { useState } from 'react';
@@ -18,7 +19,6 @@ interface AppProviderProps {
 export function AppProvider({ children }: AppProviderProps) {
     const primaryColor = useThemeStore(state => state.primaryColor);
 
-    // TanStack Query Client initialization
     const [queryClient] = useState(
         () =>
             new QueryClient({
@@ -48,23 +48,25 @@ export function AppProvider({ children }: AppProviderProps) {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <MantineProvider theme={theme} defaultColorScheme="auto">
-                <ModalsProvider
-                    modalProps={{
-                        centered: true,
-                        overlayProps: {
-                            backgroundOpacity: 0.55,
-                            blur: 3,
-                        },
-                    }}
-                >
-                    <Notifications position="top-right" />
-                    <AuthSyncProvider>
-                        <AbilityProvider>{children}</AbilityProvider>
-                    </AuthSyncProvider>
-                    <ReactQueryDevtools initialIsOpen={false} />
-                </ModalsProvider>
-            </MantineProvider>
+            <LazyMotion features={domAnimation} strict>
+                <MantineProvider theme={theme} defaultColorScheme="auto">
+                    <ModalsProvider
+                        modalProps={{
+                            centered: true,
+                            overlayProps: {
+                                backgroundOpacity: 0.55,
+                                blur: 3,
+                            },
+                        }}
+                    >
+                        <Notifications position="top-right" />
+                        <AuthSyncProvider>
+                            <AbilityProvider>{children}</AbilityProvider>
+                        </AuthSyncProvider>
+                        <ReactQueryDevtools initialIsOpen={false} />
+                    </ModalsProvider>
+                </MantineProvider>
+            </LazyMotion>
         </QueryClientProvider>
     );
 }

@@ -25,7 +25,7 @@ export function RoleList() {
         useManagementTabs<Role>('Role');
 
     // ===== Component Logic =====
-    const renderTabContent = (tab: TabItem<Role>) => {
+    const renderTabContent = useCallback((tab: TabItem<Role>) => {
         switch (tab.type) {
             case ManagementTabType.CREATE:
                 return (
@@ -57,7 +57,7 @@ export function RoleList() {
             default:
                 return null;
         }
-    };
+    }, [setActiveTab, closeTab]);
 
     // ===== Event Handlers =====
     const handleDeleteRole = useCallback(

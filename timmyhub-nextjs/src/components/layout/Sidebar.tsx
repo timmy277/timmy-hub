@@ -219,25 +219,11 @@ function SidebarNavLink({
     pathname: string;
 }) {
     const hasLinks = Array.isArray(item.links);
-    const [opened, setOpened] = useState(() => {
-        return (
-            item.initiallyOpened ||
-            (hasLinks && item.links?.some(link => pathname === link.link)) ||
-            false
-        );
-    });
+    const [manuallyOpened, setManuallyOpened] = useState(item.initiallyOpened ?? false);
     const Icon = item.icon;
 
-    const [prevPathname, setPrevPathname] = useState(pathname);
-
-    if (pathname !== prevPathname) {
-        setPrevPathname(pathname);
-        if (hasLinks && item.links?.some(link => pathname === link.link)) {
-            setOpened(true);
-        }
-    }
-
-    const isChildActive = hasLinks && item.links?.some(link => pathname === link.link);
+    const isChildActive = hasLinks && item.links?.some(link => pathname === link.link) === true;
+    const opened = manuallyOpened || isChildActive;
     const isParentActive = active || isChildActive;
 
     const commonProps = {
@@ -268,7 +254,7 @@ function SidebarNavLink({
         active: isParentActive,
         variant: isParentActive ? 'light' : 'subtle',
         onClick: () => {
-            if (hasLinks && !collapsed) setOpened(o => !o);
+            if (hasLinks && !collapsed) setManuallyOpened(o => !o);
         },
         opened: opened && !collapsed,
         className: 'rounded-lg transition-all duration-200',

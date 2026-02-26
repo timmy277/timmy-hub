@@ -27,6 +27,16 @@ import { useMounted } from '@mantine/hooks';
 import { useLoginMutation } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/useAuthStore';
 
+function extractLoginError(error: unknown): string {
+    const fallback = 'Failed to login. Please check your credentials.';
+    if (axios.isAxiosError(error)) {
+        const msg = error.response?.data?.message;
+        if (typeof msg === 'string') return msg;
+    }
+    if (error instanceof Error) return error.message;
+    return fallback;
+}
+
 // ===== Validation Schema =====
 const schema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
@@ -53,46 +63,37 @@ export function LoginPage() {
 
     // ===== Event Handlers =====
     const handleSubmit = async (values: z.infer<typeof schema>) => {
+        const cookieExpires = values.remember ? 30 : 7;
+        let response: Awaited<ReturnType<typeof loginMutation.mutateAsync>>;
         try {
-            const response = await loginMutation.mutateAsync(values);
-            const { user, device } = response.data;
-
-            // Lưu thông tin người dùng vào Store (Zustand persist)
-            setAuthData(user, device);
-
-            // Remember Me logic: Nếu tích chọn thì lưu cookie lâu hơn (30 ngày), ngược lại 7 ngày
-            const cookieExpires = values.remember ? 30 : 7;
-
-            // Lưu thông tin vào cookie để Middleware có thể đọc nhanh (cho mục đích routing)
-            Cookies.set('user_role', user.role, { expires: cookieExpires });
-            Cookies.set('user_permissions', JSON.stringify(user.permissions), {
-                expires: cookieExpires,
-            });
-
-            notifications.show({
-                title: 'Success',
-                message: response.message || 'Welcome back! You have successfully logged in.',
-                color: 'green',
-                icon: <IconCheck size={18} />,
-            });
-
-            router.push('/admin');
+            response = await loginMutation.mutateAsync(values);
         } catch (error: unknown) {
-            let errorMessage = 'Failed to login. Please check your credentials.';
-
-            if (axios.isAxiosError(error)) {
-                errorMessage = error.response?.data?.message || errorMessage;
-            } else if (error instanceof Error) {
-                errorMessage = error.message;
-            }
-
             notifications.show({
                 title: 'Error',
-                message: errorMessage,
+                message: extractLoginError(error),
                 color: 'red',
                 icon: <IconX size={18} />,
             });
+            return;
         }
+        const { user, device } = response.data;
+        const successMessage = response.message ?? 'Welcome back! You have successfully logged in.';
+
+        setAuthData(user, device);
+
+        Cookies.set('user_role', user.role, { expires: cookieExpires });
+        Cookies.set('user_permissions', JSON.stringify(user.permissions), {
+            expires: cookieExpires,
+        });
+
+        notifications.show({
+            title: 'Success',
+            message: successMessage,
+            color: 'green',
+            icon: <IconCheck size={18} />,
+        });
+
+        router.push('/admin');
     };
 
     // ===== Final Render =====
@@ -167,7 +168,7 @@ export function LoginPage() {
                                     <TextInput
                                         id="login-email"
                                         label="Email"
-                                    placeholder="Enter your email"
+                                        placeholder="Enter your email"
                                         size="md"
                                         radius="md"
                                         leftSection={<IconAt size={16} stroke={1.5} />}

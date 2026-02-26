@@ -20,12 +20,8 @@ interface UserDetailProps {
     user: User;
 }
 
-export function UserDetail({ user }: UserDetailProps) {
-    // ===== Hooks & Context =====
-    const { t } = useTranslation();
-
-    // ===== Component Logic =====
-    const renderInfoRow = (label: string, value: string | React.ReactNode, fullWidth = false) => (
+function InfoRow({ label, value, fullWidth = false }: { label: string; value: string | React.ReactNode; fullWidth?: boolean }) {
+    return (
         <Group wrap="nowrap" style={fullWidth ? { gridColumn: '1 / -1' } : undefined}>
             <Text fw={500} w={140} style={{ flexShrink: 0 }}>
                 {label}:
@@ -33,6 +29,16 @@ export function UserDetail({ user }: UserDetailProps) {
             <Box style={{ wordBreak: 'break-word' }}>{value}</Box>
         </Group>
     );
+}
+
+export function UserDetail({ user }: UserDetailProps) {
+    // ===== Hooks & Context =====
+    const { t } = useTranslation();
+
+    const firstName = user.profile?.firstName ?? '';
+    const lastName = user.profile?.lastName ?? '';
+    let fullName = `${firstName} ${lastName}`.trim();
+    if (!fullName) fullName = t('table.columns.notUpdated');
 
     // ===== Final Render =====
     return (
@@ -72,34 +78,35 @@ export function UserDetail({ user }: UserDetailProps) {
                                 </Avatar>
                             </Group>
 
-                            {renderInfoRow(
-                                t('userManagement.fullName'),
-                                `${user.profile?.firstName || ''} ${user.profile?.lastName || ''}`.trim() ||
-                                    t('table.columns.notUpdated'),
-                            )}
+                            <InfoRow
+                                label={t('userManagement.fullName')}
+                                value={fullName}
+                            />
 
-                            {renderInfoRow(t('userManagement.email'), user.email)}
+                            <InfoRow label={t('userManagement.email')} value={user.email} />
 
-                            {renderInfoRow(
-                                t('userManagement.role'),
-                                <Badge color="blue" variant="light">
-                                    {(() => {
-                                        const role = user.role as string;
-                                        const translatedRole = t(`roles.${role}`);
-                                        if (translatedRole !== `roles.${role}`) return translatedRole;
-                                        
-                                        const dynamicRole = user.userRoles?.find(ur => ur.role.name === role);
-                                        return dynamicRole?.role.displayName || role;
-                                    })()}
-                                </Badge>,
-                            )}
+                            <InfoRow
+                                label={t('userManagement.role')}
+                                value={
+                                    <Badge color="blue" variant="light">
+                                        {(() => {
+                                            const role = user.role as string;
+                                            const translatedRole = t(`roles.${role}`);
+                                            if (translatedRole !== `roles.${role}`) return translatedRole;
+                                            
+                                            const dynamicRole = user.userRoles?.find(ur => ur.role.name === role);
+                                            return dynamicRole?.role.displayName || role;
+                                        })()}
+                                    </Badge>
+                                }
+                            />
 
-                            {renderInfoRow(t('userManagement.phone'), user.phone ?? 'N/A')}
+                            <InfoRow label={t('userManagement.phone')} value={user.phone ?? 'N/A'} />
 
-                            {renderInfoRow(
-                                t('table.columns.memberSince'),
-                                formatDate(user.createdAt),
-                            )}
+                            <InfoRow
+                                label={t('table.columns.memberSince')}
+                                value={formatDate(user.createdAt)}
+                            />
                         </SimpleGrid>
 
                         {/* ID - Full Width */}

@@ -16,7 +16,7 @@ import {
     Progress,
 } from '@mantine/core';
 import { IconHeart, IconStar, IconFlame } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import Link from 'next/link';
 import { Product } from '@/types/product';
 import { AddToCartButton } from '@/components/cart/AddToCartButton';
@@ -40,7 +40,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
     // Flash Sale variant
     if (viewMode === 'flash-sale') {
         return (
-            <motion.div
+            <m.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3 }}
@@ -105,13 +105,13 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                         </Stack>
                     </Stack>
                 </Card>
-            </motion.div>
+            </m.div>
         );
     }
 
     if (viewMode === 'list') {
         return (
-            <motion.div
+            <m.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
@@ -182,12 +182,12 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                         </Grid.Col>
                     </Grid>
                 </Card>
-            </motion.div>
+            </m.div>
         );
     }
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
@@ -285,6 +285,6 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                     </Stack>
                 </Flex>
             </Card>
-        </motion.div>
+        </m.div>
     );
 }

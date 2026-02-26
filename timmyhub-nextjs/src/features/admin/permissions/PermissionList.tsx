@@ -24,7 +24,7 @@ export function PermissionList() {
         useManagementTabs<Permission>('Permission');
 
     // ===== Component Logic =====
-    const renderTabContent = (tab: TabItem<Permission>) => {
+    const renderTabContent = useCallback((tab: TabItem<Permission>) => {
         switch (tab.type) {
             case ManagementTabType.CREATE:
                 return (
@@ -54,7 +54,7 @@ export function PermissionList() {
             default:
                 return null;
         }
-    };
+    }, [setActiveTab, closeTab]);
 
     // ===== Event Handlers =====
     const handleDelete = useCallback(

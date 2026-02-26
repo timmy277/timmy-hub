@@ -31,10 +31,8 @@ interface ProductDetailProps {
     product: Product;
 }
 
-export function ProductDetail({ product }: ProductDetailProps) {
-    const { t } = useTranslation();
-
-    const renderInfoRow = (label: string, value: string | React.ReactNode) => (
+function InfoRow({ label, value }: { label: string; value: string | React.ReactNode }) {
+    return (
         <Group wrap="nowrap">
             <Text fw={500} w={140} style={{ flexShrink: 0 }} c="dimmed" size="sm">
                 {label}:
@@ -44,6 +42,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </Box>
         </Group>
     );
+}
+
+export function ProductDetail({ product }: ProductDetailProps) {
+    const { t } = useTranslation();
 
     const statusConfig = {
         [ResourceStatus.PENDING]: { color: 'yellow', label: t('table.status.pending') },
@@ -123,7 +125,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                                 <Group wrap="nowrap" gap="xs">
                                     {product.images.map((img, idx) => (
                                         <Image
-                                            key={idx}
+                                            key={img}
                                             component={NextImage}
                                             src={img}
                                             width={80}
@@ -192,9 +194,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
                                     <Text fw={700}>{t('table.columns.dimensions')}</Text>
                                 </Group>
                                 <Stack gap="xs">
-                                    {renderInfoRow(t('table.columns.weight'), `${product.weight || 0} g`)}
-                                    {renderInfoRow(t('table.columns.dimensions'), `${product.length || 0} x ${product.width || 0} x ${product.height || 0} cm`)}
-                                    {renderInfoRow(t('table.columns.stock'), product.stock)}
+                                    <InfoRow label={t('table.columns.weight')} value={`${product.weight || 0} g`} />
+                                    <InfoRow label={t('table.columns.dimensions')} value={`${product.length || 0} x ${product.width || 0} x ${product.height || 0} cm`} />
+                                    <InfoRow label={t('table.columns.stock')} value={product.stock} />
                                 </Stack>
                             </Stack>
 
@@ -204,9 +206,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
                                     <Text fw={700}>{t('userManagement.basicInfo')}</Text>
                                 </Group>
                                 <Stack gap="xs">
-                                    {renderInfoRow(t('table.columns.category'), product.category?.name || 'N/A')}
-                                    {renderInfoRow(t('table.columns.seller'), product.seller?.profile?.displayName || product.seller?.email || 'N/A')}
-                                    {renderInfoRow(t('table.columns.createdAt'), formatDate(product.createdAt))}
+                                    <InfoRow label={t('table.columns.category')} value={product.category?.name || 'N/A'} />
+                                    <InfoRow label={t('table.columns.seller')} value={product.seller?.profile?.displayName || product.seller?.email || 'N/A'} />
+                                    <InfoRow label={t('table.columns.createdAt')} value={formatDate(product.createdAt)} />
                                 </Stack>
                             </Stack>
                         </SimpleGrid>

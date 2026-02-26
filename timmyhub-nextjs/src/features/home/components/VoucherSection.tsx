@@ -2,7 +2,7 @@
 
 import { SimpleGrid, Paper, Flex, Stack, Text, ThemeIcon, Button, useComputedColorScheme } from '@mantine/core';
 import { IconTicket } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 interface Voucher {
     code: string;
@@ -25,10 +25,10 @@ export function VoucherSection() {
     return (
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" mb="xl">
             {VOUCHERS.map((v, i) => (
-                <Paper key={i} p="md" radius="md" withBorder
+                <Paper key={v.code} p="md" radius="md" withBorder
                     bg={isDark ? `${v.color}.9` : `${v.color}.0`}
                     style={{ borderColor: isDark ? `var(--mantine-color-${v.color}-8)` : `var(--mantine-color-${v.color}-3)` }}
-                    component={motion.div}
+                    component={m.div}
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: i * 0.2 }}

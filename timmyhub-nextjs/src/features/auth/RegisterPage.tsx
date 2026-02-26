@@ -54,6 +54,14 @@ function PasswordRequirement({ meets, label }: { meets: boolean; label: string }
     );
 }
 
+function getApiErrorMessage(error: unknown, fallback: string): string {
+    const axiosError = error as { response?: { data?: { message?: string } } };
+    const apiMsg = axiosError.response?.data?.message;
+    if (typeof apiMsg === 'string') return apiMsg;
+    if (error instanceof Error) return error.message;
+    return fallback;
+}
+
 // Validation schema
 const schema = z
     .object({
@@ -96,9 +104,9 @@ export function RegisterPage() {
     });
 
     const strength = getStrength(form.values.password);
-    const checks = requirements.map((requirement, index) => (
+    const checks = requirements.map((requirement) => (
         <PasswordRequirement
-            key={index}
+            key={requirement.label}
             label={requirement.label}
             meets={requirement.re.test(form.values.password)}
         />
@@ -122,20 +130,9 @@ export function RegisterPage() {
 
             router.push('/login');
         } catch (error: unknown) {
-            let message = 'Không thể tạo tài khoản';
-
-            if (error instanceof Error) {
-                message = error.message;
-            }
-
-            const axiosError = error as { response?: { data?: { message?: string } } };
-            if (axiosError.response?.data?.message) {
-                message = axiosError.response.data.message;
-            }
-
             notifications.show({
                 title: 'Lỗi',
-                message: message,
+                message: getApiErrorMessage(error, 'Không thể tạo tài khoản'),
                 color: 'red',
                 icon: <IconX size={18} />,
             });
@@ -234,11 +231,9 @@ export function RegisterPage() {
                                     />
 
                                     <Group gap={5} grow mt="xs" mb="md">
-                                        {Array(4)
-                                            .fill(0)
-                                            .map((_, index) => (
+                                        {(['s0', 's1', 's2', 's3'] as const).map((barId, index) => (
                                                 <Progress
-                                                    key={index}
+                                                    key={barId}
                                                     styles={{ section: { transitionDuration: '0ms' } }}
                                                     value={
                                                         form.values.password.length > 0 && index === 0

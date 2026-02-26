@@ -1,7 +1,7 @@
 'use client';
 
 import { Text, Center } from '@mantine/core';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Grid as MantineGrid } from '@mantine/core';
 import { ProductCard } from './ProductCard';
 import { Product } from '@/types/product';
@@ -47,7 +47,7 @@ export function ProductGrid({ products, viewMode, activeTab }: ProductGridProps)
 
     return (
         <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
                 key={`${viewMode}-${activeTab}`}
                 variants={staggerContainer}
                 initial="initial"
@@ -61,9 +61,9 @@ export function ProductGrid({ products, viewMode, activeTab }: ProductGridProps)
                                 key={product.id}
                                 span={viewMode === 'list' ? 12 : { base: 12, xs: 6, sm: 4, md: 3 }}
                             >
-                                <motion.div variants={scaleIn}>
+                                <m.div variants={scaleIn}>
                                     <ProductCard product={product} viewMode={viewMode} />
-                                </motion.div>
+                                </m.div>
                             </MantineGrid.Col>
                         ))
                     ) : (
@@ -74,7 +74,7 @@ export function ProductGrid({ products, viewMode, activeTab }: ProductGridProps)
                         </MantineGrid.Col>
                     )}
                 </MantineGrid>
-            </motion.div>
+            </m.div>
         </AnimatePresence>
     );
 }

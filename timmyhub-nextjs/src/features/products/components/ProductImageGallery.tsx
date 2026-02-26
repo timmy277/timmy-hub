@@ -88,7 +88,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                     <Group gap="xs" justify="center">
                         {displayImages.map((img, index) => (
                             <Box
-                                key={index}
+                                key={img}
                                 onClick={() => setSelectedIndex(index)}
                                 style={{
                                     width: 80,
@@ -101,7 +101,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                                             ? '2px solid var(--mantine-color-blue-6)'
                                             : '1px solid var(--mantine-color-default-border)',
                                     opacity: selectedIndex === index ? 1 : 0.7,
-                                    transition: 'all 0.2s',
+                                    transition: 'opacity 0.2s, border-color 0.2s',
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.opacity = '1';
@@ -159,7 +159,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                         >
                             {displayImages.map((img, index) => (
                                 <Box
-                                    key={index}
+                                    key={img}
                                     onClick={() => setSelectedIndex(index)}
                                     style={{
                                         width: 60,

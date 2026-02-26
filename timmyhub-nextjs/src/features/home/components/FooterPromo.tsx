@@ -1,11 +1,11 @@
 'use client';
 
 import { Card, Grid, Image, Badge, Title, Text, Stack, Group, Button } from '@mantine/core';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 export function FooterPromo() {
     return (
-        <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: 1 }}>
+        <m.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: 1 }}>
             <Card radius="lg" padding={0} withBorder mt="xl">
                 <Grid gutter={0}>
                     <Grid.Col span={{ base: 12, md: 6 }}>
@@ -24,6 +24,6 @@ export function FooterPromo() {
                     </Grid.Col>
                 </Grid>
             </Card>
-        </motion.div>
+        </m.div>
     );
 }

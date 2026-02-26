@@ -21,6 +21,14 @@ import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useForgotPasswordMutation } from '@/hooks/useAuth';
 
+function getApiErrorMessage(error: unknown, fallback: string): string {
+    const axiosError = error as { response?: { data?: { message?: string } } };
+    const apiMsg = axiosError.response?.data?.message;
+    if (typeof apiMsg === 'string') return apiMsg;
+    if (error instanceof Error) return error.message;
+    return fallback;
+}
+
 const schema = z.object({
     email: z.string().email({ message: 'Email không hợp lệ' }),
 });
@@ -45,20 +53,9 @@ export function ForgotPasswordPage() {
                 icon: <IconCheck size={18} />,
             });
         } catch (error: unknown) {
-            let message = 'Không thể gửi email';
-
-            if (error instanceof Error) {
-                message = error.message;
-            }
-
-            const axiosError = error as { response?: { data?: { message?: string } } };
-            if (axiosError.response?.data?.message) {
-                message = axiosError.response.data.message;
-            }
-
             notifications.show({
                 title: 'Lỗi',
-                message: message,
+                message: getApiErrorMessage(error, 'Không thể gửi email'),
                 color: 'red',
                 icon: <IconX size={18} />,
             });

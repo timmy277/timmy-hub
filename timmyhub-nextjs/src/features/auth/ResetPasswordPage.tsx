@@ -1,6 +1,6 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
     Button,
     Text,
@@ -20,6 +20,14 @@ import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useResetPasswordMutation } from '@/hooks/useAuth';
 
+function getApiErrorMessage(error: unknown, fallback: string): string {
+    const axiosError = error as { response?: { data?: { message?: string } } };
+    const apiMsg = axiosError.response?.data?.message;
+    if (typeof apiMsg === 'string') return apiMsg;
+    if (error instanceof Error) return error.message;
+    return fallback;
+}
+
 const schema = z
     .object({
         password: z
@@ -36,10 +44,12 @@ const schema = z
         path: ['confirmPassword'],
     });
 
-export function ResetPasswordPage() {
-    const searchParams = useSearchParams();
+interface ResetPasswordPageProps {
+    token?: string;
+}
+
+export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
     const router = useRouter();
-    const token = searchParams.get('token');
     const resetPasswordMutation = useResetPasswordMutation();
 
     const form = useForm({
@@ -75,20 +85,9 @@ export function ResetPasswordPage() {
 
             router.push('/login');
         } catch (error: unknown) {
-            let message = 'Không thể đặt lại mật khẩu';
-
-            if (error instanceof Error) {
-                message = error.message;
-            }
-
-            const axiosError = error as { response?: { data?: { message?: string } } };
-            if (axiosError.response?.data?.message) {
-                message = axiosError.response.data.message;
-            }
-
             notifications.show({
                 title: 'Lỗi',
-                message: message,
+                message: getApiErrorMessage(error, 'Không thể đặt lại mật khẩu'),
                 color: 'red',
                 icon: <IconX size={18} />,
             });

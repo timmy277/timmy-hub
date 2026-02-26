@@ -25,8 +25,7 @@ export function UserList() {
         useManagementTabs<User>('User');
 
     // ===== Component Logic =====
-    // Render tab content based on tab type
-    const renderTabContent = (tab: TabItem<User>) => {
+    const renderTabContent = useCallback((tab: TabItem<User>) => {
         switch (tab.type) {
             case ManagementTabType.CREATE:
                 return (
@@ -58,7 +57,7 @@ export function UserList() {
             default:
                 return null;
         }
-    };
+    }, [setActiveTab, closeTab]);
 
     // ===== Event Handlers =====
     const handleToggleStatus = useCallback(

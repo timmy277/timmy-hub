@@ -121,16 +121,14 @@ export function ManagementPage<T>({
             gridApi.setGridOption('quickFilterText', '');
             gridApi.setFilterModel(null);
 
-            try {
-                const defaultState = columnDefs
-                    .map(col => ({
-                        colId: col.colId || (col.field as string),
-                        pinned: col.pinned,
-                        hide: false,
-                        width: col.width,
-                    }))
-                    .filter(state => state.colId);
+            const defaultState = columnDefs.flatMap(col => {
+                let colId = col.colId;
+                if (!colId && col.field) colId = col.field as string;
+                if (!colId) return [];
+                return [{ colId, pinned: col.pinned, hide: false as const, width: col.width }];
+            });
 
+            try {
                 if (defaultState.length > 0) {
                     gridApi.applyColumnState({
                         state: defaultState,
@@ -235,10 +233,10 @@ export function ManagementPage<T>({
                                                         </Button>
                                                     </Popover.Target>
                                                     <Popover.Dropdown>
-                                                        <ColumnManagement 
-                                                            columnDefs={columnDefs} 
-                                                            gridApi={gridApi} 
-                                                            columnPinnedState={columnPinnedState} 
+                                                        <ColumnManagement
+                                                            columnDefs={columnDefs}
+                                                            gridApi={gridApi}
+                                                            columnPinnedState={columnPinnedState}
                                                         />
                                                     </Popover.Dropdown>
                                                 </Popover>

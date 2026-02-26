@@ -31,6 +31,34 @@ function getErrorMessage(err: unknown): string {
     return 'Có lỗi xảy ra, vui lòng thử lại';
 }
 
+type CartItem = { id: string; product: { price: number | string; name: string; images?: string[] }; quantity: number };
+type AnyRes = Record<string, unknown>;
+
+async function buildPaymentUrl(
+    cartItems: CartItem[],
+    refetchCart: () => Promise<{ data?: { items?: CartItem[] } }>,
+): Promise<{ paymentUrl: string } | null> {
+    const { data: freshCart } = await refetchCart();
+    const items = (freshCart as { items?: CartItem[] } | undefined)?.items ?? cartItems;
+    if (!items?.length) return null;
+
+    const orderRes = await orderService.createFromCart({ paymentMethod: 'VNPAY' }) as unknown as AnyRes;
+    const orderData = (orderRes as { data?: { id?: string } }).data;
+    if (!orderData?.id) {
+        const msg = (orderRes as { message?: string }).message;
+        throw new Error(msg !== undefined ? msg : 'Tạo đơn hàng thất bại');
+    }
+
+    const payRes = await paymentService.createVnpayUrl({ orderId: orderData.id }) as unknown as AnyRes;
+    const payData = (payRes as { data?: { url?: string } }).data;
+    if (!payData?.url) {
+        const msg = (payRes as { message?: string }).message;
+        throw new Error(msg !== undefined ? msg : 'Tạo link thanh toán thất bại');
+    }
+
+    return { paymentUrl: payData.url };
+}
+
 export function CheckoutPage() {
     const { user } = useAuth();
     const { cart, isLoading: cartLoading, refetch: refetchCart } = useCart();
@@ -39,47 +67,29 @@ export function CheckoutPage() {
     const handlePayWithVnpay = async () => {
         if (!cart || cart.items.length === 0) return;
         setIsSubmitting(true);
+        let result: { paymentUrl: string } | null = null;
         try {
-            const { data: freshCart } = await refetchCart();
-            const items = freshCart?.items ?? cart.items;
-            if (!items?.length) {
-                notifications.show({
-                    title: 'Giỏ hàng đã thay đổi',
-                    message: 'Giỏ hàng trống hoặc đã được cập nhật. Vui lòng kiểm tra lại giỏ hàng.',
-                    color: 'orange',
-                });
-                setIsSubmitting(false);
-                return;
-            }
-
-            const orderRes = await orderService.createFromCart({
-                paymentMethod: 'VNPAY',
-            });
-            const orderData = (orderRes as { data?: { id?: string } })?.data;
-            if (!orderData?.id) {
-                throw new Error(
-                    (orderRes as { message?: string })?.message ?? 'Tạo đơn hàng thất bại',
-                );
-            }
-
-            const payRes = await paymentService.createVnpayUrl({ orderId: orderData.id });
-            const payData = (payRes as { data?: { url?: string } })?.data;
-            if (!payData?.url) {
-                throw new Error(
-                    (payRes as { message?: string })?.message ?? 'Tạo link thanh toán thất bại',
-                );
-            }
-
-            window.location.href = payData.url;
+            result = await buildPaymentUrl(cart.items as CartItem[], refetchCart as () => Promise<{ data?: { items?: CartItem[] } }>);
         } catch (err) {
             notifications.show({
                 title: 'Lỗi',
                 message: getErrorMessage(err),
                 color: 'red',
             });
-        } finally {
             setIsSubmitting(false);
+            return;
         }
+        if (!result) {
+            notifications.show({
+                title: 'Giỏ hàng đã thay đổi',
+                message: 'Giỏ hàng trống hoặc đã được cập nhật. Vui lòng kiểm tra lại giỏ hàng.',
+                color: 'orange',
+            });
+            setIsSubmitting(false);
+            return;
+        }
+        window.location.href = result.paymentUrl;
+        setIsSubmitting(false);
     };
 
     if (!user || cartLoading) {
