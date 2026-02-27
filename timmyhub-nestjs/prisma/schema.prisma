@@ -246,21 +246,23 @@ model Address {
 // ==================== SELLER & BRAND ====================
 
 model SellerProfile {
-  id          String    @id @default(cuid())
-  userId      String    @unique
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String         @id @default(cuid())
+  userId      String         @unique
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   shopName    String
-  shopSlug    String    @unique
+  shopSlug    String         @unique
   shopLogo    String?
   description String?
-  isVerified  Boolean   @default(false)
+  status      ResourceStatus @default(PENDING) // PENDING → admin duyệt → APPROVED (khi đó mới set User.role = SELLER)
+  isVerified  Boolean        @default(false)
   verifiedAt  DateTime?
-  rating      Float     @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  rating      Float          @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   products    Product[]
 
   @@index([shopSlug])
+  @@index([status])
 }
 
 model BrandProfile {

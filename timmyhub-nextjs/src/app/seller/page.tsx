@@ -1,0 +1,114 @@
+'use client';
+
+import { Title, Text, Container, Paper, Stack, Group, Card, SimpleGrid, Alert } from '@mantine/core';
+import { IconPackage, IconTicket, IconDiscount, IconInfoCircle } from '@tabler/icons-react';
+import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { sellerService } from '@/services/seller.service';
+
+export default function SellerDashboardPage() {
+    const { data: checkRes } = useQuery({
+        queryKey: ['seller-profile-check'],
+        queryFn: () => sellerService.checkProfile(),
+    });
+    const { data: profileRes } = useQuery({
+        queryKey: ['seller-profile'],
+        queryFn: () => sellerService.getProfile(),
+        enabled: checkRes?.data?.status === 'APPROVED',
+    });
+    const shop = profileRes?.data ?? checkRes?.data?.profile;
+    const status = checkRes?.data?.status;
+    const isPending = status === 'PENDING';
+
+    return (
+        <Container fluid p="md">
+            <Stack gap="lg">
+                {isPending && (
+                    <Alert icon={<IconInfoCircle size={20} />} title="Đang chờ duyệt" color="blue" variant="light">
+                        Đơn đăng ký gian hàng của bạn đang chờ admin duyệt. Sau khi được duyệt bạn có thể quản lý sản phẩm, voucher và campaign.
+                    </Alert>
+                )}
+                <div>
+                    <Title order={2}>Tổng quan gian hàng</Title>
+                    <Text c="dimmed" size="sm" mt={4}>
+                        {shop?.shopName && `Xin chào, ${shop.shopName}`}
+                    </Text>
+                </div>
+
+                <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+                    <Card
+                        component={Link}
+                        href="/seller/products"
+                        withBorder
+                        padding="lg"
+                        radius="md"
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                        <Group>
+                            <IconPackage size={32} stroke={1.5} />
+                            <div>
+                                <Text fw={600}>Sản phẩm</Text>
+                                <Text size="xs" c="dimmed">
+                                    Quản lý sản phẩm của gian hàng
+                                </Text>
+                            </div>
+                        </Group>
+                    </Card>
+                    <Card
+                        component={Link}
+                        href="/seller/vouchers"
+                        withBorder
+                        padding="lg"
+                        radius="md"
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                        <Group>
+                            <IconTicket size={32} stroke={1.5} />
+                            <div>
+                                <Text fw={600}>Voucher</Text>
+                                <Text size="xs" c="dimmed">
+                                    Tạo và quản lý mã giảm giá
+                                </Text>
+                            </div>
+                        </Group>
+                    </Card>
+                    <Card
+                        component={Link}
+                        href="/seller/campaigns"
+                        withBorder
+                        padding="lg"
+                        radius="md"
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                        <Group>
+                            <IconDiscount size={32} stroke={1.5} />
+                            <div>
+                                <Text fw={600}>Chương trình khuyến mãi</Text>
+                                <Text size="xs" c="dimmed">
+                                    Tạo campaign và gắn voucher
+                                </Text>
+                            </div>
+                        </Group>
+                    </Card>
+                </SimpleGrid>
+
+                <Paper withBorder p="xl" radius="md">
+                    <Title order={4} mb="xs">
+                        Thông tin gian hàng
+                    </Title>
+                    {shop ? (
+                        <Stack gap="xs">
+                            <Text><strong>Tên gian hàng:</strong> {shop.shopName}</Text>
+                            <Text><strong>Slug:</strong> {shop.shopSlug}</Text>
+                            {shop.description && (
+                                <Text><strong>Mô tả:</strong> {shop.description}</Text>
+                            )}
+                        </Stack>
+                    ) : (
+                        <Text c="dimmed">Đang tải...</Text>
+                    )}
+                </Paper>
+            </Stack>
+        </Container>
+    );
+}

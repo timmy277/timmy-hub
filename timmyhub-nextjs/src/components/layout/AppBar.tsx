@@ -1,6 +1,6 @@
 'use client';
 
-import { Group, Box, Avatar, Text, Menu, UnstyledButton, ActionIcon, Divider, Breadcrumbs, Anchor } from '@mantine/core';
+import { Group, Box, Avatar, Text, Menu, UnstyledButton, ActionIcon, Divider, Breadcrumbs, Anchor, Button } from '@mantine/core';
 import { LanguageSwitcher, ThemeSwitcher } from '../shared';
 import { Logo } from '../common';
 import { CartBadge } from '../cart/CartBadge';
@@ -11,6 +11,7 @@ import {
     IconLayoutSidebarLeftCollapse,
     IconLayoutSidebarRightCollapse,
     IconChevronRight,
+    IconPackage,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useSidebarStore } from '@/stores/useSidebarStore';
@@ -37,6 +38,8 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
 
     // ===== Component Logic =====
     const isAdminPage = pathname.startsWith('/admin');
+    const isSellerPage = pathname.startsWith('/seller');
+    const showSidebarToggle = isAdminPage || isSellerPage;
     const segments = pathname.split('/').filter(p => p);
 
     const breadcrumbItems = [
@@ -66,7 +69,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
     return (
         <Group justify="space-between" h="100%" px="2rem">
             <Group>
-                {withSidebarToggle && isAdminPage && (
+                {withSidebarToggle && showSidebarToggle && (
                     <ActionIcon
                         onClick={toggleSidebar}
                         variant="subtle"
@@ -93,6 +96,31 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
 
             <Group gap="md">
                 {!isAdminPage && <CartBadge />}
+                {user && !isAdminPage && (
+                    user.role === 'SELLER' ? (
+                        <Button
+                            component={Link}
+                            href="/seller"
+                            variant="light"
+                            size="sm"
+                            leftSection={<IconPackage size={18} />}
+                        >
+                            Gian hàng
+                        </Button>
+                    ) : (
+                        (user.role === 'CUSTOMER' || user.role === 'BRAND' || user.role === 'SHIPPER') && (
+                            <Button
+                                component={Link}
+                                href="/seller"
+                                variant="default"
+                                size="sm"
+                                leftSection={<IconPackage size={18} />}
+                            >
+                                Trở thành seller
+                            </Button>
+                        )
+                    )
+                )}
                 <LanguageSwitcher />
                 <ThemeSwitcher />
 

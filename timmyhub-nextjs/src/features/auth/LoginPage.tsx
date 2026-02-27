@@ -22,7 +22,7 @@ import { zodResolver } from 'mantine-form-zod-resolver';
 import { IconAt, IconLock, IconArrowRight, IconCheck, IconX } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useMounted } from '@mantine/hooks';
 import { useLoginMutation } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -49,6 +49,8 @@ export function LoginPage() {
     const mounted = useMounted();
     const setAuthData = useAuthStore(state => state.setAuthData);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get('redirect');
     const loginMutation = useLoginMutation();
 
     // ===== Form Definition =====
@@ -93,7 +95,15 @@ export function LoginPage() {
             icon: <IconCheck size={18} />,
         });
 
-        router.push('/admin');
+        const target =
+            redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')
+                ? redirectTo
+                : user.role === 'SELLER'
+                    ? '/seller'
+                    : user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
+                        ? '/admin'
+                        : '/';
+        router.push(target);
     };
 
     // ===== Final Render =====
