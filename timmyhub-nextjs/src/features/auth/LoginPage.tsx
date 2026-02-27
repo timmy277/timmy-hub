@@ -83,7 +83,7 @@ export function LoginPage() {
 
         setAuthData(user, device);
 
-        Cookies.set('user_role', user.role, { expires: cookieExpires });
+        Cookies.set('user_role', Array.isArray(user.roles) ? user.roles[0] : (user as { role?: string }).role ?? 'CUSTOMER', { expires: cookieExpires });
         Cookies.set('user_permissions', JSON.stringify(user.permissions), {
             expires: cookieExpires,
         });
@@ -95,12 +95,13 @@ export function LoginPage() {
             icon: <IconCheck size={18} />,
         });
 
+        const roles = Array.isArray(user.roles) ? user.roles : [(user as { role?: string }).role ?? 'CUSTOMER'];
         const target =
             redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')
                 ? redirectTo
-                : user.role === 'SELLER'
+                : roles.includes('SELLER')
                     ? '/seller'
-                    : user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
+                    : roles.includes('ADMIN') || roles.includes('SUPER_ADMIN')
                         ? '/admin'
                         : '/';
         router.push(target);

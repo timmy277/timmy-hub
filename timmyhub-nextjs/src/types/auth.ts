@@ -30,7 +30,9 @@ export interface User {
     id: string;
     email: string;
     phone?: string;
-    role: UserRole;
+    /** Prefer roles (multi-role). Backend returns roles; role may be present for legacy. */
+    roles: UserRole[];
+    role?: UserRole;
     permissions: string[];
     profile?: Profile;
     rules?: RawRuleOf<AppAbility>[];

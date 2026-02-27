@@ -14,7 +14,7 @@ export const seedingUsersData = async (prisma: PrismaClient) => {
         create: {
             email: adminEmail,
             passwordHash: hashedPassword,
-            role: UserRole.SUPER_ADMIN,
+            roles: [UserRole.SUPER_ADMIN],
             isEmailVerified: true,
             isActive: true,
             profile: {
@@ -119,7 +119,7 @@ export const seedingUsersData = async (prisma: PrismaClient) => {
             create: {
                 email: u.email,
                 passwordHash: hashedPassword,
-                role: u.role,
+                roles: [u.role],
                 isEmailVerified: true,
                 isActive: true,
                 profile: {

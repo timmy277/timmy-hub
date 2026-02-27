@@ -3,11 +3,12 @@
 import { useAuthStore } from '@/stores/useAuthStore';
 import { ReactNode } from 'react';
 import { hasPermissions } from '@/config/permissions';
+import { UserRole } from '@/types/auth';
 
 interface GuardProps {
     children: ReactNode;
     permissions?: string[];
-    role?: string;
+    role?: UserRole | string;
     fallback?: ReactNode;
 }
 
@@ -25,12 +26,12 @@ export const AccessGuard = ({ children, permissions, role, fallback = null }: Gu
     }
 
     // Super admin bypass all checks
-    if (user.role === 'SUPER_ADMIN') {
+    if (user.roles?.includes(UserRole.SUPER_ADMIN)) {
         return <>{children}</>;
     }
 
     // Check for specific role if provided
-    if (role && user.role !== role) {
+    if (role && !user.roles?.includes(role as UserRole)) {
         return <>{fallback}</>;
     }
 

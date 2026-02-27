@@ -88,16 +88,17 @@ export function UserDetail({ user }: UserDetailProps) {
                             <InfoRow
                                 label={t('userManagement.role')}
                                 value={
-                                    <Badge color="blue" variant="light">
-                                        {(() => {
-                                            const role = user.role as string;
+                                    <>
+                                        {(Array.isArray(user.roles) ? user.roles : [(user as { role?: string }).role].filter((r): r is string => Boolean(r))).map((role) => {
                                             const translatedRole = t(`roles.${role}`);
-                                            if (translatedRole !== `roles.${role}`) return translatedRole;
-                                            
-                                            const dynamicRole = user.userRoles?.find(ur => ur.role.name === role);
-                                            return dynamicRole?.role.displayName || role;
-                                        })()}
-                                    </Badge>
+                                            const label = translatedRole !== `roles.${role}` ? translatedRole : (user.userRoles?.find(ur => ur.role.name === role)?.role.displayName || role);
+                                            return (
+                                                <Badge key={role} color="blue" variant="light" style={{ marginRight: 4 }}>
+                                                    {label}
+                                                </Badge>
+                                            );
+                                        })}
+                                    </>
                                 }
                             />
 

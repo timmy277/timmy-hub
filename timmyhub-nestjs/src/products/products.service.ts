@@ -153,14 +153,14 @@ export class ProductsService {
         // Get user để check role
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            select: { role: true },
+            select: { roles: true },
         });
 
         if (!user) throw new NotFoundException('Người dùng không tồn tại');
 
         // CASL đã check quyền Update Product
         // Nhưng cần check ownership nếu là SELLER
-        if (user.role === UserRole.SELLER && product.sellerId !== userId) {
+        if (user.roles.includes(UserRole.SELLER) && product.sellerId !== userId) {
             throw new ForbiddenException('Bạn chỉ có thể cập nhật sản phẩm của mình');
         }
 
@@ -197,13 +197,13 @@ export class ProductsService {
         // Get user để check role
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            select: { role: true },
+            select: { roles: true },
         });
 
         if (!user) throw new NotFoundException('Người dùng không tồn tại');
 
         // Check ownership nếu là SELLER
-        if (user.role === UserRole.SELLER && product.sellerId !== userId) {
+        if (user.roles.includes(UserRole.SELLER) && product.sellerId !== userId) {
             throw new ForbiddenException('Bạn chỉ có thể xóa sản phẩm của mình');
         }
 

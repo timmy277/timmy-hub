@@ -14,8 +14,14 @@ import { UpdateVoucherDto } from './dto/update-voucher.dto';
 export class VouchersService {
     constructor(private readonly prisma: PrismaService) {}
 
-    async create(userId: string, dto: CreateVoucherDto, campaignId?: string, userRole?: UserRole) {
-        const isAdmin = userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN;
+    async create(
+        userId: string,
+        dto: CreateVoucherDto,
+        campaignId?: string,
+        userRoles?: UserRole[],
+    ) {
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
         const sellerId = isAdmin && dto.sellerId !== undefined ? dto.sellerId : userId;
 
         const existing = await this.prisma.voucher.findUnique({
@@ -97,7 +103,7 @@ export class VouchersService {
         });
     }
 
-    async findOne(id: string, userId: string, userRole: UserRole) {
+    async findOne(id: string, userId: string, userRoles: UserRole[]) {
         const voucher = await this.prisma.voucher.findUnique({
             where: { id },
             include: { campaign: true },
@@ -105,23 +111,21 @@ export class VouchersService {
         if (!voucher) {
             throw new NotFoundException('Voucher không tồn tại');
         }
-        if (
-            voucher.sellerId &&
-            voucher.sellerId !== userId &&
-            userRole !== UserRole.SUPER_ADMIN &&
-            userRole !== UserRole.ADMIN
-        ) {
+        const isAdmin =
+            userRoles.includes(UserRole.SUPER_ADMIN) || userRoles.includes(UserRole.ADMIN);
+        if (voucher.sellerId && voucher.sellerId !== userId && !isAdmin) {
             throw new ForbiddenException('Bạn không có quyền xem voucher này');
         }
         return voucher;
     }
 
-    async update(id: string, userId: string, dto: UpdateVoucherDto, userRole?: UserRole) {
+    async update(id: string, userId: string, dto: UpdateVoucherDto, userRoles?: UserRole[]) {
         const voucher = await this.prisma.voucher.findUnique({ where: { id } });
         if (!voucher) {
             throw new NotFoundException('Voucher không tồn tại');
         }
-        const isAdmin = userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN;
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
         if (!isAdmin && voucher.sellerId !== userId) {
             throw new ForbiddenException('Bạn chỉ có thể sửa voucher của shop mình');
         }
@@ -135,12 +139,13 @@ export class VouchersService {
         });
     }
 
-    async remove(id: string, userId: string, userRole?: UserRole) {
+    async remove(id: string, userId: string, userRoles?: UserRole[]) {
         const voucher = await this.prisma.voucher.findUnique({ where: { id } });
         if (!voucher) {
             throw new NotFoundException('Voucher không tồn tại');
         }
-        const isAdmin = userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN;
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
         if (!isAdmin && voucher.sellerId !== userId) {
             throw new ForbiddenException('Bạn chỉ có thể xóa voucher của shop mình');
         }

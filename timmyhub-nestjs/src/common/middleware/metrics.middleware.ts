@@ -23,9 +23,8 @@ export class MetricsMiddleware implements NestMiddleware {
     private getRoutePath(req: Request): string {
         // Extract route pattern instead of actual path
         // e.g., /api/users/123 -> /api/users/:id
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
         if (req.route && typeof req.route.path === 'string') {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return req.route.path as string;
         }
         return req.path;

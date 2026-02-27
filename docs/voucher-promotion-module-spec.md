@@ -15,7 +15,7 @@
 5. [Case thực tế cho Chương trình khuyến mãi](#5-các-case-thực-tế-cho-chương-trình-khuyến-mãi)
 6. [Luồng áp dụng voucher khi checkout](#6-luồng-áp-dụng-voucher-khi-checkout)
 7. [Mô hình dữ liệu](#7-mô-hình-dữ-liệu-gợi-ý-bổ-sung--mở-rộng)
-8. [API & Quyền](#8-api--quyền-gợi-ý)
+8. [API & Quyền](#8-api--quyền-gợi-ý)   
 9. [Tóm tắt triển khai](#9-tóm-tắt-triển-khai-module)
 10. [Bảng tra cứu nhanh](#10-bảng-tra-cứu-nhanh--case-thực-tế)
 

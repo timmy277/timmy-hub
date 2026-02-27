@@ -45,7 +45,7 @@ export class UsersService {
             data: {
                 email: dto.email.toLowerCase(),
                 passwordHash: hashedPassword,
-                role: finalEnumRole,
+                roles: [finalEnumRole],
                 phone: dto.phoneNumber || null,
                 profile: {
                     create: {
@@ -111,7 +111,7 @@ export class UsersService {
         if (dto.role !== undefined) {
             const role = dto.role as UserRole;
             const finalEnumRole = Object.values(UserRole).includes(role) ? role : UserRole.CUSTOMER;
-            updateData.role = finalEnumRole;
+            updateData.roles = [finalEnumRole];
 
             // Sync userRoles relationship
             updateData.userRoles = {

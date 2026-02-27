@@ -5,7 +5,7 @@ export const seedingProductsData = async (prisma: PrismaClient) => {
 
     // Lấy một số seller để gán sản phẩm
     const sellers = await prisma.user.findMany({
-        where: { role: 'SELLER' },
+        where: { roles: { has: 'SELLER' } },
         take: 3,
     });
 

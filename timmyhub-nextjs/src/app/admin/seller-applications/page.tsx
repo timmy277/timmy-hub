@@ -13,6 +13,7 @@ import {
     Stack,
     Alert,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { IconRefresh, IconCheck, IconX } from '@tabler/icons-react';
 import { DashboardShell } from '@/components/layout';
 import { sellerService } from '@/services/seller.service';
@@ -28,12 +29,34 @@ export default function AdminSellerApplicationsPage() {
         mutationFn: (profileId: string) => sellerService.approveApplication(profileId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-seller-applications'] });
+            notifications.show({
+                title: 'Đã duyệt',
+                message: 'Seller đã được duyệt và có thể đăng nhập gian hàng.',
+                color: 'green',
+                icon: <IconCheck size={18} />,
+            });
+        },
+        onError: (err: unknown) => {
+            const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string } } }).response : undefined;
+            const msg = ax?.data?.message ?? (err instanceof Error ? err.message : 'Có lỗi xảy ra');
+            notifications.show({ title: 'Lỗi', message: String(msg), color: 'red' });
         },
     });
     const rejectMutation = useMutation({
         mutationFn: (profileId: string) => sellerService.rejectApplication(profileId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-seller-applications'] });
+            notifications.show({
+                title: 'Đã từ chối',
+                message: 'Đơn đăng ký seller đã được từ chối.',
+                color: 'orange',
+                icon: <IconX size={18} />,
+            });
+        },
+        onError: (err: unknown) => {
+            const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string } } }).response : undefined;
+            const msg = ax?.data?.message ?? (err instanceof Error ? err.message : 'Có lỗi xảy ra');
+            notifications.show({ title: 'Lỗi', message: String(msg), color: 'red' });
         },
     });
 
@@ -52,7 +75,12 @@ export default function AdminSellerApplicationsPage() {
                 <Paper shadow="md" radius="md" withBorder p="md">
                     <Stack gap="lg">
                         <Group justify="space-between">
-                            <Title order={3}>Đơn đăng ký seller</Title>
+                            <div>
+                                <Title order={3}>Quản lý seller</Title>
+                                <Text size="sm" c="dimmed" mt={4}>
+                                    Duyệt hoặc từ chối đơn đăng ký gian hàng. Duyệt xong user sẽ trở thành seller.
+                                </Text>
+                            </div>
                             <Button
                                 variant="outline"
                                 leftSection={<IconRefresh size={16} />}

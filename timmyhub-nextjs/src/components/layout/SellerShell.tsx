@@ -6,8 +6,8 @@ import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useMounted } from '@mantine/hooks';
 import type { ReactNode } from 'react';
 
-const SellerSidebar = dynamic(
-    () => import('./SellerSidebar').then(m => m.SellerSidebar),
+const Sidebar = dynamic(
+    () => import('./Sidebar').then(m => m.Sidebar),
     { ssr: false },
 );
 const AppBar = dynamic(() => import('./AppBar').then(m => m.AppBar), { ssr: false });
@@ -37,7 +37,7 @@ export function SellerShell({ children, withFooter = true }: SellerShellProps) {
                 <AppBar withSidebarToggle={true} />
             </AppShell.Header>
             <AppShell.Navbar>
-                <SellerSidebar />
+                <Sidebar />
             </AppShell.Navbar>
             <AppShell.Main
                 display="flex"

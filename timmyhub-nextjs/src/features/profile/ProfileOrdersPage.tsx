@@ -75,7 +75,7 @@ function OrderCard({ order }: { order: Order }) {
                             radius="sm"
                         />
                     ) : (
-                        <Box w={56} h={56} bg="gray.2" radius="sm" />
+                        <Box w={56} h={56} bg="gray.2" style={{ borderRadius: 'var(--mantine-radius-sm)' }} />
                     )}
                     <Stack gap={2} style={{ minWidth: 0 }}>
                         <Text fw={600} size="sm">#{shortId}</Text>

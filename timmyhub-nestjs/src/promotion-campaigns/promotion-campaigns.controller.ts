@@ -34,7 +34,7 @@ export class PromotionCampaignsController {
         summary: 'Tạo campaign (Seller: shop mình; Admin: PLATFORM hoặc SELLER)',
     })
     async create(@Body() dto: CreatePromotionCampaignDto, @Req() req: UserRequest) {
-        const campaign = await this.campaignsService.create(req.user.id, dto, req.user.role);
+        const campaign = await this.campaignsService.create(req.user.id, dto, req.user.roles);
         return ResponseDto.success('Tạo chương trình khuyến mãi thành công', campaign);
     }
 
@@ -52,7 +52,9 @@ export class PromotionCampaignsController {
         @Query('ownerType') ownerType?: string,
         @Query('ownerId') ownerId?: string,
     ) {
-        const isAdmin = req.user.role === UserRole.ADMIN || req.user.role === UserRole.SUPER_ADMIN;
+        const isAdmin =
+            req.user.roles.includes(UserRole.ADMIN) ||
+            req.user.roles.includes(UserRole.SUPER_ADMIN);
         const list = isAdmin
             ? await this.campaignsService.findAllAdmin(ownerType, ownerId)
             : await this.campaignsService.findAllBySeller(req.user.id);
@@ -65,7 +67,7 @@ export class PromotionCampaignsController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Chi tiết campaign' })
     async findOne(@Param('id') id: string, @Req() req: UserRequest) {
-        const campaign = await this.campaignsService.findOne(id, req.user.id, req.user.role);
+        const campaign = await this.campaignsService.findOne(id, req.user.id, req.user.roles);
         return ResponseDto.success('Lấy chi tiết chương trình thành công', campaign);
     }
 
@@ -79,7 +81,7 @@ export class PromotionCampaignsController {
         @Body() dto: UpdatePromotionCampaignDto,
         @Req() req: UserRequest,
     ) {
-        const campaign = await this.campaignsService.update(id, req.user.id, dto, req.user.role);
+        const campaign = await this.campaignsService.update(id, req.user.id, dto, req.user.roles);
         return ResponseDto.success('Cập nhật chương trình thành công', campaign);
     }
 
@@ -89,7 +91,7 @@ export class PromotionCampaignsController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Xóa campaign (Seller: shop mình; Admin: bất kỳ)' })
     async remove(@Param('id') id: string, @Req() req: UserRequest) {
-        await this.campaignsService.remove(id, req.user.id, req.user.role);
+        await this.campaignsService.remove(id, req.user.id, req.user.roles);
         return ResponseDto.success('Đã xóa chương trình khuyến mãi');
     }
 }

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
+import { UserRole } from '@prisma/client';
 import { CreatePromotionCampaignDto } from './dto/create-campaign.dto';
 import { UpdatePromotionCampaignDto } from './dto/update-campaign.dto';
 
@@ -15,8 +16,9 @@ const OWNER_TYPE_SELLER = 'SELLER';
 export class PromotionCampaignsService {
     constructor(private readonly prisma: PrismaService) {}
 
-    async create(userId: string, dto: CreatePromotionCampaignDto, userRole?: string) {
-        const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+    async create(userId: string, dto: CreatePromotionCampaignDto, userRoles?: UserRole[]) {
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
         const ownerType = isAdmin && dto.ownerType ? dto.ownerType : OWNER_TYPE_SELLER;
         const ownerId = isAdmin && dto.ownerId !== undefined ? dto.ownerId : userId;
         if (ownerType === OWNER_TYPE_SELLER && !ownerId) {
@@ -85,7 +87,7 @@ export class PromotionCampaignsService {
         });
     }
 
-    async findOne(id: string, userId: string, userRole?: string) {
+    async findOne(id: string, userId: string, userRoles?: UserRole[]) {
         const campaign = await this.prisma.promotionCampaign.findUnique({
             where: { id },
             include: { vouchers: true },
@@ -93,21 +95,28 @@ export class PromotionCampaignsService {
         if (!campaign) {
             throw new NotFoundException('Chương trình khuyến mãi không tồn tại');
         }
-        const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
         if (!isAdmin && campaign.ownerType === OWNER_TYPE_SELLER && campaign.ownerId !== userId) {
             throw new ForbiddenException('Bạn không có quyền xem chương trình này');
         }
         return campaign;
     }
 
-    async update(id: string, userId: string, dto: UpdatePromotionCampaignDto, userRole?: string) {
+    async update(
+        id: string,
+        userId: string,
+        dto: UpdatePromotionCampaignDto,
+        userRoles?: UserRole[],
+    ) {
         const campaign = await this.prisma.promotionCampaign.findUnique({
             where: { id },
         });
         if (!campaign) {
             throw new NotFoundException('Chương trình khuyến mãi không tồn tại');
         }
-        const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
         if (!isAdmin && (campaign.ownerType !== OWNER_TYPE_SELLER || campaign.ownerId !== userId)) {
             throw new ForbiddenException('Bạn chỉ có thể sửa campaign của shop mình');
         }
@@ -120,14 +129,15 @@ export class PromotionCampaignsService {
         });
     }
 
-    async remove(id: string, userId: string, userRole?: string) {
+    async remove(id: string, userId: string, userRoles?: UserRole[]) {
         const campaign = await this.prisma.promotionCampaign.findUnique({
             where: { id },
         });
         if (!campaign) {
             throw new NotFoundException('Chương trình khuyến mãi không tồn tại');
         }
-        const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
         if (!isAdmin && (campaign.ownerType !== OWNER_TYPE_SELLER || campaign.ownerId !== userId)) {
             throw new ForbiddenException('Bạn chỉ có thể xóa campaign của shop mình');
         }

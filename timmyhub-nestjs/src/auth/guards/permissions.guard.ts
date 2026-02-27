@@ -1,5 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { UserRole } from '@prisma/client';
 import { PERMISSIONS_KEY } from '../../common/decorators/permissions.decorator';
 import type { UserRequest } from '../../auth/interfaces/auth.interface';
 import { RbacService } from '../../rbac/rbac.service';
@@ -36,7 +37,11 @@ export class PermissionsGuard implements CanActivate {
         }
 
         // Check against Super Admin or specific 'admin:all' permission
-        if (userWithPermissions.role === 'SUPER_ADMIN' || this.hasAdminAll(userWithPermissions)) {
+        const userWithRoles = userWithPermissions as { roles: UserRole[] };
+        const roles: UserRole[] = Array.isArray(userWithRoles.roles)
+            ? userWithRoles.roles.slice()
+            : [];
+        if (roles.includes(UserRole.SUPER_ADMIN) || this.hasAdminAll(userWithPermissions)) {
             return true;
         }
 

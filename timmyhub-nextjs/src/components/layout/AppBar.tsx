@@ -18,6 +18,7 @@ import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { UserRole } from '@/types/auth';
 
 interface AppBarProps {
     withSidebarToggle?: boolean;
@@ -97,7 +98,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
             <Group gap="md">
                 {!isAdminPage && <CartBadge />}
                 {user && !isAdminPage && (
-                    user.role === 'SELLER' ? (
+                    user.roles?.includes(UserRole.SELLER) ? (
                         <Button
                             component={Link}
                             href="/seller"
@@ -108,7 +109,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                             Gian hàng
                         </Button>
                     ) : (
-                        (user.role === 'CUSTOMER' || user.role === 'BRAND' || user.role === 'SHIPPER') && (
+                        (user.roles?.includes(UserRole.CUSTOMER) || user.roles?.includes(UserRole.BRAND) || user.roles?.includes(UserRole.SHIPPER)) && (
                             <Button
                                 component={Link}
                                 href="/seller"

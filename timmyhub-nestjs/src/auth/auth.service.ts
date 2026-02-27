@@ -13,8 +13,10 @@ import { RegisterDto } from './dto/register.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { UserRole } from '@prisma/client';
 import { RbacService } from '../rbac/rbac.service';
-import { CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { AppAbility, CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { RawRuleOf } from '@casl/ability';
 import { AuthCleanupService } from './auth-cleanup.service';
 
 @Injectable()
@@ -130,13 +132,18 @@ export class AuthService {
         // Update Cache
         await this.cacheManager.set(`user_permissions:${user.id}`, permissionList, 600000);
 
+        const rules: RawRuleOf<AppAbility>[] = ability.rules;
+        const safeUser = user as { id: string; email: string; roles: UserRole[] };
+        const userId: string = safeUser.id;
+        const userEmail: string = safeUser.email;
+        const userRoles: UserRole[] = Array.isArray(safeUser.roles) ? safeUser.roles : [];
         return {
             user: {
-                id: user.id,
-                email: user.email,
-                role: user.role,
+                id: userId,
+                email: userEmail,
+                roles: userRoles,
                 permissions: permissionList,
-                rules: ability.rules, // Send CASL rules to FE
+                rules,
             },
             device: {
                 id: device.id,
@@ -305,14 +312,28 @@ export class AuthService {
             permissions.add(up.permission.name);
         });
 
+        const rules: RawRuleOf<AppAbility>[] = ability.rules;
+        type ProfileUser = {
+            id: string;
+            email: string;
+            roles: UserRole[];
+            isActive: boolean | null;
+            profile: typeof user.profile;
+        };
+        const safeUser = user as ProfileUser;
+        const profileId: string = safeUser.id;
+        const profileEmail: string = safeUser.email;
+        const profileRoles: UserRole[] = Array.isArray(safeUser.roles) ? safeUser.roles : [];
+        const profileActive: boolean = safeUser.isActive ?? true;
+        const profilePermissions: string[] = Array.from(permissions);
         return {
-            id: user.id,
-            email: user.email,
-            role: user.role,
-            isActive: user.isActive,
-            profile: user.profile,
-            permissions: Array.from(permissions),
-            rules: ability.rules, // CASL rules
+            id: profileId,
+            email: profileEmail,
+            roles: profileRoles,
+            isActive: profileActive,
+            profile: safeUser.profile,
+            permissions: profilePermissions,
+            rules,
         };
     }
 

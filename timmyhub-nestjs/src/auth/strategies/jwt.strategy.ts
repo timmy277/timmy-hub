@@ -3,6 +3,7 @@ import type { Request } from 'express';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
+import { UserRole } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { AuthenticatedUser, JwtPayload } from '../interfaces/auth.interface';
 
@@ -56,6 +57,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             }
         }
 
-        return { id: user.id, email: user.email, role: user.role, deviceId };
+        const dbUser = user as { id: string; email: string; roles: UserRole[] };
+        const roles: UserRole[] = Array.isArray(dbUser.roles) ? dbUser.roles.slice() : [];
+        const result: AuthenticatedUser = {
+            id: dbUser.id,
+            email: dbUser.email,
+            roles,
+            deviceId: deviceId ?? null,
+        };
+        return result;
     }
 }

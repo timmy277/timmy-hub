@@ -78,10 +78,11 @@ export class SellerService {
         });
     }
 
-    /** Admin: duyệt seller → set status APPROVED và User.role = SELLER */
+    /** Admin: duyệt seller → set status APPROVED và thêm SELLER vào user.roles (giữ CUSTOMER) */
     async approve(profileId: string) {
         const profile = await this.prisma.sellerProfile.findUnique({
             where: { id: profileId },
+            include: { user: { select: { roles: true } } },
         });
         if (!profile) {
             throw new NotFoundException('Không tìm thấy đơn đăng ký');
@@ -89,6 +90,12 @@ export class SellerService {
         if (profile.status !== ResourceStatus.PENDING) {
             throw new BadRequestException('Đơn này đã được xử lý');
         }
+        const user = profile.user as { roles: UserRole[] } | null;
+        const currentRoles: UserRole[] =
+            user && Array.isArray(user.roles) ? user.roles.slice() : [];
+        const newRoles: UserRole[] = currentRoles.includes(UserRole.SELLER)
+            ? currentRoles
+            : [...currentRoles, UserRole.SELLER];
         await this.prisma.$transaction([
             this.prisma.sellerProfile.update({
                 where: { id: profileId },
@@ -96,7 +103,7 @@ export class SellerService {
             }),
             this.prisma.user.update({
                 where: { id: profile.userId },
-                data: { role: UserRole.SELLER },
+                data: { roles: newRoles },
             }),
         ]);
         return this.prisma.sellerProfile.findUnique({

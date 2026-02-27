@@ -42,10 +42,9 @@ export type UserWithPermissions = User & {
 @Injectable()
 export class CaslAbilityFactory {
     createForUser(user: UserWithPermissions) {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         const { can, cannot, build } = new AbilityBuilder(createMongoAbility);
 
-        if (user.role === UserRole.SUPER_ADMIN) {
+        if (user.roles?.includes(UserRole.SUPER_ADMIN)) {
             can(Action.Manage, 'all');
         } else {
             // Role-based permissions
@@ -65,13 +64,13 @@ export class CaslAbilityFactory {
             });
 
             // Conditional ABAC Rules
-            if (user.role === UserRole.SELLER) {
+            if (user.roles?.includes(UserRole.SELLER)) {
                 // Strict property checking using MongoQuery<Model>
                 can(Action.Manage, 'Product', { sellerId: user.id } as MongoQuery<Product>);
                 cannot(Action.Delete, 'Product', { soldCount: { $gt: 0 } } as MongoQuery<Product>);
             }
 
-            if (user.role === UserRole.CUSTOMER) {
+            if (user.roles?.includes(UserRole.CUSTOMER)) {
                 can(Action.Read, 'Order', { userId: user.id } as MongoQuery<Order>);
                 can(Action.Create, 'Order');
             }

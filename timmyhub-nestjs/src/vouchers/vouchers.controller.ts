@@ -40,7 +40,7 @@ export class VouchersController {
             req.user.id,
             dto,
             dto.campaignId,
-            req.user.role,
+            req.user.roles,
         );
         return ResponseDto.success('Tạo voucher thành công', voucher);
     }
@@ -54,7 +54,9 @@ export class VouchersController {
         summary: 'Danh sách voucher (Seller: của shop; Admin: tất cả hoặc theo sellerId)',
     })
     async findAll(@Req() req: UserRequest, @Query('sellerId') sellerId?: string) {
-        const isAdmin = req.user.role === UserRole.ADMIN || req.user.role === UserRole.SUPER_ADMIN;
+        const isAdmin =
+            req.user.roles.includes(UserRole.ADMIN) ||
+            req.user.roles.includes(UserRole.SUPER_ADMIN);
         const list = isAdmin
             ? await this.vouchersService.findAllAdmin(sellerId)
             : await this.vouchersService.findAllBySeller(req.user.id);
@@ -79,7 +81,7 @@ export class VouchersController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Chi tiết voucher (seller owner hoặc admin)' })
     async findOne(@Param('id') id: string, @Req() req: UserRequest) {
-        const voucher = await this.vouchersService.findOne(id, req.user.id, req.user.role);
+        const voucher = await this.vouchersService.findOne(id, req.user.id, req.user.roles);
         return ResponseDto.success('Lấy chi tiết voucher thành công', voucher);
     }
 
@@ -89,7 +91,7 @@ export class VouchersController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Cập nhật voucher (Seller: shop mình; Admin: bất kỳ)' })
     async update(@Param('id') id: string, @Body() dto: UpdateVoucherDto, @Req() req: UserRequest) {
-        const voucher = await this.vouchersService.update(id, req.user.id, dto, req.user.role);
+        const voucher = await this.vouchersService.update(id, req.user.id, dto, req.user.roles);
         return ResponseDto.success('Cập nhật voucher thành công', voucher);
     }
 
@@ -99,7 +101,7 @@ export class VouchersController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Xóa voucher (Seller: shop mình; Admin: bất kỳ)' })
     async remove(@Param('id') id: string, @Req() req: UserRequest) {
-        await this.vouchersService.remove(id, req.user.id, req.user.role);
+        await this.vouchersService.remove(id, req.user.id, req.user.roles);
         return ResponseDto.success('Đã xóa voucher');
     }
 }
