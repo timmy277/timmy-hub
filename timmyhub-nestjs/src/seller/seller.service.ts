@@ -1,9 +1,12 @@
 import {
     BadRequestException,
     ForbiddenException,
+    Inject,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { PrismaService } from '../database/prisma.service';
 import type { SellerProfile } from '@prisma/client';
 import { ResourceStatus, UserRole } from '@prisma/client';
@@ -11,7 +14,10 @@ import { RegisterSellerDto } from './dto/register-seller.dto';
 
 @Injectable()
 export class SellerService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    ) {}
 
     /** Đăng ký seller: tạo profile với status PENDING, chưa set User.role = SELLER. Admin duyệt mới thành seller. */
     async register(userId: string, dto: RegisterSellerDto) {
@@ -106,6 +112,8 @@ export class SellerService {
                 data: { roles: newRoles },
             }),
         ]);
+        await this.cacheManager.del(`user_permissions:${profile.userId}`);
+        await this.cacheManager.del(`user_permissions_full:${profile.userId}`);
         return this.prisma.sellerProfile.findUnique({
             where: { id: profileId },
             include: { user: { include: { profile: true } } },
