@@ -204,6 +204,24 @@ export class VnpayService {
                     status: OrderStatus.CONFIRMED,
                 },
             });
+            const order = await tx.order.findUnique({
+                where: { id: payment.orderId },
+                select: { id: true, userId: true, voucherId: true, voucherDiscount: true },
+            });
+            if (order?.voucherId) {
+                await tx.voucherUsageLog.create({
+                    data: {
+                        voucherId: order.voucherId,
+                        userId: order.userId,
+                        orderId: order.id,
+                        discount: Number(order.voucherDiscount ?? 0),
+                    },
+                });
+                await tx.voucher.update({
+                    where: { id: order.voucherId },
+                    data: { usedCount: { increment: 1 } },
+                });
+            }
         });
 
         this.logger.log(`VNPay payment completed: order ${payment.orderId}`);
@@ -271,6 +289,24 @@ export class VnpayService {
                     status: OrderStatus.CONFIRMED,
                 },
             });
+            const order = await tx.order.findUnique({
+                where: { id: payment.orderId },
+                select: { id: true, userId: true, voucherId: true, voucherDiscount: true },
+            });
+            if (order?.voucherId) {
+                await tx.voucherUsageLog.create({
+                    data: {
+                        voucherId: order.voucherId,
+                        userId: order.userId,
+                        orderId: order.id,
+                        discount: Number(order.voucherDiscount ?? 0),
+                    },
+                });
+                await tx.voucher.update({
+                    where: { id: order.voucherId },
+                    data: { usedCount: { increment: 1 } },
+                });
+            }
         });
 
         this.logger.log(`VNPay IPN processed: order ${payment.orderId}`);

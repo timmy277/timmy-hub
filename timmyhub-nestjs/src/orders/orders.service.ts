@@ -1,11 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { VouchersService } from '../vouchers/vouchers.service';
 import { OrderStatus, PaymentMethod, PaymentStatus, ResourceStatus } from '@prisma/client';
 import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 
 @Injectable()
 export class OrdersService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly vouchersService: VouchersService,
+    ) {}
 
     async createFromCart(userId: string, dto: CreateOrderFromCartDto) {
         const paymentMethod = dto.paymentMethod ?? PaymentMethod.VNPAY;
@@ -36,10 +40,27 @@ export class OrdersService {
             throw new BadRequestException('Không có sản phẩm hợp lệ trong giỏ hàng');
         }
 
-        const totalAmount = validItems.reduce(
+        let totalAmount = validItems.reduce(
             (sum, item) => sum + Number(item.product.price) * item.quantity,
             0,
         );
+        let voucherId: string | undefined;
+        let voucherDiscount: number | undefined;
+        if (dto.voucherCode?.trim()) {
+            const validation = await this.vouchersService.validate(
+                dto.voucherCode.trim(),
+                userId,
+                paymentMethod,
+            );
+            if (!validation.valid || !validation.voucherId) {
+                throw new BadRequestException(validation.message ?? 'Mã voucher không hợp lệ');
+            }
+            voucherId = validation.voucherId;
+            voucherDiscount = validation.discount ?? 0;
+            if (voucherDiscount > 0) {
+                totalAmount = Math.max(0, totalAmount - voucherDiscount);
+            }
+        }
 
         const order = await this.prisma.$transaction(async tx => {
             const order = await tx.order.create({
@@ -49,6 +70,8 @@ export class OrdersService {
                     totalAmount,
                     paymentStatus: PaymentStatus.PENDING,
                     paymentMethod,
+                    voucherId: voucherId ?? undefined,
+                    voucherDiscount: voucherDiscount != null ? voucherDiscount : undefined,
                 },
             });
 

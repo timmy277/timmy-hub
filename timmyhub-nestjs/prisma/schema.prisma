@@ -111,6 +111,7 @@ model User {
   refreshTokens   RefreshToken[]
   devices         Device?
   products        Product[]
+  sellerVouchers  Voucher[]
 
   @@index([email])
   @@index([phone])
@@ -395,21 +396,25 @@ model CartItem {
 }
 
 model Order {
-  id            String        @id @default(cuid())
-  userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  status        OrderStatus   @default(PENDING)
-  totalAmount   Decimal       @db.Decimal(15, 2)
-  paymentStatus PaymentStatus @default(PENDING)
-  paymentMethod PaymentMethod
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  status          OrderStatus   @default(PENDING)
+  totalAmount     Decimal       @db.Decimal(15, 2)
+  voucherId       String?
+  voucherDiscount Decimal?      @db.Decimal(15, 2)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   PaymentMethod
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
+  voucher    Voucher?    @relation(fields: [voucherId], references: [id])
   orderItems OrderItem[]
-  payment   Payment?
+  payment    Payment?
 
   @@index([userId])
   @@index([status])
+  @@index([voucherId])
 }
 
 model OrderItem {
@@ -427,10 +432,10 @@ model OrderItem {
 }
 
 model Payment {
-  id            String        @id @default(cuid())
+  id           String        @id @default(cuid())
   orderId      String        @unique
   order        Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  method       String        // VNPAY, COD, ...
+  method       String // VNPAY, COD, ...
   status       PaymentStatus @default(PENDING)
   amount       Decimal       @db.Decimal(15, 2)
   vnpayTxnRef  String?       @unique
@@ -442,6 +447,75 @@ model Payment {
 
   @@index([orderId])
   @@index([vnpayTxnRef])
+}
+
+// ==================== VOUCHER & PROMOTION ====================
+
+model PromotionCampaign {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        String // VOUCHER_CAMPAIGN | FLASH_SALE | CATEGORY_SALE | EVENT
+  ownerType   String // PLATFORM | SELLER
+  ownerId     String? // null if PLATFORM, userId (seller) if SELLER
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vouchers Voucher[]
+
+  @@index([ownerType, ownerId])
+  @@index([startDate, endDate])
+}
+
+model Voucher {
+  id             String             @id @default(cuid())
+  code           String             @unique
+  type           VoucherType
+  value          Float // % or fixed amount (VND), freeship often 0
+  minOrderValue  Float?
+  maxDiscount    Float? // for PERCENTAGE
+  usageLimit     Int? // null = unlimited
+  usedCount      Int                @default(0)
+  perUserLimit   Int                @default(1)
+  isActive       Boolean            @default(true)
+  startDate      DateTime
+  endDate        DateTime
+  description    String?
+  sellerId       String?
+  seller         User?              @relation(fields: [sellerId], references: [id], onDelete: SetNull)
+  campaignId     String?
+  campaign       PromotionCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  categoryIds    String[]           @default([])
+  productIds     String[]           @default([])
+  paymentMethods String[]           @default([])
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  orders    Order[]
+  usageLogs VoucherUsageLog[]
+
+  @@index([code])
+  @@index([sellerId])
+  @@index([campaignId])
+  @@index([isActive, startDate, endDate])
+}
+
+model VoucherUsageLog {
+  id        String   @id @default(cuid())
+  voucherId String
+  voucher   Voucher  @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  userId    String
+  orderId   String
+  discount  Float
+  usedAt    DateTime @default(now())
+
+  @@unique([voucherId, orderId])
+  @@index([voucherId])
+  @@index([userId])
 }
 
 // ==================== OTHER ====================

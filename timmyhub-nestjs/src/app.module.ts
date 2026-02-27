@@ -15,6 +15,8 @@ import { HealthModule } from './health/health.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
+import { VouchersModule } from './vouchers/vouchers.module';
+import { PromotionCampaignsModule } from './promotion-campaigns/promotion-campaigns.module';
 import { LoggerModule } from 'nestjs-pino';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
@@ -77,6 +79,8 @@ import { MetricsMiddleware } from './common/middleware/metrics.middleware';
         CartModule,
         OrdersModule,
         PaymentsModule,
+        VouchersModule,
+        PromotionCampaignsModule,
     ],
     controllers: [AppController],
     providers: [
