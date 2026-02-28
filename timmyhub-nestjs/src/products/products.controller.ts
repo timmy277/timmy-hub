@@ -1,8 +1,11 @@
 import { Controller, Get, Post, Body, Param, Patch, UseGuards, Req, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { PoliciesGuard } from '../casl/policies.guard';
 import { Permissions } from '../common/decorators/permissions.decorator';
@@ -18,18 +21,29 @@ export class ProductsController {
     constructor(private readonly productsService: ProductsService) {}
 
     @Post()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Đăng bán sản phẩm mới (Mặc định sẽ ở trạng thái PENDING)' })
+    @ApiOperation({ summary: 'Seller đăng sản phẩm (PENDING, chờ admin duyệt)' })
     async create(@Body() dto: CreateProductDto, @Req() req: UserRequest) {
         const product = await this.productsService.create(req.user.id, dto);
-        return ResponseDto.success('Đăng sản phẩm thành công, vui lòng chờ duyệt', product);
+        return ResponseDto.success('Đăng sản phẩm thành công, vui lòng chờ admin duyệt', product);
     }
 
     @Get()
-    @ApiOperation({ summary: 'Lấy danh sách sản phẩm đã được duyệt (Public)' })
+    @ApiOperation({ summary: 'Lấy danh sách sản phẩm đã duyệt (Public)' })
     async findAll() {
-        const products = await this.productsService.findAll(false);
+        const products = await this.productsService.findAll();
+        return ResponseDto.success('Lấy danh sách sản phẩm thành công', products);
+    }
+
+    @Get('seller/mine')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Seller: sản phẩm của tôi (mọi trạng thái)' })
+    async findMyProducts(@Req() req: UserRequest) {
+        const products = await this.productsService.findAllBySeller(req.user.id);
         return ResponseDto.success('Lấy danh sách sản phẩm thành công', products);
     }
 
@@ -37,10 +51,10 @@ export class ProductsController {
     @UseGuards(JwtAuthGuard, PermissionsGuard)
     @Permissions('product:approve')
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Lấy tất cả sản phẩm (Dành cho Admin duyệt)' })
-    async findAllForAdmin() {
-        const products = await this.productsService.findAll(true);
-        return ResponseDto.success('Lấy danh sách sản phẩm admin thành công', products);
+    @ApiOperation({ summary: 'Admin: sản phẩm chờ duyệt (PENDING)' })
+    async findAllPending() {
+        const products = await this.productsService.findAllPending();
+        return ResponseDto.success('Lấy danh sách sản phẩm chờ duyệt thành công', products);
     }
 
     @Patch(':id/approve')

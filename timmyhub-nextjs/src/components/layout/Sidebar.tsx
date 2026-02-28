@@ -21,6 +21,8 @@ import {
     IconShieldLock,
     IconKey,
     IconBuildingStore,
+    IconTicket,
+    IconDiscount,
 } from '@tabler/icons-react';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useTranslation } from 'react-i18next';
@@ -44,6 +46,14 @@ interface PermissionCheck {
     action: Action;
     subject: Subject;
 }
+
+/** Sidebar cho khu vực seller (không dùng permission, tránh 403 khi click) */
+const getSellerSidebarData = (): SidebarItem[] => [
+    { label: 'Tổng quan', icon: IconGauge, link: '/seller' },
+    { label: 'Sản phẩm', icon: IconPackage, link: '/seller/products' },
+    { label: 'Voucher', icon: IconTicket, link: '/seller/vouchers' },
+    { label: 'Khuyến mãi', icon: IconDiscount, link: '/seller/campaigns' },
+];
 
 const getMockData = (t: TFunction): SidebarItem[] => [
     {
@@ -112,6 +122,12 @@ const getMockData = (t: TFunction): SidebarItem[] => [
                 icon: IconBuildingStore,
                 permission: { action: Action.Read, subject: 'User' },
             },
+            {
+                label: 'Duyệt sản phẩm',
+                link: '/admin/product-applications',
+                icon: IconPackage,
+                permission: { action: Action.Read, subject: 'Product' },
+            },
         ],
     },
     {
@@ -130,11 +146,14 @@ export function Sidebar() {
     const ability = useAbility();
 
     // ===== Component Logic =====
-    const mockData = getMockData(t);
+    const isSellerArea = pathname.startsWith('/seller');
+    const mockData = isSellerArea ? getSellerSidebarData() : getMockData(t);
     const isCollapsed = mounted ? collapsed : false;
 
-    // Filter menu items based on permissions
+    // Seller area: show all items. Admin area: filter by permissions
     const filteredData = useMemo(() => {
+        if (isSellerArea) return mockData;
+
         const hasPermission = (permission?: PermissionCheck) => {
             if (!permission) return true;
             return ability.can(permission.action, permission.subject);
@@ -145,14 +164,13 @@ export function Sidebar() {
             .map(item => {
                 if (item.links) {
                     const filteredLinks = item.links.filter(link => hasPermission(link.permission));
-                    // Only show parent if it has visible children
                     if (filteredLinks.length === 0) return null;
                     return { ...item, links: filteredLinks };
                 }
                 return item;
             })
             .filter((item): item is SidebarItem => item !== null);
-    }, [mockData, ability]);
+    }, [mockData, ability, isSellerArea]);
 
     const isActive = (item: SidebarItem) => {
         if (item.link && pathname === item.link) return true;
@@ -204,9 +222,13 @@ export function Sidebar() {
                 className="shrink-0 transition-all duration-150"
             >
                 <SidebarNavLink
-                    item={{ label: t('common.profile'), icon: IconUser, link: '/admin/profile' }} // Added link
+                    item={{
+                        label: t('common.profile'),
+                        icon: IconUser,
+                        link: isSellerArea ? '/profile' : '/admin/profile',
+                    }}
                     collapsed={isCollapsed}
-                    active={pathname === '/admin/profile'}
+                    active={pathname === (isSellerArea ? '/profile' : '/admin/profile')}
                     pathname={pathname}
                 />
             </Box>

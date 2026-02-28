@@ -15,9 +15,16 @@ export const productService = {
     },
 
     /**
-     * Lấy danh sách sản phẩm cho Admin/Seller (Bao gồm sản phẩm chờ duyệt)
+     * Seller: lấy sản phẩm của tôi (mọi trạng thái)
      */
-    getAdminProducts: async (): Promise<ApiResponse<Product[]>> => {
+    getSellerProducts: async (): Promise<ApiResponse<Product[]>> => {
+        return axiosClient.get('/products/seller/mine');
+    },
+
+    /**
+     * Admin: lấy sản phẩm chờ duyệt (PENDING)
+     */
+    getPendingProducts: async (): Promise<ApiResponse<Product[]>> => {
         return axiosClient.get('/products/admin/pending');
     },
 

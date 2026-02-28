@@ -52,26 +52,31 @@ export class ProductsService {
         });
     }
 
-    /**
-     * Lấy danh sách sản phẩm
-     * @param includePending Nếu true, lấy toàn bộ cho Admin/Seller. Nếu false, chỉ lấy sản phẩm đã duyệt cho Public.
-     */
-    async findAll(includePending = false): Promise<Product[]> {
-        if (includePending) {
-            return this.prisma.product.findMany({
-                orderBy: { createdAt: 'desc' },
-                include: {
-                    seller: { select: { email: true, profile: true } },
-                    category: true,
-                },
-            });
-        }
+    /** Lấy danh sách sản phẩm đã duyệt (Public) */
+    async findAll(): Promise<Product[]> {
         return this.prisma.product.findMany({
             where: { status: ResourceStatus.APPROVED },
             orderBy: { createdAt: 'desc' },
+            include: { category: true },
+        });
+    }
+
+    async findAllPending(): Promise<Product[]> {
+        return this.prisma.product.findMany({
+            where: { status: ResourceStatus.PENDING },
+            orderBy: { createdAt: 'desc' },
             include: {
+                seller: { select: { id: true, email: true, profile: true } },
                 category: true,
             },
+        });
+    }
+
+    async findAllBySeller(sellerId: string): Promise<Product[]> {
+        return this.prisma.product.findMany({
+            where: { sellerId },
+            orderBy: { createdAt: 'desc' },
+            include: { category: true },
         });
     }
 
