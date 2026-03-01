@@ -1,17 +1,20 @@
 'use client';
 
+/**
+ * Seller Layout - Guard + Shell cho tất cả trang /seller/*
+ * /seller/become: render không có DashboardShell (standalone page)
+ * Các trang còn lại: bọc bởi DashboardShell → chỉ cần code content bên trong
+ */
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { sellerService, type SellerProfileStatus } from '@/services/seller.service';
 import { DashboardShell } from '@/components/layout';
-import { Box, Loader, Center } from '@mantine/core';
+import { Loader, Center } from '@mantine/core';
 
-export default function SellerLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+const SELLER_ONLY_PATHS = ['/seller/products', '/seller/vouchers', '/seller/campaigns'];
+
+export default function SellerLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
     const { user, isAuthenticated } = useAuthStore();
@@ -20,9 +23,7 @@ export default function SellerLayout({
     const [status, setStatus] = useState<SellerProfileStatus | null>(null);
 
     const isBecomePage = pathname === '/seller/become';
-    const isApproved = status === 'APPROVED';
     const isPending = status === 'PENDING';
-    const sellerOnlyPaths = ['/seller/products', '/seller/vouchers', '/seller/campaigns'];
 
     useEffect(() => {
         if (!isAuthenticated || !user) {
@@ -47,7 +48,7 @@ export default function SellerLayout({
             router.replace('/seller/become');
             return;
         }
-        if (!checking && isPending && sellerOnlyPaths.some(p => pathname.startsWith(p))) {
+        if (!checking && isPending && SELLER_ONLY_PATHS.some(p => pathname.startsWith(p))) {
             router.replace('/seller');
         }
     }, [checking, hasSellerProfile, isPending, isBecomePage, pathname, router]);
@@ -68,13 +69,10 @@ export default function SellerLayout({
         );
     }
 
+    // /seller/become: không có sidebar/appbar, render standalone
     if (isBecomePage) {
         return <>{children}</>;
     }
 
-    return (
-        <Box style={{ minHeight: '100vh' }}>
-            <DashboardShell withFooter={true}>{children}</DashboardShell>
-        </Box>
-    );
+    return <DashboardShell withFooter={true}>{children}</DashboardShell>;
 }

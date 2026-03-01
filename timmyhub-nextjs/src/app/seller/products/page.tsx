@@ -22,7 +22,6 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconRefresh, IconPackage } from '@tabler/icons-react';
-import { DashboardShell } from '@/components/layout';
 import { productService } from '@/services/product.service';
 import type { Product } from '@/types/product';
 
@@ -100,7 +99,7 @@ export default function SellerProductsPage() {
     });
 
     return (
-        <DashboardShell withFooter={false}>
+        <>
             <Container fluid px="1rem" py="md">
                 <Paper shadow="md" radius="md" withBorder p="md">
                     <Stack gap="lg">
@@ -248,6 +247,6 @@ export default function SellerProductsPage() {
                     </Stack>
                 </form>
             </Modal>
-        </DashboardShell>
+        </>
     );
 }
