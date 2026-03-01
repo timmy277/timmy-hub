@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import CategoryList from '@/features/admin/categories/CategoryList';
 import { Metadata } from 'next';
+import { QUERY_KEYS } from '@/constants';
 
 export const metadata: Metadata = {
     title: 'Quản lý danh mục | TimmyHub Admin',
@@ -19,7 +20,7 @@ export default async function AdminCategoriesPage() {
     }
 
     await queryClient.prefetchQuery({
-        queryKey: ['categories', true], // match hook useCategories(true)
+        queryKey: QUERY_KEYS.CATEGORIES(true),
         queryFn: async () => {
             const apiUrl =
                 process.env.API_URL ||

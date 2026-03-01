@@ -18,41 +18,7 @@ import {
 import Link from 'next/link';
 import { orderService } from '@/services/order.service';
 import type { Order, OrderStatus } from '@/types/order';
-
-const ALL_VALUE = 'all';
-
-const ORDER_STATUS_LIST: { value: OrderStatus | typeof ALL_VALUE; label: string }[] = [
-    { value: ALL_VALUE, label: 'Tất cả' },
-    { value: 'PENDING', label: 'Chờ xử lý' },
-    { value: 'CONFIRMED', label: 'Đã xác nhận' },
-    { value: 'PROCESSING', label: 'Đang xử lý' },
-    { value: 'PACKED', label: 'Đã đóng gói' },
-    { value: 'SHIPPING', label: 'Đang giao' },
-    { value: 'DELIVERED', label: 'Đã giao' },
-    { value: 'COMPLETED', label: 'Hoàn thành' },
-    { value: 'CANCELLED', label: 'Đã hủy' },
-    { value: 'RETURN_REQUESTED', label: 'Yêu cầu trả hàng' },
-    { value: 'RETURNED', label: 'Đã trả hàng' },
-    { value: 'REFUNDED', label: 'Đã hoàn tiền' },
-];
-
-function statusColor(status: OrderStatus): string {
-    switch (status) {
-        case 'COMPLETED':
-        case 'DELIVERED':
-            return 'green';
-        case 'CANCELLED':
-        case 'REFUNDED':
-            return 'red';
-        case 'PENDING':
-            return 'gray';
-        case 'SHIPPING':
-        case 'PROCESSING':
-            return 'blue';
-        default:
-            return 'teal';
-    }
-}
+import { QUERY_KEYS, ORDER_ALL_VALUE, ORDER_STATUS_LIST, getOrderStatusColor } from '@/constants';
 
 function OrderCard({ order }: { order: Order }) {
     const items = order.orderItems ?? [];
@@ -84,7 +50,7 @@ function OrderCard({ order }: { order: Order }) {
                     </Stack>
                 </Group>
                 <Stack gap={4} align="flex-end">
-                    <Badge size="sm" variant="light" color={statusColor(order.status as OrderStatus)}>
+                    <Badge size="sm" variant="light" color={getOrderStatusColor(order.status as OrderStatus)}>
                         {ORDER_STATUS_LIST.find(s => s.value === order.status)?.label ?? order.status}
                     </Badge>
                     <Text fw={700} c="blue">{total.toLocaleString()}đ</Text>
@@ -96,12 +62,12 @@ function OrderCard({ order }: { order: Order }) {
 }
 
 export function ProfileOrdersPage() {
-    const [status, setStatus] = useState<OrderStatus | typeof ALL_VALUE>(ALL_VALUE);
+    const [status, setStatus] = useState<OrderStatus | typeof ORDER_ALL_VALUE>(ORDER_ALL_VALUE);
 
-    const apiStatus = status === ALL_VALUE ? undefined : status;
+    const apiStatus = status === ORDER_ALL_VALUE ? undefined : status;
 
     const { data: res, isLoading } = useQuery({
-        queryKey: ['my-orders', apiStatus],
+        queryKey: QUERY_KEYS.MY_ORDERS(apiStatus),
         queryFn: () => orderService.getMyOrders(apiStatus),
     });
 
@@ -111,7 +77,7 @@ export function ProfileOrdersPage() {
         <Box>
             <Title order={3} mb="md">Đơn hàng của tôi</Title>
 
-            <Tabs value={status} onChange={v => setStatus((v as OrderStatus | typeof ALL_VALUE) ?? ALL_VALUE)}>
+            <Tabs value={status} onChange={v => setStatus((v as OrderStatus | typeof ORDER_ALL_VALUE) ?? ORDER_ALL_VALUE)}>
                 <Tabs.List mb="md" style={{ flexWrap: 'wrap', gap: 4 }}>
                     {ORDER_STATUS_LIST.map(({ value, label }) => (
                         <Tabs.Tab key={value} value={value}>

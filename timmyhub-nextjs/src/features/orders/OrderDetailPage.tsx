@@ -18,13 +18,14 @@ import {
 import Link from 'next/link';
 import { orderService } from '@/services/order.service';
 import type { Order } from '@/types/order';
+import { QUERY_KEYS } from '@/constants';
 
 export function OrderDetailPage() {
     const params = useParams();
     const orderId = params.id as string;
 
     const { data: orderRes, isLoading, error } = useQuery({
-        queryKey: ['order', orderId],
+        queryKey: QUERY_KEYS.ORDER(orderId),
         queryFn: () => orderService.getOrder(orderId),
         enabled: !!orderId,
     });

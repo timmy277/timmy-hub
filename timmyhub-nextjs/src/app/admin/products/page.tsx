@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AdminProductListClient } from './AdminProductListClient';
+import { QUERY_KEYS } from '@/constants';
 
 export default async function Page() {
     const queryClient = new QueryClient();
@@ -14,7 +15,7 @@ export default async function Page() {
     }
 
     await queryClient.prefetchQuery({
-        queryKey: ['admin-products'],
+        queryKey: QUERY_KEYS.ADMIN_PRODUCTS,
         queryFn: async () => {
             const apiUrl =
                 process.env.API_URL ||

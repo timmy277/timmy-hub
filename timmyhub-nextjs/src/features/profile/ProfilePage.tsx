@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
 import { User } from '@/types/auth';
+import { QUERY_KEYS } from '@/constants';
 
 function displayName(profile: { firstName?: string; lastName?: string; displayName?: string } | null | undefined): string {
     if (!profile) return '';
@@ -31,7 +32,7 @@ function ProfileForm({ user, refetchProfile }: ProfileFormProps) {
         mutationFn: (data: { firstName?: string; lastName?: string; displayName?: string }) =>
             authService.updateProfile(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['profile'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PROFILE });
             refetchProfile();
             notifications.show({ title: 'Thành công', message: 'Đã cập nhật thông tin', color: 'green' });
         },

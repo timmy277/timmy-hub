@@ -10,17 +10,18 @@ import {
 } from '@/types/rbac';
 import { ApiErrorResponse, ApiResponse } from '@/types/api';
 import { AxiosError } from 'axios';
+import { QUERY_KEYS } from '@/constants';
 
 export const useRoles = () => {
     return useQuery({
-        queryKey: ['roles'],
+        queryKey: QUERY_KEYS.ROLES,
         queryFn: () => rbacService.getAllRoles(),
     });
 };
 
 export const useRoleDetail = (id: string) => {
     return useQuery({
-        queryKey: ['roles', id],
+        queryKey: QUERY_KEYS.ROLE(id),
         queryFn: () => rbacService.getRoleById(id),
         enabled: !!id,
     });
@@ -31,7 +32,7 @@ export const useCreateRoleMutation = () => {
     return useMutation<ApiResponse<Role>, AxiosError<ApiErrorResponse>, CreateRoleInput>({
         mutationFn: data => rbacService.createRole(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['roles'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLES });
             notifications.show({
                 title: 'Thành công',
                 message: 'Tạo vai trò mới thành công',
@@ -53,7 +54,7 @@ export const useDeleteRoleMutation = () => {
     return useMutation<ApiResponse<void>, AxiosError<ApiErrorResponse>, string>({
         mutationFn: id => rbacService.deleteRole(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['roles'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLES });
             notifications.show({
                 title: 'Thành công',
                 message: 'Xóa vai trò thành công',
@@ -80,8 +81,8 @@ export const useAssignPermissionsMutation = () => {
         mutationFn: ({ roleId, permissionNames }) =>
             rbacService.assignPermissionsToRole(roleId, permissionNames),
         onSuccess: (_, { roleId }) => {
-            queryClient.invalidateQueries({ queryKey: ['roles'] });
-            queryClient.invalidateQueries({ queryKey: ['roles', roleId] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLES });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLE(roleId) });
             notifications.show({
                 title: 'Thành công',
                 message: 'Cập nhật quyền cho vai trò thành công',
@@ -100,32 +101,33 @@ export const useAssignPermissionsMutation = () => {
 
 export const usePermissions = () => {
     return useQuery({
-        queryKey: ['permissions'],
+        queryKey: QUERY_KEYS.PERMISSIONS,
         queryFn: () => rbacService.getAllPermissions(),
     });
 };
 
 export const useCreatePermissionMutation = () => {
     const queryClient = useQueryClient();
-    return useMutation<ApiResponse<Permission>, AxiosError<ApiErrorResponse>, CreatePermissionInput>
-    ({
-        mutationFn: data => rbacService.createPermission(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['permissions'] });
-            notifications.show({
-                title: 'Thành công',
-                message: 'Tạo quyền mới thành công',
-                color: 'green',
-            });
+    return useMutation<ApiResponse<Permission>, AxiosError<ApiErrorResponse>, CreatePermissionInput>(
+        {
+            mutationFn: data => rbacService.createPermission(data),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PERMISSIONS });
+                notifications.show({
+                    title: 'Thành công',
+                    message: 'Tạo quyền mới thành công',
+                    color: 'green',
+                });
+            },
+            onError: error => {
+                notifications.show({
+                    title: 'Lỗi',
+                    message: error.response?.data?.message || 'Có lỗi xảy ra khi tạo quyền',
+                    color: 'red',
+                });
+            },
         },
-        onError: error => {
-            notifications.show({
-                title: 'Lỗi',
-                message: error.response?.data?.message || 'Có lỗi xảy ra khi tạo quyền',
-                color: 'red',
-            });
-        },
-    });
+    );
 };
 
 export const useUpdatePermissionMutation = () => {
@@ -137,7 +139,7 @@ export const useUpdatePermissionMutation = () => {
     >({
         mutationFn: ({ id, data }) => rbacService.updatePermission(id, data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['permissions'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PERMISSIONS });
             notifications.show({
                 title: 'Thành công',
                 message: 'Cập nhật quyền thành công',
@@ -159,7 +161,7 @@ export const useDeletePermissionMutation = () => {
     return useMutation<ApiResponse<void>, AxiosError<ApiErrorResponse>, string>({
         mutationFn: id => rbacService.deletePermission(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['permissions'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PERMISSIONS });
             notifications.show({
                 title: 'Thành công',
                 message: 'Xóa quyền thành công',

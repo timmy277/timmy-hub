@@ -12,11 +12,12 @@ import { useQuery } from '@tanstack/react-query';
 import { orderService } from '@/services/order.service';
 import type { Order } from '@/types/order';
 import { OrderDetail } from './OrderDetail';
+import { QUERY_KEYS } from '@/constants';
 
 export function OrderList() {
     const { t } = useTranslation();
     const { data: response, isLoading, refetch } = useQuery({
-        queryKey: ['admin-orders'],
+        queryKey: QUERY_KEYS.ADMIN_ORDERS,
         queryFn: () => orderService.getAdminOrders(),
     });
 

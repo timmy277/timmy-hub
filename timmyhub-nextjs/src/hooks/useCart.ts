@@ -3,8 +3,10 @@ import { cartService } from '@/services/cart.service';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from './useAuth';
 import type { AddToCartDto, Cart, UpdateCartItemDto } from '@/types/cart';
+import { QUERY_KEYS } from '@/constants';
 
-export const CART_QUERY_KEY = ['cart'];
+/** @deprecated Dùng QUERY_KEYS.CART từ '@/constants' thay thế */
+export const CART_QUERY_KEY = QUERY_KEYS.CART;
 
 const EMPTY_CART: Cart = {
     id: null,
@@ -40,7 +42,7 @@ export function useCart() {
         error,
         refetch: refetchCart,
     } = useQuery({
-        queryKey: CART_QUERY_KEY,
+        queryKey: QUERY_KEYS.CART,
         queryFn: async () => {
             const response = await cartService.getCart();
             return parseCartResponse(response);
@@ -52,10 +54,10 @@ export function useCart() {
     });
 
     const setCartData = (cart: Cart) =>
-        queryClient.setQueryData(CART_QUERY_KEY, cart);
+        queryClient.setQueryData(QUERY_KEYS.CART, cart);
 
     const updateQuantityOptimistic = (itemId: string, quantity: number) => {
-        const currentCart = queryClient.getQueryData<Cart>(CART_QUERY_KEY) ?? cart;
+        const currentCart = queryClient.getQueryData<Cart>(QUERY_KEYS.CART) ?? cart;
         const updatedItems = currentCart.items.map(item => {
             if (item.id === itemId) {
                 const newSubtotal = Number(item.product.price) * quantity;

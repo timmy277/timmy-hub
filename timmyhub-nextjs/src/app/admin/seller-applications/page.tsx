@@ -16,18 +16,19 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconRefresh, IconCheck, IconX } from '@tabler/icons-react';
 import { sellerService } from '@/services/seller.service';
+import { QUERY_KEYS } from '@/constants';
 
 export default function AdminSellerApplicationsPage() {
     const queryClient = useQueryClient();
     const { data: res, isLoading, refetch } = useQuery({
-        queryKey: ['admin-seller-applications'],
+        queryKey: QUERY_KEYS.ADMIN_SELLER_APPLICATIONS,
         queryFn: () => sellerService.listPendingApplications(),
     });
 
     const approveMutation = useMutation({
         mutationFn: (profileId: string) => sellerService.approveApplication(profileId),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-seller-applications'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN_SELLER_APPLICATIONS });
             notifications.show({
                 title: 'Đã duyệt',
                 message: 'Seller đã được duyệt và có thể đăng nhập gian hàng.',
@@ -44,7 +45,7 @@ export default function AdminSellerApplicationsPage() {
     const rejectMutation = useMutation({
         mutationFn: (profileId: string) => sellerService.rejectApplication(profileId),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-seller-applications'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN_SELLER_APPLICATIONS });
             notifications.show({
                 title: 'Đã từ chối',
                 message: 'Đơn đăng ký seller đã được từ chối.',

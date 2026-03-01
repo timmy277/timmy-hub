@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/constants';
 
 export const useAuth = () => {
     const { user, isAuthenticated, clearAuthData, setAuthData } = useAuthStore();
@@ -16,7 +17,7 @@ export const useAuth = () => {
         isLoading: isProfileLoading,
         refetch: refetchProfile,
     } = useQuery({
-        queryKey: ['profile'],
+        queryKey: QUERY_KEYS.PROFILE,
         queryFn: () => authService.getProfile(),
         enabled: isAuthenticated,
         retry: false,

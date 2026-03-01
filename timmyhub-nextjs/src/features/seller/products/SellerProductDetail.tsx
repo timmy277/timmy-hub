@@ -17,20 +17,14 @@ import NextImage from 'next/image';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { Product, ResourceStatus } from '@/types/product';
 import { formatDate } from '@/utils/date';
-
-const STATUS_CONFIG: Record<ResourceStatus, { color: string; label: string }> = {
-    [ResourceStatus.PENDING]: { color: 'yellow', label: 'Chờ duyệt' },
-    [ResourceStatus.APPROVED]: { color: 'green', label: 'Đã duyệt' },
-    [ResourceStatus.REJECTED]: { color: 'red', label: 'Từ chối' },
-    [ResourceStatus.DELETED]: { color: 'gray', label: 'Đã xóa' },
-};
+import { PRODUCT_STATUS_CONFIG } from '@/constants';
 
 interface Props {
     product: Product;
 }
 
 export function SellerProductDetail({ product }: Props) {
-    const statusCfg = STATUS_CONFIG[product.status] ?? { color: 'gray', label: product.status };
+    const statusCfg = PRODUCT_STATUS_CONFIG[product.status] ?? { color: 'gray', label: product.status };
 
     return (
         <Stack gap="md" p="md">

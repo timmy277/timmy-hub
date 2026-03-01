@@ -19,20 +19,7 @@ import { orderService } from '@/services/order.service';
 import type { Order, OrderStatus } from '@/types/order';
 import { PERMISSIONS } from '@/config/permissions';
 import { useAuthStore } from '@/stores/useAuthStore';
-
-const ORDER_STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
-    { value: 'PENDING', label: 'Chờ xử lý' },
-    { value: 'CONFIRMED', label: 'Đã xác nhận' },
-    { value: 'PROCESSING', label: 'Đang xử lý' },
-    { value: 'PACKED', label: 'Đã đóng gói' },
-    { value: 'SHIPPING', label: 'Đang giao' },
-    { value: 'DELIVERED', label: 'Đã giao' },
-    { value: 'COMPLETED', label: 'Hoàn thành' },
-    { value: 'CANCELLED', label: 'Đã hủy' },
-    { value: 'RETURN_REQUESTED', label: 'Yêu cầu trả hàng' },
-    { value: 'RETURNED', label: 'Đã trả hàng' },
-    { value: 'REFUNDED', label: 'Đã hoàn tiền' },
-];
+import { QUERY_KEYS, ORDER_STATUS_OPTIONS } from '@/constants';
 
 interface OrderDetailProps {
     order: Order;
@@ -44,7 +31,7 @@ export function OrderDetail({ order: initialOrder }: OrderDetailProps) {
     const [selectedStatus, setSelectedStatus] = useState<OrderStatus | null>(null);
 
     const { data: orderRes, isLoading } = useQuery({
-        queryKey: ['admin-order', initialOrder.id],
+        queryKey: QUERY_KEYS.ADMIN_ORDER(initialOrder.id),
         queryFn: () => orderService.getAdminOrder(initialOrder.id),
         initialData: { data: initialOrder } as { data: Order },
     });
@@ -52,8 +39,8 @@ export function OrderDetail({ order: initialOrder }: OrderDetailProps) {
     const updateStatusMutation = useMutation({
         mutationFn: (status: OrderStatus) => orderService.updateOrderStatus(initialOrder.id, status),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-order', initialOrder.id] });
-            queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN_ORDER(initialOrder.id) });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN_ORDERS });
             notifications.show({ title: 'Thành công', message: 'Đã cập nhật trạng thái đơn hàng', color: 'green' });
             setSelectedStatus(null);
         },

@@ -5,12 +5,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { productService } from '@/services/product.service';
 import { CreateProductInput } from '@/types/product';
-
-export const SELLER_PRODUCTS_KEY = ['seller-products'];
+import { QUERY_KEYS } from '@/constants';
 
 export const useSellerProducts = () => {
     return useQuery({
-        queryKey: SELLER_PRODUCTS_KEY,
+        queryKey: QUERY_KEYS.SELLER_PRODUCTS,
         queryFn: () => productService.getSellerProducts(),
     });
 };
@@ -20,7 +19,7 @@ export const useCreateSellerProduct = () => {
     return useMutation({
         mutationFn: (data: CreateProductInput) => productService.createProduct(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: SELLER_PRODUCTS_KEY });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_PRODUCTS });
             notifications.show({
                 title: 'Đã gửi duyệt',
                 message: 'Sản phẩm đang chờ admin phê duyệt.',

@@ -17,42 +17,11 @@ import Link from 'next/link';
 import { IconRefresh } from '@tabler/icons-react';
 import { orderService } from '@/services/order.service';
 import type { Order, OrderStatus } from '@/types/order';
-
-const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-    PENDING: 'Chờ xử lý',
-    CONFIRMED: 'Đã xác nhận',
-    PROCESSING: 'Đang xử lý',
-    PACKED: 'Đã đóng gói',
-    SHIPPING: 'Đang giao',
-    DELIVERED: 'Đã giao',
-    COMPLETED: 'Hoàn thành',
-    CANCELLED: 'Đã hủy',
-    RETURN_REQUESTED: 'Yêu cầu trả hàng',
-    RETURNED: 'Đã trả hàng',
-    REFUNDED: 'Đã hoàn tiền',
-};
-
-function statusColor(status: OrderStatus): string {
-    switch (status) {
-        case 'COMPLETED':
-        case 'DELIVERED':
-            return 'green';
-        case 'CANCELLED':
-        case 'REFUNDED':
-            return 'red';
-        case 'PENDING':
-            return 'gray';
-        case 'SHIPPING':
-        case 'PROCESSING':
-            return 'blue';
-        default:
-            return 'teal';
-    }
-}
+import { QUERY_KEYS, ORDER_STATUS_LABELS, getOrderStatusColor } from '@/constants';
 
 export function AdminOrdersPage() {
     const { data: res, isLoading, refetch } = useQuery({
-        queryKey: ['admin-orders'],
+        queryKey: QUERY_KEYS.ADMIN_ORDERS,
         queryFn: () => orderService.getAdminOrders(),
     });
 
@@ -115,7 +84,7 @@ export function AdminOrdersPage() {
                                                 <Text size="sm">{displayUser}</Text>
                                             </Table.Td>
                                             <Table.Td>
-                                                <Badge size="sm" variant="light" color={statusColor(order.status as OrderStatus)}>
+                                                <Badge size="sm" variant="light" color={getOrderStatusColor(order.status as OrderStatus)}>
                                                     {ORDER_STATUS_LABELS[order.status as OrderStatus] ?? order.status}
                                                 </Badge>
                                             </Table.Td>

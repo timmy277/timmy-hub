@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { UserList } from '@/features/admin/users/UserList';
+import { QUERY_KEYS } from '@/constants';
 
 export default async function Page() {
     const queryClient = new QueryClient();
@@ -15,7 +16,7 @@ export default async function Page() {
     }
 
     await queryClient.prefetchQuery({
-        queryKey: ['users'], // Giữ nguyên key ['users'] để khớp với useUsers hook ở client
+        queryKey: QUERY_KEYS.USERS,
         queryFn: async () => {
             // Ưu tiên dùng API_URL (server internal network) nếu có, fallback về NEXT_PUBLIC_API_URL
             const apiUrl =

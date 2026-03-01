@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { RoleList } from '@/features/admin/roles';
+import { QUERY_KEYS } from '@/constants';
 
 export default async function Page() {
     const queryClient = new QueryClient();
@@ -14,7 +15,7 @@ export default async function Page() {
     }
 
     await queryClient.prefetchQuery({
-        queryKey: ['roles'],
+        queryKey: QUERY_KEYS.ROLES,
         queryFn: async () => {
             const apiUrl =
                 process.env.API_URL ||

@@ -5,21 +5,21 @@ import { CreateUserInput } from '@/types/user';
 import { ApiErrorResponse, ApiResponse } from '@/types/api';
 import { User } from '@/types/auth';
 import { AxiosError } from 'axios';
+import { QUERY_KEYS } from '@/constants';
 
 /**
  * Hook quản lý người dùng
- * @author TimmyHub AI
  */
 export const useUsers = () => {
     return useQuery({
-        queryKey: ['users'],
+        queryKey: QUERY_KEYS.USERS,
         queryFn: () => userService.getAllUsers(),
     });
 };
 
 export const useUserDetail = (id: string) => {
     return useQuery({
-        queryKey: ['users', id],
+        queryKey: QUERY_KEYS.USER(id),
         queryFn: () => userService.getUserById(id),
         enabled: !!id,
     });
@@ -30,7 +30,7 @@ export const useToggleUserStatusMutation = () => {
     return useMutation<ApiResponse<User>, AxiosError<ApiErrorResponse>, string>({
         mutationFn: (id: string) => userService.toggleUserStatus(id),
         onSuccess: response => {
-            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS });
             notifications.show({
                 title: 'Thành công',
                 message: response.message,
@@ -56,7 +56,7 @@ export const useAssignUserRolesMutation = () => {
     >({
         mutationFn: ({ id, roleNames }) => userService.assignUserRoles(id, roleNames),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS });
             notifications.show({
                 title: 'Thành công',
                 message: 'Cập nhật vai trò người dùng thành công',
@@ -78,7 +78,7 @@ export const useCreateUserMutation = () => {
     return useMutation<ApiResponse<User>, AxiosError<ApiErrorResponse>, CreateUserInput>({
         mutationFn: (data: CreateUserInput) => userService.createUser(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS });
             notifications.show({
                 title: 'Thành công',
                 message: 'Tạo người dùng mới thành công',
@@ -104,7 +104,7 @@ export const useUpdateUserMutation = () => {
     >({
         mutationFn: ({ id, data }) => userService.updateUser(id, data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS });
             notifications.show({
                 title: 'Thành công',
                 message: 'Cập nhật thông tin người dùng thành công',

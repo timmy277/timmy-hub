@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { PermissionList } from '@/features/admin/permissions';
+import { QUERY_KEYS } from '@/constants';
 
 export default async function Page() {
     const queryClient = new QueryClient();
@@ -14,7 +15,7 @@ export default async function Page() {
     }
 
     await queryClient.prefetchQuery({
-        queryKey: ['permissions'],
+        queryKey: QUERY_KEYS.PERMISSIONS,
         queryFn: async () => {
             const apiUrl =
                 process.env.API_URL ||

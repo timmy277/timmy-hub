@@ -5,14 +5,15 @@ import { IconPackage, IconTicket, IconDiscount, IconInfoCircle } from '@tabler/i
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { sellerService } from '@/services/seller.service';
+import { QUERY_KEYS } from '@/constants';
 
 export default function SellerDashboardPage() {
     const { data: checkRes } = useQuery({
-        queryKey: ['seller-profile-check'],
+        queryKey: QUERY_KEYS.SELLER_PROFILE_CHECK,
         queryFn: () => sellerService.checkProfile(),
     });
     const { data: profileRes } = useQuery({
-        queryKey: ['seller-profile'],
+        queryKey: QUERY_KEYS.SELLER_PROFILE,
         queryFn: () => sellerService.getProfile(),
         enabled: checkRes?.data?.status === 'APPROVED',
     });
