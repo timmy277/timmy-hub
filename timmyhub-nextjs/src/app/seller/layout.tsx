@@ -76,5 +76,5 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
         return <>{children}</>;
     }
 
-    return <DashboardShell withFooter={true}>{children}</DashboardShell>;
+    return <DashboardShell withFooter={false}>{children}</DashboardShell>;
 }

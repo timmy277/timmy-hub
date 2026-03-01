@@ -393,6 +393,99 @@ export const createProductColumns = (options: ColumnConfigOptions): ColDef<Produ
     ];
 };
 
+export const createSellerProductColumns = (options: ColumnConfigOptions): ColDef<Product>[] => {
+    const { t } = options;
+
+    return [
+        {
+            headerName: t('table.columns.image'),
+            field: 'images',
+            width: 80,
+            filter: false,
+            sortable: false,
+            cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
+            cellRenderer: (params: ICellRendererParams<Product>) => (
+                <Image
+                    component={NextImage}
+                    src={params.value?.[0] || ''}
+                    height={35}
+                    width={35}
+                    radius="md"
+                    fallbackSrc="https://placehold.co/40x40?text=SP"
+                    fit="cover"
+                    alt={params.data?.name || 'Product'}
+                />
+            ),
+        },
+        {
+            headerName: t('table.columns.product'),
+            field: 'name',
+            minWidth: 220,
+            flex: 1,
+            cellRenderer: (params: ICellRendererParams<Product>) => (
+                <Stack gap={0} py={4}>
+                    <Text size="sm" fw={500} truncate="end">{params.data?.name}</Text>
+                    <Text size="xs" c="dimmed">{params.data?.sku || 'No SKU'}</Text>
+                </Stack>
+            ),
+        },
+        {
+            headerName: t('table.columns.price'),
+            field: 'price',
+            width: 140,
+            cellRenderer: (params: ICellRendererParams<Product>) => (
+                <Text size="sm" fw={700} c="red" mt={10}>
+                    {Number(params.value).toLocaleString('vi-VN')} ₫
+                </Text>
+            ),
+        },
+        {
+            headerName: t('table.columns.stock'),
+            field: 'stock',
+            width: 90,
+            cellRenderer: (params: ICellRendererParams<Product>) => (
+                <Text size="sm" mt={10} fw={500} c={params.value < 10 ? 'red' : 'inherit'}>
+                    {params.value}
+                </Text>
+            ),
+        },
+        {
+            headerName: t('table.columns.soldCount'),
+            field: 'soldCount',
+            width: 90,
+            cellRenderer: (params: ICellRendererParams<Product>) => (
+                <Text size="sm" mt={10}>{params.value || 0}</Text>
+            ),
+        },
+        {
+            headerName: t('table.columns.status'),
+            field: 'status',
+            width: 120,
+            cellRenderer: (params: ICellRendererParams<Product>) => {
+                const status = params.value as ResourceStatus;
+                const config: Record<ResourceStatus, { color: string; label: string }> = {
+                    [ResourceStatus.PENDING]: { color: 'yellow', label: t('table.status.pending') },
+                    [ResourceStatus.APPROVED]: { color: 'green', label: t('table.status.approved') },
+                    [ResourceStatus.REJECTED]: { color: 'red', label: t('table.status.rejected') },
+                    [ResourceStatus.DELETED]: { color: 'gray', label: t('table.status.deleted') },
+                };
+                const { color, label } = config[status] || { color: 'gray', label: status };
+                return (
+                    <Badge color={color} variant="light" mt={10} size="sm">
+                        {label}
+                    </Badge>
+                );
+            },
+        },
+        {
+            headerName: t('table.columns.createdAt'),
+            field: 'createdAt',
+            width: 140,
+            valueFormatter: params => formatDate(params.value),
+        },
+    ];
+};
+
 export const createActionColumn = <T extends { id: string; isActive?: boolean; status?: string }>(
     props: ActionColumnProps<T>,
     options: ColumnConfigOptions,

@@ -86,7 +86,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                     </ActionIcon>
                 )}
 
-                {isAdminPage ? (
+                {isAdminPage || isSellerPage ? (
                     <Breadcrumbs separator={<IconChevronRight size={14} opacity={0.5} />} ml="sm">
                         {breadcrumbItems}
                     </Breadcrumbs>
