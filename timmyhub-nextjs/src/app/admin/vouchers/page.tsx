@@ -5,18 +5,33 @@ import { ManagementPage } from '@/components/shared/ManagementPage';
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
 import { voucherService } from '@/services/voucher.service';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import dayjs from 'dayjs';
 import { IconTicket } from '@tabler/icons-react';
-import { Badge } from '@mantine/core';
+import { Switch, Text } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { CreateVoucherForm } from '@/components/CreateVoucherForm';
 import type { Voucher } from '@/services/voucher.service';
 
-export default function SellerVouchersPage() {
+export default function AdminVouchersPage() {
+    const queryClient = useQueryClient();
     const { data: res, isLoading, refetch } = useQuery({
-        queryKey: ['seller-vouchers'],
-        queryFn: () => voucherService.getSellerVouchers(),
+        queryKey: ['admin-vouchers'],
+        queryFn: () => voucherService.getAdminVouchers(),
+    });
+
+    const mutation = useMutation({
+        mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+            voucherService.update(id, { isActive }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Cập nhật trạng thái thành công',
+                color: 'green',
+            });
+        },
     });
 
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
@@ -46,6 +61,16 @@ export default function SellerVouchersPage() {
 
     const columnDefs = useMemo<ColDef<Voucher>[]>(
         () => [
+            {
+                headerName: 'Người tạo',
+                field: 'sellerId',
+                width: 120,
+                cellRenderer: (params: ICellRendererParams) => (
+                    <Text size="sm" fw={500} c={params.value ? 'violet' : 'blue'}>
+                        {params.value ? 'Seller' : 'Platform'}
+                    </Text>
+                ),
+            },
             { headerName: 'Mã', field: 'code', width: 150, cellStyle: { fontWeight: 600 } },
             {
                 headerName: 'Loại',
@@ -88,17 +113,26 @@ export default function SellerVouchersPage() {
                 }
             },
             {
-                headerName: 'Trạng thái',
+                headerName: 'Hoạt động',
                 field: 'isActive',
                 width: 120,
-                cellRenderer: (params: ICellRendererParams) => (
-                    <Badge color={params.value ? 'green' : 'gray'} variant="light">
-                        {params.value ? 'Hoạt động' : 'Đã tắt'}
-                    </Badge>
-                ),
+                cellRenderer: (params: ICellRendererParams) => {
+                    if (!params.data) return null;
+                    return (
+                        <Switch
+                            checked={params.value}
+                            onChange={e =>
+                                mutation.mutate({
+                                    id: params.data!.id,
+                                    isActive: e.currentTarget.checked,
+                                })
+                            }
+                        />
+                    );
+                },
             },
         ],
-        [],
+        [mutation],
     );
 
     return (

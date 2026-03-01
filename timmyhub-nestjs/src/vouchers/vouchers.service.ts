@@ -282,4 +282,88 @@ export class VouchersService {
             description: voucher.description ?? undefined,
         };
     }
+
+    async findAvailableForCart(userId: string) {
+        const cart = await this.prisma.cart.findUnique({
+            where: { userId },
+            include: {
+                items: { include: { product: true } },
+            },
+        });
+
+        const now = new Date();
+        const activeVouchers = await this.prisma.voucher.findMany({
+            where: {
+                isActive: true,
+                startDate: { lte: now },
+                endDate: { gte: now },
+                OR: [
+                    { usageLimit: null },
+                    { usageLimit: { gt: this.prisma.voucher.fields.usedCount } },
+                ],
+            },
+            include: { campaign: true },
+        });
+
+        const available: Array<Prisma.VoucherGetPayload<{ include: { campaign: true } }>> = [];
+
+        // Check if user has cart items to validate against
+        if (!cart || cart.items.length === 0) {
+            return [];
+        }
+
+        const validItems = cart.items.filter(
+            item =>
+                item.product &&
+                item.product.status === ResourceStatus.APPROVED &&
+                item.product.stock >= item.quantity,
+        );
+        if (validItems.length === 0) {
+            return [];
+        }
+
+        // Just use a dummy payment method for standard checks since we don't know it yet
+        const dummyPaymentMethod = PaymentMethod.VNPAY;
+
+        for (const voucher of activeVouchers) {
+            const result = await this.validate(voucher.code, userId, dummyPaymentMethod);
+            // It might be invalid due to payment method mismatch, but we can still suggest it
+            // Let's manually do a soft check, bypassing paymentMethod strictly, or just use validate and clear the constraint
+            if (
+                result.valid ||
+                result.message === 'Voucher không áp dụng cho phương thức thanh toán này'
+            ) {
+                available.push(voucher);
+            }
+        }
+
+        return available;
+    }
+
+    async getReport(sellerId?: string) {
+        const where = sellerId ? { sellerId } : {};
+
+        const totalVouchers = await this.prisma.voucher.count({ where });
+        const totalUsed = await this.prisma.voucherUsageLog.count({
+            where: sellerId ? { voucher: { sellerId } } : {},
+        });
+        const totalDiscountAgg = await this.prisma.voucherUsageLog.aggregate({
+            _sum: { discount: true },
+            where: sellerId ? { voucher: { sellerId } } : {},
+        });
+
+        const activeVouchers = await this.prisma.voucher.count({
+            where: {
+                ...where,
+                isActive: true,
+            },
+        });
+
+        return {
+            totalVouchers,
+            activeVouchers,
+            totalUsed,
+            totalDiscount: totalDiscountAgg._sum.discount ?? 0,
+        };
+    }
 }

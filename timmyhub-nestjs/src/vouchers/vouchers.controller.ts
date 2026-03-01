@@ -45,6 +45,21 @@ export class VouchersController {
         return ResponseDto.success('Tạo voucher thành công', voucher);
     }
 
+    @Get('report')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+    @ApiBearerAuth()
+    @ApiQuery({ name: 'sellerId', required: false, description: 'Admin: lọc theo seller' })
+    @ApiOperation({ summary: 'Báo cáo dùng voucher (admin: toàn sàn/theo seller; seller: shop)' })
+    async getReport(@Req() req: UserRequest, @Query('sellerId') sellerId?: string) {
+        const isAdmin =
+            req.user.roles.includes(UserRole.ADMIN) ||
+            req.user.roles.includes(UserRole.SUPER_ADMIN);
+        const targetSellerId = isAdmin ? sellerId : req.user.id;
+        const report = await this.vouchersService.getReport(targetSellerId);
+        return ResponseDto.success('Lấy báo cáo voucher thành công', report);
+    }
+
     @Get()
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
@@ -61,6 +76,15 @@ export class VouchersController {
             ? await this.vouchersService.findAllAdmin(sellerId)
             : await this.vouchersService.findAllBySeller(req.user.id);
         return ResponseDto.success('Lấy danh sách voucher thành công', list);
+    }
+
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Voucher customer có thể dùng (theo giỏ hiện tại)' })
+    async findAvailableForCart(@Req() req: UserRequest) {
+        const vouchers = await this.vouchersService.findAvailableForCart(req.user.id);
+        return ResponseDto.success('Lấy danh sách voucher khả dụng thành công', vouchers);
     }
 
     @Post('validate')

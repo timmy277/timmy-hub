@@ -170,14 +170,86 @@ export class OrdersService {
     }
 
     async updateStatus(id: string, status: OrderStatus) {
-        const order = await this.prisma.order.findUnique({ where: { id } });
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+            include: { orderItems: true },
+        });
         if (!order) {
             throw new NotFoundException('Đơn hàng không tồn tại');
         }
-        return this.prisma.order.update({
-            where: { id },
-            data: { status },
-            include: { orderItems: true, payment: true },
+
+        return this.prisma.$transaction(async tx => {
+            const updatedOrder = await tx.order.update({
+                where: { id },
+                data: { status },
+                include: { orderItems: true, payment: true },
+            });
+
+            // Logic 1: COD order confirmed -> record voucher usage
+            if (
+                order.status === OrderStatus.PENDING &&
+                (status === OrderStatus.CONFIRMED || status === OrderStatus.PROCESSING) &&
+                order.paymentMethod === PaymentMethod.COD
+            ) {
+                if (order.voucherId) {
+                    const existingLog = await tx.voucherUsageLog.findUnique({
+                        where: {
+                            voucherId_orderId: { voucherId: order.voucherId, orderId: order.id },
+                        },
+                    });
+                    if (!existingLog) {
+                        await tx.voucherUsageLog.create({
+                            data: {
+                                voucherId: order.voucherId,
+                                userId: order.userId,
+                                orderId: order.id,
+                                discount: Number(order.voucherDiscount ?? 0),
+                            },
+                        });
+                        await tx.voucher.update({
+                            where: { id: order.voucherId },
+                            data: { usedCount: { increment: 1 } },
+                        });
+                    }
+                }
+            }
+
+            // Logic 2: Order cancelled/returned -> restore voucher quota and product stock
+            if (
+                // Only if previous status wasn't already cancelled/returned
+                order.status !== OrderStatus.CANCELLED &&
+                order.status !== OrderStatus.RETURNED &&
+                (status === OrderStatus.CANCELLED || status === OrderStatus.RETURNED)
+            ) {
+                // Restore voucher quota
+                if (order.voucherId) {
+                    const usageLog = await tx.voucherUsageLog.findUnique({
+                        where: {
+                            voucherId_orderId: { voucherId: order.voucherId, orderId: order.id },
+                        },
+                    });
+                    if (usageLog) {
+                        // Delete or mark void. We will delete the usage log based on @@unique
+                        await tx.voucherUsageLog.delete({
+                            where: { id: usageLog.id },
+                        });
+                        await tx.voucher.update({
+                            where: { id: order.voucherId },
+                            data: { usedCount: { decrement: 1 } },
+                        });
+                    }
+                }
+
+                // Restore product stock
+                for (const item of order.orderItems) {
+                    await tx.product.update({
+                        where: { id: item.productId },
+                        data: { stock: { increment: item.quantity } },
+                    });
+                }
+            }
+
+            return updatedOrder;
         });
     }
 }
