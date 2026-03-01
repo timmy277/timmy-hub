@@ -5,19 +5,53 @@ import { ManagementPage } from '@/components/shared/ManagementPage';
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
 import { campaignService } from '@/services/campaign.service';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import dayjs from 'dayjs';
-import { IconDiscount } from '@tabler/icons-react';
-import { Badge } from '@mantine/core';
+import { IconDiscount, IconAlertTriangle } from '@tabler/icons-react';
+import { Badge, Text } from '@mantine/core';
+import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
 import { CreateCampaignForm } from '@/components/CreateCampaignForm';
+import { CampaignDetail } from '@/components/CampaignDetail';
+import { getActionColumn } from '@/constants/column';
 import type { Campaign } from '@/services/campaign.service';
 
 export default function SellerCampaignsPage() {
+    const queryClient = useQueryClient();
     const { data: res, isLoading, refetch } = useQuery({
         queryKey: ['seller-campaigns'],
         queryFn: () => campaignService.getSellerCampaigns(),
     });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => campaignService.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['seller-campaigns'] });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Đã xóa chương trình khuyến mãi',
+                color: 'green',
+            });
+        },
+        onError: () => {
+            notifications.show({
+                title: 'Lỗi',
+                message: 'Không thể xóa campaign này',
+                color: 'red',
+            });
+        },
+    });
+
+    const handleDelete = useCallback((item: Campaign) => {
+        modals.openConfirmModal({
+            title: <Text fw={600} size="lg">Xóa Campaign</Text>,
+            children: <Text size="sm">Bạn có chắc chắn muốn xóa campaign {item.name} này không?</Text>,
+            labels: { confirm: 'Xóa', cancel: 'Hủy' },
+            confirmProps: { color: 'red', leftSection: <IconAlertTriangle size={16} /> },
+            onConfirm: () => deleteMutation.mutate(item.id),
+        });
+    }, [deleteMutation]);
 
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
         useManagementTabs<Campaign>('Campaign');
@@ -34,15 +68,24 @@ export default function SellerCampaignsPage() {
                     />
                 );
             case ManagementTabType.UPDATE:
-                // ... If edit form exists
-                return null;
+                return tab.data ? (
+                    <CreateCampaignForm
+                        initialData={tab.data}
+                        onSuccessCallback={() => {
+                            setActiveTab(ManagementTabType.LIST);
+                            closeTab(tab.id);
+                            refetch();
+                        }}
+                    />
+                ) : null;
             case ManagementTabType.DETAIL:
-                // ... If detail view exists
-                return null;
+                return tab.data ? (
+                    <CampaignDetail campaign={tab.data} />
+                ) : null;
             default:
                 return null;
         }
-    }, [setActiveTab, refetch]);
+    }, [setActiveTab, refetch, closeTab]);
 
     const columnDefs = useMemo<ColDef<Campaign>[]>(
         () => [
@@ -70,8 +113,13 @@ export default function SellerCampaignsPage() {
                     </Badge>
                 ),
             },
+            getActionColumn({
+                onDetail: data => handleAction('Detail', data),
+                onUpdate: data => handleAction('Update', data),
+                onDelete: handleDelete,
+            })
         ],
-        [],
+        [handleAction, handleDelete],
     );
 
     return (

@@ -637,6 +637,17 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
                         </ActionIcon>
                     </Tooltip>
                 )}
+                {props.onDelete && (
+                    <Tooltip label="Delete">
+                        <ActionIcon
+                            variant="light"
+                            color="red"
+                            onClick={() => props.onDelete!(item)}
+                        >
+                            <IconTrash size={16} />
+                        </ActionIcon>
+                    </Tooltip>
+                )}
                 {props.onToggleStatus && (
                     <Tooltip label={isActive ? 'Lock' : 'Unlock'}>
                         <ActionIcon

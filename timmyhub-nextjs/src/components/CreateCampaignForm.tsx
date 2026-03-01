@@ -6,23 +6,32 @@ import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
 
-export function CreateCampaignForm({ onSuccessCallback }: { onSuccessCallback?: () => void }) {
+export function CreateCampaignForm({ 
+    onSuccessCallback, 
+    initialData,
+}: { 
+    onSuccessCallback?: () => void;
+    initialData?: Campaign;
+}) {
     const queryClient = useQueryClient();
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [type, setType] = useState('VOUCHER_CAMPAIGN');
-    const [startDate, setStartDate] = useState(dayjs().format('YYYY-MM-DD'));
-    const [endDate, setEndDate] = useState(dayjs().add(30, 'day').format('YYYY-MM-DD'));
-    const [isActive, setIsActive] = useState(true);
+    const [name, setName] = useState(initialData?.name || '');
+    const [description, setDescription] = useState(initialData?.description || '');
+    const [type, setType] = useState(initialData?.type || 'VOUCHER_CAMPAIGN');
+    const [startDate, setStartDate] = useState(initialData?.startDate ? dayjs(initialData.startDate).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'));
+    const [endDate, setEndDate] = useState(initialData?.endDate ? dayjs(initialData.endDate).format('YYYY-MM-DD') : dayjs().add(30, 'day').format('YYYY-MM-DD'));
+    const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
+
+    const isUpdate = !!initialData;
 
     const mutation = useMutation({
-        mutationFn: (data: Partial<Campaign>) => campaignService.create(data),
+        mutationFn: (data: Partial<Campaign>) => 
+            isUpdate ? campaignService.update(initialData.id, data) : campaignService.create(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['seller-campaigns'] });
             queryClient.invalidateQueries({ queryKey: ['admin-campaigns'] });
             notifications.show({
                 title: 'Thành công',
-                message: 'Tạo chương trình khuyến mãi thành công',
+                message: isUpdate ? 'Cập nhật chương trình khuyến mãi thành công' : 'Tạo chương trình khuyến mãi thành công',
                 color: 'green',
             });
             setName('');
@@ -35,7 +44,7 @@ export function CreateCampaignForm({ onSuccessCallback }: { onSuccessCallback?: 
                 message:
                     err?.response?.data?.message ||
                     err?.response?.data?.error?.[0] ||
-                    'Không thể tạo campaign',
+                    (isUpdate ? 'Không thể cập nhật campaign' : 'Không thể tạo campaign'),
                 color: 'red',
             });
         },
@@ -101,7 +110,7 @@ export function CreateCampaignForm({ onSuccessCallback }: { onSuccessCallback?: 
                 />
                 <Group justify="right" mt="md">
                     <Button onClick={handleSubmit} loading={mutation.isPending}>
-                        Hoàn tất tạo
+                        {isUpdate ? 'Cập nhật' : 'Hoàn tất tạo'}
                     </Button>
                 </Group>
             </Stack>

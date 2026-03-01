@@ -6,27 +6,36 @@ import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
 
-export function CreateVoucherForm({ onSuccessCallback }: { onSuccessCallback?: () => void }) {
+export function CreateVoucherForm({ 
+    onSuccessCallback, 
+    initialData,
+}: { 
+    onSuccessCallback?: () => void;
+    initialData?: Voucher;
+}) {
     const queryClient = useQueryClient();
-    const [code, setCode] = useState('');
-    const [description, setDescription] = useState('');
-    const [type, setType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING'>('PERCENTAGE');
-    const [value, setValue] = useState<number | ''>('');
-    const [minOrderValue, setMinOrderValue] = useState<number | ''>('');
-    const [maxDiscount, setMaxDiscount] = useState<number | ''>('');
-    const [usageLimit, setUsageLimit] = useState<number | ''>('');
-    const [perUserLimit, setPerUserLimit] = useState<number | ''>(1);
-    const [startDate, setStartDate] = useState(dayjs().format('YYYY-MM-DD'));
-    const [endDate, setEndDate] = useState(dayjs().add(7, 'day').format('YYYY-MM-DD'));
+    const [code, setCode] = useState(initialData?.code || '');
+    const [description, setDescription] = useState(initialData?.description || '');
+    const [type, setType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING'>(initialData?.type || 'PERCENTAGE');
+    const [value, setValue] = useState<number | ''>(initialData?.value ?? '');
+    const [minOrderValue, setMinOrderValue] = useState<number | ''>(initialData?.minOrderValue ?? '');
+    const [maxDiscount, setMaxDiscount] = useState<number | ''>(initialData?.maxDiscount ?? '');
+    const [usageLimit, setUsageLimit] = useState<number | ''>(initialData?.usageLimit ?? '');
+    const [perUserLimit, setPerUserLimit] = useState<number | ''>(initialData?.perUserLimit ?? 1);
+    const [startDate, setStartDate] = useState(initialData?.startDate ? dayjs(initialData.startDate).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'));
+    const [endDate, setEndDate] = useState(initialData?.endDate ? dayjs(initialData.endDate).format('YYYY-MM-DD') : dayjs().add(7, 'day').format('YYYY-MM-DD'));
+
+    const isUpdate = !!initialData;
 
     const mutation = useMutation({
-        mutationFn: (data: Partial<Voucher>) => voucherService.create(data),
+        mutationFn: (data: Partial<Voucher>) => 
+            isUpdate ? voucherService.update(initialData.id, data) : voucherService.create(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['seller-vouchers'] });
             queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
             notifications.show({
                 title: 'Thành công',
-                message: 'Tạo voucher thành công',
+                message: isUpdate ? 'Cập nhật voucher thành công' : 'Tạo voucher thành công',
                 color: 'green',
             });
             // Reset form
@@ -46,7 +55,7 @@ export function CreateVoucherForm({ onSuccessCallback }: { onSuccessCallback?: (
                 message:
                     err?.response?.data?.message ||
                     err?.response?.data?.error?.[0] ||
-                    'Không thể tạo voucher',
+                    (isUpdate ? 'Không thể cập nhật voucher' : 'Không thể tạo voucher'),
                 color: 'red',
             });
         },
@@ -75,6 +84,7 @@ export function CreateVoucherForm({ onSuccessCallback }: { onSuccessCallback?: (
                     label="Mã Voucher"
                     required
                     value={code}
+                    readOnly={isUpdate} // Thường mã không đổi khi update
                     onChange={e => setCode(e.currentTarget.value)}
                 />
                 <TextInput
@@ -146,7 +156,7 @@ export function CreateVoucherForm({ onSuccessCallback }: { onSuccessCallback?: (
 
                 <Group justify="right" mt="md">
                     <Button onClick={handleSubmit} loading={mutation.isPending}>
-                        Hoàn tất tạo
+                        {isUpdate ? 'Cập nhật' : 'Hoàn tất tạo'}
                     </Button>
                 </Group>
             </Stack>
