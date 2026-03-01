@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Button, TextInput, Select, NumberInput, Group, Stack, Paper } from '@mantine/core';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { voucherService, Voucher } from '@/services/voucher.service';
+import { campaignService } from '@/services/campaign.service';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
@@ -22,9 +23,16 @@ export function CreateVoucherForm({
     const [maxDiscount, setMaxDiscount] = useState<number | ''>(initialData?.maxDiscount ?? '');
     const [usageLimit, setUsageLimit] = useState<number | ''>(initialData?.usageLimit ?? '');
     const [perUserLimit, setPerUserLimit] = useState<number | ''>(initialData?.perUserLimit ?? 1);
+    const [campaignId, setCampaignId] = useState<string | null>(initialData?.campaignId || null);
     const [startDate, setStartDate] = useState(initialData?.startDate ? dayjs(initialData.startDate).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'));
     const [endDate, setEndDate] = useState(initialData?.endDate ? dayjs(initialData.endDate).format('YYYY-MM-DD') : dayjs().add(7, 'day').format('YYYY-MM-DD'));
 
+    // Fetch campaigns
+    const { data: campaignsRes } = useQuery({
+        queryKey: ['campaigns-for-voucher'],
+        queryFn: () => campaignService.getSellerCampaigns(), // We use getSellerCampaigns to get the campaigns the user has access to
+    });
+    
     const isUpdate = !!initialData;
 
     const mutation = useMutation({
@@ -47,6 +55,7 @@ export function CreateVoucherForm({
             setMaxDiscount('');
             setUsageLimit('');
             setPerUserLimit(1);
+            setCampaignId(null);
             if (onSuccessCallback) onSuccessCallback();
         },
         onError: (err: AxiosError<{ message?: string; error?: string[] }>) => {
@@ -71,6 +80,7 @@ export function CreateVoucherForm({
             maxDiscount: maxDiscount ? Number(maxDiscount) : undefined,
             usageLimit: usageLimit ? Number(usageLimit) : undefined,
             perUserLimit: Number(perUserLimit),
+            campaignId: campaignId || undefined,
             startDate: new Date(startDate).toISOString(),
             endDate: new Date(endDate).toISOString(),
             // Remove isActive because it's not accepted by CreateVoucherDto
@@ -91,6 +101,21 @@ export function CreateVoucherForm({
                     label="Mô tả"
                     value={description}
                     onChange={e => setDescription(e.currentTarget.value)}
+                />
+                
+                <Select
+                    label="Chương trình khuyến mãi (Tùy chọn)"
+                    placeholder="Không áp dụng campaign"
+                    data={
+                        campaignsRes?.data?.map(c => ({
+                            value: c.id,
+                            label: c.name,
+                        })) || []
+                    }
+                    value={campaignId}
+                    onChange={setCampaignId}
+                    clearable
+                    searchable
                 />
                 <Group grow>
                     <Select

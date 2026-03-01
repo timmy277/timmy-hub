@@ -17,6 +17,10 @@ export interface Voucher {
     description?: string;
     sellerId?: string;
     campaignId?: string;
+    campaign?: {
+        id: string;
+        name: string;
+    };
 }
 
 export interface VoucherValidationResult {

@@ -48,6 +48,12 @@ export function VoucherDetail({ voucher }: VoucherDetailProps) {
                                 <Text size="sm"><Text component="span" fw={500}>Giá trị:</Text> {voucher.value}</Text>
                                 {voucher.minOrderValue && <Text size="sm"><Text component="span" fw={500}>Đơn tối thiểu:</Text> {voucher.minOrderValue}</Text>}
                                 {voucher.maxDiscount && <Text size="sm"><Text component="span" fw={500}>Giảm tối đa:</Text> {voucher.maxDiscount}</Text>}
+                                {voucher.campaign && (
+                                    <Group gap={6} mt={2}>
+                                        <Text size="sm" component="span" fw={500}>Chương trình:</Text>
+                                        <Badge variant="light" color="blue" size="sm" style={{ textTransform: 'none' }}>{voucher.campaign.name}</Badge>
+                                    </Group>
+                                )}
                             </Box>
                         </Stack>
 
