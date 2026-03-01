@@ -47,6 +47,16 @@ export class ProductsController {
         return ResponseDto.success('Lấy danh sách sản phẩm thành công', products);
     }
 
+    @Get('admin/all')
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
+    @Permissions('product:approve')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Admin: tất cả sản phẩm (mọi trạng thái)' })
+    async findAllAdmin() {
+        const products = await this.productsService.findAllAdmin();
+        return ResponseDto.success('Lấy danh sách sản phẩm thành công', products);
+    }
+
     @Get('admin/pending')
     @UseGuards(JwtAuthGuard, PermissionsGuard)
     @Permissions('product:approve')

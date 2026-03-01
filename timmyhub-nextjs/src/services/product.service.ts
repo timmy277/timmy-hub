@@ -22,6 +22,13 @@ export const productService = {
     },
 
     /**
+     * Admin: lấy tất cả sản phẩm (mọi trạng thái)
+     */
+    getAdminProducts: async (): Promise<ApiResponse<Product[]>> => {
+        return axiosClient.get('/products/admin/all');
+    },
+
+    /**
      * Admin: lấy sản phẩm chờ duyệt (PENDING)
      */
     getPendingProducts: async (): Promise<ApiResponse<Product[]>> => {

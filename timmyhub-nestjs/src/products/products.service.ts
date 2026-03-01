@@ -72,6 +72,17 @@ export class ProductsService {
         });
     }
 
+    /** Admin: lấy tất cả sản phẩm (mọi trạng thái) */
+    async findAllAdmin(): Promise<Product[]> {
+        return this.prisma.product.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: {
+                seller: { select: { id: true, email: true, profile: true } },
+                category: true,
+            },
+        });
+    }
+
     async findAllBySeller(sellerId: string): Promise<Product[]> {
         return this.prisma.product.findMany({
             where: { sellerId },
