@@ -17,7 +17,7 @@ const SELLER_ONLY_PATHS = ['/seller/products', '/seller/vouchers', '/seller/camp
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
-    const { user, isAuthenticated } = useAuthStore();
+    const { user, isAuthenticated, _hasHydrated } = useAuthStore();
     const [checking, setChecking] = useState(true);
     const [hasSellerProfile, setHasSellerProfile] = useState<boolean | null>(null);
     const [status, setStatus] = useState<SellerProfileStatus | null>(null);
@@ -26,6 +26,8 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
     const isPending = status === 'PENDING';
 
     useEffect(() => {
+        if (!_hasHydrated) return;
+
         if (!isAuthenticated || !user) {
             router.replace('/login?redirect=' + encodeURIComponent(pathname || '/seller'));
             return;
@@ -41,7 +43,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                 setStatus(null);
             })
             .finally(() => setChecking(false));
-    }, [isAuthenticated, user, pathname, router]);
+    }, [_hasHydrated, isAuthenticated, user, pathname, router]);
 
     useEffect(() => {
         if (!checking && hasSellerProfile === false && !isBecomePage) {
@@ -53,7 +55,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
         }
     }, [checking, hasSellerProfile, isPending, isBecomePage, pathname, router]);
 
-    if (!isAuthenticated || checking) {
+    if (!_hasHydrated || !isAuthenticated || checking) {
         return (
             <Center h="100vh">
                 <Loader size="lg" />
