@@ -49,7 +49,7 @@ export function DashboardShell({ children, withFooter = true }: DashboardShellPr
                 display="flex"
                 style={{
                     flexDirection: 'column',
-                    minHeight: '100vh',
+                    minHeight: 'calc(100vh - var(--app-shell-header-height, 70px))',
                     backgroundColor: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-8))',
                 }}
             >

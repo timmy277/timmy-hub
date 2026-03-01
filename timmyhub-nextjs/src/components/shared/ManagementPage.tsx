@@ -33,7 +33,6 @@ import {
     EventApiModule,
 } from 'ag-grid-community';
 import { BaseDataTable } from '@/components/tables/BaseDataTable';
-import { DashboardShell } from '@/components/layout';
 import { TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
 
@@ -145,136 +144,134 @@ export function ManagementPage<T>({
     if (!mounted) return null;
 
     return (
-        <DashboardShell withFooter={false}>
-            <Container fluid px="1rem" py="md">
-                <Paper shadow="md" radius="md" withBorder p="md">
-                    <Tabs
-                        id={`${baseId}-tabs`}
-                        value={activeTab}
-                        onChange={setActiveTab}
-                        variant="outline"
-                        radius="md"
-                    >
-                        <Tabs.List mb="md">
-                            {openTabs.map(tab => (
-                                <Tabs.Tab
-                                    key={tab.id}
-                                    value={tab.id}
-                                    leftSection={
-                                        tab.id === ManagementTabType.LIST ? (
-                                            listIcon || <IconFileText size={16} />
-                                        ) : (
-                                            <IconFileText size={16} />
-                                        )
-                                    }
-                                    rightSection={
-                                        tab.id !== ManagementTabType.LIST ? (
-                                            <ActionIcon
-                                                size="sm"
-                                                variant="subtle"
-                                                color="gray"
-                                                component="div"
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    closeTab(tab.id);
-                                                }}
-                                            >
-                                                <IconX size={14} />
-                                            </ActionIcon>
-                                        ) : null
-                                    }
-                                >
-                                    {tab.label}
-                                </Tabs.Tab>
-                            ))}
-                        </Tabs.List>
-
+        <Container fluid px="1rem" py="md">
+            <Paper shadow="md" radius="md" withBorder p="md">
+                <Tabs
+                    id={`${baseId}-tabs`}
+                    value={activeTab}
+                    onChange={setActiveTab}
+                    variant="outline"
+                    radius="md"
+                >
+                    <Tabs.List mb="md">
                         {openTabs.map(tab => (
-                            <Tabs.Panel key={tab.id} value={tab.id}>
-                                {tab.id === ManagementTabType.LIST ? (
-                                    <Stack gap="lg" mt="md">
-                                        <Group justify="space-between">
-                                            <SearchInput
-                                                placeholder={searchPlaceholder}
-                                                onSearch={handleSearch}
-                                                baseId={baseId}
-                                            />
-                                            <Group>
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={handleRefresh}
-                                                    leftSection={<IconRefresh size={16} />}
-                                                    loading={isLoading}
-                                                >
-                                                    Làm mới
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    color="orange"
-                                                    onClick={handleReset}
-                                                    leftSection={<IconRotateClockwise size={16} />}
-                                                >
-                                                    Reset
-                                                </Button>
-                                                <Popover
-                                                    id={`${baseId}-columns-popover`}
-                                                    width={300}
-                                                    position="bottom-end"
-                                                    withArrow
-                                                    shadow="md"
-                                                >
-                                                    <Popover.Target>
-                                                        <Button
-                                                            variant="outline"
-                                                            color="blue"
-                                                            leftSection={<IconColumns size={16} />}
-                                                        >
-                                                            Cột
-                                                        </Button>
-                                                    </Popover.Target>
-                                                    <Popover.Dropdown>
-                                                        <ColumnManagement
-                                                            columnDefs={columnDefs}
-                                                            gridApi={gridApi}
-                                                            columnPinnedState={columnPinnedState}
-                                                        />
-                                                    </Popover.Dropdown>
-                                                </Popover>
-                                                <Button
-                                                    variant="outline"
-                                                    color="green"
-                                                    leftSection={<IconFileSpreadsheet size={16} />}
-                                                    onClick={() => gridApi?.exportDataAsCsv()}
-                                                >
-                                                    Xuất CSV
-                                                </Button>
-                                                {onAdd && (
-                                                    <Button
-                                                        leftSection={<IconPlus size={16} />}
-                                                        onClick={onAdd}
-                                                    >
-                                                        Thêm {entityName}
-                                                    </Button>
-                                                )}
-                                            </Group>
-                                        </Group>
-
-                                        <BaseDataTable
-                                            rowData={rowData}
-                                            columnDefs={columnDefs}
-                                            onGridReady={onGridReady}
-                                            isLoading={isLoading}
-                                            height="calc(100vh - 350px)"
-                                        />
-                                    </Stack>
-                                ) : (
-                                    renderTabContent(tab)
-                                )}
-                            </Tabs.Panel>
+                            <Tabs.Tab
+                                key={tab.id}
+                                value={tab.id}
+                                leftSection={
+                                    tab.id === ManagementTabType.LIST ? (
+                                        listIcon || <IconFileText size={16} />
+                                    ) : (
+                                        <IconFileText size={16} />
+                                    )
+                                }
+                                rightSection={
+                                    tab.id !== ManagementTabType.LIST ? (
+                                        <ActionIcon
+                                            size="sm"
+                                            variant="subtle"
+                                            color="gray"
+                                            component="div"
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                closeTab(tab.id);
+                                            }}
+                                        >
+                                            <IconX size={14} />
+                                        </ActionIcon>
+                                    ) : null
+                                }
+                            >
+                                {tab.label}
+                            </Tabs.Tab>
                         ))}
-                    </Tabs>
-                </Paper>
-            </Container>
-        </DashboardShell>
+                    </Tabs.List>
+
+                    {openTabs.map(tab => (
+                        <Tabs.Panel key={tab.id} value={tab.id}>
+                            {tab.id === ManagementTabType.LIST ? (
+                                <Stack gap="lg" mt="md">
+                                    <Group justify="space-between">
+                                        <SearchInput
+                                            placeholder={searchPlaceholder}
+                                            onSearch={handleSearch}
+                                            baseId={baseId}
+                                        />
+                                        <Group>
+                                            <Button
+                                                variant="outline"
+                                                onClick={handleRefresh}
+                                                leftSection={<IconRefresh size={16} />}
+                                                loading={isLoading}
+                                            >
+                                                Làm mới
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                color="orange"
+                                                onClick={handleReset}
+                                                leftSection={<IconRotateClockwise size={16} />}
+                                            >
+                                                Reset
+                                            </Button>
+                                            <Popover
+                                                id={`${baseId}-columns-popover`}
+                                                width={300}
+                                                position="bottom-end"
+                                                withArrow
+                                                shadow="md"
+                                            >
+                                                <Popover.Target>
+                                                    <Button
+                                                        variant="outline"
+                                                        color="blue"
+                                                        leftSection={<IconColumns size={16} />}
+                                                    >
+                                                        Cột
+                                                    </Button>
+                                                </Popover.Target>
+                                                <Popover.Dropdown>
+                                                    <ColumnManagement
+                                                        columnDefs={columnDefs}
+                                                        gridApi={gridApi}
+                                                        columnPinnedState={columnPinnedState}
+                                                    />
+                                                </Popover.Dropdown>
+                                            </Popover>
+                                            <Button
+                                                variant="outline"
+                                                color="green"
+                                                leftSection={<IconFileSpreadsheet size={16} />}
+                                                onClick={() => gridApi?.exportDataAsCsv()}
+                                            >
+                                                Xuất CSV
+                                            </Button>
+                                            {onAdd && (
+                                                <Button
+                                                    leftSection={<IconPlus size={16} />}
+                                                    onClick={onAdd}
+                                                >
+                                                    Thêm {entityName}
+                                                </Button>
+                                            )}
+                                        </Group>
+                                    </Group>
+
+                                    <BaseDataTable
+                                        rowData={rowData}
+                                        columnDefs={columnDefs}
+                                        onGridReady={onGridReady}
+                                        isLoading={isLoading}
+                                        height="calc(100vh - 350px)"
+                                    />
+                                </Stack>
+                            ) : (
+                                renderTabContent(tab)
+                            )}
+                        </Tabs.Panel>
+                    ))}
+                </Tabs>
+            </Paper>
+        </Container>
     );
 }

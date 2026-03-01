@@ -79,30 +79,36 @@ export const createUserColumns = (options: ColumnConfigOptions): ColDef<User>[] 
         },
         {
             headerName: t('table.columns.role'),
-            field: 'role',
-            width: 150,
+            field: 'roles',
+            minWidth: 180,
             cellRenderer: (params: ICellRendererParams<User>) => {
-                const role = params.value as string;
-                const translatedRole = t(`roles.${role}`);
+                // Ưu tiên roles[] (multi-role), fallback về role singular (legacy)
+                const roles: UserRole[] = params.data?.roles?.length
+                    ? (params.data.roles as UserRole[])
+                    : params.data?.role
+                        ? [params.data.role as UserRole]
+                        : [];
 
-                // If translation is missing (returns the key), try to use displayName from userRoles
-                let displayRole = translatedRole;
-                if (translatedRole === `roles.${role}` && params.data?.userRoles?.length) {
-                    const dynamicRole = params.data.userRoles.find(ur => ur.role.name === role);
-                    if (dynamicRole) {
-                        displayRole = dynamicRole.role.displayName;
-                    }
-                }
-
-                // If still roles.xxx, just show the role name
-                if (displayRole === `roles.${role}`) {
-                    displayRole = role;
+                if (roles.length === 0) {
+                    return (
+                        <Badge color="gray" variant="light" mt={10}>
+                            -
+                        </Badge>
+                    );
                 }
 
                 return (
-                    <Badge color={getRoleColor(role as UserRole)} variant="light" mt={10}>
-                        {displayRole}
-                    </Badge>
+                    <Group gap={4} mt={6} wrap="wrap">
+                        {roles.map(role => {
+                            const translated = t(`roles.${role}`);
+                            const displayRole = translated === `roles.${role}` ? role : translated;
+                            return (
+                                <Badge key={role} color={getRoleColor(role)} variant="light" size="sm">
+                                    {displayRole}
+                                </Badge>
+                            );
+                        })}
+                    </Group>
                 );
             },
         },
