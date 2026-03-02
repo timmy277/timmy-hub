@@ -149,7 +149,7 @@ function InnerLoginPage() {
                             borderColor: 'transparent',
                             boxShadow: 'var(--mantine-shadow-md)',
                         }}
-                        className="dark:!bg-dark-900"
+                        className="dark:bg-dark-900!"
                     >
                         <Stack gap="xl">
                             <Box ta="center">
