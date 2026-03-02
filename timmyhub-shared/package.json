@@ -1,26 +1,26 @@
 {
-  "name": "@timmyhub/shared",
-  "version": "1.0.0",
-  "description": "Shared Zod schemas & TypeScript types for TimmyHub",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+    "name": "@timmyhub/shared",
+    "version": "1.0.0",
+    "description": "Shared Zod schemas & TypeScript types for TimmyHub",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/index.js",
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsc --project tsconfig.build.json",
+        "build:watch": "tsc --project tsconfig.build.json --watch",
+        "typecheck": "tsc --noEmit"
+    },
+    "peerDependencies": {
+        "zod": ">=3.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.3",
+        "zod": "^3.24.4"
     }
-  },
-  "scripts": {
-    "build": "tsc --project tsconfig.build.json",
-    "build:watch": "tsc --project tsconfig.build.json --watch",
-    "typecheck": "tsc --noEmit"
-  },
-  "peerDependencies": {
-    "zod": ">=3.0.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.7.3",
-    "zod": "^3.24.4"
-  }
 }

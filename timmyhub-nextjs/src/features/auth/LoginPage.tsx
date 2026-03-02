@@ -26,6 +26,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useMounted } from '@mantine/hooks';
 import { useLoginMutation } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { Suspense } from 'react';
+import { LoadingFallback } from '@/components/shared/LoadingFallback';
 
 function extractLoginError(error: unknown): string {
     const fallback = 'Failed to login. Please check your credentials.';
@@ -45,6 +47,14 @@ const schema = z.object({
 });
 
 export function LoginPage() {
+    return (
+        <Suspense fallback={<LoadingFallback />}>
+            <InnerLoginPage />
+        </Suspense>
+    );
+}
+
+function InnerLoginPage() {
     // ===== Hooks & Context =====
     const mounted = useMounted();
     const setAuthData = useAuthStore(state => state.setAuthData);
