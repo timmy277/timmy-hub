@@ -1,15 +1,17 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
-    "lib": ["ES2020"],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {}
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "CommonJS",
+        "lib": ["ES2020"],
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": ".",
+        "paths": {
+            "@timmyhub/shared": ["./src"]
+        }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
 }
