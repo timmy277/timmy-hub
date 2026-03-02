@@ -14,7 +14,8 @@
     "scripts": {
         "build": "tsc --project tsconfig.build.json",
         "build:watch": "tsc --project tsconfig.build.json --watch",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "prepare": "tsc --project tsconfig.build.json"
     },
     "peerDependencies": {
         "zod": ">=3.0.0"

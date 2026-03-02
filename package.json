@@ -1,0 +1,12 @@
+{
+    "name": "timmyhub",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "build": "pnpm --filter @timmyhub/shared build && pnpm --filter timmyhub-nestjs build && pnpm --filter timmyhub-nextjs build",
+        "build:shared": "pnpm --filter @timmyhub/shared build",
+        "build:nestjs": "pnpm --filter timmyhub-nestjs build",
+        "build:nextjs": "pnpm --filter timmyhub-nextjs build",
+        "dev": "pnpm --parallel --filter timmyhub-nestjs --filter timmyhub-nextjs run start:dev"
+    }
+}
