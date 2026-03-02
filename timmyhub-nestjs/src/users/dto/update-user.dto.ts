@@ -1,13 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateUserDto } from './create-user.dto';
-import { IsOptional, IsBoolean, IsString } from 'class-validator';
+import { createZodDto } from 'nestjs-zod';
+import { UpdateUserSchema } from '@timmyhub/shared';
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {
-    @IsOptional()
-    @IsBoolean()
-    isActive?: boolean;
-
-    @IsOptional()
-    @IsString()
-    phoneNumber?: string;
-}
+export class UpdateUserDto extends createZodDto(UpdateUserSchema) {}

@@ -1,0 +1,14 @@
+# Dependencies - NEVER commit
+/node_modules
+
+# Build output - chạy `pnpm build` để generate
+/dist
+
+# Testing
+/coverage
+
+# TypeScript incremental
+*.tsbuildinfo
+
+# Misc
+.DS_Store

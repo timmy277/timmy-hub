@@ -1,0 +1,4 @@
+packages:
+  - 'timmyhub-nestjs'
+  - 'timmyhub-nextjs'
+  - 'timmyhub-shared'

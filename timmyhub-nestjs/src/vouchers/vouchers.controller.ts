@@ -39,7 +39,7 @@ export class VouchersController {
         const voucher = await this.vouchersService.create(
             req.user.id,
             dto,
-            dto.campaignId,
+            dto.campaignId ?? undefined,
             req.user.roles,
         );
         return ResponseDto.success('Tạo voucher thành công', voucher);

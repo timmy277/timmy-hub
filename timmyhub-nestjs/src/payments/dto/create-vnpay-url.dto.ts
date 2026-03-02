@@ -1,9 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty } from 'class-validator';
+import { createZodDto } from 'nestjs-zod';
+import { CreateVnpayUrlSchema } from '@timmyhub/shared';
 
-export class CreateVnpayUrlDto {
-    @ApiProperty({ description: 'Order ID' })
-    @IsString()
-    @IsNotEmpty()
-    orderId: string;
-}
+export class CreateVnpayUrlDto extends createZodDto(CreateVnpayUrlSchema) {}

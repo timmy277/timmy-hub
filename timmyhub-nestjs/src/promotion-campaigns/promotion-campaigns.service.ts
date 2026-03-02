@@ -7,8 +7,8 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { UserRole } from '@prisma/client';
-import { CreatePromotionCampaignDto } from './dto/create-campaign.dto';
-import { UpdatePromotionCampaignDto } from './dto/update-campaign.dto';
+import { CreateCampaignDto } from './dto/create-campaign.dto';
+import { UpdateCampaignDto } from './dto/update-campaign.dto';
 
 const OWNER_TYPE_SELLER = 'SELLER';
 
@@ -16,7 +16,7 @@ const OWNER_TYPE_SELLER = 'SELLER';
 export class PromotionCampaignsService {
     constructor(private readonly prisma: PrismaService) {}
 
-    async create(userId: string, dto: CreatePromotionCampaignDto, userRoles?: UserRole[]) {
+    async create(userId: string, dto: CreateCampaignDto, userRoles?: UserRole[]) {
         const isAdmin =
             userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
         const ownerType = isAdmin && dto.ownerType ? dto.ownerType : OWNER_TYPE_SELLER;
@@ -103,12 +103,7 @@ export class PromotionCampaignsService {
         return campaign;
     }
 
-    async update(
-        id: string,
-        userId: string,
-        dto: UpdatePromotionCampaignDto,
-        userRoles?: UserRole[],
-    ) {
+    async update(id: string, userId: string, dto: UpdateCampaignDto, userRoles?: UserRole[]) {
         const campaign = await this.prisma.promotionCampaign.findUnique({
             where: { id },
         });

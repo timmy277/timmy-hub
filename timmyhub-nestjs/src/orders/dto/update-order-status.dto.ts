@@ -1,9 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum } from 'class-validator';
-import { OrderStatus } from '@prisma/client';
+import { createZodDto } from 'nestjs-zod';
+import { UpdateOrderStatusSchema } from '@timmyhub/shared';
 
-export class UpdateOrderStatusDto {
-    @ApiProperty({ enum: OrderStatus })
-    @IsEnum(OrderStatus)
-    status: OrderStatus;
-}
+export class UpdateOrderStatusDto extends createZodDto(UpdateOrderStatusSchema) {}

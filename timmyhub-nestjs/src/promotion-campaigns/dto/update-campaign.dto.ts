@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreatePromotionCampaignDto } from './create-campaign.dto';
+import { createZodDto } from 'nestjs-zod';
+import { UpdateCampaignSchema } from '@timmyhub/shared';
 
-export class UpdatePromotionCampaignDto extends PartialType(CreatePromotionCampaignDto) {}
+export class UpdateCampaignDto extends createZodDto(UpdateCampaignSchema) {}

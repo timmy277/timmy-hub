@@ -17,8 +17,8 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 import type { UserRequest } from '../auth/interfaces/auth.interface';
 import { PromotionCampaignsService } from './promotion-campaigns.service';
-import { CreatePromotionCampaignDto } from './dto/create-campaign.dto';
-import { UpdatePromotionCampaignDto } from './dto/update-campaign.dto';
+import { CreateCampaignDto } from './dto/create-campaign.dto';
+import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { ResponseDto } from '../common/dto/response.dto';
 
 @ApiTags('Promotion Campaigns')
@@ -33,8 +33,12 @@ export class PromotionCampaignsController {
     @ApiOperation({
         summary: 'Tạo campaign (Seller: shop mình; Admin: PLATFORM hoặc SELLER)',
     })
-    async create(@Body() dto: CreatePromotionCampaignDto, @Req() req: UserRequest) {
-        const campaign = await this.campaignsService.create(req.user.id, dto, req.user.roles);
+    async create(@Body() dto: CreateCampaignDto, @Req() req: UserRequest) {
+        const campaign = await this.campaignsService.create(
+            req.user.id,
+            dto as any,
+            req.user.roles,
+        );
         return ResponseDto.success('Tạo chương trình khuyến mãi thành công', campaign);
     }
 
@@ -76,12 +80,13 @@ export class PromotionCampaignsController {
     @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Cập nhật campaign (Seller: shop mình; Admin: bất kỳ)' })
-    async update(
-        @Param('id') id: string,
-        @Body() dto: UpdatePromotionCampaignDto,
-        @Req() req: UserRequest,
-    ) {
-        const campaign = await this.campaignsService.update(id, req.user.id, dto, req.user.roles);
+    async update(@Param('id') id: string, @Body() dto: UpdateCampaignDto, @Req() req: UserRequest) {
+        const campaign = await this.campaignsService.update(
+            id,
+            req.user.id,
+            dto as any,
+            req.user.roles,
+        );
         return ResponseDto.success('Cập nhật chương trình thành công', campaign);
     }
 

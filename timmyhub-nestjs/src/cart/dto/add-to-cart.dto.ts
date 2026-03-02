@@ -1,11 +1,4 @@
-import { IsString, IsInt, Min, Max } from 'class-validator';
+import { createZodDto } from 'nestjs-zod';
+import { AddToCartSchema } from '@timmyhub/shared';
 
-export class AddToCartDto {
-    @IsString()
-    productId: string;
-
-    @IsInt()
-    @Min(1, { message: 'Số lượng phải lớn hơn 0' })
-    @Max(99, { message: 'Số lượng tối đa là 99' })
-    quantity: number;
-}
+export class AddToCartDto extends createZodDto(AddToCartSchema) {}

@@ -1,11 +1,4 @@
-import { IsArray, ValidateNested, ArrayMaxSize } from 'class-validator';
-import { Type } from 'class-transformer';
-import { AddToCartDto } from './add-to-cart.dto';
+import { createZodDto } from 'nestjs-zod';
+import { BulkAddToCartSchema } from '@timmyhub/shared';
 
-export class BulkAddToCartDto {
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => AddToCartDto)
-    @ArrayMaxSize(20, { message: 'Tối đa 20 sản phẩm một lần' })
-    items: AddToCartDto[];
-}
+export class BulkAddToCartDto extends createZodDto(BulkAddToCartSchema) {}
