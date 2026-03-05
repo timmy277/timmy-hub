@@ -54,6 +54,13 @@ export class SellerController {
         return ResponseDto.success<CheckProfileResponseDto>('OK', data);
     }
 
+    @Get('shop/:slug')
+    @ApiOperation({ summary: 'Xem gian hàng công khai của seller theo shopSlug (Public)' })
+    async getPublicShop(@Param('slug') slug: string) {
+        const shop = await this.sellerService.getPublicShop(slug);
+        return ResponseDto.success('Lấy thông tin gian hàng thành công', shop);
+    }
+
     // ---------- Admin: duyệt đơn đăng ký seller ----------
     @Get('admin/applications')
     @UseGuards(JwtAuthGuard, RolesGuard)

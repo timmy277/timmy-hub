@@ -1,5 +1,43 @@
 import { Category } from './category';
-import { User } from './auth';
+
+export interface SellerProfileInfo {
+    id: string;
+    shopName: string;
+    shopSlug: string;
+    shopLogo?: string | null;
+    description?: string | null;
+    isVerified: boolean;
+    rating: number;
+}
+
+export interface SellerBasicInfo {
+    id: string;
+    email: string;
+    profile?: {
+        firstName: string;
+        lastName: string;
+        displayName: string;
+        avatar?: string;
+    } | null;
+    sellerProfile?: SellerProfileInfo | null;
+}
+
+export interface SellerShop extends SellerProfileInfo {
+    userId: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    user: {
+        id: string;
+        profile?: {
+            firstName: string;
+            lastName: string;
+            displayName: string;
+            avatar?: string;
+        } | null;
+    };
+    products: Product[];
+}
 
 export enum ResourceStatus {
     PENDING = 'PENDING',
@@ -23,7 +61,7 @@ export interface ProductVariant {
 export interface Product {
     id: string;
     sellerId: string;
-    seller?: User | null;
+    seller?: SellerBasicInfo | null;
     brandId?: string | null;
     categoryId?: string | null;
     category?: Category | null;

@@ -1,5 +1,5 @@
 import axiosClient from '@/libs/axios';
-import { Product, CreateProductInput } from '@/types/product';
+import { Product, CreateProductInput, SellerShop } from '@/types/product';
 import { ApiResponse } from '@/types/api';
 
 /**
@@ -68,5 +68,12 @@ export const productService = {
      */
     rejectProduct: async (id: string, note: string): Promise<ApiResponse<void>> => {
         return axiosClient.patch(`/products/${id}/reject`, { note });
+    },
+
+    /**
+     * Xem gian hàng công khai của seller theo shopSlug (Public)
+     */
+    getSellerShop: async (shopSlug: string): Promise<ApiResponse<SellerShop>> => {
+        return axiosClient.get(`/seller/shop/${shopSlug}`);
     },
 };

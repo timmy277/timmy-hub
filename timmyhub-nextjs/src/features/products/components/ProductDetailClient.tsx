@@ -16,8 +16,10 @@ import {
     Breadcrumbs,
     Anchor,
     Alert,
+    Avatar,
+    ThemeIcon,
 } from '@mantine/core';
-import { IconShoppingCart, IconAlertCircle } from '@tabler/icons-react';
+import { IconShoppingCart, IconAlertCircle, IconBuildingStore, IconShieldCheck, IconStar, IconChevronRight } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '@/hooks/useCart';
@@ -242,6 +244,56 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                 </Alert>
                             )}
                         </Stack>
+
+                        {/* Seller Card */}
+                        {product.seller?.sellerProfile && (
+                            <Paper
+                                component={Link}
+                                href={`/shop/${product.seller.sellerProfile.shopSlug}`}
+                                p="md"
+                                radius="md"
+                                withBorder
+                                style={{ textDecoration: 'none', cursor: 'pointer' }}
+                            >
+                                <Group justify="space-between" wrap="nowrap">
+                                    <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+                                        <Avatar
+                                            src={product.seller.sellerProfile.shopLogo ?? product.seller.profile?.avatar ?? null}
+                                            size={48}
+                                            radius="md"
+                                            color="blue"
+                                        >
+                                            <IconBuildingStore size={24} />
+                                        </Avatar>
+                                        <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+                                            <Group gap={6} wrap="nowrap">
+                                                <Text fw={600} size="sm" truncate="end">
+                                                    {product.seller.sellerProfile.shopName}
+                                                </Text>
+                                                {product.seller.sellerProfile.isVerified && (
+                                                    <ThemeIcon size={16} color="blue" variant="transparent" p={0}>
+                                                        <IconShieldCheck size={16} />
+                                                    </ThemeIcon>
+                                                )}
+                                            </Group>
+                                            <Group gap="xs">
+                                                <Group gap={4}>
+                                                    <IconStar size={12} style={{ color: 'var(--mantine-color-yellow-6)' }} />
+                                                    <Text size="xs" c="dimmed">
+                                                        {product.seller.sellerProfile.rating.toFixed(1)}
+                                                    </Text>
+                                                </Group>
+                                                <Text size="xs" c="dimmed">·</Text>
+                                                <Text size="xs" c="blue">
+                                                    Xem gian hàng
+                                                </Text>
+                                            </Group>
+                                        </Stack>
+                                    </Group>
+                                    <IconChevronRight size={16} color="var(--mantine-color-dimmed)" />
+                                </Group>
+                            </Paper>
+                        )}
 
                         {/* Product Info Cards */}
                         <Stack gap="sm">

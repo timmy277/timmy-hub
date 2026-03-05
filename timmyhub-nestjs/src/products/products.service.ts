@@ -109,6 +109,7 @@ export class ProductsService {
 
     /**
      * Lấy sản phẩm qua slug (Public)
+     * Trả về kèm thông tin người bán (seller + sellerProfile) để hiển thị trên trang chi tiết
      */
     async findBySlug(slug: string): Promise<Product> {
         const product = await this.prisma.product.findUnique({
@@ -116,6 +117,24 @@ export class ProductsService {
             include: {
                 category: true,
                 variants: true,
+                seller: {
+                    select: {
+                        id: true,
+                        email: true,
+                        profile: true,
+                        sellerProfile: {
+                            select: {
+                                id: true,
+                                shopName: true,
+                                shopSlug: true,
+                                shopLogo: true,
+                                description: true,
+                                isVerified: true,
+                                rating: true,
+                            },
+                        },
+                    },
+                },
             },
         });
         if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
