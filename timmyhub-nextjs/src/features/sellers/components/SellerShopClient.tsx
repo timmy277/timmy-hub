@@ -19,13 +19,11 @@ import {
     Divider,
     ThemeIcon,
     Box,
-    Breadcrumbs,
-    Anchor,
 } from '@mantine/core';
 import { IconBuildingStore, IconShieldCheck, IconStar, IconPackage, IconCalendar } from '@tabler/icons-react';
-import Link from 'next/link';
 import { SellerShop } from '@/types/product';
 import { ProductCard } from '@/features/products/components/ProductCard';
+import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
 
 interface SellerShopClientProps {
     shop: SellerShop;
@@ -42,20 +40,16 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
         month: 'long',
     });
 
+    const breadcrumbItems: BreadcrumbItem[] = [
+        { title: 'Trang chủ', href: '/' },
+        { title: 'Gian hàng', href: '/shops', icon: <IconBuildingStore size={14} /> },
+        { title: shop.shopName },
+    ];
+
     return (
         <Container size="xl" py="xl">
             {/* Breadcrumb */}
-            <Breadcrumbs separator="→" mb="xl">
-                <Anchor component={Link} href="/" size="sm" c="blue">
-                    Trang chủ
-                </Anchor>
-                <Anchor component={Link} href="/shops" size="sm" c="blue">
-                    Gian hàng
-                </Anchor>
-                <Text size="sm" c="dimmed">
-                    {shop.shopName}
-                </Text>
-            </Breadcrumbs>
+            <AppBreadcrumbs items={breadcrumbItems} />
 
             {/* Shop Header */}
             <Paper p="xl" radius="lg" withBorder mb="xl">

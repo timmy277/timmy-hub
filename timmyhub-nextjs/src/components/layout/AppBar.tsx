@@ -12,6 +12,7 @@ import {
     IconLayoutSidebarRightCollapse,
     IconChevronRight,
     IconPackage,
+    IconHome,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useSidebarStore } from '@/stores/useSidebarStore';
@@ -45,13 +46,15 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
 
     const breadcrumbItems = [
         <Anchor component={Link} href="/" key="home" size="sm" c="dimmed">
-            {t('sidebar.dashboard')}
+            <Group gap={4} wrap="nowrap">
+                <IconHome size={14} />
+                <span>{t('sidebar.dashboard')}</span>
+            </Group>
         </Anchor>,
         ...segments.map((segment, index) => {
             const path = `/${segments.slice(0, index + 1).join('/')}`;
-            // Try to get translation from sidebar or common, fallback to capitalized segment
             const label = t(`sidebar.${segment}`, {
-                defaultValue: segment.charAt(0).toUpperCase() + segment.slice(1)
+                defaultValue: segment.charAt(0).toUpperCase() + segment.slice(1),
             });
             const isLast = index === segments.length - 1;
 

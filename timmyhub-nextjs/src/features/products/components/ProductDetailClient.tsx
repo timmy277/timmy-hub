@@ -13,19 +13,19 @@ import {
     Paper,
     Divider,
     NumberInput,
-    Breadcrumbs,
     Anchor,
     Alert,
     Avatar,
     ThemeIcon,
 } from '@mantine/core';
-import { IconShoppingCart, IconAlertCircle, IconBuildingStore, IconShieldCheck, IconStar, IconChevronRight } from '@tabler/icons-react';
+import { IconShoppingCart, IconAlertCircle, IconBuildingStore, IconShieldCheck, IconStar, IconChevronRight, IconTag } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { Product } from '@/types/product';
 import { ProductImageGallery } from './ProductImageGallery';
+import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
 
 interface ProductDetailClientProps {
     product: Product;
@@ -43,25 +43,17 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
         ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
         : 0;
 
-    const breadcrumbData = [
+    const breadcrumbItems: BreadcrumbItem[] = [
         { title: 'Trang chủ', href: '/' },
         ...(product.category
-            ? [{ title: product.category.name, href: `/category/${product.category.slug || product.category.id}` }]
+            ? [{
+                title: product.category.name,
+                href: `/category/${product.category.slug ?? product.category.id}`,
+                icon: <IconTag size={14} />,
+            }]
             : []),
-        { title: product.name, href: `#` },
+        { title: product.name },
     ];
-
-    const breadcrumbItems = breadcrumbData.map((item, index) => (
-        <Anchor
-            key={item.href}
-            component={Link}
-            href={item.href}
-            size="sm"
-            c={index === breadcrumbData.length - 1 ? 'dimmed' : 'blue'}
-        >
-            {item.title}
-        </Anchor>
-    ));
 
     const handleAddToCart = async () => {
         if (!user) {
@@ -89,9 +81,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     return (
         <Container size="xl" py="xl">
             {/* Breadcrumb */}
-            <Breadcrumbs separator="→" mb="xl">
-                {breadcrumbItems}
-            </Breadcrumbs>
+            <AppBreadcrumbs items={breadcrumbItems} />
 
             <Grid gutter="xl">
                 {/* Image Gallery */}
