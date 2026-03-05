@@ -27,9 +27,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@timmyhub/shared": "workspace:*",
-    "nestjs-zod": "^3.0.0",
-    "zod": "^3.24.4",
     "@casl/ability": "^6.8.0",
     "@casl/prisma": "^1.6.1",
     "@nestjs/axios": "^4.0.1",
@@ -48,8 +45,10 @@
     "@sentry/nestjs": "^10.39.0",
     "@sentry/profiling-node": "^10.39.0",
     "@supabase/supabase-js": "^2.95.3",
+    "@timmyhub/shared": "workspace:*",
     "@types/compression": "^1.8.1",
     "@types/multer": "^2.0.0",
+    "@upstash/redis": "^1.36.3",
     "bcryptjs": "^3.0.3",
     "cache-manager": "^7.2.8",
     "cache-manager-redis-yet": "^5.1.5",
@@ -59,6 +58,7 @@
     "cookie-parser": "^1.4.7",
     "helmet": "^8.1.0",
     "nestjs-pino": "^4.5.0",
+    "nestjs-zod": "^3.0.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
@@ -69,7 +69,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
-    "vnpay": "^2.4.4"
+    "vnpay": "^2.4.4",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

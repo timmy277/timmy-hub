@@ -20,7 +20,7 @@ import { PromotionCampaignsModule } from './promotion-campaigns/promotion-campai
 import { SellerModule } from './seller/seller.module';
 import { LoggerModule } from 'nestjs-pino';
 import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-yet';
+import { RedisModule } from './common/redis/redis.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { MetricsMiddleware } from './common/middleware/metrics.middleware';
@@ -28,20 +28,11 @@ import { MetricsMiddleware } from './common/middleware/metrics.middleware';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
-        CacheModule.registerAsync({
+        CacheModule.register({
             isGlobal: true,
-            imports: [ConfigModule],
-            useFactory: async (configService: ConfigService) => ({
-                store: await redisStore({
-                    socket: {
-                        host: configService.get('REDIS_HOST', 'localhost'),
-                        port: parseInt(configService.get('REDIS_PORT', '6379')),
-                    },
-                    ttl: 60000 * 60, // 1 hour
-                }),
-            }),
-            inject: [ConfigService],
+            ttl: 60 * 60 * 1000, // 1 hour
         }),
+        RedisModule,
         ThrottlerModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
