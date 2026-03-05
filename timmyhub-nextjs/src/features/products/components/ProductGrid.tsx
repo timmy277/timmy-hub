@@ -1,6 +1,11 @@
 'use client';
 
-import { Text, Center } from '@mantine/core';
+/**
+ * ProductGrid - Hiển thị danh sách sản phẩm dạng grid hoặc list
+ * Hỗ trợ loading skeleton khi đang fetch
+ */
+
+import { Text, Center, Skeleton, SimpleGrid } from '@mantine/core';
 import { m, AnimatePresence } from 'framer-motion';
 import { Grid as MantineGrid } from '@mantine/core';
 import { ProductCard } from './ProductCard';
@@ -9,54 +14,49 @@ import { Product } from '@/types/product';
 interface ProductGridProps {
     products: Product[];
     viewMode: 'grid' | 'list';
-    activeTab: string;
+    isLoading?: boolean;
 }
+
+const SKELETON_COUNT = 8;
 
 const staggerContainer = {
     initial: {},
     animate: {
         transition: {
-            staggerChildren: 0.1
-        }
-    }
+            staggerChildren: 0.05,
+        },
+    },
 };
 
 const scaleIn = {
     initial: { opacity: 0, scale: 0.9 },
     animate: { opacity: 1, scale: 1 },
-    transition: { duration: 0.4 }
+    transition: { duration: 0.35 },
 };
 
-export function ProductGrid({ products, viewMode, activeTab }: ProductGridProps) {
-    const filterProducts = (products: Product[]): Product[] => {
-        switch (activeTab) {
-            case 'new':
-                return products.filter(p => p.isNew);
-            case 'sale':
-                return products.filter(p => p.originalPrice && p.originalPrice > p.price);
-            case 'best':
-                return products.filter(p => p.ratingAvg >= 4.8);
-            case 'featured':
-                return products.filter(p => p.isFeatured);
-            default:
-                return products;
-        }
-    };
-
-    const displayProducts = filterProducts(products);
+export function ProductGrid({ products, viewMode, isLoading = false }: ProductGridProps) {
+    if (isLoading) {
+        return (
+            <SimpleGrid cols={{ base: 2, xs: 2, sm: 3, md: 4 }} spacing="lg">
+                {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+                    <Skeleton key={i} height={320} radius="md" />
+                ))}
+            </SimpleGrid>
+        );
+    }
 
     return (
         <AnimatePresence mode="wait">
             <m.div
-                key={`${viewMode}-${activeTab}`}
+                key={viewMode}
                 variants={staggerContainer}
                 initial="initial"
                 animate="animate"
                 exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
             >
                 <MantineGrid gutter="lg">
-                    {displayProducts.length > 0 ? (
-                        displayProducts.map((product) => (
+                    {products.length > 0 ? (
+                        products.map((product) => (
                             <MantineGrid.Col
                                 key={product.id}
                                 span={viewMode === 'list' ? 12 : { base: 12, xs: 6, sm: 4, md: 3 }}
@@ -69,7 +69,9 @@ export function ProductGrid({ products, viewMode, activeTab }: ProductGridProps)
                     ) : (
                         <MantineGrid.Col span={12}>
                             <Center p="xl" h={200}>
-                                <Text c="dimmed">Không có sản phẩm nào cho bộ lọc này.</Text>
+                                <Text c="dimmed" size="lg">
+                                    Không có sản phẩm nào cho bộ lọc này.
+                                </Text>
                             </Center>
                         </MantineGrid.Col>
                     )}
