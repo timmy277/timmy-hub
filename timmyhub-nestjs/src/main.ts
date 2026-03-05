@@ -4,7 +4,6 @@ import { AppModule } from './app.module';
 import { setupSwagger } from './swagger';
 import cookieParser from 'cookie-parser';
 import { Logger } from 'nestjs-pino';
-import { ValidationPipe } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -21,18 +20,7 @@ async function bootstrap() {
     const httpAdapterHost = app.get(HttpAdapterHost);
     app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
-    // class-validator pipe cho DTOs còn dùng decorator truyền thống
-    app.useGlobalPipes(
-        new ValidationPipe({
-            whitelist: true,
-            transform: true,
-            forbidNonWhitelisted: true,
-            transformOptions: {
-                enableImplicitConversion: true,
-            },
-        }),
-    );
-    // nestjs-zod pipe cho các DTO dùng createZodDto()
+    // Chỉ dùng ZodValidationPipe vì toàn bộ DTO dùng createZodDto()
     app.useGlobalPipes(new ZodValidationPipe());
 
     // Set global prefix for all routes except root and docs
