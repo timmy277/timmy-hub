@@ -78,6 +78,9 @@ export class SellerService {
     /**
      * Xem gian hàng công khai của seller theo shopSlug
      * Trả về thông tin shop + danh sách sản phẩm đã duyệt
+     *
+     * NOTE: Product.sellerId = User.id (không phải SellerProfile.id)
+     * Nên phải query products riêng theo sellerId = sellerProfile.userId
      */
     async getPublicShop(shopSlug: string) {
         const sellerProfile = await this.prisma.sellerProfile.findUnique({
@@ -89,18 +92,24 @@ export class SellerService {
                         profile: true,
                     },
                 },
-                products: {
-                    where: { status: ResourceStatus.APPROVED },
-                    orderBy: { createdAt: 'desc' },
-                    include: { category: true },
-                },
             },
         });
         if (!sellerProfile) throw new NotFoundException('Gian hàng không tồn tại');
         if (sellerProfile.status !== ResourceStatus.APPROVED) {
             throw new NotFoundException('Gian hàng này chưa được kích hoạt');
         }
-        return sellerProfile;
+
+        // Query sản phẩm qua sellerId (User.id) vì Product.sellerId → User.id
+        const products = await this.prisma.product.findMany({
+            where: {
+                sellerId: sellerProfile.userId,
+                status: ResourceStatus.APPROVED,
+            },
+            orderBy: { createdAt: 'desc' },
+            include: { category: true },
+        });
+
+        return { ...sellerProfile, products };
     }
 
     /** Admin: danh sách đơn đăng ký seller đang chờ duyệt */
