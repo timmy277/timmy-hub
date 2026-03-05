@@ -7,6 +7,7 @@ import {
     Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { ZodValidationException } from 'nestjs-zod';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -35,6 +36,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
                   'Internal server error'
                 : exceptionResponse;
 
+        // Trích xuất field-level errors từ ZodValidationException
+        let validationErrors: Record<string, string[]> | undefined;
+        if (exception instanceof ZodValidationException) {
+            const zodError = exception.getZodError();
+            validationErrors = zodError.errors.reduce<Record<string, string[]>>((acc, issue) => {
+                const field = issue.path.join('.') || '_root';
+                if (!acc[field]) acc[field] = [];
+                acc[field].push(issue.message);
+                return acc;
+            }, {});
+        }
+
         this.logger.error(
             `Exception occurred: ${httpStatus} - ${JSON.stringify(message)}`,
             exception instanceof Error ? exception.stack : '',
@@ -42,7 +55,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         const request = ctx.getRequest<Record<string, unknown>>();
 
-        const responseBody = {
+        const responseBody: Record<string, unknown> = {
             success: false,
             message: Array.isArray(message) ? (message as unknown[])[0] : message,
             error: message,
@@ -50,6 +63,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
             timestamp: new Date().toISOString(),
             path: httpAdapter.getRequestUrl(request) as string,
         };
+
+        if (validationErrors) {
+            responseBody['validationErrors'] = validationErrors;
+        }
 
         httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
     }
