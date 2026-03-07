@@ -5,7 +5,7 @@
  * UI: Rating breakdown + filter + sort + từng review card
  * Không dùng CSS module — Mantine + Tailwind
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
     Stack,
     Group,
@@ -26,6 +26,8 @@ import {
     ThemeIcon,
     Title,
     Modal,
+    TextInput,
+    Collapse,
 } from '@mantine/core';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import {
@@ -33,6 +35,8 @@ import {
     IconThumbUp,
     IconShield,
     IconMoodEmpty,
+    IconMessageCircle,
+    IconSend,
 } from '@tabler/icons-react';
 
 function timeAgo(dateStr: string): string {
@@ -263,6 +267,25 @@ function ReviewCard({
     ];
     const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
+    const [showComments, setShowComments] = useState(false);
+    const [commentText, setCommentText] = useState('');
+    const [replyToId, setReplyToId] = useState<string | undefined>(undefined);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const commentMutation = useMutation({
+        mutationFn: (data: { content: string; parentId?: string }) => reviewService.addComment(review.id, data.content, data.parentId),
+        onSuccess: () => {
+            setCommentText('');
+            setReplyToId(undefined);
+        },
+    });
+
+    const handleCommentSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!commentText.trim()) return;
+        commentMutation.mutate({ content: commentText, parentId: replyToId });
+    };
+
     return (
         <Paper withBorder radius="md" p="md">
             <Stack gap="xs">
@@ -373,24 +396,127 @@ function ReviewCard({
                     />
                 )}
 
-                {/* Helpful */}
-                <Group gap="xs" pt={4}>
-                    <ActionIcon
-                        variant={voted ? 'filled' : 'subtle'}
-                        color={voted ? 'blue' : 'gray'}
-                        size="sm"
-                        radius="xl"
-                        onClick={() => onToggleHelpful(review.id)}
-                        title={voted ? 'Bỏ vote hữu ích' : 'Đánh dấu hữu ích'}
-                    >
-                        <IconThumbUp size={14} />
-                    </ActionIcon>
-                    <Text size="xs" c={voted ? 'blue' : 'dimmed'}>
-                        {review.helpfulCount > 0
-                            ? `${review.helpfulCount} người thấy hữu ích`
-                            : 'Hữu ích?'}
-                    </Text>
+                {/* Actions: Helpful & Comment toggle */}
+                <Group gap="md" pt={4}>
+                    <Group gap="xs">
+                        <ActionIcon
+                            variant={voted ? 'filled' : 'subtle'}
+                            color={voted ? 'blue' : 'gray'}
+                            size="sm"
+                            radius="xl"
+                            onClick={() => onToggleHelpful(review.id)}
+                            title={voted ? 'Bỏ vote hữu ích' : 'Đánh dấu hữu ích'}
+                        >
+                            <IconThumbUp size={14} />
+                        </ActionIcon>
+                        <Text size="xs" c={voted ? 'blue' : 'dimmed'}>
+                            {review.helpfulCount > 0
+                                ? `${review.helpfulCount}`
+                                : '0'}
+                        </Text>
+                    </Group>
+
+                    <Group gap="xs" style={{ cursor: 'pointer' }} onClick={() => setShowComments(!showComments)}>
+                        <ActionIcon variant="subtle" color="gray" size="sm" radius="xl">
+                            <IconMessageCircle size={14} />
+                        </ActionIcon>
+                        <Text size="xs" c="dimmed">{review.comments?.length || 0} bình luận</Text>
+                    </Group>
                 </Group>
+
+                <Collapse in={showComments}>
+                    <Box mt="sm" p="sm" style={{ background: 'var(--mantine-color-gray-0)', borderRadius: 8 }}>
+                        <Stack gap="sm">
+                            {(review.comments || []).filter(cmt => !cmt.parentId).map(cmt => (
+                                <Box key={cmt.id}>
+                                    <Group align="flex-start" gap="sm" wrap="nowrap">
+                                        <Avatar src={cmt.user.profile?.avatar} radius="xl" size="sm" color="blue">
+                                            {cmt.user.profile?.displayName?.slice(0, 2).toUpperCase() || 'U'}
+                                        </Avatar>
+                                        <Box flex={1}>
+                                            <Group gap="xs" align="baseline">
+                                                <Text fw={600} size="xs">{cmt.user.profile?.displayName || 'Ẩn danh'}</Text>
+                                                <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>{timeAgo(cmt.createdAt)}</Text>
+                                            </Group>
+                                            <Text size="sm">{cmt.content}</Text>
+                                            
+                                            <Text 
+                                                size="xs" 
+                                                c="orange" 
+                                                style={{ cursor: 'pointer', marginTop: 4, display: 'inline-block' }}
+                                                onClick={() => {
+                                                    setReplyToId(cmt.id);
+                                                    setCommentText(`@${cmt.user.profile?.displayName || 'Ẩn danh'} `);
+                                                    inputRef.current?.focus();
+                                                }}
+                                            >
+                                                Phản hồi
+                                            </Text>
+                                        </Box>
+                                    </Group>
+                                    
+                                    {/* Sub-comments (replies) */}
+                                    {cmt.replies && cmt.replies.length > 0 && (
+                                        <Stack gap="xs" mt="xs" ml={32}>
+                                            {cmt.replies.map(reply => (
+                                                <Group key={reply.id} align="flex-start" gap="sm" wrap="nowrap">
+                                                    <Avatar src={reply.user.profile?.avatar} radius="xl" size="xs" color="gray">
+                                                        {reply.user.profile?.displayName?.slice(0, 2).toUpperCase() || 'U'}
+                                                    </Avatar>
+                                                    <Box flex={1}>
+                                                        <Group gap="xs" align="baseline">
+                                                            <Text fw={600} size="xs" style={{ fontSize: 11 }}>{reply.user.profile?.displayName || 'Ẩn danh'}</Text>
+                                                            <Text size="xs" c="dimmed" style={{ fontSize: 9 }}>{timeAgo(reply.createdAt)}</Text>
+                                                        </Group>
+                                                        <Text size="sm" style={{ fontSize: 13 }}>{reply.content}</Text>
+                                                    </Box>
+                                                </Group>
+                                            ))}
+                                        </Stack>
+                                    )}
+                                </Box>
+                            ))}
+                            
+                            <form onSubmit={handleCommentSubmit} style={{ marginTop: 8 }}>
+                                {replyToId && (
+                                    <Group justify="space-between" mb={8}>
+                                        <Text size="xs" c="dimmed">
+                                            Đang phản hồi bình luận
+                                        </Text>
+                                        <ActionIcon size="xs" variant="subtle" color="gray" onClick={() => {
+                                            setReplyToId(undefined);
+                                            setCommentText('');
+                                        }}>
+                                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                                                <path d="M1 1L13 13M1 13L13 1L1 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                            </svg>
+                                        </ActionIcon>
+                                    </Group>
+                                )}
+                                <TextInput
+                                    ref={inputRef}
+                                    placeholder={replyToId ? "Viết phản hồi..." : "Viết bình luận..."}
+                                    value={commentText}
+                                    onChange={e => setCommentText(e.target.value)}
+                                    size="sm"
+                                    radius="xl"
+                                    rightSection={
+                                        <ActionIcon 
+                                            size={28} 
+                                            radius="xl" 
+                                            color="orange" 
+                                            variant="filled" 
+                                            disabled={!commentText.trim() || commentMutation.isPending}
+                                            onClick={handleCommentSubmit}
+                                        >
+                                            {commentMutation.isPending ? <Loader size={12} color="white" /> : <IconSend size={14} />}
+                                        </ActionIcon>
+                                    }
+                                />
+                            </form>
+                        </Stack>
+                    </Box>
+                </Collapse>
             </Stack>
         </Paper>
     );
@@ -402,8 +528,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
     const [filterRating, setFilterRating] = useState<number | undefined>(undefined);
     const [page, setPage] = useState(1);
     const [liveRating, setLiveRating] = useState({ avg: ratingAvg, count: ratingCount });
-    // Track reviews đã vote locally (optimistic UI)
-    const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
+    const [optimisticVotes, setOptimisticVotes] = useState<Record<string, boolean>>({});
 
     const { data, isLoading } = useQuery({
         queryKey: ['reviews', productId, { sort, rating: filterRating, page }],
@@ -413,33 +538,33 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
 
     const helpfulMutation = useMutation({
         mutationFn: (reviewId: string) => reviewService.toggleHelpful(reviewId),
-        onMutate: (reviewId) => {
-            // Optimistic UI
-            setVotedIds(prev => {
-                const next = new Set(prev);
-                if (next.has(reviewId)) next.delete(reviewId);
-                else next.add(reviewId);
-                return next;
+        onMutate: async (reviewId) => {
+            await queryClient.cancelQueries({ queryKey: ['reviews', productId] });
+            const previousData = queryClient.getQueryData(['reviews', productId]);
+            
+            setOptimisticVotes(prev => {
+                const reviewData = (data as ReviewQueryData)?.data;
+                const review = reviewData?.reviews?.find(r => r.id === reviewId);
+                const currentStatus = prev[reviewId] ?? review?.hasVotedHelpful ?? false;
+                return { ...prev, [reviewId]: !currentStatus };
             });
+
+            return { previousData };
         },
         onSuccess: (result, reviewId) => {
-            // Sync với server count
             const serverData = (result as { data?: { helpfulCount: number; voted: boolean } })?.data;
-            if (!serverData) return;
-            setVotedIds(prev => {
-                const next = new Set(prev);
-                if (serverData.voted) next.add(reviewId);
-                else next.delete(reviewId);
-                return next;
-            });
+            if (serverData) {
+                setOptimisticVotes(prev => ({ ...prev, [reviewId]: serverData.voted }));
+            }
             void queryClient.invalidateQueries({ queryKey: ['reviews', productId] });
         },
-        onError: (_err, reviewId) => {
-            // Rollback
-            setVotedIds(prev => {
-                const next = new Set(prev);
-                if (next.has(reviewId)) next.delete(reviewId);
-                else next.add(reviewId);
+        onError: (_err, reviewId, context) => {
+            if (context?.previousData) {
+                queryClient.setQueryData(['reviews', productId], context.previousData);
+            }
+            setOptimisticVotes(prev => {
+                const next = { ...prev };
+                delete next[reviewId]; // reset
                 return next;
             });
         },
@@ -469,7 +594,45 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
         setLiveRating({ avg: updated.ratingAvg, count: updated.ratingCount });
     }, []);
 
-    useReviewSocket({ productId, onNewReview: handleNewReview, onRatingUpdated: handleRatingUpdated });
+    const handleNewComment = useCallback((data: { reviewId: string; comment: import('@/types/review').ReviewComment }) => {
+        queryClient.setQueryData(
+            ['reviews', productId, { sort, rating: filterRating, page }],
+            (old: ReviewQueryData | undefined) => {
+                if (!old?.data) return old;
+                return {
+                    ...old,
+                    data: {
+                        ...old.data,
+                        reviews: old.data.reviews.map(r => {
+                            if (r.id !== data.reviewId) return r;
+                            
+                            // Nếu là comment chính
+                            if (!data.comment.parentId) {
+                                return { ...r, comments: [...(r.comments || []), data.comment] };
+                            }
+
+                            // Nếu là reply comment
+                            return {
+                                ...r,
+                                comments: (r.comments || []).map(cmt => 
+                                    cmt.id === data.comment.parentId 
+                                        ? { ...cmt, replies: [...(cmt.replies || []), data.comment] }
+                                        : cmt
+                                )
+                            };
+                        })
+                    }
+                }
+            }
+        );
+    }, [queryClient, productId, sort, filterRating, page]);
+
+    useReviewSocket({ 
+        productId, 
+        onNewReview: handleNewReview, 
+        onRatingUpdated: handleRatingUpdated,
+        onNewComment: handleNewComment,
+    });
 
     const reviewData = (data as ReviewQueryData)?.data;
     const reviews = reviewData?.reviews ?? [];
@@ -550,7 +713,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                         <ReviewCard
                             key={review.id}
                             review={review}
-                            voted={votedIds.has(review.id)}
+                            voted={optimisticVotes[review.id] ?? review.hasVotedHelpful ?? false}
                             onToggleHelpful={id => helpfulMutation.mutate(id)}
                         />
                     ))}

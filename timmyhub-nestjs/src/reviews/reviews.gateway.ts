@@ -63,6 +63,11 @@ export class ReviewsGateway implements OnGatewayConnection, OnGatewayDisconnect 
         this.server.to(`product:${productId}`).emit('review:new', review);
     }
 
+    /** Emit comment mới cho review */
+    emitNewComment(productId: string, reviewId: string, comment: unknown) {
+        this.server.to(`product:${productId}`).emit('review:new_comment', { reviewId, comment });
+    }
+
     /** Emit cập nhật rating summary sau khi có review mới */
     emitRatingUpdated(productId: string, data: { ratingAvg: number; ratingCount: number }) {
         this.server.to(`product:${productId}`).emit('rating:updated', data);

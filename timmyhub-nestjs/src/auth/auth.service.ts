@@ -82,7 +82,11 @@ export class AuthService {
             where: { email: dto.email },
         });
 
-        if (!user || !user.passwordHash || !(await bcrypt.compare(dto.password, user.passwordHash))) {
+        if (
+            !user ||
+            !user.passwordHash ||
+            !(await bcrypt.compare(dto.password, user.passwordHash))
+        ) {
             throw new UnauthorizedException('Email hoặc mật khẩu không chính xác');
         }
 

@@ -114,6 +114,7 @@ export class ReviewsService {
             limit?: number;
             rating?: number;
             sort?: 'newest' | 'oldest' | 'highest' | 'lowest' | 'helpful';
+            currentUserId?: string;
         } = {},
     ) {
         const page = options.page ?? 1;
@@ -156,10 +157,41 @@ export class ReviewsService {
                             },
                         },
                     },
+                    // Nếu có currentUserId, load xem user này đã vote cho review chưa
+                    ...(options.currentUserId
+                        ? {
+                              helpfulVotes: {
+                                  where: { userId: options.currentUserId },
+                                  select: { id: true },
+                              },
+                          }
+                        : {}),
+                    comments: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    profile: { select: { displayName: true, avatar: true } },
+                                },
+                            },
+                        },
+                        orderBy: { createdAt: 'asc' },
+                    },
                 },
             }),
             this.prisma.review.count({ where }),
         ]);
+
+        // Map lại result để thêm `hasVotedHelpful` bằng true/false
+        const reviewsWithVoteStatus = reviews.map((review: any) => {
+            const hasVotedHelpful = review.helpfulVotes && review.helpfulVotes.length > 0;
+            // Xóa mảng helpfulVotes ra khỏi response cho sạch
+            delete review.helpfulVotes;
+            return {
+                ...review,
+                hasVotedHelpful,
+            };
+        });
 
         // Rating breakdown (số lượng mỗi mức sao)
         const breakdown = await this.prisma.review.groupBy({
@@ -174,7 +206,7 @@ export class ReviewsService {
         });
 
         return {
-            reviews,
+            reviews: reviewsWithVoteStatus,
             total,
             page,
             totalPages: Math.ceil(total / limit),
@@ -235,5 +267,40 @@ export class ReviewsService {
         if (orderItem.isReviewed) return { canReview: false, reason: 'Đã đánh giá' };
 
         return { canReview: true };
+    }
+
+    /** Comment vào một review */
+    async addComment(reviewId: string, userId: string, content: string, parentId?: string) {
+        const review = await this.prisma.review.findUnique({ where: { id: reviewId } });
+        if (!review) throw new NotFoundException('Review không tồn tại');
+
+        const comment = await this.prisma.reviewComment.create({
+            data: {
+                reviewId,
+                userId,
+                content,
+                parentId,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        profile: { select: { displayName: true, avatar: true } },
+                    },
+                },
+                replies: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                profile: { select: { displayName: true, avatar: true } },
+                            },
+                        },
+                    },
+                    orderBy: { createdAt: 'asc' },
+                },
+            },
+        });
+        return comment;
     }
 }

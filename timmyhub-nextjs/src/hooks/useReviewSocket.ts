@@ -14,17 +14,20 @@ interface UseReviewSocketOptions {
     productId: string;
     onNewReview: (review: Review) => void;
     onRatingUpdated: (data: { ratingAvg: number; ratingCount: number }) => void;
+    onNewComment?: (data: { reviewId: string; comment: import('@/types/review').ReviewComment }) => void;
 }
 
-export function useReviewSocket({ productId, onNewReview, onRatingUpdated }: UseReviewSocketOptions) {
+export function useReviewSocket({ productId, onNewReview, onRatingUpdated, onNewComment }: UseReviewSocketOptions) {
     const socketRef = useRef<Socket | null>(null);
     const onNewReviewRef = useRef(onNewReview);
     const onRatingUpdatedRef = useRef(onRatingUpdated);
+    const onNewCommentRef = useRef(onNewComment);
 
     // Giữ callbacks luôn mới nhất mà không trigger reconnect
     useEffect(() => {
         onNewReviewRef.current = onNewReview;
         onRatingUpdatedRef.current = onRatingUpdated;
+        onNewCommentRef.current = onNewComment;
     });
 
     const connect = useCallback(() => {
@@ -39,6 +42,12 @@ export function useReviewSocket({ productId, onNewReview, onRatingUpdated }: Use
 
         socket.on('review:new', (review: Review) => {
             onNewReviewRef.current(review);
+        });
+
+        socket.on('review:new_comment', (data: { reviewId: string; comment: import('@/types/review').ReviewComment }) => {
+            if (onNewCommentRef.current) {
+                onNewCommentRef.current(data);
+            }
         });
 
         socket.on('rating:updated', (data: { ratingAvg: number; ratingCount: number }) => {

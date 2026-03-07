@@ -18,3 +18,7 @@ export interface AuthenticatedUser {
 export interface UserRequest extends Request {
     user: AuthenticatedUser;
 }
+
+export interface OptionalUserRequest extends Request {
+    user?: AuthenticatedUser;
+}

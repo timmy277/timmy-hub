@@ -22,7 +22,7 @@ import { PrismaService } from '../database/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ResponseDto } from '../common/dto/response.dto';
-import type { UserRequest } from '../auth/interfaces/auth.interface';
+import type { UserRequest, OptionalUserRequest } from '../auth/interfaces/auth.interface';
 import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Reviews')
@@ -61,6 +61,7 @@ export class ReviewsController {
 
     @Get('product/:productId')
     @Public()
+    @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Lấy danh sách review của sản phẩm' })
     @ApiQuery({ name: 'page', required: false, type: Number })
     @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -74,6 +75,7 @@ export class ReviewsController {
         @Param('productId') productId: string,
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+        @Req() req: OptionalUserRequest,
         @Query('rating') rating?: string,
         @Query('sort') sort?: 'newest' | 'oldest' | 'highest' | 'lowest' | 'helpful',
     ) {
@@ -82,6 +84,7 @@ export class ReviewsController {
             limit,
             rating: rating ? parseInt(rating, 10) : undefined,
             sort,
+            currentUserId: req.user?.id,
         });
         return ResponseDto.success('Lấy danh sách review thành công', result);
     }
@@ -102,5 +105,37 @@ export class ReviewsController {
     async toggleHelpful(@Param('id') id: string, @Req() req: UserRequest) {
         const result = await this.reviewsService.toggleHelpful(id, req.user.id);
         return ResponseDto.success(result.voted ? 'Đã vote hữu ích' : 'Đã bỏ vote', result);
+    }
+
+    @Post(':id/comments')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Thêm bình luận vào review' })
+    async addComment(
+        @Param('id') id: string,
+        @Req() req: UserRequest,
+        @Body('content') content: string,
+        @Body('parentId') parentId?: string,
+    ) {
+        if (!content || !content.trim()) {
+            return ResponseDto.error('Nội dung bình luận không được để trống');
+        }
+        const comment = await this.reviewsService.addComment(
+            id,
+            req.user.id,
+            content.trim(),
+            parentId,
+        );
+
+        // Bắn socket cho các client đang xem room của product này
+        const review = await this.prisma.review.findUnique({
+            where: { id },
+            select: { productId: true },
+        });
+        if (review) {
+            this.reviewsGateway.emitNewComment(review.productId, id, comment);
+        }
+
+        return ResponseDto.success('Bình luận thành công', comment);
     }
 }

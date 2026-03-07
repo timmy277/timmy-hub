@@ -1,7 +1,7 @@
 /** Review API service */
 import axiosClient from '@/libs/axios';
 import type { ApiResponse } from '@/types/api';
-import type { ReviewListResponse, CreateReviewInput, Review } from '@/types/review';
+import type { ReviewListResponse, CreateReviewInput, Review, ReviewComment } from '@/types/review';
 
 export const reviewService = {
     create: async (data: CreateReviewInput): Promise<ApiResponse<Review>> => {
@@ -26,5 +26,9 @@ export const reviewService = {
 
     canReview: async (orderItemId: string): Promise<ApiResponse<{ canReview: boolean; reason?: string }>> => {
         return axiosClient.get('/reviews/can-review', { params: { orderItemId } });
+    },
+
+    addComment: async (reviewId: string, content: string, parentId?: string): Promise<ApiResponse<ReviewComment>> => {
+        return axiosClient.post(`/reviews/${reviewId}/comments`, { content, parentId });
     },
 };

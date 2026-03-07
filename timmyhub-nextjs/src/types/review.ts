@@ -8,6 +8,18 @@ export interface ReviewUser {
     } | null;
 }
 
+export interface ReviewComment {
+    id: string;
+    reviewId: string;
+    userId: string;
+    content: string;
+    parentId: string | null;
+    createdAt: string;
+    updatedAt: string;
+    user: ReviewUser;
+    replies?: ReviewComment[];
+}
+
 export interface Review {
     id: string;
     userId: string;
@@ -19,9 +31,11 @@ export interface Review {
     videos: string[];
     isVerified: boolean;
     helpfulCount: number;
+    hasVotedHelpful?: boolean;
     createdAt: string;
     updatedAt: string;
     user: ReviewUser;
+    comments: ReviewComment[];
 }
 
 export interface ReviewBreakdown {

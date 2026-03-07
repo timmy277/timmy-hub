@@ -1,7 +1,9 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators';
+
+import { AuthenticatedUser } from '../interfaces/auth.interface';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -9,14 +11,23 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         super();
     }
 
-    canActivate(context: ExecutionContext) {
+    handleRequest<TUser = AuthenticatedUser>(
+        err: unknown,
+        user: TUser | false,
+        info: unknown,
+        context: ExecutionContext,
+    ): TUser | null {
         const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
             context.getHandler(),
             context.getClass(),
         ]);
-        if (isPublic) {
-            return true;
+
+        if (err || !user) {
+            if (isPublic) {
+                return null;
+            }
+            throw err instanceof Error ? err : new UnauthorizedException('Không có quyền truy cập');
         }
-        return super.canActivate(context);
+        return user;
     }
 }
