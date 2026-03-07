@@ -128,38 +128,41 @@ function SingleChat({
     };
 
     return (
-        <Popover opened={opened} onChange={() => onToggle()} position="left-end" offset={16} withArrow shadow="md" withinPortal={false}>
-            <Popover.Target>
-                {isMain ? (
-                    <ActionIcon 
-                        size={56} 
-                        radius="xl" 
-                        color="blue.6" 
-                        variant="filled" 
-                        onClick={onToggle}
-                        style={{ boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
-                    >
-                        {opened ? (
-                           <IconPath name="x" size={24} color="currentColor" />
-                        ) : (
-                           <IconPath name="message-circle" size={24} color="currentColor" />
-                        )}
-                    </ActionIcon>
-                ) : (
-                    <ActionIcon 
-                        size={56} 
-                        radius="xl" 
-                        color="gray.1" 
-                        variant="filled" 
-                        onClick={onToggle}
-                        style={{ boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
-                    >
-                        <Avatar src={contactAvatar} radius="xl" size={56}>
-                            {contactName.charAt(0) || 'A'}
-                        </Avatar>
-                    </ActionIcon>
-                )}
-            </Popover.Target>
+        <>
+            {isMain ? (
+                <ActionIcon 
+                    size={56} 
+                    radius="xl" 
+                    color="blue.6" 
+                    variant="filled" 
+                    onClick={onToggle}
+                    style={{ boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
+                >
+                    {opened ? (
+                       <IconPath name="x" size={24} color="currentColor" />
+                    ) : (
+                       <IconPath name="message-circle" size={24} color="currentColor" />
+                    )}
+                </ActionIcon>
+            ) : (
+                <ActionIcon 
+                    size={56} 
+                    radius="xl" 
+                    color="gray.1" 
+                    variant="filled" 
+                    onClick={onToggle}
+                    style={{ boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
+                >
+                    <Avatar src={contactAvatar} radius="xl" size={56}>
+                        {contactName.charAt(0) || 'A'}
+                    </Avatar>
+                </ActionIcon>
+            )}
+
+            <Popover opened={opened} onChange={() => onToggle()} position="left-end" offset={16} shadow="md" withinPortal={false}>
+                <Popover.Target>
+                    <Box style={{ position: 'fixed', bottom: 32, right: 32, width: 56, height: 56, pointerEvents: 'none' }} />
+                </Popover.Target>
 
             <Popover.Dropdown p={0} style={{ width: 340, borderRadius: 16, overflow: 'hidden' }}>
                 <Box bg="blue.6" c="white" p="md">
@@ -242,6 +245,7 @@ function SingleChat({
                 </Box>
             </Popover.Dropdown>
         </Popover>
+        </>
     );
 }
 
@@ -284,7 +288,7 @@ export function ChatWidget() {
         });
 
         newSocket.on('connect', () => {
-             setSocket(newSocket);
+            setSocket(newSocket);
         });
 
         newSocket.on('chat:receive', (msg: ChatMessage) => {
