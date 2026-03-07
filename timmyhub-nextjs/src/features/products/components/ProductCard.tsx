@@ -14,6 +14,7 @@ import {
     Box,
     Flex,
     Progress,
+    Anchor,
 } from '@mantine/core';
 import { IconHeart, IconStar, IconFlame } from '@tabler/icons-react';
 import { m } from 'framer-motion';
@@ -52,10 +53,18 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                     radius="md"
                     withBorder
                     h="100%"
-                    component={Link}
-                    href={productLink}
-                    style={{ textDecoration: 'none', color: 'inherit' }}
+                    style={{ textDecoration: 'none', color: 'inherit', position: 'relative' }}
                 >
+                    {/* Link overlay phủ toàn card, không bao phủ buttons */}
+                    <Link
+                        href={productLink}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            zIndex: 0,
+                        }}
+                        aria-label={product.name}
+                    />
                     <Card.Section>
                         <Box pos="relative" h={180}>
                             <Image
@@ -122,10 +131,13 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                     padding="md"
                     radius="md"
                     withBorder
-                    component={Link}
-                    href={productLink}
-                    style={{ textDecoration: 'none', color: 'inherit' }}
+                    style={{ textDecoration: 'none', color: 'inherit', position: 'relative' }}
                 >
+                    <Link
+                        href={productLink}
+                        style={{ position: 'absolute', inset: 0, zIndex: 0 }}
+                        aria-label={product.name}
+                    />
                     <Grid>
                         <Grid.Col span={3}>
                             <Box h={180}>
@@ -147,7 +159,16 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                         {product.isNew && <Badge color="green">Hàng Mới</Badge>}
                                         {product.isFeatured && <Badge color="orange">Nổi Bật</Badge>}
                                     </Group>
-                                    <Title order={4}>{product.name}</Title>
+                                    <Anchor
+                                        component={Link}
+                                        href={productLink}
+                                        underline="never"
+                                        c="inherit"
+                                        style={{ position: 'relative', zIndex: 1 }}
+                                        className="product-name-link"
+                                    >
+                                        <Title order={4}>{product.name}</Title>
+                                    </Anchor>
                                     <Group gap={4}>
                                         <IconStar size={16} fill="orange" color="orange" />
                                         <Text size="sm">{product.ratingAvg.toFixed(1)} ({product.ratingCount} đánh giá)</Text>
@@ -156,7 +177,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                         {product.description || 'Chưa có mô tả'}
                                     </Text>
                                 </Stack>
-                                <Group justify="space-between" mt="md" onClick={(e) => e.stopPropagation()}>
+                                <Group justify="space-between" mt="md" style={{ position: 'relative', zIndex: 1 }}>
                                     <Stack gap={0}>
                                         <Text size="xl" fw={800} c="blue">
                                             {product.price.toLocaleString()}đ
@@ -199,10 +220,13 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                 radius="md"
                 withBorder
                 h="100%"
-                component={Link}
-                href={productLink}
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                style={{ textDecoration: 'none', color: 'inherit', position: 'relative' }}
             >
+                <Link
+                    href={productLink}
+                    style={{ position: 'absolute', inset: 0, zIndex: 0 }}
+                    aria-label={product.name}
+                />
                 <Card.Section>
                     <Box pos="relative" h={220}>
                         <Image
@@ -235,7 +259,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                             pos="absolute"
                             bottom={10}
                             right={10}
-                            onClick={(e) => e.stopPropagation()}
+                            style={{ zIndex: 1 }}
                         >
                             <IconHeart size={18} />
                         </ActionIcon>
@@ -246,9 +270,26 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                         <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
                             {product.category?.name || 'Chưa phân loại'}
                         </Text>
-                        <Text fw={600} size="md" lineClamp={2} style={{ minHeight: 48 }} title={product.name}>
+                        <Anchor
+                            component={Link}
+                            href={productLink}
+                            fw={600}
+                            size="md"
+                            lineClamp={2}
+                            underline="never"
+                            c="inherit"
+                            title={product.name}
+                            style={{
+                                display: '-webkit-box',
+                                minHeight: 48,
+                                position: 'relative',
+                                zIndex: 1,
+                                transition: 'color 0.15s ease',
+                            }}
+                            className="product-name-link"
+                        >
                             {product.name}
-                        </Text>
+                        </Anchor>
 
                         <Group gap={4}>
                             <IconStar size={14} fill="orange" color="orange" />
@@ -258,7 +299,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                     </Stack>
 
                     <Stack gap="xs" mt="md">
-                        <Group justify="space-between" align="center" onClick={(e) => e.stopPropagation()}>
+                        <Group justify="space-between" align="center" style={{ position: 'relative', zIndex: 1 }}>
                             <Stack gap={0}>
                                 <Text size="xl" fw={800} c="blue">
                                     {product.price.toLocaleString()}đ

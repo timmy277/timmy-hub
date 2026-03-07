@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+/* Product card - tên sản phẩm hover effect */
+.product-name-link:hover {
+    color: var(--mantine-primary-color-6) !important;
+}
+
 @keyframes spin {
     from {
         transform: rotate(0deg);
