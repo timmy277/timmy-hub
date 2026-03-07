@@ -37,5 +37,6 @@ export const QUERY_KEYS = {
 
     // ── Chat ──────────────────────────────────────────────────────────
     CHAT_ADMIN: ['chat-admin'] as const,
+    CHAT_CONTACTS: ['chat-contacts'] as const,
     CHAT_MESSAGES: (contactId: string) => ['chat-messages', contactId] as const,
 } as const;

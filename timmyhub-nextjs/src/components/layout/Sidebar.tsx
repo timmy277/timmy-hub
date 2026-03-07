@@ -23,6 +23,7 @@ import {
     IconBuildingStore,
     IconTicket,
     IconDiscount,
+    IconMessages,
 } from '@tabler/icons-react';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useTranslation } from 'react-i18next';
@@ -114,6 +115,12 @@ const getMockData = (t: TFunction): SidebarItem[] => [
                 label: t('sidebar.customers'),
                 link: '/admin/customers',
                 icon: IconUsers,
+                permission: { action: Action.Read, subject: 'User' },
+            },
+            {
+                label: 'Trò chuyện',
+                link: '/admin/chat',
+                icon: IconMessages,
                 permission: { action: Action.Read, subject: 'User' },
             },
             {

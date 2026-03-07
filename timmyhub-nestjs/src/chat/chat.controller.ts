@@ -30,6 +30,13 @@ export class ChatController {
         return ResponseDto.success('Lấy admin liên hệ thành công', admin);
     }
 
+    @Get('contacts')
+    @ApiOperation({ summary: 'Lấy danh sách người dùng đã chat với mình' })
+    async getContacts(@Req() req: UserRequest) {
+        const contacts = await this.chatService.getContacts(req.user.id);
+        return ResponseDto.success('Lấy danh sách contact thành công', contacts);
+    }
+
     @Get('messages/:contactId')
     @ApiOperation({ summary: 'Lấy lịch sử tin nhắn' })
     @ApiQuery({ name: 'page', required: false, type: Number })

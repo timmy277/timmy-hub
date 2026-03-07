@@ -27,6 +27,60 @@ export class ChatService {
         };
     }
 
+    async getContacts(userId: string) {
+        // Lấy lịch sử chat gần đây liên quan đến user này (admin)
+        const messages = await this.prisma.chatMessage.findMany({
+            where: {
+                OR: [{ senderId: userId }, { receiverId: userId }],
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 2000,
+            select: {
+                senderId: true,
+                receiverId: true,
+                content: true,
+                createdAt: true,
+            },
+        });
+
+        const map = new Map<
+            string,
+            { lastMessage: string; lastMessageAt: Date; contactId: string }
+        >();
+        for (const m of messages) {
+            const contactId = m.senderId === userId ? m.receiverId : m.senderId;
+            if (!map.has(contactId)) {
+                map.set(contactId, {
+                    lastMessage: m.content,
+                    lastMessageAt: m.createdAt,
+                    contactId,
+                });
+            }
+        }
+
+        const contactIds = Array.from(map.keys());
+        if (contactIds.length === 0) return [];
+
+        const users = await this.prisma.user.findMany({
+            where: { id: { in: contactIds } },
+            include: { profile: true },
+        });
+
+        const contacts = users.map(u => {
+            const info = map.get(u.id)!;
+            return {
+                id: u.id,
+                displayName: u.profile?.displayName || u.email,
+                avatar: u.profile?.avatar || null,
+                lastMessage: info.lastMessage,
+                lastMessageAt: info.lastMessageAt,
+            };
+        });
+
+        // Xếp theo tin nhắn mới nhất
+        return contacts.sort((a, b) => b.lastMessageAt.getTime() - a.lastMessageAt.getTime());
+    }
+
     async getMessages(userId: string, contactId: string, page = 1, limit = 50) {
         const skip = (page - 1) * limit;
 
