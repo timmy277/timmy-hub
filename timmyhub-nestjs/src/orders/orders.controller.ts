@@ -74,4 +74,13 @@ export class OrdersController {
         const order = await this.ordersService.findOne(id, user.id);
         return ResponseDto.success('OK', order);
     }
+
+    @Patch(':id/confirm-received')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Xác nhận đã nhận hàng → COMPLETED (mở review)' })
+    async confirmReceived(@CurrentUser() user: User, @Param('id') id: string) {
+        const order = await this.ordersService.confirmReceived(id, user.id);
+        return ResponseDto.success('Xác nhận nhận hàng thành công', order);
+    }
 }

@@ -28,4 +28,9 @@ export const orderService = {
     async updateOrderStatus(orderId: string, status: OrderStatus): Promise<ApiResponse<Order>> {
         return axios.patch(`/orders/admin/${orderId}/status`, { status }) as Promise<ApiResponse<Order>>;
     },
+
+    /** Người mua xác nhận đã nhận hàng → COMPLETED */
+    async confirmReceived(orderId: string): Promise<ApiResponse<Order>> {
+        return axios.patch(`/orders/${orderId}/confirm-received`) as Promise<ApiResponse<Order>>;
+    },
 };

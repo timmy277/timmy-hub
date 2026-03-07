@@ -26,6 +26,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Product } from '@/types/product';
 import { ProductImageGallery } from './ProductImageGallery';
 import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
+import { ReviewList } from '@/features/reviews';
 
 interface ProductDetailClientProps {
     product: Product;
@@ -321,11 +322,20 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                     <Title order={3} mb="md">
                         Mô tả sản phẩm
                     </Title>
-                    <Text size="sm" style={{ whiteSpace: 'pre-line', lineHeight: 1.8 }}>
+                    <Text size="sm" lh={1.8} style={{ whiteSpace: 'pre-line' }}>
                         {product.description}
                     </Text>
                 </Paper>
             )}
+
+            {/* Reviews */}
+            <Paper p="xl" radius="md" withBorder mt="xl">
+                <ReviewList
+                    productId={product.id}
+                    ratingAvg={product.ratingAvg}
+                    ratingCount={product.ratingCount}
+                />
+            </Paper>
         </Container>
     );
 }

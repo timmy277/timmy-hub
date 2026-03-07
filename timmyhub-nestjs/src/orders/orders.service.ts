@@ -169,6 +169,40 @@ export class OrdersService {
         return order;
     }
 
+    /**
+     * Người mua xác nhận đã nhận hàng → COMPLETED
+     * Chỉ cho phép từ SHIPPING hoặc DELIVERED
+     */
+    async confirmReceived(id: string, userId: string) {
+        const order = await this.prisma.order.findFirst({
+            where: { id, userId },
+        });
+
+        if (!order) {
+            throw new NotFoundException('Đơn hàng không tồn tại');
+        }
+
+        const terminalStatuses: OrderStatus[] = [
+            OrderStatus.COMPLETED,
+            OrderStatus.CANCELLED,
+            OrderStatus.RETURNED,
+            OrderStatus.REFUNDED,
+        ];
+        if (terminalStatuses.includes(order.status)) {
+            throw new BadRequestException('Đơn hàng đã ở trạng thái cuối, không thể xác nhận');
+        }
+
+        if (order.paymentStatus !== PaymentStatus.COMPLETED) {
+            throw new BadRequestException('Đơn hàng chưa được thanh toán');
+        }
+
+        return this.prisma.order.update({
+            where: { id },
+            data: { status: OrderStatus.COMPLETED },
+            include: { orderItems: true },
+        });
+    }
+
     async updateStatus(id: string, status: OrderStatus) {
         const order = await this.prisma.order.findUnique({
             where: { id },

@@ -24,6 +24,7 @@ export interface OrderItem {
     price: number | string;
     quantity: number;
     subtotal: number | string;
+    isReviewed: boolean;
 }
 
 export interface OrderUserProfile {

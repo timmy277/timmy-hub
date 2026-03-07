@@ -1,7 +1,11 @@
 'use client';
 
+/**
+ * Trang chi tiết đơn hàng — hiển thị thông tin + nút đánh giá khi đơn DELIVERED
+ */
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import {
     Container,
     Title,
@@ -14,15 +18,111 @@ import {
     Button,
     Divider,
     Loader,
+    ThemeIcon,
+    Box,
+    Modal,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
+import {
+    IconStar,
+    IconStarFilled,
+    IconCheck,
+    IconTruck,
+    IconAlertTriangle,
+} from '@tabler/icons-react';
 import Link from 'next/link';
 import { orderService } from '@/services/order.service';
-import type { Order } from '@/types/order';
+import type { Order, OrderItem } from '@/types/order';
 import { QUERY_KEYS } from '@/constants';
+import { ReviewModal } from '@/features/reviews';
+
+const ORDER_STATUS_MAP: Record<string, { label: string; color: string }> = {
+    PENDING: { label: 'Chờ xác nhận', color: 'yellow' },
+    CONFIRMED: { label: 'Đã xác nhận', color: 'blue' },
+    PROCESSING: { label: 'Đang xử lý', color: 'blue' },
+    PACKED: { label: 'Đã đóng gói', color: 'teal' },
+    SHIPPING: { label: 'Đang giao', color: 'orange' },
+    DELIVERED: { label: 'Đã giao', color: 'green' },
+    COMPLETED: { label: 'Hoàn thành', color: 'green' },
+    CANCELLED: { label: 'Đã hủy', color: 'red' },
+    RETURN_REQUESTED: { label: 'Yêu cầu hoàn trả', color: 'orange' },
+    RETURNED: { label: 'Đã hoàn trả', color: 'gray' },
+    REFUNDED: { label: 'Đã hoàn tiền', color: 'gray' },
+};
+
+interface ReviewTarget {
+    orderItemId: string;
+    productId: string;
+    productName: string;
+    productImage?: string | null;
+}
+
+function OrderItemRow({
+    item,
+    canReview,
+    onReview,
+}: {
+    item: OrderItem;
+    canReview: boolean;
+    onReview: (target: ReviewTarget) => void;
+}) {
+    return (
+        <Group gap="md" wrap="nowrap" py="sm">
+            <Image
+                src={item.image || '/placeholder-product.jpg'}
+                alt={item.name}
+                w={72}
+                h={72}
+                fit="cover"
+                radius="md"
+            />
+            <Stack gap={4} flex={1}>
+                <Text fw={500} size="sm" lineClamp={2}>{item.name}</Text>
+                <Text size="xs" c="dimmed">
+                    {item.quantity} x {Number(item.price).toLocaleString('vi-VN')}đ
+                </Text>
+            </Stack>
+            <Stack gap="xs" align="flex-end">
+                <Text fw={700} size="sm">
+                    {Number(item.subtotal).toLocaleString('vi-VN')}đ
+                </Text>
+                {canReview && !item.isReviewed && (
+                    <Button
+                        size="xs"
+                        radius="xl"
+                        variant="light"
+                        color="orange"
+                        leftSection={<IconStar size={12} />}
+                        onClick={() =>
+                            onReview({
+                                orderItemId: item.id,
+                                productId: item.productId,
+                                productName: item.name,
+                                productImage: item.image,
+                            })
+                        }
+                    >
+                        Đánh giá
+                    </Button>
+                )}
+                {item.isReviewed && (
+                    <Badge size="xs" variant="light" color="green" leftSection={<IconCheck size={10} />}>
+                        Đã đánh giá
+                    </Badge>
+                )}
+            </Stack>
+        </Group>
+    );
+}
 
 export function OrderDetailPage() {
     const params = useParams();
     const orderId = params.id as string;
+    const queryClient = useQueryClient();
+
+    const [reviewTarget, setReviewTarget] = useState<ReviewTarget | null>(null);
+    const [confirmOpened, { open: openConfirm, close: closeConfirm }] = useDisclosure(false);
 
     const { data: orderRes, isLoading, error } = useQuery({
         queryKey: QUERY_KEYS.ORDER(orderId),
@@ -31,6 +131,32 @@ export function OrderDetailPage() {
     });
 
     const order = (orderRes as { data?: Order })?.data;
+    const terminalStatuses = ['COMPLETED', 'CANCELLED', 'RETURNED', 'REFUNDED'];
+    const canConfirmReceived =
+        order?.paymentStatus === 'COMPLETED' &&
+        !terminalStatuses.includes(order.status);
+    const isCompleted = order?.status === 'COMPLETED';
+
+    const confirmMutation = useMutation({
+        mutationFn: () => orderService.confirmReceived(orderId),
+        onSuccess: () => {
+            closeConfirm();
+            notifications.show({
+                title: 'Xác nhận thành công',
+                message: 'Đơn hàng đã hoàn thành. Hãy đánh giá sản phẩm nhé!',
+                color: 'green',
+                icon: <IconCheck size={16} />,
+            });
+            void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDER(orderId) });
+        },
+        onError: () => {
+            notifications.show({
+                title: 'Lỗi',
+                message: 'Không thể xác nhận. Vui lòng thử lại.',
+                color: 'red',
+            });
+        },
+    });
 
     if (isLoading || !orderId) {
         return (
@@ -58,63 +184,104 @@ export function OrderDetailPage() {
 
     const items = order.orderItems ?? [];
     const total = Number(order.totalAmount);
+    const statusInfo = ORDER_STATUS_MAP[order.status] ?? { label: order.status, color: 'gray' };
+    const pendingReviewCount = isCompleted ? items.filter(i => !i.isReviewed).length : 0;
 
     return (
         <Container size="md" py="xl">
-            <Group justify="space-between" mb="xl">
-                <Title order={2}>Đơn hàng #{order.id.slice(-8)}</Title>
-                <Badge size="lg" variant="light" color={order.paymentStatus === 'COMPLETED' ? 'green' : 'blue'}>
-                    {order.status}
+            {/* Header */}
+            <Group justify="space-between" mb="xl" wrap="wrap" gap="sm">
+                <Box>
+                    <Title order={2}>Đơn hàng #{order.id.slice(-8).toUpperCase()}</Title>
+                    <Text size="sm" c="dimmed" mt={4}>
+                        {new Date(order.createdAt).toLocaleString('vi-VN')}
+                    </Text>
+                </Box>
+                <Badge size="lg" variant="light" color={statusInfo.color}>
+                    {statusInfo.label}
                 </Badge>
             </Group>
 
-            <Paper p="lg" withBorder mb="md">
+            {/* Banner: xác nhận nhận hàng */}
+            {canConfirmReceived && (
+                <Paper withBorder radius="md" p="md" mb="md">
+                    <Group gap="sm" justify="space-between" wrap="wrap">
+                        <Group gap="sm">
+                            <ThemeIcon color="teal" variant="light" size="md" radius="xl">
+                                <IconTruck size={16} />
+                            </ThemeIcon>
+                            <Box>
+                                <Text fw={600} size="sm">Bạn đã nhận được hàng chưa?</Text>
+                                <Text size="xs" c="dimmed">
+                                    Đơn đã thanh toán — xác nhận nhận hàng để mở tính năng đánh giá
+                                </Text>
+                            </Box>
+                        </Group>
+                        <Button
+                            size="sm"
+                            radius="xl"
+                            color="teal"
+                            leftSection={<IconCheck size={14} />}
+                            onClick={openConfirm}
+                            loading={confirmMutation.isPending}
+                        >
+                            Đã nhận hàng
+                        </Button>
+                    </Group>
+                </Paper>
+            )}
+
+            {/* Banner: review CTA sau khi COMPLETED */}
+            {pendingReviewCount > 0 && (
+                <Paper withBorder radius="md" p="md" mb="md">
+                    <Group gap="sm">
+                        <ThemeIcon color="orange" variant="light" size="md" radius="xl">
+                            <IconStarFilled size={16} />
+                        </ThemeIcon>
+                        <Box flex={1}>
+                            <Text fw={600} size="sm">Hãy đánh giá sản phẩm của bạn!</Text>
+                            <Text size="xs" c="dimmed">
+                                Bạn có {pendingReviewCount} sản phẩm chưa được đánh giá
+                            </Text>
+                        </Box>
+                    </Group>
+                </Paper>
+            )}
+
+            {/* Order info */}
+            <Paper p="lg" withBorder mb="md" radius="md">
                 <Stack gap="xs">
                     <Group justify="space-between">
                         <Text size="sm" c="dimmed">Trạng thái thanh toán:</Text>
                         <Text fw={600}>{order.paymentStatus}</Text>
                     </Group>
                     <Group justify="space-between">
-                        <Text size="sm" c="dimmed">Phương thức:</Text>
+                        <Text size="sm" c="dimmed">Phương thức thanh toán:</Text>
                         <Text fw={600}>{order.paymentMethod}</Text>
-                    </Group>
-                    <Group justify="space-between">
-                        <Text size="sm" c="dimmed">Ngày tạo:</Text>
-                        <Text>{new Date(order.createdAt).toLocaleString('vi-VN')}</Text>
                     </Group>
                 </Stack>
             </Paper>
 
-            <Paper p="lg" withBorder>
-                <Text fw={600} mb="md">Sản phẩm ({items.length})</Text>
-                <Stack gap="sm">
-                    {items.map(item => (
-                        <Group key={item.id} gap="md">
-                            <Image
-                                src={item.image || '/placeholder-product.jpg'}
-                                alt={item.name}
-                                w={64}
-                                h={64}
-                                fit="cover"
-                                radius="sm"
+            {/* Products */}
+            <Paper p="lg" withBorder radius="md">
+                <Text fw={600} mb="xs">Sản phẩm ({items.length})</Text>
+                <Stack gap={0}>
+                    {items.map((item, idx) => (
+                        <Box key={item.id}>
+                            {idx > 0 && <Divider />}
+                            <OrderItemRow
+                                item={item}
+                                canReview={isCompleted}
+                                onReview={setReviewTarget}
                             />
-                            <Stack gap={2} style={{ flex: 1 }}>
-                                <Text fw={500}>{item.name}</Text>
-                                <Text size="sm" c="dimmed">
-                                    {item.quantity} x {Number(item.price).toLocaleString()}đ
-                                </Text>
-                            </Stack>
-                            <Text fw={600}>
-                                {Number(item.subtotal).toLocaleString()}đ
-                            </Text>
-                        </Group>
+                        </Box>
                     ))}
                 </Stack>
                 <Divider my="md" />
                 <Group justify="space-between">
                     <Text size="lg" fw={700}>Tổng cộng:</Text>
                     <Text size="xl" fw={800} c="blue">
-                        {total.toLocaleString()}đ
+                        {total.toLocaleString('vi-VN')}đ
                     </Text>
                 </Group>
             </Paper>
@@ -127,6 +294,73 @@ export function OrderDetailPage() {
                     Về trang chủ
                 </Button>
             </Group>
+
+            {/* Confirm received modal */}
+            <Modal
+                opened={confirmOpened}
+                onClose={closeConfirm}
+                title={
+                    <Group gap="xs">
+                        <ThemeIcon color="teal" variant="light" size="sm" radius="xl">
+                            <IconTruck size={14} />
+                        </ThemeIcon>
+                        <Text fw={700}>Xác nhận nhận hàng</Text>
+                    </Group>
+                }
+                centered
+                size="sm"
+                radius="lg"
+                overlayProps={{ blur: 2 }}
+            >
+                <Stack gap="md">
+                    <Paper withBorder radius="md" p="md" bg="yellow.0">
+                        <Group gap="sm" align="flex-start">
+                            <ThemeIcon color="yellow" variant="light" size="sm" radius="xl" mt={2}>
+                                <IconAlertTriangle size={14} />
+                            </ThemeIcon>
+                            <Text size="sm">
+                                Sau khi xác nhận, bạn{' '}
+                                <Text span fw={700}>không thể hoàn tác</Text>
+                                {' '}và đơn hàng sẽ chuyển sang{' '}
+                                <Text span fw={700} c="green">Hoàn thành</Text>.
+                            </Text>
+                        </Group>
+                    </Paper>
+                    <Text size="sm" c="dimmed">
+                        Bạn đã nhận đủ hàng và hài lòng với đơn hàng này?
+                    </Text>
+                    <Group justify="flex-end" gap="sm">
+                        <Button variant="default" radius="md" onClick={closeConfirm}>
+                            Chưa nhận được
+                        </Button>
+                        <Button
+                            color="teal"
+                            radius="md"
+                            leftSection={<IconCheck size={14} />}
+                            loading={confirmMutation.isPending}
+                            onClick={() => confirmMutation.mutate()}
+                        >
+                            Đã nhận hàng
+                        </Button>
+                    </Group>
+                </Stack>
+            </Modal>
+
+            {/* Review Modal */}
+            {reviewTarget && (
+                <ReviewModal
+                    opened={!!reviewTarget}
+                    onClose={() => setReviewTarget(null)}
+                    productId={reviewTarget.productId}
+                    productName={reviewTarget.productName}
+                    productImage={reviewTarget.productImage}
+                    orderItemId={reviewTarget.orderItemId}
+                    onSuccess={() => {
+                        setReviewTarget(null);
+                        void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDER(orderId) });
+                    }}
+                />
+            )}
         </Container>
     );
 }

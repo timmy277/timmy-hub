@@ -18,6 +18,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { VouchersModule } from './vouchers/vouchers.module';
 import { PromotionCampaignsModule } from './promotion-campaigns/promotion-campaigns.module';
 import { SellerModule } from './seller/seller.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { LoggerModule } from 'nestjs-pino';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisModule } from './common/redis/redis.module';
@@ -74,6 +75,7 @@ import { MetricsMiddleware } from './common/middleware/metrics.middleware';
         VouchersModule,
         PromotionCampaignsModule,
         SellerModule,
+        ReviewsModule,
     ],
     controllers: [AppController],
     providers: [
