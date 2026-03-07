@@ -19,8 +19,9 @@ import {
     Divider,
     ThemeIcon,
     Box,
+    Button,
 } from '@mantine/core';
-import { IconBuildingStore, IconShieldCheck, IconStar, IconPackage, IconCalendar } from '@tabler/icons-react';
+import { IconBuildingStore, IconShieldCheck, IconStar, IconPackage, IconCalendar, IconMessage } from '@tabler/icons-react';
 import { SellerShop } from '@/types/product';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
@@ -94,6 +95,26 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
                                     {shop.description}
                                 </Text>
                             )}
+
+                            <Group mt="xs">
+                                <Button 
+                                    leftSection={<IconMessage size={16} />} 
+                                    variant="light" 
+                                    color="blue" 
+                                    size="sm"
+                                    onClick={() => {
+                                        window.dispatchEvent(new CustomEvent('openChat', { 
+                                            detail: { 
+                                                id: shop.userId, 
+                                                name: shop.shopName, 
+                                                avatar: shop.shopLogo ?? shop.user.profile?.avatar
+                                            } 
+                                        }));
+                                    }}
+                                >
+                                    Chat với người bán
+                                </Button>
+                            </Group>
 
                             <Group gap="xl" mt="xs">
                                 <Group gap={6}>
