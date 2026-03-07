@@ -29,6 +29,6 @@ import { CaslModule } from '../casl/casl.module';
     ],
     controllers: [AuthController],
     providers: [AuthService, AuthCleanupService, JwtStrategy, GoogleStrategy, FacebookStrategy],
-    exports: [AuthService, AuthCleanupService],
+    exports: [AuthService, AuthCleanupService, JwtModule],
 })
 export class AuthModule {}

@@ -8,6 +8,7 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import helmet from 'helmet';
 import compression from 'compression';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { RedisIoAdapter } from './redis-io.adapter';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -38,6 +39,11 @@ async function bootstrap() {
 
     // Setup Swagger documentation
     setupSwagger(app);
+
+    // Kích hoạt RedisIoAdapter (nếu có Upstash Redis URL trong ENV)
+    const redisIoAdapter = new RedisIoAdapter(app);
+    await redisIoAdapter.connectToRedis();
+    app.useWebSocketAdapter(redisIoAdapter);
 
     // Enable CORS
     app.enableCors({

@@ -12,7 +12,8 @@ import {
     OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
+import { WsJwtGuard } from '../auth/guards/ws-jwt.guard';
 
 @WebSocketGateway({
     cors: {
@@ -46,6 +47,15 @@ export class ReviewsGateway implements OnGatewayConnection, OnGatewayDisconnect 
     @SubscribeMessage('leave:product')
     handleLeaveProduct(@MessageBody() productId: string, @ConnectedSocket() client: Socket) {
         void client.leave(`product:${productId}`);
+    }
+
+    /** Ví dụ event cần xác thực: client muốn gửi thông báo cho ai đó/tạo review qua socket thay vì REST */
+    @UseGuards(WsJwtGuard)
+    @SubscribeMessage('send:message')
+    handleMessage(@MessageBody() data: unknown, @ConnectedSocket() client: Socket) {
+        const user = client.data.user;
+        this.logger.debug(`User ${user?.email} sent message: ${JSON.stringify(data)}`);
+        // Xử lý gửi tin nhắn...
     }
 
     /** Emit review mới tới tất cả client đang subscribe product đó */
