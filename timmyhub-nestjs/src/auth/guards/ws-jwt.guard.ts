@@ -61,6 +61,13 @@ export class WsJwtGuard implements CanActivate {
         if (auth && auth.token) {
             return auth.token as string;
         }
+        if (client.handshake.headers.cookie) {
+            const cookies = client.handshake.headers.cookie.split(';');
+            const accessTokenCookie = cookies.find(c => c.trim().startsWith('access_token='));
+            if (accessTokenCookie) {
+                return accessTokenCookie.split('=')[1];
+            }
+        }
         return undefined;
     }
 }

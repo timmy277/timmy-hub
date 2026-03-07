@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { AppShell } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { Footer } from './Footer';
+import { ChatWidget } from '@/features/chat/components/ChatWidget';
 
 const AppBar = dynamic(() => import('./AppBar').then(m => m.AppBar), { ssr: false });
 
@@ -34,6 +35,7 @@ export function UserLayout({ children }: UserLayoutProps) {
                 <div className="flex-1">{children}</div>
                 <Footer />
             </AppShell.Main>
+            <ChatWidget />
         </AppShell>
     );
 }

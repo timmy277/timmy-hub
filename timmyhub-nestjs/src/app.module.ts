@@ -25,6 +25,7 @@ import { RedisModule } from './common/redis/redis.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { MetricsMiddleware } from './common/middleware/metrics.middleware';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
     imports: [
@@ -76,6 +77,7 @@ import { MetricsMiddleware } from './common/middleware/metrics.middleware';
         PromotionCampaignsModule,
         SellerModule,
         ReviewsModule,
+        ChatModule,
     ],
     controllers: [AppController],
     providers: [

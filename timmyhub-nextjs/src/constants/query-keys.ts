@@ -34,4 +34,8 @@ export const QUERY_KEYS = {
 
     // ── Cart ──────────────────────────────────────────────────────────
     CART: ['cart'] as const,
+
+    // ── Chat ──────────────────────────────────────────────────────────
+    CHAT_ADMIN: ['chat-admin'] as const,
+    CHAT_MESSAGES: (contactId: string) => ['chat-messages', contactId] as const,
 } as const;
