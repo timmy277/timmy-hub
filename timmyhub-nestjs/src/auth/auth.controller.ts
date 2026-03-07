@@ -11,7 +11,7 @@ import {
     Patch,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
+import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -22,6 +22,11 @@ import type { Request, Response } from 'express';
 import type { CookieOptions } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import type { UserRequest } from './interfaces/auth.interface';
+
+/** Request với user đã được Passport OAuth populate vào */
+interface OAuthRequest extends Request {
+    user: { id: string; email: string };
+}
 
 function getCookieOptions(configService: ConfigService, maxAge: number): CookieOptions {
     const crossSite =
@@ -146,6 +151,70 @@ export class AuthController {
     async updateProfile(@Req() req: UserRequest, @Body() dto: UpdateProfileDto) {
         const profile = await this.authService.updateProfile(req.user.id, dto);
         return ResponseDto.success('Cập nhật profile thành công', profile);
+    }
+
+    // =========================================================
+    // OAuth - Google
+    // =========================================================
+
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
+    @ApiOperation({ summary: 'Đăng nhập bằng Google (redirect to Google)' })
+    async googleLogin(): Promise<void> {}
+
+    @Get('google/callback')
+    @UseGuards(AuthGuard('google'))
+    @ApiOperation({ summary: 'Google OAuth callback' })
+    async googleCallback(@Req() req: OAuthRequest, @Res() res: Response): Promise<void> {
+        return this.handleOAuthCallback(req, res);
+    }
+
+    // =========================================================
+    // OAuth - Facebook
+    // =========================================================
+
+    @Get('facebook')
+    @UseGuards(AuthGuard('facebook'))
+    @ApiOperation({ summary: 'Đăng nhập bằng Facebook (redirect to Facebook)' })
+    async facebookLogin(): Promise<void> {}
+
+    @Get('facebook/callback')
+    @UseGuards(AuthGuard('facebook'))
+    @ApiOperation({ summary: 'Facebook OAuth callback' })
+    async facebookCallback(@Req() req: OAuthRequest, @Res() res: Response): Promise<void> {
+        return this.handleOAuthCallback(req, res);
+    }
+
+    // =========================================================
+    // Helper: xử lý chung cho cả Google và Facebook callback
+    // =========================================================
+
+    private async handleOAuthCallback(req: OAuthRequest, res: Response): Promise<void> {
+        const user = req.user;
+        const ip = req.ip || req.socket.remoteAddress || 'unknown';
+        const userAgent = req.headers['user-agent'] || 'unknown';
+
+        const { accessToken, refreshToken } = await this.authService.issueSession(
+            user.id,
+            ip,
+            userAgent,
+        );
+
+        const accessMaxAge = this.authService.getAccessCookieMaxAge();
+        const refreshMaxAge = this.authService.getRefreshCookieMaxAge();
+
+        res.cookie('access_token', accessToken, getCookieOptions(this.configService, accessMaxAge));
+        res.cookie(
+            'refresh_token',
+            refreshToken,
+            getCookieOptions(this.configService, refreshMaxAge),
+        );
+
+        // Redirect về frontend để xử lý tiếp
+        const rawFrontendUrl =
+            this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
+        const frontendUrl = rawFrontendUrl.split(',')[0].trim();
+        res.redirect(`${frontendUrl}/auth/callback?success=true`);
     }
 
     @Post('cleanup-expired-tokens')

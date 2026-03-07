@@ -6,6 +6,8 @@ import { AuthService } from './auth.service';
 import { AuthCleanupService } from './auth-cleanup.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { FacebookStrategy } from './strategies/facebook.strategy';
 import { RbacModule } from '../rbac/rbac.module';
 import { CaslModule } from '../casl/casl.module';
 
@@ -26,7 +28,7 @@ import { CaslModule } from '../casl/casl.module';
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, AuthCleanupService, JwtStrategy],
+    providers: [AuthService, AuthCleanupService, JwtStrategy, GoogleStrategy, FacebookStrategy],
     exports: [AuthService, AuthCleanupService],
 })
 export class AuthModule {}

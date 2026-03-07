@@ -15,11 +15,12 @@ import {
     Box,
     TextInput,
     PasswordInput,
+    Divider,
     rem,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
-import { IconAt, IconLock, IconArrowRight, IconCheck, IconX } from '@tabler/icons-react';
+import { IconAt, IconLock, IconArrowRight, IconCheck, IconX, IconBrandGoogle, IconBrandFacebook } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -53,6 +54,9 @@ export function LoginPage() {
         </Suspense>
     );
 }
+
+/** URL base của BE API để redirect trực tiếp sang OAuth */
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api';
 
 function InnerLoginPage() {
     // ===== Hooks & Context =====
@@ -231,6 +235,33 @@ function InnerLoginPage() {
                                     </Button>
                                 </Stack>
                             </form>
+
+                            <Divider label="hoặc đăng nhập với" labelPosition="center" />
+
+                            <Stack gap="sm">
+                                <Button
+                                    component="a"
+                                    href={`${API_URL}/auth/google`}
+                                    variant="default"
+                                    fullWidth
+                                    size="md"
+                                    radius="md"
+                                    leftSection={<IconBrandGoogle size={18} color="#EA4335" />}
+                                >
+                                    Tiếp tục với Google
+                                </Button>
+                                <Button
+                                    component="a"
+                                    href={`${API_URL}/auth/facebook`}
+                                    variant="default"
+                                    fullWidth
+                                    size="md"
+                                    radius="md"
+                                    leftSection={<IconBrandFacebook size={18} color="#1877F2" />}
+                                >
+                                    Tiếp tục với Facebook
+                                </Button>
+                            </Stack>
 
                             <Text c="dimmed" size="sm" ta="center">
                                 Don&apos;t have an account?{' '}

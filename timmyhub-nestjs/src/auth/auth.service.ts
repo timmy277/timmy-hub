@@ -19,6 +19,16 @@ import { AppAbility, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { RawRuleOf } from '@casl/ability';
 import { AuthCleanupService } from './auth-cleanup.service';
 
+/** Dữ liệu từ OAuth provider (Google, Facebook) */
+interface OAuthUserData {
+    provider: 'google' | 'facebook';
+    providerId: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    avatar?: string;
+}
+
 @Injectable()
 export class AuthService {
     private readonly logger = new Logger(AuthService.name);
@@ -72,7 +82,7 @@ export class AuthService {
             where: { email: dto.email },
         });
 
-        if (!user || !(await bcrypt.compare(dto.password, user.passwordHash))) {
+        if (!user || !user.passwordHash || !(await bcrypt.compare(dto.password, user.passwordHash))) {
             throw new UnauthorizedException('Email hoặc mật khẩu không chính xác');
         }
 
@@ -364,6 +374,104 @@ export class AuthService {
             default:
                 return value;
         }
+    }
+
+    /**
+     * Tìm hoặc tạo user từ OAuth (Google/Facebook)
+     * - Nếu đã có account với providerId → trả về luôn
+     * - Nếu chưa có nhưng email trùng → link OAuth vào account hiện tại
+     * - Nếu hoàn toàn mới → tạo account mới, isEmailVerified = true
+     */
+    async findOrCreateOAuthUser(data: OAuthUserData) {
+        const providerField = data.provider === 'google' ? 'googleId' : 'facebookId';
+
+        // Bước 1: Tìm theo providerId
+        let user = await this.prisma.user.findFirst({
+            where: { [providerField]: data.providerId },
+            include: { profile: true },
+        });
+
+        if (user) return user;
+
+        // Bước 2: Tìm theo email để link account
+        const existingByEmail = await this.prisma.user.findUnique({
+            where: { email: data.email },
+            include: { profile: true },
+        });
+
+        if (existingByEmail) {
+            // Link OAuth provider vào account đã có
+            user = await this.prisma.user.update({
+                where: { id: existingByEmail.id },
+                data: { [providerField]: data.providerId },
+                include: { profile: true },
+            });
+            this.logger.log(`Linked ${data.provider} account to existing user: ${data.email}`);
+            return user;
+        }
+
+        // Bước 3: Tạo user mới hoàn toàn
+        const displayName = `${data.firstName} ${data.lastName}`.trim() || data.email;
+        user = await this.prisma.user.create({
+            data: {
+                email: data.email,
+                [providerField]: data.providerId,
+                isEmailVerified: true, // OAuth email đã được provider xác thực
+                profile: {
+                    create: {
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        displayName,
+                        avatar: data.avatar,
+                    },
+                },
+            },
+            include: { profile: true },
+        });
+
+        this.logger.log(`Created new user via ${data.provider}: ${data.email}`);
+        return user;
+    }
+
+    /**
+     * Tạo session (device + tokens) cho user sau khi OAuth callback thành công.
+     * Reuse logic từ login() nhưng không cần validate password.
+     */
+    async issueSession(
+        userId: string,
+        ip: string,
+        userAgent: string,
+    ): Promise<{ accessToken: string; refreshToken: string; deviceId: string }> {
+        const device = await this.prisma.device.upsert({
+            where: { userId },
+            update: {
+                ip,
+                userAgent,
+                deviceName: 'OAuth Device',
+                isActive: true,
+                lastActiveAt: new Date(),
+            },
+            create: {
+                userId,
+                ip,
+                userAgent,
+                deviceName: 'OAuth Device',
+            },
+        });
+
+        const tokens = await this.generateTokens(userId, device.id);
+
+        const refreshMaxAge = this.getRefreshCookieMaxAge();
+        await this.prisma.refreshToken.create({
+            data: {
+                userId,
+                deviceId: device.id,
+                token: tokens.refreshToken,
+                expiresAt: new Date(Date.now() + refreshMaxAge),
+            },
+        });
+
+        return { ...tokens, deviceId: device.id };
     }
 
     async cleanupExpiredTokens(): Promise<number> {
