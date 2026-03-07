@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ColDef } from 'ag-grid-community';
 import { IconUsers, IconAlertTriangle } from '@tabler/icons-react';
 import { modals } from '@mantine/modals';
+import { useRouter } from 'next/navigation';
 import { Text } from '@mantine/core';
 import { User } from '@/types/auth';
 import { createUserColumns, createActionColumn } from '@/constants/column';
@@ -20,6 +21,7 @@ export function UserList() {
     const { t } = useTranslation();
     const { data: response, isLoading, refetch } = useUsers();
     const toggleStatusMutation = useToggleUserStatusMutation();
+    const router = useRouter();
 
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
         useManagementTabs<User>('User');
@@ -95,6 +97,10 @@ export function UserList() {
         [t, toggleStatusMutation],
     );
 
+    const handleMessage = useCallback((user: User) => {
+        router.push(`/admin/chat?userId=${user.id}`);
+    }, [router]);
+
     const columnDefs = useMemo<ColDef<User>[]>(
         () => [
             ...createUserColumns({ t }),
@@ -103,11 +109,12 @@ export function UserList() {
                     onDetail: user => handleAction('Detail', user),
                     onUpdate: user => handleAction('Update', user),
                     onToggleStatus: handleToggleStatus,
+                    onMessage: handleMessage,
                 },
                 { t },
             ),
         ],
-        [t, handleAction, handleToggleStatus],
+        [t, handleAction, handleToggleStatus, handleMessage],
     );
 
     // ===== Final Render =====

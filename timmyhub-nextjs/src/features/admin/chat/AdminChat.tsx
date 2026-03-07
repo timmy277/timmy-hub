@@ -22,6 +22,8 @@ import Cookies from 'js-cookie';
 import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@/constants';
 import { IconPath } from '@/components/icons/IconPath';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { userService } from '@/services/user.service';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
 
@@ -40,6 +42,10 @@ export function AdminChat() {
     const socketRef = useRef<Socket | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
 
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const userIdQuery = searchParams.get('userId');
+
     // Fetch contacts
     const { data: contactsRes, isLoading: isContactsLoading, refetch: refetchContacts } = useQuery({
         queryKey: QUERY_KEYS.CHAT_CONTACTS,
@@ -47,7 +53,52 @@ export function AdminChat() {
         enabled: isAuthenticated && !!user,
         staleTime: 60 * 1000,
     });
-    const contacts = contactsRes?.data || [];
+    
+    type Contact = {
+        id: string;
+        displayName: string;
+        avatar: string | null;
+        lastMessage?: string;
+        lastMessageAt?: string;
+    };
+    
+    // Manage local contacts list so we can inject new contact not yet in history
+    const [contacts, setContacts] = useState<Contact[]>([]);
+
+    useEffect(() => {
+        if (contactsRes?.data) {
+            setContacts(contactsRes.data);
+        }
+    }, [contactsRes?.data]);
+
+    // Handle initial user selection from query param
+    useEffect(() => {
+        if (!userIdQuery || !isAuthenticated) return;
+        
+        const existingContact = contacts.find(c => c.id === userIdQuery);
+        if (existingContact) {
+            setSelectedContact(existingContact);
+            router.replace('/admin/chat');
+        } else if (contactsRes?.data && contacts.length > 0) {
+            // Fetch user info since not in contact
+            userService.getUserById(userIdQuery).then(res => {
+                if (res?.data) {
+                    const u = res.data;
+                    const name = u.profile?.displayName || (u.profile?.firstName ? `${u.profile.firstName} ${u.profile.lastName}` : (u.email?.split('@')[0] || 'User'));
+                    const newContact: Contact = { 
+                        id: u.id, 
+                        displayName: name, 
+                        avatar: u.profile?.avatar || null,
+                        lastMessage: '...',
+                        lastMessageAt: new Date().toISOString()
+                    };
+                    setContacts(prev => [newContact, ...prev]);
+                    setSelectedContact(newContact);
+                    router.replace('/admin/chat');
+                }
+            }).catch(e => console.error("Error fetching user for chat:", e));
+        }
+    }, [userIdQuery, isAuthenticated, contacts, contactsRes?.data, router]);
 
     // Fetch Messages
     const { data: messagesRes, isLoading: isMessagesLoading } = useQuery({

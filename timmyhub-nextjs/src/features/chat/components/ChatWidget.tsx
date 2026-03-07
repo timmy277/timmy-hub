@@ -15,6 +15,7 @@ import {
     Loader
 } from '@mantine/core';
 import { useAuth } from '@/hooks/useAuth';
+import { User } from '@/types/auth';
 import { chatService } from '@/services/chat.service';
 import { io, Socket } from 'socket.io-client';
 import dayjs from 'dayjs';
@@ -37,81 +38,67 @@ type ChatMessage = {
     sender: { id: string; profile: { displayName: string; avatar: string | null } };
 };
 
-export function ChatWidget() {
-    const { user, isAuthenticated } = useAuth();
-    const [opened, setOpened] = useState(false);
-    
-    // Fetch Admin Info (chỉ gọi khi bật chat && user login)
-    const { data: adminRes, isLoading: isAdminLoading } = useQuery({
-        queryKey: QUERY_KEYS.CHAT_ADMIN,
-        queryFn: () => chatService.getAdmin(),
-        enabled: opened && isAuthenticated && !!user,
-        staleTime: 5 * 60 * 1000,
-    });
-    const admin = adminRes?.data || null;
+type ChatHeadProps = {
+    contactId: string;
+    contactName: string;
+    contactAvatar: string | null;
+    isMain?: boolean;
+    opened: boolean;
+    onToggle: () => void;
+    socket: Socket | null;
+    currentUser: User;
+    defaultAdminId?: string;
+    unreadCount?: number;
+};
 
-    // Fetch Messages từ HTTP API
+// Component xử lý từng hộp thoại chat
+function SingleChat({
+    contactId,
+    contactName,
+    contactAvatar,
+    isMain,
+    opened,
+    onToggle,
+    socket,
+    currentUser,
+    defaultAdminId
+}: ChatHeadProps) {
     const { data: messagesRes, isLoading: isMessagesLoading } = useQuery({
-        queryKey: QUERY_KEYS.CHAT_MESSAGES(admin?.id || ''),
-        queryFn: () => chatService.getMessages(admin!.id, { limit: 50 }),
-        enabled: opened && !!admin?.id,
+        queryKey: QUERY_KEYS.CHAT_MESSAGES(contactId),
+        queryFn: () => chatService.getMessages(contactId, { limit: 50 }),
+        enabled: opened && !!contactId,
         staleTime: 60 * 1000,
     });
-    const initialMessages = useMemo(() => messagesRes?.data || [], [messagesRes?.data]);
-
-    // State lưu tất cả tin nhắn (vừa lấy từ API vừa sinh ra real-time)
-    const [realtimeMessages, setRealtimeMessages] = useState<ChatMessage[]>([]);
     
-    // Cập nhật state nội bộ khi có data từ query
+    const initialMessages = useMemo(() => messagesRes?.data || [], [messagesRes?.data]);
+    const [realtimeMessages, setRealtimeMessages] = useState<ChatMessage[]>([]);
+    const [text, setText] = useState('');
+    const scrollRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         if (initialMessages.length > 0) {
             setRealtimeMessages(initialMessages);
         }
     }, [initialMessages]);
 
-    const loading = isAdminLoading || isMessagesLoading;
-    
-    const [text, setText] = useState('');
-    const socketRef = useRef<Socket | null>(null);
-    const scrollRef = useRef<HTMLDivElement>(null);
-
-    // Init socket
     useEffect(() => {
-        if (!opened || !isAuthenticated || !user) return;
-        const socket = io(`${SOCKET_URL}/chat`, {
-            auth: { token: Cookies.get('access_token') },
-            withCredentials: true,
-            transports: ['websocket', 'polling']
-        });
-
-        socket.on('connect', () => {
-            console.log('Connected to chat socket');
-        });
-
-        socket.on('connect_error', (err) => {
-             console.error('Socket connect_error:', err);
-        });
-
-        socket.on('exception', (err) => {
-             console.error('Socket exception:', err);
-        });
-
-        socket.on('chat:receive', (msg: ChatMessage) => {
-             setRealtimeMessages(prev => {
-                 if (prev.some(m => m.id === msg.id)) return prev;
-                 return [...prev, msg];
-             });
-        });
-
-        socketRef.current = socket;
-
-        return () => {
-            socket.disconnect();
-            socketRef.current = null;
+        if (!socket || !opened) return;
+        const handleReceive = (msg: ChatMessage) => {
+            if ((msg.senderId === contactId && msg.receiverId === currentUser.id) || 
+                (msg.senderId === currentUser.id && msg.receiverId === contactId)) {
+                setRealtimeMessages(prev => {
+                    if (prev.some(m => m.id === msg.id)) return prev;
+                    return [...prev, msg];
+                });
+            }
         };
-    }, [opened, isAuthenticated, user]);
 
-    // Cuộn xuống nhắn tin
+        socket.on('chat:receive', handleReceive);
+        return () => {
+            socket.off('chat:receive', handleReceive);
+        };
+    }, [socket, opened, contactId, currentUser.id]);
+
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -121,10 +108,10 @@ export function ChatWidget() {
     const handleSend = (e: FormEvent) => {
         e.preventDefault();
         const content = text.trim();
-        if (!content || !admin || !socketRef.current) return;
+        if (!content || !socket) return;
         
-        socketRef.current.emit('chat:send', {
-            receiverId: admin.id,
+        socket.emit('chat:send', {
+            receiverId: contactId,
             content
         }, (res: { status: string; message: ChatMessage }) => {
             if (res && res.status === 'ok') {
@@ -140,22 +127,16 @@ export function ChatWidget() {
         setText('');
     };
 
-    if (!user || user.roles.includes(UserRole.ADMIN)) {
-        // Tạm thời ẩn widget với khách (chưa login) hoặc nếu chính mình là admin thì cũng ẩn 
-        // Admin sau này sẽ có panel Messages riêng
-        return null;
-    }
-
     return (
-        <Box style={{ position: 'fixed', bottom: 32, right: 32, zIndex: 9999 }}>
-            <Popover opened={opened} onChange={setOpened} position="top-end" withArrow shadow="md" withinPortal={false}>
-                <Popover.Target>
+        <Popover opened={opened} onChange={() => onToggle()} position="left-end" offset={16} withArrow shadow="md" withinPortal={false}>
+            <Popover.Target>
+                {isMain ? (
                     <ActionIcon 
                         size={56} 
                         radius="xl" 
                         color="blue.6" 
                         variant="filled" 
-                        onClick={() => setOpened(o => !o)}
+                        onClick={onToggle}
                         style={{ boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
                     >
                         {opened ? (
@@ -164,74 +145,211 @@ export function ChatWidget() {
                            <IconPath name="message-circle" size={24} color="currentColor" />
                         )}
                     </ActionIcon>
-                </Popover.Target>
+                ) : (
+                    <ActionIcon 
+                        size={56} 
+                        radius="xl" 
+                        color="gray.1" 
+                        variant="filled" 
+                        onClick={onToggle}
+                        style={{ boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
+                    >
+                        <Avatar src={contactAvatar} radius="xl" size={56}>
+                            {contactName.charAt(0) || 'A'}
+                        </Avatar>
+                    </ActionIcon>
+                )}
+            </Popover.Target>
 
-                <Popover.Dropdown p={0} style={{ width: 340, borderRadius: 16, overflow: 'hidden' }}>
-                    {/* Header */}
-                    <Box bg="blue.6" c="white" p="md">
-                        <Group gap="sm">
-                            <Avatar src={admin?.avatar} radius="xl" color="blue.2">
-                                {admin?.displayName?.charAt(0) || 'A'}
-                            </Avatar>
-                            <Box>
-                                <Text fw={600} size="sm">{admin?.displayName || 'Admin Hỗ Trợ'}</Text>
-                                <Text size="xs" opacity={0.8}>Chúng tôi sẽ trả lời sớm nhất!</Text>
-                            </Box>
+            <Popover.Dropdown p={0} style={{ width: 340, borderRadius: 16, overflow: 'hidden' }}>
+                <Box bg="blue.6" c="white" p="md">
+                    <Group gap="sm" wrap="nowrap">
+                        <Avatar src={contactAvatar} radius="xl" color="blue.2">
+                            {contactName.charAt(0) || 'A'}
+                        </Avatar>
+                        <Box style={{ flex: 1, minWidth: 0 }}>
+                            <Group gap={6} align="center">
+                                <Text fw={600} size="sm" truncate>{contactName}</Text>
+                                {(contactId !== defaultAdminId) && (
+                                    <Box bg="red.1" c="red.6" px={4} py={0} style={{ borderRadius: 4, fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                                        ADMIN
+                                    </Box>
+                                )}
+                            </Group>
+                            <Text size="xs" opacity={0.8} truncate>{isMain ? 'Chúng tôi sẽ trả lời sớm nhất!' : 'Quản trị viên TimmyHub'}</Text>
+                        </Box>
+                    </Group>
+                </Box>
+
+                <ScrollArea h={320} p="md" viewportRef={scrollRef}>
+                    {isMessagesLoading ? (
+                        <Group justify="center" h="100%">
+                            <Loader size="sm" color="blue" />
                         </Group>
-                    </Box>
-
-                    {/* Chat Area */}
-                    <ScrollArea h={320} p="md" viewportRef={scrollRef}>
-                        {loading ? (
-                            <Group justify="center" h="100%">
-                                <Loader size="sm" color="blue" />
-                            </Group>
-                        ) : realtimeMessages.length === 0 ? (
-                            <Group justify="center" h="100%">
-                                <Text size="sm" c="dimmed">Hãy gửi lời chào đến chúng tôi!</Text>
-                            </Group>
-                        ) : (
-                            <Stack gap="xs">
-                                {realtimeMessages.map(msg => {
-                                    const isMe = msg.senderId === user.id;
-                                    return (
-                                        <Box key={msg.id} style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
-                                            <Box 
-                                                bg={isMe ? 'blue.6' : 'gray.1'} 
-                                                c={isMe ? 'white' : 'dark'}
-                                                px={12} py={8}
-                                                style={{ borderRadius: 12, borderBottomRightRadius: isMe ? 2 : 12, borderBottomLeftRadius: isMe ? 12 : 2 }}
-                                            >
-                                                <Text size="sm">{msg.content}</Text>
-                                            </Box>
-                                            <Text size="xs" c="dimmed" ta={isMe ? 'right' : 'left'} mt={2}>
-                                                {dayjs(msg.createdAt).format('HH:mm')}
-                                            </Text>
+                    ) : realtimeMessages.length === 0 ? (
+                        <Group justify="center" h="100%">
+                            <Text size="sm" c="dimmed">Hãy gửi lời chào đến chúng tôi!</Text>
+                        </Group>
+                    ) : (
+                        <Stack gap="xs">
+                            {realtimeMessages.map(msg => {
+                                const isMe = msg.senderId === currentUser.id;
+                                return (
+                                    <Box key={msg.id} style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
+                                        {!isMe && (
+                                            <Group gap={6} mb={4} wrap="nowrap" align="center">
+                                                <Avatar 
+                                                    src={msg.sender?.profile?.avatar || contactAvatar} 
+                                                    size={20} 
+                                                    radius="xl"
+                                                />
+                                                <Text size="xs" fw={600} c="dimmed" truncate>
+                                                    {msg.sender?.profile?.displayName || contactName}
+                                                </Text>
+                                            </Group>
+                                        )}
+                                        <Box 
+                                            bg={isMe ? 'blue.6' : 'gray.1'} 
+                                            c={isMe ? 'white' : 'dark'}
+                                            px={12} py={8}
+                                            style={{ borderRadius: 12, borderBottomRightRadius: isMe ? 2 : 12, borderBottomLeftRadius: isMe ? 12 : 2 }}
+                                        >
+                                            <Text size="sm">{msg.content}</Text>
                                         </Box>
-                                    );
-                                })}
-                            </Stack>
-                        )}
-                    </ScrollArea>
+                                        <Text size="xs" c="dimmed" ta={isMe ? 'right' : 'left'} mt={2}>
+                                            {dayjs(msg.createdAt).format('HH:mm')}
+                                        </Text>
+                                    </Box>
+                                );
+                            })}
+                        </Stack>
+                    )}
+                </ScrollArea>
 
-                    {/* Input */}
-                    <Box p="xs" style={{ borderTop: '1px solid #f1f3f5' }}>
-                        <form onSubmit={handleSend}>
-                            <TextInput
-                                placeholder="Nhập tin nhắn..."
-                                value={text}
-                                onChange={e => setText(e.target.value)}
-                                disabled={!admin}
-                                rightSection={
-                                    <UnstyledButton type="submit" mt={4} mr={4} c="blue.6" disabled={!text.trim()}>
-                                        <IconPath name="send" size={20} color="currentColor" />
-                                    </UnstyledButton>
-                                }
-                            />
-                        </form>
-                    </Box>
-                </Popover.Dropdown>
-            </Popover>
+                <Box p="xs" style={{ borderTop: '1px solid #f1f3f5' }}>
+                    <form onSubmit={handleSend}>
+                        <TextInput
+                            placeholder="Nhập tin nhắn..."
+                            value={text}
+                            onChange={e => setText(e.target.value)}
+                            rightSection={
+                                <UnstyledButton type="submit" mt={4} mr={4} c="blue.6" disabled={!text.trim()}>
+                                    <IconPath name="send" size={20} color="currentColor" />
+                                </UnstyledButton>
+                            }
+                        />
+                    </form>
+                </Box>
+            </Popover.Dropdown>
+        </Popover>
+    );
+}
+
+export function ChatWidget() {
+    const { user, isAuthenticated } = useAuth();
+    const [openedContactId, setOpenedContactId] = useState<string | null>(null);
+    const [socket, setSocket] = useState<Socket | null>(null);
+    type Contact = { id: string; displayName: string; avatar: string | null; lastMessageAt: string; lastMessage: string };
+    
+    const { data: adminRes } = useQuery({
+        queryKey: QUERY_KEYS.CHAT_ADMIN,
+        queryFn: () => chatService.getAdmin(),
+        enabled: isAuthenticated && !!user,
+        staleTime: 5 * 60 * 1000,
+    });
+    const defaultAdmin = adminRes?.data || null;
+
+    const { data: contactsRes, refetch: refetchContacts } = useQuery({
+        queryKey: QUERY_KEYS.CHAT_CONTACTS,
+        queryFn: () => chatService.getContacts(),
+        enabled: isAuthenticated && !!user,
+        staleTime: 60 * 1000,
+    });
+
+    const [socketNewContacts, setSocketNewContacts] = useState<Contact[]>([]);
+
+    const dynamicContacts = useMemo(() => {
+        const base = contactsRes?.data || [];
+        const combined = [...socketNewContacts, ...base];
+        // Deduplicate by ID
+        return combined.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
+    }, [contactsRes?.data, socketNewContacts]);
+
+    useEffect(() => {
+        if (!isAuthenticated || !user) return;
+        const newSocket = io(`${SOCKET_URL}/chat`, {
+            auth: { token: Cookies.get('access_token') },
+            withCredentials: true,
+            transports: ['websocket', 'polling']
+        });
+
+        newSocket.on('connect', () => {
+             setSocket(newSocket);
+        });
+
+        newSocket.on('chat:receive', (msg: ChatMessage) => {
+            // Check if sender is already in contacts, if not, refetch!
+            if (msg.senderId !== defaultAdmin?.id && msg.senderId !== user.id) {
+                setSocketNewContacts(prev => {
+                    const exists = prev.some(c => c.id === msg.senderId) || (contactsRes?.data?.some(c => c.id === msg.senderId));
+                    if (!exists) {
+                        refetchContacts(); 
+                        return [...prev, {
+                            id: msg.senderId,
+                            displayName: msg.sender?.profile?.displayName || 'Admin',
+                            avatar: msg.sender?.profile?.avatar || null,
+                            lastMessageAt: msg.createdAt,
+                            lastMessage: msg.content
+                        }];
+                    }
+                    return prev;
+                });
+            }
+        });
+
+        return () => {
+            newSocket.disconnect();
+            setSocket(null);
+        };
+    }, [isAuthenticated, user, defaultAdmin?.id, refetchContacts, contactsRes?.data]);
+
+    if (!user || user.roles.includes(UserRole.ADMIN)) {
+        return null;
+    }
+
+    const otherAdmins = dynamicContacts.filter(c => c.id !== defaultAdmin?.id);
+
+    return (
+        <Box style={{ position: 'fixed', bottom: 32, right: 32, zIndex: 9999 }}>
+            <Stack gap="md" align="flex-end">
+                {otherAdmins.map(contact => (
+                    <SingleChat
+                        key={contact.id}
+                        contactId={contact.id}
+                        contactName={contact.displayName}
+                        contactAvatar={contact.avatar || null}
+                        opened={openedContactId === contact.id}
+                        onToggle={() => setOpenedContactId(prev => prev === contact.id ? null : contact.id)}
+                        socket={socket}
+                        currentUser={user}
+                        defaultAdminId={defaultAdmin?.id}
+                    />
+                ))}
+
+                {defaultAdmin && (
+                    <SingleChat
+                        contactId={defaultAdmin.id}
+                        contactName={defaultAdmin.displayName || 'Admin Hỗ Trợ'}
+                        contactAvatar={defaultAdmin.avatar || null}
+                        isMain={true}
+                        opened={openedContactId === defaultAdmin.id}
+                        onToggle={() => setOpenedContactId(prev => prev === defaultAdmin.id ? null : defaultAdmin.id)}
+                        socket={socket}
+                        currentUser={user}
+                        defaultAdminId={defaultAdmin.id}
+                    />
+                )}
+            </Stack>
         </Box>
     );
 }

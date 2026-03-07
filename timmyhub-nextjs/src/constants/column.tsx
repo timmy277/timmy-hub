@@ -1,6 +1,6 @@
 import { Badge, Group, ActionIcon, Tooltip, Avatar, Stack, Text, Image } from '@mantine/core';
 import NextImage from 'next/image';
-import { IconEye, IconEdit, IconLock, IconLockOpen, IconCheck, IconX, IconStar } from '@tabler/icons-react';
+import { IconEye, IconEdit, IconLock, IconLockOpen, IconCheck, IconX, IconStar, IconMessage } from '@tabler/icons-react';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { User } from '@/types/auth';
 import { Role, Permission } from '@/types/rbac';
@@ -19,6 +19,7 @@ export interface ActionColumnProps<T> {
     onDelete?: (data: T) => void;
     onApprove?: (data: T) => void;
     onReject?: (data: T) => void;
+    onMessage?: (data: T) => void;
     isToggleLoading?: boolean;
     toggleLoadingId?: string | null;
 }
@@ -594,6 +595,19 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean; s
                             </ActionIcon>
                         </Tooltip>
                     )}
+
+                    {props.onMessage && (
+                        <Tooltip label={t('table.actions.message') || 'Nhắn tin'} withArrow>
+                            <ActionIcon
+                                variant="light"
+                                color="cyan"
+                                onClick={() => props.onMessage!(item)}
+                                aria-label={t('table.actions.message') || 'Nhắn tin'}
+                            >
+                                <IconMessage size={16} />
+                            </ActionIcon>
+                        </Tooltip>
+                    )}
                 </Group>
             );
         },
@@ -657,6 +671,17 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
                             onClick={() => props.onToggleStatus!(item)}
                         >
                             {isActive ? <IconLock size={16} /> : <IconLockOpen size={16} />}
+                        </ActionIcon>
+                    </Tooltip>
+                )}
+                {props.onMessage && (
+                    <Tooltip label="Nhắn tin">
+                        <ActionIcon
+                            variant="light"
+                            color="cyan"
+                            onClick={() => props.onMessage!(item)}
+                        >
+                            <IconMessage size={16} />
                         </ActionIcon>
                     </Tooltip>
                 )}
