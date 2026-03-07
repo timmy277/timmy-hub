@@ -9,6 +9,8 @@ import {
     WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { randomUUID } from 'crypto';
+import { GoogleGenAI } from '@google/genai';
 import { Logger, UseGuards } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { WsJwtGuard } from '../auth/guards/ws-jwt.guard';
@@ -82,6 +84,68 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (!data.content || !data.receiverId) {
             throw new WsException('Yêu cầu nội dung và người nhận');
         }
+
+        // --- XỬ LÝ CHO AI BOT ---
+        if (data.receiverId === 'ai-assistant-bot') {
+            const userMessage = {
+                id: randomUUID(),
+                senderId: user.id,
+                receiverId: 'ai-assistant-bot',
+                content: data.content,
+                createdAt: new Date().toISOString(),
+                sender: {
+                    id: user.id,
+                    profile: user['profile'] || { displayName: 'You', avatar: null },
+                },
+            };
+
+            this.server.to(`user_${user.id}`).emit('chat:receive', userMessage);
+
+            try {
+                // Initialize GenAI
+                const ai = new GoogleGenAI({
+                    apiKey: process.env.GEMINI_API_KEY || '',
+                });
+
+                // Tạm thời gọi API xử lý văn bản cơ bản
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: `Bạn là TimmyHub AI, trợ lý hỗ trợ khách hàng của hệ thống cửa hàng thương mại điện tử TimmyHub. Hãy trả lời ngắn gọn, thân thiện bằng ngôn ngữ của người dùng. Câu hỏi của khách là: ${data.content}`,
+                });
+
+                const botMessage = {
+                    id: randomUUID(),
+                    senderId: 'ai-assistant-bot',
+                    receiverId: user.id,
+                    content:
+                        response.text || 'Xin lỗi, tôi không thể xử lý yêu cầu của bạn lúc này.',
+                    createdAt: new Date().toISOString(),
+                    sender: {
+                        id: 'ai-assistant-bot',
+                        profile: { displayName: 'Trợ lý AI', avatar: null },
+                    },
+                };
+
+                this.server.to(`user_${user.id}`).emit('chat:receive', botMessage);
+            } catch (err) {
+                this.logger.error('Lỗi khi gọi AI:', err);
+                const botMessage = {
+                    id: randomUUID(),
+                    senderId: 'ai-assistant-bot',
+                    receiverId: user.id,
+                    content: 'Hệ thống AI đang tạm thời gián đoạn. Xin lỗi bạn vì sự bất tiện này.',
+                    createdAt: new Date().toISOString(),
+                    sender: {
+                        id: 'ai-assistant-bot',
+                        profile: { displayName: 'Trợ lý AI', avatar: null },
+                    },
+                };
+                this.server.to(`user_${user.id}`).emit('chat:receive', botMessage);
+            }
+
+            return { status: 'ok', message: userMessage };
+        }
+        // -----------------------
 
         // Lưu tin nhắn vào DB
         const message = await this.chatService.saveMessage(user.id, data.receiverId, data.content);

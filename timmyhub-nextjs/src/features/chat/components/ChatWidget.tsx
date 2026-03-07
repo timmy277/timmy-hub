@@ -9,10 +9,12 @@ import Cookies from 'js-cookie';
 import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@/constants';
 import { UserRole } from '@/types/enums';
+import { IconRobot } from '@tabler/icons-react';
 import { SingleChat } from './SingleChat';
 import { TChatMessage } from '@/types/chat';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
+const VIRTUAL_BOT_ID = 'ai-assistant-bot';
 
 export function ChatWidget() {
     const { user, isAuthenticated } = useAuth();
@@ -113,7 +115,7 @@ export function ChatWidget() {
         return null;
     }
 
-    const otherAdmins = dynamicContacts.filter(c => c.id !== defaultAdmin?.id);
+    const otherAdmins = dynamicContacts.filter(c => c.id !== defaultAdmin?.id && c.id !== VIRTUAL_BOT_ID);
 
     return (
         <Box style={{ position: 'fixed', bottom: 32, right: 32, zIndex: 9999 }}>
@@ -137,7 +139,6 @@ export function ChatWidget() {
                         contactId={defaultAdmin.id}
                         contactName={defaultAdmin.displayName || 'Admin Hỗ Trợ'}
                         contactAvatar={defaultAdmin.avatar || null}
-                        isMain={true}
                         opened={openedContactId === defaultAdmin.id}
                         onToggle={() => setOpenedContactId(prev => prev === defaultAdmin.id ? null : defaultAdmin.id)}
                         socket={socket}
@@ -145,6 +146,19 @@ export function ChatWidget() {
                         defaultAdminId={defaultAdmin.id}
                     />
                 )}
+
+                <SingleChat
+                    contactId={VIRTUAL_BOT_ID}
+                    contactName="Trợ lý AI"
+                    contactAvatar={null}
+                    isMain={true}
+                    mainIcon={<IconRobot size={24} color="currentColor" />}
+                    opened={openedContactId === VIRTUAL_BOT_ID}
+                    onToggle={() => setOpenedContactId(prev => prev === VIRTUAL_BOT_ID ? null : VIRTUAL_BOT_ID)}
+                    socket={socket}
+                    currentUser={user}
+                    defaultAdminId={defaultAdmin?.id}
+                />
             </Stack>
         </Box>
     );

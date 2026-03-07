@@ -28,7 +28,8 @@ export function SingleChat({
     onToggle,
     socket,
     currentUser,
-    defaultAdminId
+    defaultAdminId,
+    mainIcon
 }: IChatHeadProps) {
     const { data: messagesRes, isLoading: isMessagesLoading } = useQuery({
         queryKey: QUERY_KEYS.CHAT_MESSAGES(contactId),
@@ -107,9 +108,7 @@ export function SingleChat({
                 >
                     {opened ? (
                        <IconPath name="x" size={24} color="currentColor" />
-                    ) : (
-                       <IconPath name="message-circle" size={24} color="currentColor" />
-                    )}
+                    ) : (mainIcon ? mainIcon : <IconPath name="message-circle" size={24} color="currentColor" />)}
                 </ActionIcon>
             ) : (
                 <ActionIcon 
@@ -126,7 +125,13 @@ export function SingleChat({
                 </ActionIcon>
             )}
 
-            <Popover opened={opened} onChange={() => onToggle()} position="left-end" offset={16} shadow="md" withinPortal={false}>
+            <Popover 
+                opened={opened}
+                position="left-end" 
+                offset={16} 
+                shadow="md" 
+                withinPortal={false}
+            >
                 <Popover.Target>
                     <Box style={{ position: 'fixed', bottom: 32, right: 32, width: 56, height: 56, pointerEvents: 'none' }} />
                 </Popover.Target>

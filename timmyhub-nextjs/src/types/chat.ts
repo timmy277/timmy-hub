@@ -21,4 +21,5 @@ export interface IChatHeadProps {
     currentUser: User;
     defaultAdminId?: string;
     unreadCount?: number;
+    mainIcon?: React.ReactNode;
 }

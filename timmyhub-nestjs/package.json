@@ -29,6 +29,7 @@
   "dependencies": {
     "@casl/ability": "^6.8.0",
     "@casl/prisma": "^1.6.1",
+    "@google/genai": "^1.44.0",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^11.0.1",
