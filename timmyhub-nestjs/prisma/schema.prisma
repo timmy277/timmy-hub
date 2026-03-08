@@ -531,6 +531,7 @@ enum NotificationType {
   MESSAGE
   PROMOTION
   SYSTEM
+  REVIEW
 }
 
 enum OrderStatus {

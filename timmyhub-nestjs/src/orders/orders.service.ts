@@ -112,7 +112,7 @@ export class OrdersService {
             });
         });
 
-        // Bắn thông báo tạo đơn hàng
+        // Bắn thông báo tạo đơn hàng cho người mua
         if (order) {
             await this.notificationsService.create({
                 userId,
@@ -121,6 +121,18 @@ export class OrdersService {
                 content: `Đơn hàng #${order.id.slice(-6).toUpperCase()} của bạn đã được đặt thành công.`,
                 link: `/profile/orders`,
             });
+
+            // Bắn thông báo cho người bán
+            const sellerIds = [...new Set(validItems.map(item => item.product.sellerId))];
+            for (const sellerId of sellerIds) {
+                await this.notificationsService.create({
+                    userId: sellerId,
+                    type: NotificationType.ORDER,
+                    title: 'Đơn hàng mới',
+                    content: `Bạn vừa nhận được một đơn hàng mới #${order.id.slice(-6).toUpperCase()}`,
+                    link: `/admin/orders`, // Giả sử route admin/seller
+                });
+            }
         }
 
         return order!;

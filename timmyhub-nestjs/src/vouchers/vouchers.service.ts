@@ -10,9 +10,15 @@ import { UserRole, VoucherType, PaymentMethod, ResourceStatus } from '@prisma/cl
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { UpdateVoucherDto } from './dto/update-voucher.dto';
 
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '@prisma/client';
+
 @Injectable()
 export class VouchersService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly notificationsService: NotificationsService,
+    ) {}
 
     async create(
         userId: string,
@@ -55,7 +61,7 @@ export class VouchersService {
         if (end <= start) {
             throw new BadRequestException('Ngày kết thúc phải sau ngày bắt đầu');
         }
-        return this.prisma.voucher.create({
+        const voucher = await this.prisma.voucher.create({
             data: {
                 code: dto.code.trim().toUpperCase(),
                 type: dto.type,
@@ -74,6 +80,56 @@ export class VouchersService {
                 campaignId: cid ?? undefined,
             },
         });
+
+        // Push PROMOTION notifications asynchronously
+        void (async () => {
+            try {
+                if (sellerId) {
+                    const products = await this.prisma.product.findMany({
+                        where: { sellerId },
+                        select: { id: true },
+                    });
+                    const productIds = products.map(p => p.id);
+                    // Find users who have ordered from this seller before
+                    const pastOrders = await this.prisma.orderItem.findMany({
+                        where: { productId: { in: productIds } },
+                        include: { order: { select: { userId: true } } },
+                        distinct: ['orderId'],
+                    });
+
+                    const uniqueUserIds = [...new Set(pastOrders.map(item => item.order.userId))];
+                    for (const uid of uniqueUserIds) {
+                        await this.notificationsService.create({
+                            userId: uid,
+                            type: NotificationType.PROMOTION,
+                            title: 'Voucher giảm giá mới',
+                            content: `Shop bạn từng mua vừa tung mã giảm giá: ${voucher.code}. Nhanh tay kẻo lỡ!`,
+                            link: `/profile/vouchers`,
+                        });
+                    }
+                } else {
+                    // Platform voucher - send to recent active users (limit 10 for demo)
+                    const recentUsers = await this.prisma.user.findMany({
+                        orderBy: { lastLoginAt: 'desc' },
+                        take: 10,
+                        select: { id: true },
+                    });
+                    for (const user of recentUsers) {
+                        await this.notificationsService.create({
+                            userId: user.id,
+                            type: NotificationType.PROMOTION,
+                            title: 'Khuyến mãi khủng từ nền tảng',
+                            content: `Mã ${voucher.code} vừa được tung ra. Áp dụng ngay nào!`,
+                            link: `/profile/vouchers`,
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to send promotion notifications', err);
+            }
+        })();
+
+        return voucher;
     }
 
     async findAllBySeller(sellerId: string) {

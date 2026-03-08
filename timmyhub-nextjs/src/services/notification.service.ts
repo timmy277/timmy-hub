@@ -4,12 +4,12 @@ import type { NotificationResponse } from '@/types/notification';
 export const notificationService = {
     async getMyNotifications(page = 1, limit = 10): Promise<NotificationResponse> {
         const res = await axiosClient.get('/notifications', { params: { page, limit } });
-        return res as unknown as NotificationResponse;
+        return (res || { notifications: [], total: 0, totalPages: 0, currentPage: 1 }) as unknown as NotificationResponse;
     },
 
     async getUnreadCount(): Promise<{ count: number }> {
         const res = await axiosClient.get('/notifications/unread-count');
-        return res as unknown as { count: number };
+        return (res || { count: 0 }) as unknown as { count: number };
     },
 
     async markAsRead(id: string): Promise<void> {

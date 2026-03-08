@@ -1,4 +1,10 @@
-export type NotificationType = 'ORDER' | 'MESSAGE' | 'PROMOTION' | 'SYSTEM';
+export enum NotificationType {
+    ORDER = 'ORDER',
+    MESSAGE = 'MESSAGE',
+    PROMOTION = 'PROMOTION',
+    SYSTEM = 'SYSTEM',
+    REVIEW = 'REVIEW',
+}
 
 export interface Notification {
     id: string;

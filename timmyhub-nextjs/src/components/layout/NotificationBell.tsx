@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionIcon, Indicator, Popover, Text, ScrollArea, Group, Button, UnstyledButton } from '@mantine/core';
-import { IconBell, IconShoppingBag, IconMessage, IconInfoCircle } from '@tabler/icons-react';
+import { IconBell, IconShoppingBag, IconMessage, IconInfoCircle, IconStar, IconDiscount } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationService } from '@/services/notification.service';
 import { useNotificationSocket } from '@/hooks/useNotificationSocket';
@@ -76,6 +76,8 @@ export function NotificationBell() {
         switch (type) {
             case 'ORDER': return <IconShoppingBag size={20} className="text-blue-500" />;
             case 'MESSAGE': return <IconMessage size={20} className="text-green-500" />;
+            case 'REVIEW': return <IconStar size={20} className="text-orange-500" />;
+            case 'PROMOTION': return <IconDiscount size={20} className="text-pink-500" />;
             default: return <IconInfoCircle size={20} className="text-gray-500" />;
         }
     };

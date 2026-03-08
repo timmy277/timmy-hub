@@ -11,13 +11,17 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, NotificationType } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ReviewsService {
     private readonly logger = new Logger(ReviewsService.name);
 
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly notificationsService: NotificationsService,
+    ) {}
 
     async create(userId: string, dto: CreateReviewDto) {
         // 1. Kiểm tra orderItem thuộc về user và order đã DELIVERED
@@ -174,6 +178,19 @@ export class ReviewsService {
                                     profile: { select: { displayName: true, avatar: true } },
                                 },
                             },
+                            replies: {
+                                include: {
+                                    user: {
+                                        select: {
+                                            id: true,
+                                            profile: {
+                                                select: { displayName: true, avatar: true },
+                                            },
+                                        },
+                                    },
+                                },
+                                orderBy: { createdAt: 'asc' },
+                            },
                         },
                         orderBy: { createdAt: 'asc' },
                     },
@@ -271,7 +288,10 @@ export class ReviewsService {
 
     /** Comment vào một review */
     async addComment(reviewId: string, userId: string, content: string, parentId?: string) {
-        const review = await this.prisma.review.findUnique({ where: { id: reviewId } });
+        const review = await this.prisma.review.findUnique({
+            where: { id: reviewId },
+            include: { product: { select: { slug: true } } },
+        });
         if (!review) throw new NotFoundException('Review không tồn tại');
 
         const comment = await this.prisma.reviewComment.create({
@@ -301,6 +321,31 @@ export class ReviewsService {
                 },
             },
         });
+
+        // Gửi thông báo
+        // Nếu là Reply, gửi thông báo cho user của parent comment. Nếu không, gửi cho user của review.
+        const targetUserId = parentId
+            ? (
+                  await this.prisma.reviewComment.findUnique({
+                      select: { userId: true },
+                      where: { id: parentId },
+                  })
+              )?.userId
+            : review.userId;
+
+        if (targetUserId && targetUserId !== userId) {
+            const senderName = comment.user.profile?.displayName || 'Ai đó';
+            await this.notificationsService.create({
+                userId: targetUserId,
+                type: NotificationType.REVIEW,
+                title: parentId
+                    ? 'Có người vừa phản hồi bình luận của bạn'
+                    : 'Có người vừa bình luận đánh giá của bạn',
+                content: `${senderName}: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`,
+                link: `/product/${review.product.slug}`,
+            });
+        }
+
         return comment;
     }
 }
