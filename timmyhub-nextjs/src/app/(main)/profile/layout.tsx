@@ -8,6 +8,7 @@ import {
     IconMapPin,
     IconLock,
     IconBell,
+    IconHeart,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,6 +17,7 @@ const SIDEBAR_ITEMS = [
     { label: 'Voucher', href: '/profile/voucher', icon: IconTicket },
     { label: 'Thông tin cá nhân', href: '/profile', icon: IconUser },
     { label: 'Đơn hàng của tôi', href: '/profile/orders', icon: IconPackage },
+    { label: 'Sản phẩm yêu thích', href: '/profile/wishlist', icon: IconHeart },
     { label: 'Địa chỉ', href: '/profile/addresses', icon: IconMapPin },
     { label: 'Đổi mật khẩu', href: '/profile/change-password', icon: IconLock },
     { label: 'Cài đặt thông báo', href: '/profile/notifications', icon: IconBell },
