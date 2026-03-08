@@ -29,8 +29,8 @@ export class NotificationsService {
     }
 
     async getMyNotifications(userId: string, query: NotificationQueryDto) {
-        const page = query.page || 1;
-        const limit = query.limit || 10;
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 10;
         const skip = (page - 1) * limit;
 
         const [notifications, total] = await Promise.all([

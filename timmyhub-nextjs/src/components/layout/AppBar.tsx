@@ -4,6 +4,7 @@ import { Group, Box, Avatar, Text, Menu, UnstyledButton, ActionIcon, Divider, Br
 import { LanguageSwitcher, ThemeSwitcher } from '../shared';
 import { Logo } from '../common';
 import { CartBadge } from '../cart/CartBadge';
+import { NotificationBell } from './NotificationBell';
 import {
     IconSettings,
     IconLogout,
@@ -99,6 +100,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
             </Group>
 
             <Group gap="md">
+                {user && <NotificationBell />}
                 {!isAdminPage && <CartBadge />}
                 {user && !isAdminPage && (
                     user.roles?.includes(UserRole.SELLER) ? (
