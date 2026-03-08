@@ -28,29 +28,37 @@ export class AuditLogInterceptor implements NestInterceptor {
         return next.handle().pipe(
             tap({
                 next: () => {
-                    this.systemLogsService.logAction({
-                        userId: user?.id,
-                        action: auditOptions.action,
-                        entityType: this.getEntityType(url),
-                        entityId: params.id || body.id || null, // Extract ID from common paths
-                        metadata: { method, url, body, query, params },
-                        ipAddress: ip,
-                        userAgent,
-                        status: 'SUCCESS',
-                    });
+                    this.systemLogsService
+                        .logAction({
+                            userId: user?.id,
+                            action: auditOptions.action,
+                            entityType: this.getEntityType(url),
+                            entityId: params.id || body?.id || null,
+                            metadata: JSON.parse(
+                                JSON.stringify({ method, url, body, query, params }),
+                            ),
+                            ipAddress: ip,
+                            userAgent,
+                            status: 'SUCCESS',
+                        })
+                        .catch(err => console.error('[AUDIT] Failed to save log', err));
                 },
                 error: error => {
-                    this.systemLogsService.logAction({
-                        userId: user?.id,
-                        action: auditOptions.action,
-                        entityType: this.getEntityType(url),
-                        entityId: params.id || body.id || null,
-                        metadata: { method, url, body, query, params },
-                        ipAddress: ip,
-                        userAgent,
-                        status: 'FAILED',
-                        errorMessage: error.message,
-                    });
+                    this.systemLogsService
+                        .logAction({
+                            userId: user?.id,
+                            action: auditOptions.action,
+                            entityType: this.getEntityType(url),
+                            entityId: params.id || body?.id || null,
+                            metadata: JSON.parse(
+                                JSON.stringify({ method, url, body, query, params }),
+                            ),
+                            ipAddress: ip,
+                            userAgent,
+                            status: 'FAILED',
+                            errorMessage: error.message,
+                        })
+                        .catch(err => console.error('[AUDIT] Failed to save log', err));
                 },
             }),
         );
