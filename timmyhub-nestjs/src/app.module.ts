@@ -26,6 +26,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { MetricsMiddleware } from './common/middleware/metrics.middleware';
 import { ChatModule } from './chat/chat.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
     imports: [
@@ -78,6 +79,7 @@ import { ChatModule } from './chat/chat.module';
         SellerModule,
         ReviewsModule,
         ChatModule,
+        NotificationsModule,
     ],
     controllers: [AppController],
     providers: [

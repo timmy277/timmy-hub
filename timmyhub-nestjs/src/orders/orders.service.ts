@@ -1,14 +1,22 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { VouchersService } from '../vouchers/vouchers.service';
-import { OrderStatus, PaymentMethod, PaymentStatus, ResourceStatus } from '@prisma/client';
+import {
+    OrderStatus,
+    PaymentMethod,
+    PaymentStatus,
+    ResourceStatus,
+    NotificationType,
+} from '@prisma/client';
 import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class OrdersService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly vouchersService: VouchersService,
+        private readonly notificationsService: NotificationsService,
     ) {}
 
     async createFromCart(userId: string, dto: CreateOrderFromCartDto) {
@@ -103,6 +111,17 @@ export class OrdersService {
                 include: { orderItems: true },
             });
         });
+
+        // Bắn thông báo tạo đơn hàng
+        if (order) {
+            await this.notificationsService.create({
+                userId,
+                type: NotificationType.ORDER,
+                title: 'Đặt hàng thành công',
+                content: `Đơn hàng #${order.id.slice(-6).toUpperCase()} của bạn đã được đặt thành công.`,
+                link: `/profile/orders`,
+            });
+        }
 
         return order!;
     }
@@ -282,6 +301,15 @@ export class OrdersService {
                     });
                 }
             }
+
+            // Bắn thông báo cập nhật trạng thái đơn hàng
+            await this.notificationsService.create({
+                userId: updatedOrder.userId,
+                type: NotificationType.ORDER,
+                title: 'Cập nhật đơn hàng',
+                content: `Đơn hàng #${updatedOrder.id.slice(-6).toUpperCase()} đã chuyển sang trạng thái: ${status}.`,
+                link: `/profile/orders`,
+            });
 
             return updatedOrder;
         });

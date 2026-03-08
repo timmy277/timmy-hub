@@ -16,6 +16,8 @@ import { ChatService } from './chat.service';
 import { WsJwtGuard } from '../auth/guards/ws-jwt.guard';
 import { AuthenticatedUser } from '../auth/interfaces/auth.interface';
 import { JwtService } from '@nestjs/jwt';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '@prisma/client';
 
 @WebSocketGateway({
     cors: {
@@ -33,6 +35,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private readonly chatService: ChatService,
         private readonly jwtService: JwtService,
+        private readonly notificationsService: NotificationsService,
     ) {}
 
     async handleConnection(client: Socket) {
@@ -154,6 +157,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.server.to(`user_${data.receiverId}`).emit('chat:receive', message);
         // Gửi lại cho các tab khác của chính người gửi (để đồng bộ)
         this.server.to(`user_${user.id}`).emit('chat:receive', message);
+
+        // Bắn thông báo
+        await this.notificationsService.create({
+            userId: data.receiverId,
+            type: NotificationType.MESSAGE,
+            title: 'Tin nhắn mới',
+            content: `Bạn có tin nhắn mới từ ${user['profile']?.displayName || 'một người dùng'}`,
+            link: ``, // Tích hợp mở popup tin nhắn thì có thể không cần link
+        });
 
         return { status: 'ok', message };
     }
