@@ -286,17 +286,43 @@ function ReviewCard({
         commentMutation.mutate({ content: commentText, parentId: replyToId });
     };
 
+    const handleOpenChat = (userId: string, name: string, userAvatar: string | null | undefined) => {
+        window.dispatchEvent(
+            new CustomEvent('openChat', {
+                detail: {
+                    id: userId,
+                    name,
+                    avatar: userAvatar || null,
+                },
+            })
+        );
+    };
+
     return (
         <Paper withBorder radius="md" p="md">
             <Stack gap="xs">
                 {/* Header */}
                 <Group gap="sm" justify="space-between" wrap="nowrap">
                     <Group gap="sm" wrap="nowrap">
-                        <Avatar src={avatar} radius="xl" size="md" color="orange">
+                        <Avatar 
+                            src={avatar} 
+                            radius="xl" 
+                            size="md" 
+                            color="orange"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleOpenChat(review.userId, displayName, avatar)}
+                        >
                             {initials}
                         </Avatar>
                         <Box>
-                            <Text fw={600} size="sm">{displayName}</Text>
+                            <Text 
+                                fw={600} 
+                                size="sm" 
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => handleOpenChat(review.userId, displayName, avatar)}
+                            >
+                                {displayName}
+                            </Text>
                             <Text size="xs" c="dimmed">{timeAgo(review.createdAt)}</Text>
                         </Box>
                     </Group>
@@ -430,12 +456,26 @@ function ReviewCard({
                             {(review.comments || []).filter(cmt => !cmt.parentId).map(cmt => (
                                 <Box key={cmt.id}>
                                     <Group align="flex-start" gap="sm" wrap="nowrap">
-                                        <Avatar src={cmt.user.profile?.avatar} radius="xl" size="sm" color="blue">
+                                        <Avatar 
+                                            src={cmt.user.profile?.avatar} 
+                                            radius="xl" 
+                                            size="sm" 
+                                            color="blue"
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || 'Ẩn danh', cmt.user.profile?.avatar)}
+                                        >
                                             {cmt.user.profile?.displayName?.slice(0, 2).toUpperCase() || 'U'}
                                         </Avatar>
                                         <Box flex={1}>
                                             <Group gap="xs" align="baseline">
-                                                <Text fw={600} size="xs">{cmt.user.profile?.displayName || 'Ẩn danh'}</Text>
+                                                <Text 
+                                                    fw={600} 
+                                                    size="xs"
+                                                    style={{ cursor: 'pointer' }}
+                                                    onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || 'Ẩn danh', cmt.user.profile?.avatar)}
+                                                >
+                                                    {cmt.user.profile?.displayName || 'Ẩn danh'}
+                                                </Text>
                                                 <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>{timeAgo(cmt.createdAt)}</Text>
                                             </Group>
                                             <Text size="sm">{cmt.content}</Text>
@@ -460,12 +500,26 @@ function ReviewCard({
                                         <Stack gap="xs" mt="xs" ml={32}>
                                             {cmt.replies.map(reply => (
                                                 <Group key={reply.id} align="flex-start" gap="sm" wrap="nowrap">
-                                                    <Avatar src={reply.user.profile?.avatar} radius="xl" size="xs" color="gray">
+                                                    <Avatar 
+                                                        src={reply.user.profile?.avatar} 
+                                                        radius="xl" 
+                                                        size="xs" 
+                                                        color="gray"
+                                                        style={{ cursor: 'pointer' }}
+                                                        onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || 'Ẩn danh', reply.user.profile?.avatar)}
+                                                    >
                                                         {reply.user.profile?.displayName?.slice(0, 2).toUpperCase() || 'U'}
                                                     </Avatar>
                                                     <Box flex={1}>
                                                         <Group gap="xs" align="baseline">
-                                                            <Text fw={600} size="xs" style={{ fontSize: 11 }}>{reply.user.profile?.displayName || 'Ẩn danh'}</Text>
+                                                            <Text 
+                                                                fw={600} 
+                                                                size="xs" 
+                                                                style={{ fontSize: 11, cursor: 'pointer' }}
+                                                                onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || 'Ẩn danh', reply.user.profile?.avatar)}
+                                                            >
+                                                                {reply.user.profile?.displayName || 'Ẩn danh'}
+                                                            </Text>
                                                             <Text size="xs" c="dimmed" style={{ fontSize: 9 }}>{timeAgo(reply.createdAt)}</Text>
                                                         </Group>
                                                         <Text size="sm" style={{ fontSize: 13 }}>{reply.content}</Text>
