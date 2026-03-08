@@ -322,25 +322,42 @@ export class ReviewsService {
             },
         });
 
-        // Gửi thông báo
-        // Nếu là Reply, gửi thông báo cho user của parent comment. Nếu không, gửi cho user của review.
-        const targetUserId = parentId
-            ? (
-                  await this.prisma.reviewComment.findUnique({
-                      select: { userId: true },
-                      where: { id: parentId },
-                  })
-              )?.userId
-            : review.userId;
+        // Thông báo cho những người liên quan
+        const notificationsToSend: { userId: string; title: string }[] = [];
 
-        if (targetUserId && targetUserId !== userId) {
-            const senderName = comment.user.profile?.displayName || 'Ai đó';
-            await this.notificationsService.create({
-                userId: targetUserId,
-                type: NotificationType.REVIEW,
+        // 1. Nếu là reply, gửi cho chủ nhân của comment gốc
+        let parentUserId: string | null = null;
+        if (parentId) {
+            const parentComment = await this.prisma.reviewComment.findUnique({
+                select: { userId: true },
+                where: { id: parentId },
+            });
+            parentUserId = parentComment?.userId || null;
+            if (parentUserId && parentUserId !== userId) {
+                notificationsToSend.push({
+                    userId: parentUserId,
+                    title: 'Có người vừa phản hồi bình luận của bạn',
+                });
+            }
+        }
+
+        // 2. Gửi cho chủ nhân bài đánh giá (nếu họ không phải là người comment và không trùng với người nhận ở trên)
+        if (review.userId !== userId && review.userId !== parentUserId) {
+            notificationsToSend.push({
+                userId: review.userId,
                 title: parentId
-                    ? 'Có người vừa phản hồi bình luận của bạn'
+                    ? 'Có người vừa bình luận thêm vào đánh giá của bạn'
                     : 'Có người vừa bình luận đánh giá của bạn',
+            });
+        }
+
+        // 3. Thực hiện đẩy Notification
+        const senderName = comment.user.profile?.displayName || 'Ai đó';
+        for (const notif of notificationsToSend) {
+            await this.notificationsService.create({
+                userId: notif.userId,
+                type: NotificationType.REVIEW,
+                title: notif.title,
                 content: `${senderName}: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`,
                 link: `/product/${review.product.slug}`,
             });

@@ -523,6 +523,18 @@ function ReviewCard({
                                                             <Text size="xs" c="dimmed" style={{ fontSize: 9 }}>{timeAgo(reply.createdAt)}</Text>
                                                         </Group>
                                                         <Text size="sm" style={{ fontSize: 13 }}>{reply.content}</Text>
+                                                        <Text 
+                                                            size="xs" 
+                                                            c="orange" 
+                                                            style={{ cursor: 'pointer', marginTop: 4, display: 'inline-block' }}
+                                                            onClick={() => {
+                                                                setReplyToId(cmt.id);
+                                                                setCommentText(`@${reply.user.profile?.displayName || 'Ẩn danh'} `);
+                                                                inputRef.current?.focus();
+                                                            }}
+                                                        >
+                                                            Phản hồi
+                                                        </Text>
                                                     </Box>
                                                 </Group>
                                             ))}
