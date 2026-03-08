@@ -27,6 +27,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { MetricsMiddleware } from './common/middleware/metrics.middleware';
 import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { WishlistsModule } from './wishlists/wishlists.module';
 
 @Module({
     imports: [
@@ -80,6 +81,7 @@ import { NotificationsModule } from './notifications/notifications.module';
         ReviewsModule,
         ChatModule,
         NotificationsModule,
+        WishlistsModule,
     ],
     controllers: [AppController],
     providers: [

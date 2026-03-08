@@ -21,6 +21,7 @@ import { m } from 'framer-motion';
 import Link from 'next/link';
 import { Product } from '@/types/product';
 import { AddToCartButton } from '@/components/cart/AddToCartButton';
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
 
 interface ProductCardProps {
     product: Product;
@@ -189,9 +190,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                         )}
                                     </Stack>
                                     <Group>
-                                        <Button variant="light" color="gray" leftSection={<IconHeart size={16} />}>
-                                            Yêu thích
-                                        </Button>
+                                        <WishlistButton productId={product.id} variantType="button" />
                                         <AddToCartButton
                                             productId={product.id}
                                             variant="button"
@@ -251,18 +250,12 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                 -{discountPercentage}%
                             </Badge>
                         )}
-                        <ActionIcon
-                            variant="light"
-                            color="red"
-                            radius="xl"
-                            size="lg"
-                            pos="absolute"
-                            bottom={10}
-                            right={10}
-                            style={{ zIndex: 1 }}
-                        >
-                            <IconHeart size={18} />
-                        </ActionIcon>
+                        <WishlistButton 
+                            productId={product.id} 
+                            pos="absolute" 
+                            bottom={10} 
+                            right={10} 
+                        />
                     </Box>
                 </Card.Section>
                 <Flex direction="column" style={{ flex: 1 }} mt="md">

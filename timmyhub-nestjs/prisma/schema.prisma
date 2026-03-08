@@ -44,6 +44,7 @@ model User {
   reviewComments     ReviewComment[]
   sentMessages       ChatMessage[]       @relation("SentMessages")
   receivedMessages   ChatMessage[]       @relation("ReceivedMessages")
+  wishlistItems      WishlistItem[]
 
   @@index([email])
   @@index([phone])
@@ -261,6 +262,7 @@ model Product {
   sellerProfile   SellerProfile?   @relation(fields: [sellerProfileId], references: [id])
   variants        ProductVariant[]
   reviews         Review[]
+  wishlistedBy    WishlistItem[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -490,6 +492,20 @@ model ReviewHelpfulVote {
 
   @@unique([reviewId, userId])
   @@index([userId])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
 }
 
 model Wallet {

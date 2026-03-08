@@ -26,6 +26,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Product } from '@/types/product';
 import { ProductImageGallery } from './ProductImageGallery';
 import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
 import { ReviewList } from '@/features/reviews';
 
 interface ProductDetailClientProps {
@@ -117,10 +118,13 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                             )}
                         </Group>
 
-                        {/* Title */}
-                        <Title order={1} size="h2">
-                            {product.name}
-                        </Title>
+                        {/* Title and Wishlist */}
+                        <Group justify="space-between" align="flex-start" wrap="nowrap">
+                            <Title order={1} size="h2" style={{ flex: 1 }}>
+                                {product.name}
+                            </Title>
+                            <WishlistButton productId={product.id} variantType="icon" size="xl" />
+                        </Group>
 
                         {/* Rating & Sold */}
                         <Group gap="lg">
