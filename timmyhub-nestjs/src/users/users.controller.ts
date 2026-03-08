@@ -5,12 +5,16 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permissions } from '../common/decorators/permissions.decorator';
 import { ResponseDto } from '../common/dto/response.dto';
+import { UseInterceptors } from '@nestjs/common';
+import { AuditLogInterceptor } from '../common/interceptors/audit-log.interceptor';
+import { AuditAction } from '../common/decorators/audit-action.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseInterceptors(AuditLogInterceptor)
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
@@ -18,6 +22,7 @@ export class UsersController {
     @Post()
     @Permissions('users:create')
     @ApiOperation({ summary: 'Tạo người dùng mới' })
+    @AuditAction('CREATE_USER')
     async createUser(@Body() dto: CreateUserDto) {
         const user = await this.usersService.create(dto);
         return ResponseDto.success('Tạo người dùng thành công', user);
@@ -42,6 +47,7 @@ export class UsersController {
     @Post(':id/roles')
     @Permissions('users:update')
     @ApiOperation({ summary: 'Gán vai trò hệ thống cho người dùng' })
+    @AuditAction('ASSIGN_ROLE')
     async assignRoles(@Param('id') id: string, @Body('roleNames') roleNames: string[]) {
         await this.usersService.assignRoles(id, roleNames);
         return ResponseDto.success('Gán vai trò thành công');
@@ -50,6 +56,7 @@ export class UsersController {
     @Patch(':id/toggle-status')
     @Permissions('users:update')
     @ApiOperation({ summary: 'Kích hoạt/Khóa tài khoản người dùng' })
+    @AuditAction('TOGGLE_USER_STATUS')
     async toggleStatus(@Param('id') id: string) {
         const user = await this.usersService.toggleActive(id);
         return ResponseDto.success(
@@ -60,6 +67,7 @@ export class UsersController {
     @Patch(':id')
     @Permissions('users:update')
     @ApiOperation({ summary: 'Cập nhật thông tin người dùng' })
+    @AuditAction('UPDATE_USER')
     async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
         const user = await this.usersService.update(id, dto);
         return ResponseDto.success('Cập nhật người dùng thành công', user);

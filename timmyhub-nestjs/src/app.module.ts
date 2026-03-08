@@ -28,6 +28,7 @@ import { MetricsMiddleware } from './common/middleware/metrics.middleware';
 import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
+import { SystemLogsModule } from './system-logs/system-logs.module';
 
 @Module({
     imports: [
@@ -82,6 +83,7 @@ import { WishlistsModule } from './wishlists/wishlists.module';
         ChatModule,
         NotificationsModule,
         WishlistsModule,
+        SystemLogsModule,
     ],
     controllers: [AppController],
     providers: [

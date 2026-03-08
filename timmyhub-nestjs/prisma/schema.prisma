@@ -45,6 +45,7 @@ model User {
   sentMessages       ChatMessage[]       @relation("SentMessages")
   receivedMessages   ChatMessage[]       @relation("ReceivedMessages")
   wishlistItems      WishlistItem[]
+  systemLogs         SystemLog[]
 
   @@index([email])
   @@index([phone])
@@ -608,4 +609,30 @@ enum TransactionType {
   COMMISSION
   REWARD
   FEE
+}
+
+model SystemLog {
+  id           String    @id @default(cuid())
+  userId       String?
+  action       String // e.g., DELETE_USER, CANCEL_ORDER, UPDATE_ROLE
+  entityType   String? // e.g., User, Order
+  entityId     String?
+  metadata     Json? // Stores detailed changes or additional info
+  ipAddress    String?
+  userAgent    String?
+  status       LogStatus @default(SUCCESS)
+  errorMessage String?
+  createdAt    DateTime  @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+enum LogStatus {
+  SUCCESS
+  FAILED
 }

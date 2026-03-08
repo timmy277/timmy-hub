@@ -10,8 +10,12 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { User } from '@prisma/client';
 import { ResponseDto } from '../common/dto/response.dto';
 import { OrderStatus } from '@prisma/client';
+import { UseInterceptors } from '@nestjs/common';
+import { AuditLogInterceptor } from '../common/interceptors/audit-log.interceptor';
+import { AuditAction } from '../common/decorators/audit-action.decorator';
 
 @ApiTags('Orders')
+@UseInterceptors(AuditLogInterceptor)
 @Controller('orders')
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) {}
@@ -61,6 +65,7 @@ export class OrdersController {
     @Permissions('orders:process')
     @ApiBearerAuth()
     @ApiOperation({ summary: '[Admin] Cập nhật trạng thái đơn hàng' })
+    @AuditAction('UPDATE_ORDER_STATUS')
     async updateStatusAdmin(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
         const order = await this.ordersService.updateStatus(id, dto.status);
         return ResponseDto.success('Cập nhật trạng thái thành công', order);

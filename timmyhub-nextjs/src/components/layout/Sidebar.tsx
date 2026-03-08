@@ -86,6 +86,12 @@ const getMockData = (t: TFunction): SidebarItem[] => [
                 icon: IconKey,
                 permission: { action: Action.Read, subject: 'Permission' },
             },
+            {
+                label: 'System Logs',
+                link: '/admin/system-logs',
+                icon: IconCalendarStats,
+                permission: { action: Action.Read, subject: 'SystemRole' },
+            },
         ],
     },
     {
