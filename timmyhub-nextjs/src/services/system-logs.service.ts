@@ -32,6 +32,6 @@ export interface GetSystemLogsParams {
 export const systemLogsService = {
     getLogs: async (params?: GetSystemLogsParams) => {
         const response = await api.get('/system-logs', { params });
-        return response.data;
+        return response;
     },
 };

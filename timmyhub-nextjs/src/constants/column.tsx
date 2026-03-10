@@ -1,6 +1,16 @@
-import { Badge, Group, ActionIcon, Tooltip, Avatar, Stack, Text, Image } from '@mantine/core';
+import { Badge, Group, ActionIcon, Tooltip, Avatar, Stack, Text, Image, Flex } from '@mantine/core';
 import NextImage from 'next/image';
-import { IconEye, IconEdit, IconLock, IconLockOpen, IconCheck, IconX, IconStar, IconMessage } from '@tabler/icons-react';
+import {
+    IconEye,
+    IconEdit,
+    IconLock,
+    IconLockOpen,
+    IconCheck,
+    IconX,
+    IconStar,
+    IconMessage,
+    IconInfoCircle,
+} from '@tabler/icons-react';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { User } from '@/types/auth';
 import { Role, Permission } from '@/types/rbac';
@@ -11,6 +21,8 @@ import { UserRole } from '@/types/enums';
 import { TFunction } from 'i18next';
 import { formatDate } from '@/utils/date';
 import { IconTrash } from '@tabler/icons-react';
+import dayjs from 'dayjs';
+import type { SystemLog as SystemLogType } from '@/services/system-logs.service';
 
 export interface ActionColumnProps<T> {
     onDetail?: (data: T) => void;
@@ -817,4 +829,84 @@ export const createOrderColumns = (options: ColumnConfigOptions): ColDef<Order>[
         },
     ];
 };
+
+// ===== System Log Columns =====
+
+export const createSystemLogColumns = (
+    handleDetail: (log: SystemLogType) => void,
+): ColDef<SystemLogType>[] => [
+        {
+            field: 'createdAt',
+            headerName: 'Thời gian',
+            width: 170,
+            valueFormatter: params =>
+                params.value ? dayjs(params.value as string).format('DD/MM/YYYY HH:mm:ss') : '',
+        },
+        {
+            field: 'user',
+            headerName: 'Người thực hiện',
+            width: 250,
+            cellRenderer: (params: ICellRendererParams<SystemLogType>) => {
+                const user = params.data?.user;
+                if (!user) {
+                    return (
+                        <Text size="sm" c="dimmed">
+                            Hệ thống
+                        </Text>
+                    );
+                }
+
+                return (
+                    <Flex direction="column">
+                        <Text size="sm" fw={500}>
+                            {user.profile?.lastName} {user.profile?.firstName}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                            {user.email}
+                        </Text>
+                    </Flex>
+                );
+            },
+        },
+        { field: 'action', headerName: 'Hành động', width: 220 },
+        { field: 'entityType', headerName: 'Loại Data', width: 140 },
+        { field: 'entityId', headerName: 'Data ID', width: 200 },
+        {
+            field: 'status',
+            headerName: 'Trạng thái',
+            width: 140,
+            cellRenderer: (params: ICellRendererParams<SystemLogType>) => (
+                <Badge color={params.value === 'SUCCESS' ? 'green' : 'red'}>
+                    {params.value as string}
+                </Badge>
+            ),
+        },
+        { field: 'ipAddress', headerName: 'IP', width: 150 },
+        {
+            field: 'metadata',
+            headerName: 'Chi tiết (Metadata)',
+            width: 180,
+            cellRenderer: (params: ICellRendererParams<SystemLogType>) => {
+                const value = params.value as Record<string, unknown> | undefined;
+                if (!value || Object.keys(value).length === 0) return '-';
+
+                return (
+                    <ActionIcon
+                        variant="light"
+                        color="blue"
+                        onClick={e => {
+                            e.stopPropagation();
+                            if (params.data) {
+                                handleDetail(params.data);
+                            }
+                        }}
+                        aria-label="Xem chi tiết metadata"
+                    >
+                        <IconInfoCircle size="1rem" />
+                    </ActionIcon>
+                );
+            },
+        },
+    ];
+
 
