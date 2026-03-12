@@ -135,6 +135,18 @@ const getMockData = (t: TFunction): SidebarItem[] => [
                 icon: IconBuildingStore,
                 permission: { action: Action.Read, subject: 'User' },
             },
+            {
+                label: 'Voucher',
+                link: '/admin/vouchers',
+                icon: IconTicket,
+                permission: { action: Action.Read, subject: 'Product' },
+            },
+            {
+                label: 'Khuyến mãi',
+                link: '/admin/campaigns',
+                icon: IconDiscount,
+                permission: { action: Action.Read, subject: 'Product' },
+            },
         ],
     },
     {

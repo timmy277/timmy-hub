@@ -38,6 +38,21 @@ export const voucherService = {
         return axios.get('/vouchers/me') as Promise<ApiResponse<Voucher[]>>;
     },
 
+    /**
+     * Lấy danh sách voucher public cho trang home
+     * Chỉ lấy các voucher: đang hoạt động, còn hạn sử dụng, không thuộc seller cụ thể
+     */
+    async getPublicVouchers(): Promise<ApiResponse<Voucher[]>> {
+        return axios.get('/vouchers/public') as Promise<ApiResponse<Voucher[]>>;
+    },
+
+    /**
+     * Lấy danh sách voucher theo campaign ID
+     */
+    async getVouchersByCampaign(campaignId: string): Promise<ApiResponse<Voucher[]>> {
+        return axios.get('/vouchers', { params: { campaignId } }) as Promise<ApiResponse<Voucher[]>>;
+    },
+
     async validate(
         code: string,
         paymentMethod?: string,

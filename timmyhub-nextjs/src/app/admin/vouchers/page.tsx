@@ -112,6 +112,18 @@ export default function AdminVouchersPage() {
                     </Text>
                 ),
             },
+            {
+                headerName: 'Campaign',
+                field: 'campaign',
+                width: 150,
+                cellRenderer: (params: ICellRendererParams) => (
+                    params.value?.name ? (
+                        <Text size="sm" c="teal">{params.value.name}</Text>
+                    ) : (
+                        <Text size="sm" c="dimmed">-</Text>
+                    )
+                ),
+            },
             { headerName: 'Mã', field: 'code', width: 150, cellStyle: { fontWeight: 600 } },
             {
                 headerName: 'Loại',

@@ -8,16 +8,29 @@ import {
     Divider,
     SimpleGrid,
     Box,
+    ThemeIcon,
+    Table,
 } from '@mantine/core';
-import { IconInfoCircle, IconSettings, IconCalendar, IconDiscount } from '@tabler/icons-react';
+import { IconInfoCircle, IconSettings, IconCalendar, IconDiscount, IconTicket } from '@tabler/icons-react';
 import { Campaign } from '@/services/campaign.service';
+import { voucherService } from '@/services/voucher.service';
+import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+import { Loader, Center } from '@mantine/core';
 
 interface CampaignDetailProps {
     campaign: Campaign;
 }
 
 export function CampaignDetail({ campaign }: CampaignDetailProps) {
+    const { data: vouchersRes, isLoading: isLoadingVouchers } = useQuery({
+        queryKey: ['vouchers-by-campaign', campaign.id],
+        queryFn: () => voucherService.getVouchersByCampaign(campaign.id),
+        enabled: !!campaign.id,
+    });
+
+    const vouchers = vouchersRes?.data || [];
+
     return (
         <Box mt="md" maw={800}>
             <Stack gap="lg">
@@ -55,7 +68,6 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                                 <Text fw={500}>Cài đặt</Text>
                             </Group>
                             <Box ml={26}>
-                                {/* Placeholder for other specific settings */}
                                 <Text size="sm"><Text component="span" fw={500}>Tự động kích hoạt:</Text> {campaign.isActive ? 'Có' : 'Không'}</Text>
                             </Box>
                         </Stack>
@@ -80,6 +92,80 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                             <Text size="sm" fw={500}>{dayjs(campaign.endDate).format('DD/MM/YYYY HH:mm')}</Text>
                         </Stack>
                     </Group>
+                </Stack>
+
+                <Divider />
+
+                <Stack gap="md">
+                    <Group gap="xs">
+                        <ThemeIcon size={24} radius="xl" color="teal" variant="light">
+                            <IconTicket size={14} />
+                        </ThemeIcon>
+                        <Text fw={500}>Vouchers trong chương trình</Text>
+                        <Badge size="sm" variant="outline">{vouchers.length}</Badge>
+                    </Group>
+                    
+                    {isLoadingVouchers ? (
+                        <Center py="md">
+                            <Loader size="sm" />
+                        </Center>
+                    ) : vouchers.length > 0 ? (
+                        <Table striped highlightOnHover withTableBorder withColumnBorders>
+                            <Table.Thead>
+                                <Table.Tr>
+                                    <Table.Th>Mã</Table.Th>
+                                    <Table.Th>Loại</Table.Th>
+                                    <Table.Th>Giá trị</Table.Th>
+                                    <Table.Th>Đã dùng</Table.Th>
+                                    <Table.Th>Hạn sử dụng</Table.Th>
+                                    <Table.Th>Trạng thái</Table.Th>
+                                </Table.Tr>
+                            </Table.Thead>
+                            <Table.Tbody>
+                                {vouchers.map((voucher) => (
+                                    <Table.Tr key={voucher.id}>
+                                        <Table.Td>
+                                            <Text fw={600} size="sm">{voucher.code}</Text>
+                                        </Table.Td>
+                                        <Table.Td>
+                                            <Text size="sm">
+                                                {voucher.type === 'PERCENTAGE' ? 'Giảm %' : 
+                                                 voucher.type === 'FREE_SHIPPING' ? 'Freeship' : 'Giảm tiền'}
+                                            </Text>
+                                        </Table.Td>
+                                        <Table.Td>
+                                            <Text size="sm">
+                                                {voucher.type === 'PERCENTAGE' 
+                                                    ? `${voucher.value}%` 
+                                                    : voucher.type === 'FREE_SHIPPING'
+                                                        ? 'Miễn phí ship'
+                                                        : `${voucher.value.toLocaleString()}đ`}
+                                            </Text>
+                                        </Table.Td>
+                                        <Table.Td>
+                                            <Text size="sm">
+                                                {voucher.usedCount} {voucher.usageLimit ? `/ ${voucher.usageLimit}` : ''}
+                                            </Text>
+                                        </Table.Td>
+                                        <Table.Td>
+                                            <Text size="sm">{dayjs(voucher.endDate).format('DD/MM/YYYY')}</Text>
+                                        </Table.Td>
+                                        <Table.Td>
+                                            <Badge size="sm" color={voucher.isActive ? 'green' : 'gray'}>
+                                                {voucher.isActive ? 'Hoạt động' : 'Tắt'}
+                                            </Badge>
+                                        </Table.Td>
+                                    </Table.Tr>
+                                ))}
+                            </Table.Tbody>
+                        </Table>
+                    ) : (
+                        <Paper p="md" withBorder radius="md" bg="gray.0">
+                            <Text size="sm" c="dimmed" ta="center">
+                                Chưa có voucher nào trong chương trình này
+                            </Text>
+                        </Paper>
+                    )}
                 </Stack>
             </Stack>
         </Box>
