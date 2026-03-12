@@ -62,63 +62,53 @@ const getMockData = (t: TFunction): SidebarItem[] => [
         icon: IconGauge,
         link: '/admin',
     },
+    // ===== QUẢN LÝ HỆ THỐNG =====
     {
-        label: t('sidebar.admin'),
+        label: 'Quản lý hệ thống',
         icon: IconFingerprint,
         initiallyOpened: true,
         permission: { action: Action.Read, subject: 'SystemRole' },
         links: [
             {
-                label: t('sidebar.roles'),
+                label: 'Vai trò & Quyền',
                 link: '/admin/roles',
                 icon: IconShieldLock,
                 permission: { action: Action.Read, subject: 'SystemRole' },
             },
             {
-                label: t('sidebar.users'),
+                label: 'Người dùng',
                 link: '/admin/users',
                 icon: IconUsers,
                 permission: { action: Action.Read, subject: 'User' },
             },
             {
-                label: t('sidebar.permissions'),
+                label: 'Quyền hệ thống',
                 link: '/admin/permissions',
                 icon: IconKey,
                 permission: { action: Action.Read, subject: 'Permission' },
             },
             {
-                label: 'System Logs',
+                label: 'Nhật ký hệ thống',
                 link: '/admin/system-logs',
                 icon: IconCalendarStats,
                 permission: { action: Action.Read, subject: 'SystemRole' },
             },
         ],
     },
+    // ===== BÁN HÀNG =====
     {
-        label: t('sidebar.ecommerce'),
+        label: 'Bán hàng',
         icon: IconShoppingCart,
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
-                label: t('sidebar.products'),
-                link: '/admin/products',
-                icon: IconPackage,
-                permission: { action: Action.Read, subject: 'Product' },
-            },
-            {
-                label: t('sidebar.categories'),
-                link: '/admin/categories',
-                icon: IconTags,
-                permission: { action: Action.Read, subject: 'Category' },
-            },
-            {
-                label: t('sidebar.orders'),
+                label: 'Đơn hàng',
                 link: '/admin/orders',
                 icon: IconCalendarStats,
                 permission: { action: Action.Read, subject: 'Order' },
             },
             {
-                label: t('sidebar.customers'),
+                label: 'Khách hàng',
                 link: '/admin/customers',
                 icon: IconUsers,
                 permission: { action: Action.Read, subject: 'User' },
@@ -129,11 +119,45 @@ const getMockData = (t: TFunction): SidebarItem[] => [
                 icon: IconMessages,
                 permission: { action: Action.Read, subject: 'User' },
             },
+        ],
+    },
+    // ===== SẢN PHẨM =====
+    {
+        label: 'Sản phẩm',
+        icon: IconPackage,
+        permission: { action: Action.Read, subject: 'Product' },
+        links: [
             {
-                label: 'Quản lý seller',
+                label: 'Danh sách sản phẩm',
+                link: '/admin/products',
+                icon: IconPackage,
+                permission: { action: Action.Read, subject: 'Product' },
+            },
+            {
+                label: 'Danh mục',
+                link: '/admin/categories',
+                icon: IconTags,
+                permission: { action: Action.Read, subject: 'Category' },
+            },
+            {
+                label: 'Quản lý Seller',
                 link: '/admin/seller-applications',
                 icon: IconBuildingStore,
                 permission: { action: Action.Read, subject: 'User' },
+            },
+        ],
+    },
+    // ===== KHUYẾN MÃI =====
+    {
+        label: 'Khuyến mãi',
+        icon: IconDiscount,
+        permission: { action: Action.Read, subject: 'Product' },
+        links: [
+            {
+                label: 'Chương trình KM',
+                link: '/admin/campaigns',
+                icon: IconDiscount,
+                permission: { action: Action.Read, subject: 'Product' },
             },
             {
                 label: 'Voucher',
@@ -141,14 +165,9 @@ const getMockData = (t: TFunction): SidebarItem[] => [
                 icon: IconTicket,
                 permission: { action: Action.Read, subject: 'Product' },
             },
-            {
-                label: 'Khuyến mãi',
-                link: '/admin/campaigns',
-                icon: IconDiscount,
-                permission: { action: Action.Read, subject: 'Product' },
-            },
         ],
     },
+    // ===== CÀI ĐẶT =====
     {
         label: t('sidebar.settings'),
         icon: IconSettings,
@@ -277,13 +296,13 @@ function SidebarNavLink({
     const commonProps = {
         label: (
             <Box
-                className="overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap"
+                className="overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap ml-1"
                 style={{
                     maxWidth: collapsed ? 0 : '200px',
                     opacity: collapsed ? 0 : 1,
                 }}
             >
-                <Text size="sm" fw={600} className="pl-1.5">
+                <Text size="sm" fw={600} className="pl-1">
                     {item.label}
                 </Text>
             </Box>

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Public_Sans, Barlow } from 'next/font/google';
 import '@mantine/core/styles.css';
 import '@mantine/carousel/styles.css';
 import '@mantine/notifications/styles.css';
@@ -8,14 +8,17 @@ import './globals.css';
 import { ColorSchemeScript } from '@mantine/core';
 import { AppProvider } from '@/components';
 
-const geistSans = Geist({
-    variable: '--font-geist-sans',
+const publicSans = Public_Sans({
+    variable: '--font-public-sans',
     subsets: ['latin'],
+    display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
+const barlow = Barlow({
+    weight: ['900'],
     subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-barlow',
 });
 
 export const viewport = 'width=device-width, initial-scale=1, maximum-scale=1';
@@ -44,7 +47,7 @@ export default function RootLayout({
             <head>
                 <ColorSchemeScript />
             </head>
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <body className={`${publicSans.variable} ${barlow.variable} antialiased font-public-sans`}>
                 <AppProvider>{children}</AppProvider>
             </body>
         </html>

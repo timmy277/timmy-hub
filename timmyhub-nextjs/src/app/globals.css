@@ -1,5 +1,16 @@
 @import 'tailwindcss';
 
+/* Font families */
+.font-public-sans {
+    font-family:
+        var(--font-public-sans),
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
+}
+
 /* Product card - tên sản phẩm hover effect */
 .product-name-link:hover {
     color: var(--mantine-primary-color-6) !important;
