@@ -14,7 +14,7 @@ interface UserLayoutProps {
 
 export function UserLayout({ children }: UserLayoutProps) {
     return (
-        <AppShell header={{ height: 70 }} padding="md">
+        <AppShell header={{ height: 60 }} padding="md">
             <AppShell.Header
                 style={{
                     boxShadow: 'light-dark(0 4px 12px rgba(0, 0, 0, 0.05), none)',

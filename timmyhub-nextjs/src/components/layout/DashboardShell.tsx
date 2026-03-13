@@ -30,7 +30,7 @@ export function DashboardShell({ children, withFooter = true }: DashboardShellPr
         <AppShell
             id="main-app-shell"
             layout="alt"
-            header={{ height: 70 }}
+            header={{ height: 60 }}
             navbar={{
                 width: navbarWidth,
                 breakpoint: 'sm',
@@ -54,7 +54,7 @@ export function DashboardShell({ children, withFooter = true }: DashboardShellPr
                 }}
             >
                 {/* Content Area */}
-                <div style={{ flex: 1 }}>{children}</div>
+                <div className='flex-1'>{children}</div>
 
                 {/* Footer Section */}
                 {withFooter && <Footer />}

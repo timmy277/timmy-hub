@@ -14,6 +14,7 @@
     "dependencies": {
         "@casl/ability": "^6.8.0",
         "@casl/react": "^5.0.1",
+        "@iconify/react": "^6.0.2",
         "@mantine/carousel": "^8.3.15",
         "@mantine/core": "^8.3.15",
         "@mantine/dates": "^8.3.15",

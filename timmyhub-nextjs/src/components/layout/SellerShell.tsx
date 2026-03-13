@@ -48,7 +48,7 @@ export function SellerShell({ children, withFooter = true }: SellerShellProps) {
                         'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-8))',
                 }}
             >
-                <div style={{ flex: 1 }}>{children}</div>
+                <div className='flex-1'>{children}</div>
                 {withFooter && (
                     <footer style={{ padding: 'var(--mantine-spacing-md)', borderTop: '1px solid var(--mantine-color-default-border)' }}>
                         <small style={{ color: 'var(--mantine-color-dimmed)' }}>

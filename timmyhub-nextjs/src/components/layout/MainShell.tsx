@@ -16,16 +16,16 @@ export function MainShell({ children }: MainShellProps) {
     const isDark = computedColorScheme === 'dark';
 
     return (
-        <AppShell header={{ height: 70 }} padding="md">
-            <AppShell.Header 
-                withBorder={isDark} 
+        <AppShell header={{ height: 60 }} padding="md">
+            <AppShell.Header
+                withBorder={isDark}
                 style={{ boxShadow: isDark ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.05)' }}
             >
                 <AppBar withSidebarToggle={false} />
             </AppShell.Header>
 
             <AppShell.Main display="flex" style={{ flexDirection: 'column', minHeight: '100vh' }}>
-                <div style={{ flex: 1 }}>{children}</div>
+                <div className='flex-1'>{children}</div>
                 <Footer />
             </AppShell.Main>
         </AppShell>

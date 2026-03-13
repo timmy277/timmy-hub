@@ -6,40 +6,22 @@ import { Stack, Tooltip, rem, NavLink, Box, Text, Menu, Collapse } from '@mantin
 import { useMounted } from '@mantine/hooks';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-    IconGauge,
-    IconCalendarStats,
-    IconUser,
-    IconSettings,
-    IconChevronRight,
-    IconShoppingCart,
-    IconPackage,
-    IconUsers,
-    IconFingerprint,
-    IconProps,
-    IconTags,
-    IconShieldLock,
-    IconKey,
-    IconBuildingStore,
-    IconTicket,
-    IconDiscount,
-    IconMessages,
-} from '@tabler/icons-react';
+import Iconify from '../iconify/Iconify';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import { useAbility } from '@/contexts/AbilityContext';
 import { Action, Subject } from '@/libs/ability';
 
-type TablerIcon = React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>;
+type IconType = string;
 
 // ===== Types & Constants =====
 interface SidebarItem {
-    icon: TablerIcon;
+    icon: IconType;
     label: string;
     link?: string;
     initiallyOpened?: boolean;
-    links?: { label: string; link: string; icon: TablerIcon; permission?: PermissionCheck }[];
+    links?: { label: string; link: string; icon: IconType; permission?: PermissionCheck }[];
     permission?: PermissionCheck;
 }
 
@@ -50,47 +32,47 @@ interface PermissionCheck {
 
 /** Sidebar cho khu vực seller (không dùng permission, tránh 403 khi click) */
 const getSellerSidebarData = (): SidebarItem[] => [
-    { label: 'Tổng quan', icon: IconGauge, link: '/seller' },
-    { label: 'Sản phẩm', icon: IconPackage, link: '/seller/products' },
-    { label: 'Voucher', icon: IconTicket, link: '/seller/vouchers' },
-    { label: 'Khuyến mãi', icon: IconDiscount, link: '/seller/campaigns' },
+    { label: 'Tổng quan', icon: 'tabler:gauge', link: '/seller' },
+    { label: 'Sản phẩm', icon: 'tabler:package', link: '/seller/products' },
+    { label: 'Voucher', icon: 'tabler:ticket', link: '/seller/vouchers' },
+    { label: 'Khuyến mãi', icon: 'tabler:discount', link: '/seller/campaigns' },
 ];
 
 const getMockData = (t: TFunction): SidebarItem[] => [
     {
         label: t('sidebar.dashboard'),
-        icon: IconGauge,
+        icon: 'tabler:gauge',
         link: '/admin',
     },
     // ===== QUẢN LÝ HỆ THỐNG =====
     {
         label: 'Quản lý hệ thống',
-        icon: IconFingerprint,
+        icon: 'tabler:fingerprint',
         initiallyOpened: true,
         permission: { action: Action.Read, subject: 'SystemRole' },
         links: [
             {
                 label: 'Vai trò & Quyền',
                 link: '/admin/roles',
-                icon: IconShieldLock,
+                icon: 'tabler:shield-check',
                 permission: { action: Action.Read, subject: 'SystemRole' },
             },
             {
                 label: 'Người dùng',
                 link: '/admin/users',
-                icon: IconUsers,
+                icon: 'tabler:users',
                 permission: { action: Action.Read, subject: 'User' },
             },
             {
                 label: 'Quyền hệ thống',
                 link: '/admin/permissions',
-                icon: IconKey,
+                icon: 'tabler:key',
                 permission: { action: Action.Read, subject: 'Permission' },
             },
             {
                 label: 'Nhật ký hệ thống',
                 link: '/admin/system-logs',
-                icon: IconCalendarStats,
+                icon: 'tabler:calendar-stats',
                 permission: { action: Action.Read, subject: 'SystemRole' },
             },
         ],
@@ -98,25 +80,25 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     // ===== BÁN HÀNG =====
     {
         label: 'Bán hàng',
-        icon: IconShoppingCart,
+        icon: 'tabler:shopping-cart',
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
                 label: 'Đơn hàng',
                 link: '/admin/orders',
-                icon: IconCalendarStats,
+                icon: 'tabler:shopping-cart',
                 permission: { action: Action.Read, subject: 'Order' },
             },
             {
                 label: 'Khách hàng',
                 link: '/admin/customers',
-                icon: IconUsers,
+                icon: 'tabler:users',
                 permission: { action: Action.Read, subject: 'User' },
             },
             {
                 label: 'Trò chuyện',
                 link: '/admin/chat',
-                icon: IconMessages,
+                icon: 'tabler:messages',
                 permission: { action: Action.Read, subject: 'User' },
             },
         ],
@@ -124,25 +106,25 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     // ===== SẢN PHẨM =====
     {
         label: 'Sản phẩm',
-        icon: IconPackage,
+        icon: 'tabler:package',
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
                 label: 'Danh sách sản phẩm',
                 link: '/admin/products',
-                icon: IconPackage,
+                icon: 'tabler:package',
                 permission: { action: Action.Read, subject: 'Product' },
             },
             {
                 label: 'Danh mục',
                 link: '/admin/categories',
-                icon: IconTags,
+                icon: 'tabler:tags',
                 permission: { action: Action.Read, subject: 'Category' },
             },
             {
                 label: 'Quản lý Seller',
                 link: '/admin/seller-applications',
-                icon: IconBuildingStore,
+                icon: 'tabler:building-store',
                 permission: { action: Action.Read, subject: 'User' },
             },
         ],
@@ -150,19 +132,19 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     // ===== KHUYẾN MÃI =====
     {
         label: 'Khuyến mãi',
-        icon: IconDiscount,
+        icon: 'tabler:discount',
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
                 label: 'Chương trình KM',
                 link: '/admin/campaigns',
-                icon: IconDiscount,
+                icon: 'tabler:discount',
                 permission: { action: Action.Read, subject: 'Product' },
             },
             {
                 label: 'Voucher',
                 link: '/admin/vouchers',
-                icon: IconTicket,
+                icon: 'tabler:ticket',
                 permission: { action: Action.Read, subject: 'Product' },
             },
         ],
@@ -170,7 +152,7 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     // ===== CÀI ĐẶT =====
     {
         label: t('sidebar.settings'),
-        icon: IconSettings,
+        icon: 'tabler:settings',
         link: '/admin/settings',
     },
 ];
@@ -262,7 +244,7 @@ export function Sidebar() {
                 <SidebarNavLink
                     item={{
                         label: t('common.profile'),
-                        icon: IconUser,
+                        icon: 'tabler:user',
                         link: isSellerArea ? '/profile' : '/admin/profile',
                     }}
                     collapsed={isCollapsed}
@@ -287,7 +269,6 @@ function SidebarNavLink({
 }) {
     const hasLinks = Array.isArray(item.links);
     const [manuallyOpened, setManuallyOpened] = useState(item.initiallyOpened ?? false);
-    const Icon = item.icon;
 
     const isChildActive = hasLinks && item.links?.some(link => pathname === link.link) === true;
     const opened = manuallyOpened || isChildActive;
@@ -311,9 +292,9 @@ function SidebarNavLink({
             <Box
                 className={`flex items-center justify-center transition-all duration-300 ${collapsed ? 'w-full' : 'w-6'}`}
             >
-                <Icon
+                <Iconify
+                    icon={item.icon}
                     size={22}
-                    stroke={1.5}
                     color={isParentActive ? 'var(--mantine-primary-color-filled)' : undefined}
                 />
             </Box>
@@ -333,9 +314,9 @@ function SidebarNavLink({
                     opacity: hasLinks && !collapsed ? 1 : 0,
                 }}
             >
-                <IconChevronRight
+                <Iconify
+                    icon="tabler:chevron-right"
                     size="0.9rem"
-                    stroke={2}
                     className={`transition-transform duration-300 ${opened ? 'rotate-0' : ''}`}
                 />
             </Box>
@@ -404,7 +385,7 @@ function SidebarNavLink({
                                     key={link.label}
                                     component={Link}
                                     href={link.link}
-                                    leftSection={<link.icon size={18} stroke={1.5} />}
+                                    leftSection={<Iconify icon={link.icon} size={18} />}
                                     className="rounded-lg font-medium py-2 transition-colors"
                                     style={{
                                         backgroundColor: isLinkActive
@@ -452,8 +433,8 @@ function SidebarNavLink({
                                     {link.label}
                                 </Text>
                             }
-                            leftSection={<link.icon size={18} stroke={1.5} />}
-                            active={pathname === link.link} // Highlight child
+                            leftSection={<Iconify icon={link.icon} size={18} />}
+                            active={pathname === link.link}
                             className="rounded-lg h-10 transition-all"
                             styles={{
                                 root: { paddingLeft: rem(12) },
