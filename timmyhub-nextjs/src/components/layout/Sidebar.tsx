@@ -6,7 +6,7 @@ import { Stack, Tooltip, rem, NavLink, Box, Text, Menu, Collapse } from '@mantin
 import { useMounted } from '@mantine/hooks';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import Iconify from '../iconify/Iconify';
+import Iconify from '@/components/iconify/Iconify';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
@@ -32,47 +32,47 @@ interface PermissionCheck {
 
 /** Sidebar cho khu vực seller (không dùng permission, tránh 403 khi click) */
 const getSellerSidebarData = (): SidebarItem[] => [
-    { label: 'Tổng quan', icon: 'tabler:gauge', link: '/seller' },
-    { label: 'Sản phẩm', icon: 'tabler:package', link: '/seller/products' },
-    { label: 'Voucher', icon: 'tabler:ticket', link: '/seller/vouchers' },
-    { label: 'Khuyến mãi', icon: 'tabler:discount', link: '/seller/campaigns' },
+    { label: 'Tổng quan', icon: 'solar:home-2-bold-duotone', link: '/seller' },
+    { label: 'Sản phẩm', icon: 'solar:box-bold-duotone', link: '/seller/products' },
+    { label: 'Voucher', icon: 'solar:ticket-bold-duotone', link: '/seller/vouchers' },
+    { label: 'Khuyến mãi', icon: 'solar:gift-bold-duotone', link: '/seller/campaigns' },
 ];
 
 const getMockData = (t: TFunction): SidebarItem[] => [
     {
         label: t('sidebar.dashboard'),
-        icon: 'tabler:gauge',
+        icon: 'solar:chart-square-bold-duotone',
         link: '/admin',
     },
     // ===== QUẢN LÝ HỆ THỐNG =====
     {
         label: 'Quản lý hệ thống',
-        icon: 'tabler:fingerprint',
+        icon: 'solar:shield-bold-duotone',
         initiallyOpened: true,
         permission: { action: Action.Read, subject: 'SystemRole' },
         links: [
             {
                 label: 'Vai trò & Quyền',
                 link: '/admin/roles',
-                icon: 'tabler:shield-check',
+                icon: 'solar:shield-check-bold',
                 permission: { action: Action.Read, subject: 'SystemRole' },
             },
             {
                 label: 'Người dùng',
                 link: '/admin/users',
-                icon: 'tabler:users',
+                icon: 'solar:user-rounded-bold',
                 permission: { action: Action.Read, subject: 'User' },
             },
             {
                 label: 'Quyền hệ thống',
                 link: '/admin/permissions',
-                icon: 'tabler:key',
+                icon: 'solar:key-bold',
                 permission: { action: Action.Read, subject: 'Permission' },
             },
             {
                 label: 'Nhật ký hệ thống',
                 link: '/admin/system-logs',
-                icon: 'tabler:calendar-stats',
+                icon: 'solar:document-text-bold',
                 permission: { action: Action.Read, subject: 'SystemRole' },
             },
         ],
@@ -80,25 +80,25 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     // ===== BÁN HÀNG =====
     {
         label: 'Bán hàng',
-        icon: 'tabler:shopping-cart',
+        icon: 'solar:cart-bold-duotone',
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
                 label: 'Đơn hàng',
                 link: '/admin/orders',
-                icon: 'tabler:shopping-cart',
+                icon: 'solar:cart-check-bold',
                 permission: { action: Action.Read, subject: 'Order' },
             },
             {
                 label: 'Khách hàng',
                 link: '/admin/customers',
-                icon: 'tabler:users',
+                icon: 'solar:users-group-rounded-bold',
                 permission: { action: Action.Read, subject: 'User' },
             },
             {
                 label: 'Trò chuyện',
                 link: '/admin/chat',
-                icon: 'tabler:messages',
+                icon: 'solar:chat-round-dots-bold',
                 permission: { action: Action.Read, subject: 'User' },
             },
         ],
@@ -106,25 +106,25 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     // ===== SẢN PHẨM =====
     {
         label: 'Sản phẩm',
-        icon: 'tabler:package',
+        icon: 'solar:box-bold-duotone',
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
                 label: 'Danh sách sản phẩm',
                 link: '/admin/products',
-                icon: 'tabler:package',
+                icon: 'solar:box-bold',
                 permission: { action: Action.Read, subject: 'Product' },
             },
             {
                 label: 'Danh mục',
                 link: '/admin/categories',
-                icon: 'tabler:tags',
+                icon: 'solar:tag-bold-duotone',
                 permission: { action: Action.Read, subject: 'Category' },
             },
             {
                 label: 'Quản lý Seller',
                 link: '/admin/seller-applications',
-                icon: 'tabler:building-store',
+                icon: 'solar:building-2-bold-duotone',
                 permission: { action: Action.Read, subject: 'User' },
             },
         ],
@@ -132,28 +132,22 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     // ===== KHUYẾN MÃI =====
     {
         label: 'Khuyến mãi',
-        icon: 'tabler:discount',
+        icon: 'solar:gift-bold-duotone',
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
                 label: 'Chương trình KM',
                 link: '/admin/campaigns',
-                icon: 'tabler:discount',
+                icon: 'solar:megaphone-bold-duotone',
                 permission: { action: Action.Read, subject: 'Product' },
             },
             {
                 label: 'Voucher',
                 link: '/admin/vouchers',
-                icon: 'tabler:ticket',
+                icon: 'solar:ticket-bold-duotone',
                 permission: { action: Action.Read, subject: 'Product' },
             },
         ],
-    },
-    // ===== CÀI ĐẶT =====
-    {
-        label: t('sidebar.settings'),
-        icon: 'tabler:settings',
-        link: '/admin/settings',
     },
 ];
 
@@ -207,7 +201,7 @@ export function Sidebar() {
         >
             {/* Header - Logo Section */}
             <Box
-                h={70}
+                h={60}
                 className="flex items-center shrink-0 transition-all duration-300"
                 style={{ borderBottom: '1px solid var(--mantine-color-default-border)' }}
             >
@@ -233,24 +227,6 @@ export function Sidebar() {
                         />
                     ))}
                 </Stack>
-            </Box>
-
-            {/* Footer */}
-            <Box
-                p={isCollapsed ? 0 : rem(12)}
-                py="md"
-                className="shrink-0 transition-all duration-150"
-            >
-                <SidebarNavLink
-                    item={{
-                        label: t('common.profile'),
-                        icon: 'tabler:user',
-                        link: isSellerArea ? '/profile' : '/admin/profile',
-                    }}
-                    collapsed={isCollapsed}
-                    active={pathname === (isSellerArea ? '/profile' : '/admin/profile')}
-                    pathname={pathname}
-                />
             </Box>
         </Box>
     );
@@ -315,7 +291,7 @@ function SidebarNavLink({
                 }}
             >
                 <Iconify
-                    icon="tabler:chevron-right"
+                    icon="solar:alt-arrow-right-bold"
                     size="0.9rem"
                     className={`transition-transform duration-300 ${opened ? 'rotate-0' : ''}`}
                 />

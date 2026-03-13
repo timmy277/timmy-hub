@@ -11,7 +11,7 @@ import {
     ThemeIcon,
     Table,
 } from '@mantine/core';
-import { IconInfoCircle, IconSettings, IconCalendar, IconDiscount, IconTicket } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { Campaign } from '@/services/campaign.service';
 import { voucherService } from '@/services/voucher.service';
 import { useQuery } from '@tanstack/react-query';
@@ -37,7 +37,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                 <Group justify="space-between">
                     <Stack gap={0}>
                         <Group>
-                            <IconDiscount size={28} color="var(--mantine-color-blue-6)" />
+                            <Iconify icon="solar:megaphone-bold-duotone" width={28} color="var(--mantine-color-blue-6)" />
                             <Title order={3}>{campaign.name}</Title>
                             <Badge color={campaign.isActive ? 'green' : 'gray'}>
                                 {campaign.isActive ? 'Đang hoạt động' : 'Đã tắt'}
@@ -53,7 +53,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                     <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg">
                         <Stack gap="xs">
                             <Group gap="xs">
-                                <IconInfoCircle size={18} color="var(--mantine-color-indigo-6)" />
+                                <Iconify icon="solar:info-circle-bold" width={18} color="var(--mantine-color-indigo-6)" />
                                 <Text fw={500}>Thông tin chung</Text>
                             </Group>
                             <Box ml={26}>
@@ -64,7 +64,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
 
                         <Stack gap="xs">
                             <Group gap="xs">
-                                <IconSettings size={18} color="var(--mantine-color-orange-6)" />
+                                <Iconify icon="solar:settings-bold" width={18} color="var(--mantine-color-orange-6)" />
                                 <Text fw={500}>Cài đặt</Text>
                             </Group>
                             <Box ml={26}>
@@ -78,7 +78,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
 
                 <Stack gap="xs">
                     <Group gap="xs">
-                        <IconCalendar size={18} color="var(--mantine-color-teal-6)" />
+                        <Iconify icon="solar:calendar-mark-bold" width={18} color="var(--mantine-color-teal-6)" />
                         <Text fw={500}>Thời gian áp dụng</Text>
                     </Group>
                     <Group ml={26}>
@@ -99,12 +99,12 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                 <Stack gap="md">
                     <Group gap="xs">
                         <ThemeIcon size={24} radius="xl" color="teal" variant="light">
-                            <IconTicket size={14} />
+                            <Iconify icon="solar:ticket-bold" width={14} />
                         </ThemeIcon>
                         <Text fw={500}>Vouchers trong chương trình</Text>
                         <Badge size="sm" variant="outline">{vouchers.length}</Badge>
                     </Group>
-                    
+
                     {isLoadingVouchers ? (
                         <Center py="md">
                             <Loader size="sm" />
@@ -129,14 +129,14 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                                         </Table.Td>
                                         <Table.Td>
                                             <Text size="sm">
-                                                {voucher.type === 'PERCENTAGE' ? 'Giảm %' : 
-                                                 voucher.type === 'FREE_SHIPPING' ? 'Freeship' : 'Giảm tiền'}
+                                                {voucher.type === 'PERCENTAGE' ? 'Giảm %' :
+                                                    voucher.type === 'FREE_SHIPPING' ? 'Freeship' : 'Giảm tiền'}
                                             </Text>
                                         </Table.Td>
                                         <Table.Td>
                                             <Text size="sm">
-                                                {voucher.type === 'PERCENTAGE' 
-                                                    ? `${voucher.value}%` 
+                                                {voucher.type === 'PERCENTAGE'
+                                                    ? `${voucher.value}%`
                                                     : voucher.type === 'FREE_SHIPPING'
                                                         ? 'Miễn phí ship'
                                                         : `${voucher.value.toLocaleString()}đ`}

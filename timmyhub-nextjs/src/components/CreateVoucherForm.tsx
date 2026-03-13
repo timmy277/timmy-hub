@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Button, TextInput, Select, NumberInput, Group, Stack, Paper, Alert } from '@mantine/core';
+import Iconify from '@/components/iconify/Iconify';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { voucherService, Voucher } from '@/services/voucher.service';
 import { campaignService } from '@/services/campaign.service';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
-import { IconInfoCircle } from '@tabler/icons-react';
 
 export function CreateVoucherForm({
     onSuccessCallback,
@@ -99,7 +99,7 @@ export function CreateVoucherForm({
         <Paper withBorder radius="md" p="lg" mt="md">
             <Stack gap="md" maw={600}>
                 {Object.keys(validationErrors).length > 0 && (
-                    <Alert icon={<IconInfoCircle size={16} />} color="red" title="Dữ liệu không hợp lệ">
+                    <Alert icon={<Iconify icon="solar:danger-bold" width={16} />} color="red" title="Dữ liệu không hợp lệ">
                         <Stack gap={4}>
                             {Object.entries(validationErrors).map(([field, messages]) =>
                                 messages.map((msg, i) => (

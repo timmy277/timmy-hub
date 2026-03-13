@@ -12,7 +12,7 @@ import {
     rem,
     Tooltip,
 } from '@mantine/core';
-import { IconSun, IconMoon, IconPalette, IconCheck } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useThemeStore, PrimaryColor } from '@/stores/useThemeStore';
 
 const colors: PrimaryColor[] = [
@@ -46,9 +46,9 @@ export function ThemeSwitcher() {
                 radius="md"
             >
                 {computedColorScheme === 'light' ? (
-                    <IconMoon style={{ width: rem(18), height: rem(18) }} stroke={1.5} />
+                    <Iconify icon="solar:moon-bold" width={18} />
                 ) : (
-                    <IconSun style={{ width: rem(18), height: rem(18) }} stroke={1.5} />
+                    <Iconify icon="solar:sun-bold" width={18} />
                 )}
             </ActionIcon>
 
@@ -57,7 +57,7 @@ export function ThemeSwitcher() {
                 <Popover.Target>
                     <Tooltip label="Change primary color">
                         <ActionIcon variant="default" size="lg" radius="md" c={primaryColor}>
-                            <IconPalette style={{ width: rem(18), height: rem(18) }} stroke={1.5} />
+                            <Iconify icon="solar:pallete-2-bold" width={18} />
                         </ActionIcon>
                     </Tooltip>
                 </Popover.Target>
@@ -85,9 +85,9 @@ export function ThemeSwitcher() {
                                     className="hover:scale-105 active:scale-95"
                                 >
                                     {primaryColor === color && (
-                                        <IconCheck
-                                            style={{ width: rem(16), height: rem(16) }}
-                                            stroke={3}
+                                        <Iconify
+                                            icon="solar:check-bold"
+                                            width={16}
                                         />
                                     )}
                                 </UnstyledButton>

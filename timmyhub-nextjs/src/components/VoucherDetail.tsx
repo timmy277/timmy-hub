@@ -9,7 +9,7 @@ import {
     SimpleGrid,
     Box,
 } from '@mantine/core';
-import { IconInfoCircle, IconSettings, IconCalendar, IconTicket } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { Voucher } from '@/services/voucher.service';
 import dayjs from 'dayjs';
 
@@ -24,7 +24,7 @@ export function VoucherDetail({ voucher }: VoucherDetailProps) {
                 <Group justify="space-between">
                     <Stack gap={0}>
                         <Group>
-                            <IconTicket size={28} color="var(--mantine-color-blue-6)" />
+                            <Iconify icon="solar:ticket-bold" width={28} color="var(--mantine-color-blue-6)" />
                             <Title order={3}>{voucher.code}</Title>
                             <Badge color={voucher.isActive ? 'green' : 'gray'}>
                                 {voucher.isActive ? 'Đang hoạt động' : 'Đã tắt'}
@@ -40,7 +40,7 @@ export function VoucherDetail({ voucher }: VoucherDetailProps) {
                     <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg">
                         <Stack gap="xs">
                             <Group gap="xs">
-                                <IconInfoCircle size={18} color="var(--mantine-color-indigo-6)" />
+                                <Iconify icon="solar:info-circle-bold" width={18} color="var(--mantine-color-indigo-6)" />
                                 <Text fw={500}>Thông tin chung</Text>
                             </Group>
                             <Box ml={26}>
@@ -59,7 +59,7 @@ export function VoucherDetail({ voucher }: VoucherDetailProps) {
 
                         <Stack gap="xs">
                             <Group gap="xs">
-                                <IconSettings size={18} color="var(--mantine-color-orange-6)" />
+                                <Iconify icon="solar:settings-bold" width={18} color="var(--mantine-color-orange-6)" />
                                 <Text fw={500}>Cài đặt giới hạn</Text>
                             </Group>
                             <Box ml={26}>
@@ -75,7 +75,7 @@ export function VoucherDetail({ voucher }: VoucherDetailProps) {
 
                 <Stack gap="xs">
                     <Group gap="xs">
-                        <IconCalendar size={18} color="var(--mantine-color-teal-6)" />
+                        <Iconify icon="solar:calendar-mark-bold" width={18} color="var(--mantine-color-teal-6)" />
                         <Text fw={500}>Thời gian áp dụng</Text>
                     </Group>
                     <Group ml={26}>

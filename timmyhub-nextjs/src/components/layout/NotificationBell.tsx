@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionIcon, Indicator, Popover, Text, ScrollArea, Group, Button, UnstyledButton } from '@mantine/core';
-import { IconBell, IconShoppingBag, IconMessage, IconInfoCircle, IconStar, IconDiscount } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationService } from '@/services/notification.service';
 import { useNotificationSocket } from '@/hooks/useNotificationSocket';
@@ -74,11 +74,11 @@ export function NotificationBell() {
 
     const getIcon = (type: string) => {
         switch (type) {
-            case 'ORDER': return <IconShoppingBag size={20} className="text-blue-500" />;
-            case 'MESSAGE': return <IconMessage size={20} className="text-green-500" />;
-            case 'REVIEW': return <IconStar size={20} className="text-orange-500" />;
-            case 'PROMOTION': return <IconDiscount size={20} className="text-pink-500" />;
-            default: return <IconInfoCircle size={20} className="text-gray-500" />;
+            case 'ORDER': return <Iconify icon="solar:cart-check-bold" width={20} className="text-blue-500" />;
+            case 'MESSAGE': return <Iconify icon="solar:chat-round-dots-bold" width={20} className="text-green-500" />;
+            case 'REVIEW': return <Iconify icon="solar:star-bold" width={20} className="text-orange-500" />;
+            case 'PROMOTION': return <Iconify icon="solar:gift-bold" width={20} className="text-pink-500" />;
+            default: return <Iconify icon="solar:info-circle-bold" width={20} className="text-gray-500" />;
         }
     };
 
@@ -95,13 +95,13 @@ export function NotificationBell() {
                     label={unreadCount > 99 ? '99+' : unreadCount}
                     disabled={unreadCount === 0}
                 >
-                    <ActionIcon 
-                        variant={opened ? "light" : "subtle"} 
-                        size="lg" 
-                        radius="md" 
+                    <ActionIcon
+                        variant={opened ? "light" : "subtle"}
+                        size="lg"
+                        radius="md"
                         onClick={() => setOpened((o) => !o)}
                     >
-                        <IconBell size={22} stroke={1.5} />
+                        <Iconify icon="solar:bell-bold" width={22} />
                     </ActionIcon>
                 </Indicator>
             </Popover.Target>
@@ -124,7 +124,7 @@ export function NotificationBell() {
 
                 <ScrollArea.Autosize mah={400} type="scroll" className="p-2">
                     {isLoading && <Text size="sm" ta="center" py="md" c="dimmed">Đang tải...</Text>}
-                    
+
                     {!isLoading && listData?.notifications.length === 0 && (
                         <Text size="sm" ta="center" py="md" c="dimmed">Bạn không có thông báo nào.</Text>
                     )}

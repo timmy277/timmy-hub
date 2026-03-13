@@ -6,7 +6,7 @@
  */
 
 import { Breadcrumbs, Anchor, Text, Group } from '@mantine/core';
-import { IconChevronRight, IconHome } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 
 export interface BreadcrumbItem {
@@ -23,7 +23,7 @@ interface AppBreadcrumbsProps {
 export function AppBreadcrumbs({ items, mb = 'xl' }: AppBreadcrumbsProps) {
     return (
         <Breadcrumbs
-            separator={<IconChevronRight size={14} opacity={0.5} />}
+            separator={<Iconify icon="solar:alt-arrow-right" width={14} opacity={0.5} />}
             mb={mb}
         >
             {items.map((item, index) => {
@@ -33,7 +33,7 @@ export function AppBreadcrumbs({ items, mb = 'xl' }: AppBreadcrumbsProps) {
                 // Dùng component="span" để tránh <div> bên trong <p> hay <a>
                 const content = (
                     <Group component="span" gap={4} wrap="nowrap">
-                        {isFirst && !item.icon && <IconHome size={14} />}
+                        {isFirst && !item.icon && <Iconify icon="solar:home-2-bold" width={14} />}
                         {item.icon}
                         <span>{item.title}</span>
                     </Group>

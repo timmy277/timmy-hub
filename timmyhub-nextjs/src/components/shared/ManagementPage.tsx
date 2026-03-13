@@ -13,15 +13,7 @@ import {
     Paper,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-    IconPlus,
-    IconRefresh,
-    IconX,
-    IconColumns,
-    IconFileSpreadsheet,
-    IconRotateClockwise,
-    IconFileText,
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import {
     GridApi,
     GridReadyEvent,
@@ -160,9 +152,9 @@ export function ManagementPage<T>({
                                 value={tab.id}
                                 leftSection={
                                     tab.id === ManagementTabType.LIST ? (
-                                        listIcon || <IconFileText size={16} />
+                                        listIcon || <Iconify icon="solar:document-text-bold" width={16} />
                                     ) : (
-                                        <IconFileText size={16} />
+                                        <Iconify icon="solar:document-text-bold" width={16} />
                                     )
                                 }
                                 rightSection={
@@ -177,7 +169,7 @@ export function ManagementPage<T>({
                                                 closeTab(tab.id);
                                             }}
                                         >
-                                            <IconX size={14} />
+                                            <Iconify icon="solar:close-bold" width={14} />
                                         </ActionIcon>
                                     ) : null
                                 }
@@ -201,7 +193,7 @@ export function ManagementPage<T>({
                                             <Button
                                                 variant="outline"
                                                 onClick={handleRefresh}
-                                                leftSection={<IconRefresh size={16} />}
+                                                leftSection={<Iconify icon="solar:refresh-bold" width={16} />}
                                                 loading={isLoading}
                                             >
                                                 Làm mới
@@ -210,7 +202,7 @@ export function ManagementPage<T>({
                                                 variant="outline"
                                                 color="orange"
                                                 onClick={handleReset}
-                                                leftSection={<IconRotateClockwise size={16} />}
+                                                leftSection={<Iconify icon="solar:refresh-bold" width={16} />}
                                             >
                                                 Reset
                                             </Button>
@@ -225,7 +217,7 @@ export function ManagementPage<T>({
                                                     <Button
                                                         variant="outline"
                                                         color="blue"
-                                                        leftSection={<IconColumns size={16} />}
+                                                        leftSection={<Iconify icon="solar:columns-bold" width={16} />}
                                                     >
                                                         Cột
                                                     </Button>
@@ -241,14 +233,14 @@ export function ManagementPage<T>({
                                             <Button
                                                 variant="outline"
                                                 color="green"
-                                                leftSection={<IconFileSpreadsheet size={16} />}
+                                                leftSection={<Iconify icon="solar:file-export-bold" width={16} />}
                                                 onClick={() => gridApi?.exportDataAsCsv()}
                                             >
                                                 Xuất CSV
                                             </Button>
                                             {onAdd && (
                                                 <Button
-                                                    leftSection={<IconPlus size={16} />}
+                                                    leftSection={<Iconify icon="solar:plus-bold" width={16} />}
                                                     onClick={onAdd}
                                                 >
                                                     Thêm {entityName}

@@ -2,7 +2,7 @@
 
 import { useState, memo, ChangeEvent } from 'react';
 import { TextInput, ActionIcon } from '@mantine/core';
-import { IconSearch, IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 
 interface SearchInputProps {
     placeholder: string;
@@ -32,11 +32,11 @@ export const SearchInput = memo(function SearchInput({
         <TextInput
             id={`${baseId}-search`}
             placeholder={placeholder}
-            leftSection={<IconSearch size={16} stroke={1.5} />}
+            leftSection={<Iconify icon="solar:magnifer-bold" width={16} />}
             rightSection={
                 value ? (
                     <ActionIcon variant="transparent" c="dimmed" onClick={handleClear}>
-                        <IconX size={14} />
+                        <Iconify icon="solar:close-bold" width={14} />
                     </ActionIcon>
                 ) : null
             }

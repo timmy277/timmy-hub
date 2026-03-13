@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionIcon, Menu, Tooltip } from '@mantine/core';
-import { IconCheck } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { FlagVN, FlagUK } from '@/components/common';
@@ -55,8 +55,9 @@ export function LanguageSwitcher() {
                             }}
                             rightSection={
                                 isActive && (
-                                    <IconCheck
-                                        size={14}
+                                    <Iconify
+                                        icon="solar:check-bold"
+                                        width={14}
                                         color={`var(--mantine-color-${primaryColor}-filled)`}
                                     />
                                 )

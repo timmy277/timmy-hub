@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionIcon, Button } from '@mantine/core';
-import { IconShoppingCart } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useCart } from '@/hooks/useCart';
 
 interface AddToCartButtonProps {
@@ -26,7 +26,7 @@ export function AddToCartButton({
     if (variant === 'button') {
         return (
             <Button
-                leftSection={<IconShoppingCart size={18} stroke={1.5} />}
+                leftSection={<Iconify icon="solar:cart-plus-bold" width={18} />}
                 onClick={handleAddToCart}
                 loading={isAdding}
                 disabled={disabled}
@@ -47,7 +47,7 @@ export function AddToCartButton({
             loading={isAdding}
             disabled={disabled}
         >
-            <IconShoppingCart size={18} stroke={1.5} />
+            <Iconify icon="solar:cart-plus-bold" width={18} />
         </ActionIcon>
     );
 }

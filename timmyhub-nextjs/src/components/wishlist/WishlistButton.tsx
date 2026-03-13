@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionIcon, Button, ActionIconProps } from '@mantine/core';
-import { IconHeart } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { wishlistService, WishlistItem } from '@/services/wishlist.service';
 import { notifications } from '@mantine/notifications';
@@ -54,7 +54,7 @@ export function WishlistButton({ productId, variantType = 'icon', ...props }: Wi
                 title: 'Thành công',
                 message: data.message,
                 color: data.isWishlisted ? 'red' : 'gray',
-                icon: <IconHeart size={16} />,
+                icon: <Iconify icon="solar:heart-bold" width={16} />,
             });
         },
         onSettled: () => {
@@ -81,7 +81,7 @@ export function WishlistButton({ productId, variantType = 'icon', ...props }: Wi
             <Button
                 variant={isWishlisted ? 'filled' : 'light'}
                 color={isWishlisted ? 'red' : 'gray'}
-                leftSection={<IconHeart size={16} fill={isWishlisted ? 'currentColor' : 'none'} />}
+                leftSection={<Iconify icon="solar:heart-bold" width={16} />}
                 onClick={handleToggle}
                 loading={toggleMutation.isPending}
             >
@@ -101,7 +101,7 @@ export function WishlistButton({ productId, variantType = 'icon', ...props }: Wi
             style={{ zIndex: 1 }}
             {...props}
         >
-            <IconHeart size={props.size === 'lg' ? 18 : 16} fill={isWishlisted ? 'currentColor' : 'none'} />
+            <Iconify icon={isWishlisted ? "solar:heart-bold" : "solar:heart-outline"} width={props.size === 'lg' ? 18 : 16} />
         </ActionIcon>
     );
 }

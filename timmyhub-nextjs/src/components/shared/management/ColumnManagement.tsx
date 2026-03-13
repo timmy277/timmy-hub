@@ -2,11 +2,7 @@
 
 import { memo } from 'react';
 import { Stack, Group, Checkbox, ActionIcon } from '@mantine/core';
-import { 
-    IconArrowBarToLeft, 
-    IconPinnedOff, 
-    IconArrowBarToRight 
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { GridApi, ColDef } from 'ag-grid-community';
 
 interface ColumnManagementProps<T> {
@@ -60,7 +56,7 @@ function ColumnManagementInner<T>({
                                     })
                                 }
                             >
-                                <IconArrowBarToLeft size={16} />
+                                <Iconify icon="solar:align-left-bold" width={16} />
                             </ActionIcon>
                             <ActionIcon
                                 variant={
@@ -81,7 +77,7 @@ function ColumnManagementInner<T>({
                                     })
                                 }
                             >
-                                <IconPinnedOff size={16} />
+                                <Iconify icon="solar:pin-slash-bold" width={16} />
                             </ActionIcon>
                             <ActionIcon
                                 variant={
@@ -106,7 +102,7 @@ function ColumnManagementInner<T>({
                                     })
                                 }
                             >
-                                <IconArrowBarToRight size={16} />
+                                <Iconify icon="solar:align-right-bold" width={16} />
                             </ActionIcon>
                         </Group>
                     </Group>

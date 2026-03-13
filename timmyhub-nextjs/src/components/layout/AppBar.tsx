@@ -5,7 +5,7 @@ import { LanguageSwitcher, ThemeSwitcher } from '../shared';
 import { Logo } from '../common';
 import { CartBadge } from '../cart/CartBadge';
 import { NotificationBell } from './NotificationBell';
-import Iconify from '../iconify/Iconify';
+import Iconify from '@/components/iconify/Iconify';
 import { useTranslation } from 'react-i18next';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -39,7 +39,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
     const breadcrumbItems = [
         <Anchor component={Link} href="/" key="home" size="sm" c="dimmed">
             <Group gap={4} wrap="nowrap">
-                <Iconify icon="tabler:home" width={14} />
+                <Iconify icon="solar:home-2-bold" width={14} />
                 <span>{t('sidebar.dashboard')}</span>
             </Group>
         </Anchor>,
@@ -74,15 +74,15 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                         radius="md"
                     >
                         {collapsed ? (
-                            <Iconify icon="tabler:layout-sidebar-right-collapse" width={22} />
+                            <Iconify icon="solar:sidebar-left-expand" width={22} />
                         ) : (
-                            <Iconify icon="tabler:layout-sidebar-left-collapse" width={22} />
+                            <Iconify icon="solar:sidebar-left-collapse" width={22} />
                         )}
                     </ActionIcon>
                 )}
 
                 {isAdminPage || isSellerPage ? (
-                    <Breadcrumbs separator={<Iconify icon="tabler:chevron-right" width={14} opacity={0.5} />} ml="sm">
+                    <Breadcrumbs separator={<Iconify icon="solar:alt-arrow-right" width={14} opacity={0.5} />} ml="sm">
                         {breadcrumbItems}
                     </Breadcrumbs>
                 ) : (
@@ -100,7 +100,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                             href="/seller"
                             variant="light"
                             size="sm"
-                            leftSection={<Iconify icon="tabler:shopping-cart" width={18} />}
+                            leftSection={<Iconify icon="solar:shop-bold" width={18} />}
                         >
                             Gian hàng
                         </Button>
@@ -111,7 +111,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                                 href="/seller"
                                 variant="default"
                                 size="sm"
-                                leftSection={<Iconify icon="tabler:store" width={18} />}
+                                leftSection={<Iconify icon="solar:shop-bold" width={18} />}
                             >
                                 Trở thành seller
                             </Button>
@@ -152,11 +152,11 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                         <Menu.Item
                             component={Link}
                             href="/profile"
-                            leftSection={<Iconify icon="tabler:user" width={16} />}
+                            leftSection={<Iconify icon="solar:user-bold" width={16} />}
                         >
                             {t('common.profile')}
                         </Menu.Item>
-                        <Menu.Item leftSection={<Iconify icon="tabler:settings" width={16} />}>
+                        <Menu.Item leftSection={<Iconify icon="solar:settings-bold" width={16} />}>
                             {t('common.settings')}
                         </Menu.Item>
 
@@ -165,7 +165,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                         <Menu.Label>{t('common.dangerZone')}</Menu.Label>
                         <Menu.Item
                             color="red"
-                            leftSection={<Iconify icon="tabler:logout" width={16} />}
+                            leftSection={<Iconify icon="solar:logout-bold" width={16} />}
                             onClick={() => logout()}
                         >
                             {t('auth.logout')}

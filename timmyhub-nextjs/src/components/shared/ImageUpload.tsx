@@ -2,7 +2,7 @@
 
 import { Group, Text, rem, Avatar, Stack, Box, Paper, ActionIcon, LoadingOverlay, SimpleGrid } from '@mantine/core';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
-import { IconUpload, IconPhoto, IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fileService } from '@/services/file.service';
@@ -98,7 +98,7 @@ export function ImageUpload({ value, onChange, label, description, multiple = fa
                                             onClick={() => handleRemove(index)}
                                             radius="xl"
                                         >
-                                            <IconX size={12} />
+                                            <Iconify icon="solar:close-bold" width={12} />
                                         </ActionIcon>
                                     </Stack>
                                 </Paper>
@@ -115,21 +115,24 @@ export function ImageUpload({ value, onChange, label, description, multiple = fa
                         >
                             <Group justify="center" gap="xl" mih={120} style={{ pointerEvents: 'none' }}>
                                 <Dropzone.Accept>
-                                    <IconUpload
+                                    <Iconify
+                                        icon="solar:upload-bold"
+                                        width={32}
                                         style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-blue-6)' }}
-                                        stroke={1.5}
                                     />
                                 </Dropzone.Accept>
                                 <Dropzone.Reject>
-                                    <IconX
+                                    <Iconify
+                                        icon="solar:close-bold"
+                                        width={24}
                                         style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-red-6)' }}
-                                        stroke={1.5}
                                     />
                                 </Dropzone.Reject>
                                 <Dropzone.Idle>
-                                    <IconPhoto
+                                    <Iconify
+                                        icon="solar:gallery-bold"
+                                        width={48}
                                         style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-dimmed)' }}
-                                        stroke={1.5}
                                     />
                                 </Dropzone.Idle>
 

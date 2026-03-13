@@ -12,7 +12,7 @@ import {
     Divider,
     Box,
 } from '@mantine/core';
-import { IconShoppingCart } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
@@ -45,7 +45,7 @@ export function CartBadge() {
                     onClick={handleIconClick}
                     loading={isLoading}
                 >
-                    <IconShoppingCart size={20} stroke={1.5} />
+                    <Iconify icon="solar:cart-3-bold" width={20} />
                 </ActionIcon>
             </Indicator>
         );
@@ -71,7 +71,7 @@ export function CartBadge() {
                     offset={7}
                 >
                     <ActionIcon variant="subtle" size="lg" loading={isLoading}>
-                        <IconShoppingCart size={20} stroke={1.5} />
+                        <Iconify icon="solar:cart-3-bold" width={20} />
                     </ActionIcon>
                 </Indicator>
             </Menu.Target>
@@ -101,11 +101,11 @@ export function CartBadge() {
                     </Stack>
                 ) : (
                     <>
-                        <Stack 
-                            gap={0} 
+                        <Stack
+                            gap={0}
                             p="xs"
-                            style={{ 
-                                maxHeight: 400, 
+                            style={{
+                                maxHeight: 400,
                                 overflowY: 'auto',
                                 overflowX: 'hidden'
                             }}

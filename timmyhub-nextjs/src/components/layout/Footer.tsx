@@ -1,10 +1,7 @@
 'use client';
 
 import { Container, Text, Group, ActionIcon, Box, Grid, Title, Stack, TextInput, ThemeIcon, useComputedColorScheme } from '@mantine/core';
-import { 
-    IconBrandTwitter, IconBrandYoutube, IconBrandInstagram, IconBrandFacebook,
-    IconMapPin, IconPhone, IconMail, IconSend
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 
 const FOOTER_LINKS = [
@@ -43,11 +40,11 @@ export function Footer() {
     const isDark = computedColorScheme === 'dark';
 
     return (
-        <Box 
-            component="footer" 
-            bg={isDark ? 'dark.8' : 'gray.0'} 
-            pt={80} 
-            pb={40} 
+        <Box
+            component="footer"
+            bg={isDark ? 'dark.8' : 'gray.0'}
+            pt={80}
+            pb={40}
             style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
         >
             <Container size="xl">
@@ -67,19 +64,19 @@ export function Footer() {
                             <Stack gap="xs">
                                 <Group gap="xs">
                                     <ThemeIcon variant="light" color="blue" size="md">
-                                        <IconMapPin size={16} />
+                                        <Iconify icon="solar:map-point-bold" width={16} />
                                     </ThemeIcon>
                                     <Text size="sm" c="dimmed">Tầng 12, Tòa nhà Landmark 81, TP.HCM</Text>
                                 </Group>
                                 <Group gap="xs">
                                     <ThemeIcon variant="light" color="blue" size="md">
-                                        <IconPhone size={16} />
+                                        <Iconify icon="solar:phone-bold" width={16} />
                                     </ThemeIcon>
                                     <Text size="sm" c="dimmed">1900 1234 (8:00 - 22:00)</Text>
                                 </Group>
                                 <Group gap="xs">
                                     <ThemeIcon variant="light" color="blue" size="md">
-                                        <IconMail size={16} />
+                                        <Iconify icon="solar:mail-bold" width={16} />
                                     </ThemeIcon>
                                     <Text size="sm" c="dimmed">support@timmyhub.com</Text>
                                 </Group>
@@ -121,26 +118,26 @@ export function Footer() {
                                     w="100%"
                                     rightSection={
                                         <ActionIcon size={32} radius="xl" color="blue" variant="filled">
-                                            <IconSend size={18} stroke={1.5} />
+                                            <Iconify icon="solar:arrow-right-bold" width={18} />
                                         </ActionIcon>
                                     }
                                     style={{ flex: 1 }}
                                 />
                             </Group>
-                            
+
                             <Title order={6} mt="md">Kết nối với chúng tôi</Title>
                             <Group gap="sm">
                                 <ActionIcon size="lg" color="blue" variant="light" radius="xl">
-                                    <IconBrandFacebook size={20} stroke={1.5} />
+                                    <Iconify icon="solar:brand-facebook-bold" width={20} />
                                 </ActionIcon>
                                 <ActionIcon size="lg" color="cyan" variant="light" radius="xl">
-                                    <IconBrandTwitter size={20} stroke={1.5} />
+                                    <Iconify icon="solar:brand-twitter-bold" width={20} />
                                 </ActionIcon>
                                 <ActionIcon size="lg" color="red" variant="light" radius="xl">
-                                    <IconBrandYoutube size={20} stroke={1.5} />
+                                    <Iconify icon="solar:brand-youtube-bold" width={20} />
                                 </ActionIcon>
                                 <ActionIcon size="lg" color="pink" variant="light" radius="xl">
-                                    <IconBrandInstagram size={20} stroke={1.5} />
+                                    <Iconify icon="solar:brand-instagram-bold" width={20} />
                                 </ActionIcon>
                             </Group>
                         </Stack>
