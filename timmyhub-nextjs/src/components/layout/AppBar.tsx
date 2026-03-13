@@ -39,7 +39,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
     const breadcrumbItems = [
         <Anchor component={Link} href="/" key="home" size="sm" c="dimmed">
             <Group gap={4} wrap="nowrap">
-                <Iconify icon="solar:home-2-bold" width={14} />
+                <Iconify icon="mage:dashboard-bar-notification" width={14} />
                 <span>{t('sidebar.dashboard')}</span>
             </Group>
         </Anchor>,
@@ -74,15 +74,15 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                         radius="md"
                     >
                         {collapsed ? (
-                            <Iconify icon="solar:sidebar-left-expand" width={22} />
+                            <Iconify icon="majesticons:menu-line" width={22} />
                         ) : (
-                            <Iconify icon="solar:sidebar-left-collapse" width={22} />
+                            <Iconify icon="majesticons:menu-line" width={22} />
                         )}
                     </ActionIcon>
                 )}
 
                 {isAdminPage || isSellerPage ? (
-                    <Breadcrumbs separator={<Iconify icon="solar:alt-arrow-right" width={14} opacity={0.5} />} ml="sm">
+                    <Breadcrumbs separator={<Iconify icon="weui:arrow-filled" width={14} opacity={0.5} />} ml="sm">
                         {breadcrumbItems}
                     </Breadcrumbs>
                 ) : (

@@ -202,7 +202,7 @@ export function ManagementPage<T>({
                                                 variant="outline"
                                                 color="orange"
                                                 onClick={handleReset}
-                                                leftSection={<Iconify icon="solar:refresh-bold" width={16} />}
+                                                leftSection={<Iconify icon="ix:hard-reset" width={16} />}
                                             >
                                                 Reset
                                             </Button>
@@ -217,7 +217,7 @@ export function ManagementPage<T>({
                                                     <Button
                                                         variant="outline"
                                                         color="blue"
-                                                        leftSection={<Iconify icon="solar:columns-bold" width={16} />}
+                                                        leftSection={<Iconify icon="cuida:chart-column-outline" width={16} />}
                                                     >
                                                         Cột
                                                     </Button>
@@ -233,7 +233,7 @@ export function ManagementPage<T>({
                                             <Button
                                                 variant="outline"
                                                 color="green"
-                                                leftSection={<Iconify icon="solar:file-export-bold" width={16} />}
+                                                leftSection={<Iconify icon="foundation:page-export-csv" width={16} />}
                                                 onClick={() => gridApi?.exportDataAsCsv()}
                                             >
                                                 Xuất CSV

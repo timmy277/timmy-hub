@@ -291,7 +291,7 @@ function SidebarNavLink({
                 }}
             >
                 <Iconify
-                    icon="solar:alt-arrow-right-bold"
+                    icon="weui:arrow-filled"
                     size="0.9rem"
                     className={`transition-transform duration-300 ${opened ? 'rotate-0' : ''}`}
                 />

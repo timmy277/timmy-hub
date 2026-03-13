@@ -32,7 +32,7 @@ export const SearchInput = memo(function SearchInput({
         <TextInput
             id={`${baseId}-search`}
             placeholder={placeholder}
-            leftSection={<Iconify icon="solar:magnifer-bold" width={16} />}
+            leftSection={<Iconify icon="tdesign:ai-search" width={16} />}
             rightSection={
                 value ? (
                     <ActionIcon variant="transparent" c="dimmed" onClick={handleClear}>

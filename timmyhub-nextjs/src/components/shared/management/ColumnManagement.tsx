@@ -56,7 +56,7 @@ function ColumnManagementInner<T>({
                                     })
                                 }
                             >
-                                <Iconify icon="solar:align-left-bold" width={16} />
+                                <Iconify icon="fluent:arrow-previous-20-filled" width={16} />
                             </ActionIcon>
                             <ActionIcon
                                 variant={
@@ -77,7 +77,7 @@ function ColumnManagementInner<T>({
                                     })
                                 }
                             >
-                                <Iconify icon="solar:pin-slash-bold" width={16} />
+                                <Iconify icon="fluent:pin-off-20-filled" width={16} />
                             </ActionIcon>
                             <ActionIcon
                                 variant={
@@ -102,7 +102,7 @@ function ColumnManagementInner<T>({
                                     })
                                 }
                             >
-                                <Iconify icon="solar:align-right-bold" width={16} />
+                                <Iconify icon="fluent:arrow-next-20-filled" width={16} />
                             </ActionIcon>
                         </Group>
                     </Group>
