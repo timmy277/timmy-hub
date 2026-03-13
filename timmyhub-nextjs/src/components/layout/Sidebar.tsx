@@ -124,7 +124,7 @@ const getMockData = (t: TFunction): SidebarItem[] => [
             {
                 label: 'Quản lý Seller',
                 link: '/admin/seller-applications',
-                icon: 'solar:building-2-bold-duotone',
+                icon: 'fa6-solid:user-gear',
                 permission: { action: Action.Read, subject: 'User' },
             },
         ],
@@ -138,7 +138,7 @@ const getMockData = (t: TFunction): SidebarItem[] => [
             {
                 label: 'Chương trình KM',
                 link: '/admin/campaigns',
-                icon: 'solar:megaphone-bold-duotone',
+                icon: 'material-symbols:campaign',
                 permission: { action: Action.Read, subject: 'Product' },
             },
             {

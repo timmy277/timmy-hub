@@ -172,15 +172,17 @@ export default function AdminVouchersPage() {
                 cellRenderer: (params: ICellRendererParams) => {
                     if (!params.data) return null;
                     return (
-                        <Switch
-                            checked={params.value}
-                            onChange={e =>
-                                mutation.mutate({
-                                    id: params.data!.id,
-                                    isActive: e.currentTarget.checked,
-                                })
-                            }
-                        />
+                        <div className="flex items-center h-full">
+                            <Switch
+                                checked={params.value}
+                                onChange={e =>
+                                    mutation.mutate({
+                                        id: params.data!.id,
+                                        isActive: e.currentTarget.checked,
+                                    })
+                                }
+                            />
+                        </div>
                     );
                 },
             },

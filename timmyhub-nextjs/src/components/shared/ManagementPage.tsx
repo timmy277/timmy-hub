@@ -169,7 +169,7 @@ export function ManagementPage<T>({
                                                 closeTab(tab.id);
                                             }}
                                         >
-                                            <Iconify icon="solar:close-bold" width={14} />
+                                            <Iconify icon="iwwa:delete" width={14} />
                                         </ActionIcon>
                                     ) : null
                                 }
