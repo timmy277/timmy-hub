@@ -1,6 +1,28 @@
 import axios from '@/libs/axios';
 import type { ApiResponse } from '@/types/api';
 
+export interface CampaignProduct {
+    id: string;
+    campaignId: string;
+    productId: string;
+    campaignPrice?: number;
+    discountPercent?: number;
+    maxQuantity?: number;
+    soldQuantity: number;
+    product: {
+        id: string;
+        name: string;
+        slug: string;
+        images: string[];
+        price: number;
+        originalPrice?: number;
+        stock: number;
+        soldCount: number;
+        ratingAvg: number;
+        ratingCount: number;
+    };
+}
+
 export interface Campaign {
     id: string;
     name: string;
@@ -11,9 +33,48 @@ export interface Campaign {
     type: string;
     ownerType: 'PLATFORM' | 'SELLER';
     sellerId?: string;
+    // UI fields
+    banner?: string;
+    icon?: string;
+    backgroundColor?: string;
+    titleColor?: string;
+    badgeText?: string;
+    // Relations
+    vouchers?: CampaignVoucher[];
+    campaignProducts?: CampaignProduct[];
+}
+
+export interface CampaignVoucher {
+    id: string;
+    code: string;
+    type: string;
+    value: number;
+    minOrderValue?: number;
+    maxDiscount?: number;
 }
 
 export const campaignService = {
+    /**
+     * Lấy danh sách campaigns đang hoạt động (public - dùng cho homepage)
+     */
+    async getActiveCampaigns(): Promise<ApiResponse<Campaign[]>> {
+        return axios.get('/promotion-campaigns/active') as Promise<ApiResponse<Campaign[]>>;
+    },
+
+    /**
+     * Lấy chi tiết campaign đang hoạt động
+     */
+    async getActiveCampaign(id: string): Promise<ApiResponse<Campaign>> {
+        return axios.get(`/promotion-campaigns/active/${id}`) as Promise<ApiResponse<Campaign>>;
+    },
+
+    /**
+     * Lấy sản phẩm trong campaign
+     */
+    async getCampaignProducts(campaignId: string): Promise<ApiResponse<CampaignProduct[]>> {
+        return axios.get(`/promotion-campaigns/${campaignId}/products`) as Promise<ApiResponse<CampaignProduct[]>>;
+    },
+
     async getSellerCampaigns(): Promise<ApiResponse<Campaign[]>> {
         return axios.get('/promotion-campaigns') as Promise<ApiResponse<Campaign[]>>;
     },
@@ -35,5 +96,24 @@ export const campaignService = {
 
     async delete(id: string): Promise<ApiResponse<void>> {
         return axios.delete(`/promotion-campaigns/${id}`) as Promise<ApiResponse<void>>;
+    },
+
+    /**
+     * Thêm sản phẩm vào campaign
+     */
+    async addProducts(campaignId: string, data: {
+        productIds: string[];
+        campaignPrice?: number;
+        discountPercent?: number;
+        maxQuantity?: number;
+    }): Promise<ApiResponse<void>> {
+        return axios.post(`/promotion-campaigns/${campaignId}/products`, data) as Promise<ApiResponse<void>>;
+    },
+
+    /**
+     * Xóa sản phẩm khỏi campaign
+     */
+    async removeProducts(campaignId: string, productIds: string[]): Promise<ApiResponse<void>> {
+        return axios.delete(`/promotion-campaigns/${campaignId}/products?productIds=${productIds.join(',')}`) as Promise<ApiResponse<void>>;
     }
 };

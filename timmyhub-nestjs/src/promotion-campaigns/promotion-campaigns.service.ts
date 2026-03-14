@@ -9,8 +9,10 @@ import { PrismaService } from '../database/prisma.service';
 import { UserRole } from '@prisma/client';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
+import { AddProductsToCampaignDto } from './dto/add-products.dto';
 
 const OWNER_TYPE_SELLER = 'SELLER';
+const OWNER_TYPE_PLATFORM = 'PLATFORM';
 
 @Injectable()
 export class PromotionCampaignsService {
@@ -138,5 +140,234 @@ export class PromotionCampaignsService {
         }
         await this.prisma.promotionCampaign.delete({ where: { id } });
         return { message: 'Đã xóa chương trình khuyến mãi' };
+    }
+
+    /**
+     * Lấy danh sách campaigns đang hoạt động (public API cho homepage)
+     * Chỉ trả về campaigns có isActive=true và trong thời gian diễn ra
+     */
+    async findActiveCampaigns() {
+        const now = new Date();
+        return this.prisma.promotionCampaign.findMany({
+            where: {
+                isActive: true,
+                startDate: { lte: now },
+                endDate: { gte: now },
+            },
+            orderBy: { startDate: 'asc' },
+            include: {
+                vouchers: {
+                    where: {
+                        isActive: true,
+                        startDate: { lte: now },
+                        endDate: { gte: now },
+                    },
+                    select: {
+                        id: true,
+                        code: true,
+                        type: true,
+                        value: true,
+                        minOrderValue: true,
+                        maxDiscount: true,
+                    },
+                },
+                campaignProducts: {
+                    where: {
+                        product: {
+                            status: 'APPROVED',
+                        },
+                    },
+                    include: {
+                        product: {
+                            select: {
+                                id: true,
+                                name: true,
+                                slug: true,
+                                images: true,
+                                price: true,
+                                originalPrice: true,
+                                stock: true,
+                                soldCount: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    /**
+     * Lấy chi tiết campaign đang hoạt động (public API)
+     */
+    async findActiveById(id: string) {
+        const now = new Date();
+        const campaign = await this.prisma.promotionCampaign.findFirst({
+            where: {
+                id,
+                isActive: true,
+                startDate: { lte: now },
+                endDate: { gte: now },
+            },
+            include: {
+                vouchers: {
+                    where: {
+                        isActive: true,
+                        startDate: { lte: now },
+                        endDate: { gte: now },
+                    },
+                },
+                campaignProducts: {
+                    include: {
+                        product: true,
+                    },
+                },
+            },
+        });
+        if (!campaign) {
+            throw new NotFoundException('Chiến dịch không tồn tại hoặc đã kết thúc');
+        }
+        return campaign;
+    }
+
+    /**
+     * Thêm sản phẩm vào campaign
+     */
+    async addProducts(
+        campaignId: string,
+        userId: string,
+        dto: AddProductsToCampaignDto,
+        userRoles?: UserRole[],
+    ) {
+        const campaign = await this.prisma.promotionCampaign.findUnique({
+            where: { id: campaignId },
+        });
+        if (!campaign) {
+            throw new NotFoundException('Chiến dịch không tồn tại');
+        }
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
+        if (!isAdmin && (campaign.ownerType !== OWNER_TYPE_SELLER || campaign.ownerId !== userId)) {
+            throw new ForbiddenException('Bạn chỉ có thể thêm sản phẩm vào campaign của shop mình');
+        }
+
+        // Verify products exist and belong to the seller (if seller campaign)
+        const productWhere: Prisma.ProductWhereInput = {
+            id: { in: dto.productIds },
+        };
+        if (campaign.ownerType === OWNER_TYPE_SELLER && campaign.ownerId) {
+            productWhere.sellerId = campaign.ownerId;
+        }
+        const products = await this.prisma.product.findMany({
+            where: productWhere,
+        });
+
+        if (products.length !== dto.productIds.length) {
+            throw new BadRequestException(
+                'Một số sản phẩm không tồn tại hoặc không thuộc về shop của bạn',
+            );
+        }
+
+        // Calculate campaignPrice if discountPercent is provided
+        const campaignProducts = await Promise.all(
+            dto.productIds.map(async productId => {
+                const product = products.find(p => p.id === productId);
+                let campaignPrice = dto.campaignPrice;
+
+                if (!campaignPrice && dto.discountPercent) {
+                    campaignPrice = Number(product!.price) * (1 - dto.discountPercent / 100);
+                }
+
+                return {
+                    campaignId,
+                    productId,
+                    campaignPrice: campaignPrice ? new Prisma.Decimal(campaignPrice) : undefined,
+                    discountPercent: dto.discountPercent,
+                    maxQuantity: dto.maxQuantity,
+                };
+            }),
+        );
+
+        // Upsert campaign products (create or update)
+        for (const cp of campaignProducts) {
+            await this.prisma.campaignProduct.upsert({
+                where: {
+                    campaignId_productId: {
+                        campaignId: cp.campaignId,
+                        productId: cp.productId,
+                    },
+                },
+                create: cp,
+                update: {
+                    campaignPrice: cp.campaignPrice,
+                    discountPercent: cp.discountPercent,
+                    maxQuantity: cp.maxQuantity,
+                },
+            });
+        }
+
+        return { message: `Đã thêm ${dto.productIds.length} sản phẩm vào chiến dịch` };
+    }
+
+    /**
+     * Xóa sản phẩm khỏi campaign
+     */
+    async removeProducts(
+        campaignId: string,
+        productIds: string[],
+        userId: string,
+        userRoles?: UserRole[],
+    ) {
+        const campaign = await this.prisma.promotionCampaign.findUnique({
+            where: { id: campaignId },
+        });
+        if (!campaign) {
+            throw new NotFoundException('Chiến dịch không tồn tại');
+        }
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
+        if (!isAdmin && (campaign.ownerType !== OWNER_TYPE_SELLER || campaign.ownerId !== userId)) {
+            throw new ForbiddenException('Bạn chỉ có thể xóa sản phẩm khỏi campaign của shop mình');
+        }
+
+        await this.prisma.campaignProduct.deleteMany({
+            where: {
+                campaignId,
+                productId: { in: productIds },
+            },
+        });
+
+        return { message: `Đã xóa ${productIds.length} sản phẩm khỏi chiến dịch` };
+    }
+
+    /**
+     * Lấy sản phẩm trong campaign (public)
+     */
+    async getCampaignProducts(campaignId: string) {
+        const now = new Date();
+        return this.prisma.campaignProduct.findMany({
+            where: {
+                campaignId,
+                product: {
+                    status: 'APPROVED',
+                },
+            },
+            include: {
+                product: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                        images: true,
+                        price: true,
+                        originalPrice: true,
+                        stock: true,
+                        soldCount: true,
+                        ratingAvg: true,
+                        ratingCount: true,
+                    },
+                },
+            },
+            orderBy: { soldQuantity: 'desc' },
+        });
     }
 }

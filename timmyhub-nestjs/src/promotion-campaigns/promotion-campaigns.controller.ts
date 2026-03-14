@@ -19,12 +19,43 @@ import type { UserRequest } from '../auth/interfaces/auth.interface';
 import { PromotionCampaignsService } from './promotion-campaigns.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
+import { AddProductsToCampaignDto } from './dto/add-products.dto';
 import { ResponseDto } from '../common/dto/response.dto';
 
 @ApiTags('Promotion Campaigns')
 @Controller('promotion-campaigns')
 export class PromotionCampaignsController {
     constructor(private readonly campaignsService: PromotionCampaignsService) {}
+
+    /**
+     * Public API - Lấy danh sách campaigns đang hoạt động (dùng cho homepage)
+     */
+    @Get('active')
+    @ApiOperation({ summary: 'Lấy danh sách campaigns đang hoạt động (public)' })
+    async findActive() {
+        const campaigns = await this.campaignsService.findActiveCampaigns();
+        return ResponseDto.success('Lấy danh sách chiến dịch thành công', campaigns);
+    }
+
+    /**
+     * Public API - Lấy chi tiết campaign đang hoạt động
+     */
+    @Get('active/:id')
+    @ApiOperation({ summary: 'Lấy chi tiết campaign đang hoạt động (public)' })
+    async findActiveById(@Param('id') id: string) {
+        const campaign = await this.campaignsService.findActiveById(id);
+        return ResponseDto.success('Lấy chi tiết chiến dịch thành công', campaign);
+    }
+
+    /**
+     * Public API - Lấy sản phẩm trong campaign
+     */
+    @Get(':id/products')
+    @ApiOperation({ summary: 'Lấy sản phẩm trong campaign (public)' })
+    async getCampaignProducts(@Param('id') id: string) {
+        const products = await this.campaignsService.getCampaignProducts(id);
+        return ResponseDto.success('Lấy sản phẩm trong chiến dịch thành công', products);
+    }
 
     @Post()
     @UseGuards(JwtAuthGuard, RolesGuard)
@@ -98,5 +129,44 @@ export class PromotionCampaignsController {
     async remove(@Param('id') id: string, @Req() req: UserRequest) {
         await this.campaignsService.remove(id, req.user.id, req.user.roles);
         return ResponseDto.success('Đã xóa chương trình khuyến mãi');
+    }
+
+    @Post(':id/products')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Thêm sản phẩm vào campaign' })
+    async addProducts(
+        @Param('id') id: string,
+        @Body() dto: AddProductsToCampaignDto,
+        @Req() req: UserRequest,
+    ) {
+        const result = await this.campaignsService.addProducts(
+            id,
+            req.user.id,
+            dto as any,
+            req.user.roles,
+        );
+        return ResponseDto.success(result.message);
+    }
+
+    @Delete(':id/products')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Xóa sản phẩm khỏi campaign' })
+    async removeProducts(
+        @Param('id') id: string,
+        @Query('productIds') productIds: string,
+        @Req() req: UserRequest,
+    ) {
+        const ids = productIds.split(',');
+        const result = await this.campaignsService.removeProducts(
+            id,
+            ids,
+            req.user.id,
+            req.user.roles,
+        );
+        return ResponseDto.success(result.message);
     }
 }

@@ -265,6 +265,7 @@ model Product {
   variants        ProductVariant[]
   reviews         Review[]
   wishlistedBy    WishlistItem[]
+  campaignProducts CampaignProduct[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -372,13 +373,42 @@ model PromotionCampaign {
   startDate   DateTime
   endDate     DateTime
   isActive    Boolean   @default(true)
+
+  banner      String?   // Main banner URL
+  icon        String?   // Campaign icon (e.g., lightning for flash sale)
+  backgroundColor String? // Campaign background color
+  titleColor  String?   // Title text color
+  badgeText   String?   // Badge text (e.g., "GIẢM ĐẾN 50%")
+
   createdBy   String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   vouchers    Voucher[]
 
+  // Campaign products - products specifically added to this campaign
+  campaignProducts CampaignProduct[]
+
   @@index([ownerType, ownerId])
   @@index([startDate, endDate])
+  @@index([isActive, startDate, endDate])
+}
+
+// Join table for campaign-products relationship with campaign-specific pricing
+model CampaignProduct {
+  id           String           @id @default(cuid())
+  campaignId   String
+  productId    String
+  campaignPrice Decimal?         @db.Decimal(15, 2) // Special price during campaign
+  discountPercent Int?           // Discount percentage (e.g., 50 means 50%)
+  maxQuantity  Int?             // Max quantity per user for flash sale
+  soldQuantity Int             @default(0) // Quantity sold in campaign
+
+  campaign    PromotionCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  product     Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, productId])
+  @@index([campaignId])
+  @@index([productId])
 }
 
 model Voucher {

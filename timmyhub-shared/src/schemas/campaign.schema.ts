@@ -23,6 +23,11 @@ const BaseCampaignSchema = z.object({
   isActive: z.boolean().default(true),
   ownerType: z.enum(CAMPAIGN_OWNER_TYPES).optional(),
   ownerId: z.string().cuid().optional().nullable(),
+  banner: z.string().url().optional().nullable(),
+  icon: z.string().max(100).optional().nullable(),
+  backgroundColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional().nullable(),
+  titleColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional().nullable(),
+  badgeText: z.string().max(50).optional().nullable(),
 });
 
 export const CreateCampaignSchema = BaseCampaignSchema
