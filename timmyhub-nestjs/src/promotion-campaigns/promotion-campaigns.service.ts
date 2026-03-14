@@ -194,6 +194,13 @@ export class PromotionCampaignsService {
                                 soldCount: true,
                                 ratingAvg: true,
                                 ratingCount: true,
+                                categoryId: true,
+                                category: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                    },
+                                },
                             },
                         },
                     },
@@ -224,7 +231,11 @@ export class PromotionCampaignsService {
                 },
                 campaignProducts: {
                     include: {
-                        product: true,
+                        product: {
+                            include: {
+                                category: true,
+                            },
+                        },
                     },
                 },
             },

@@ -20,6 +20,11 @@ export interface CampaignProduct {
         soldCount: number;
         ratingAvg: number;
         ratingCount: number;
+        categoryId?: string;
+        category?: {
+            id: string;
+            name: string;
+        };
     };
 }
 
