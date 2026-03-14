@@ -33,7 +33,6 @@ import {
     VoucherSection,
     FeatureSection,
     FooterPromo,
-    CampaignSection
 } from './components/index-new';
 
 interface HomePageClientProps {
@@ -102,9 +101,6 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
             <Stack gap="xl">
                 {/* Hero Section */}
                 <HeroCarousel />
-
-                {/* Campaign Banner - Real-time */}
-                <CampaignSection />
 
                 {/* Features */}
                 <FeatureSection />

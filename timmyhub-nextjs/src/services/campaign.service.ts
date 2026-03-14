@@ -53,6 +53,15 @@ export interface CampaignVoucher {
     maxDiscount?: number;
 }
 
+export interface ProductCampaignPrice {
+    campaignId: string;
+    campaignName: string;
+    campaignType: string;
+    campaignPrice?: number;
+    discountPercent?: number;
+    maxQuantity?: number;
+}
+
 export const campaignService = {
     /**
      * Lấy danh sách campaigns đang hoạt động (public - dùng cho homepage)
@@ -138,5 +147,12 @@ export const campaignService = {
      */
     async removeProducts(campaignId: string, productIds: string[]): Promise<ApiResponse<void>> {
         return axios.delete(`/promotion-campaigns/${campaignId}/products?productIds=${productIds.join(',')}`) as Promise<ApiResponse<void>>;
+    },
+
+    /**
+     * Lấy giá campaign của sản phẩm
+     */
+    async getProductCampaignPrice(productId: string): Promise<ApiResponse<ProductCampaignPrice | null>> {
+        return axios.get(`/promotion-campaigns/product/${productId}/price`);
     }
 };

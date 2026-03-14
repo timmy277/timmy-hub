@@ -502,4 +502,41 @@ export class PromotionCampaignsService {
         });
         return products;
     }
+
+    /**
+     * Lấy thông tin giảm giá của sản phẩm trong campaign đang hoạt động
+     */
+    async getProductCampaignPrice(productId: string) {
+        const now = new Date();
+        const campaignProduct = await this.prisma.campaignProduct.findFirst({
+            where: {
+                productId,
+                campaign: {
+                    isActive: true,
+                    startDate: { lte: now },
+                    endDate: { gte: now },
+                },
+            },
+            include: {
+                campaign: {
+                    select: {
+                        id: true,
+                        name: true,
+                        type: true,
+                    },
+                },
+            },
+        });
+
+        if (!campaignProduct) return null;
+
+        return {
+            campaignId: campaignProduct.campaign.id,
+            campaignName: campaignProduct.campaign.name,
+            campaignType: campaignProduct.campaign.type,
+            campaignPrice: campaignProduct.campaignPrice,
+            discountPercent: campaignProduct.discountPercent,
+            maxQuantity: campaignProduct.maxQuantity,
+        };
+    }
 }

@@ -17,10 +17,12 @@ import {
     Alert,
     Avatar,
     ThemeIcon,
+    Box,
 } from '@mantine/core';
-import { IconShoppingCart, IconAlertCircle, IconBuildingStore, IconShieldCheck, IconStar, IconChevronRight, IconTag } from '@tabler/icons-react';
+import { IconShoppingCart, IconAlertCircle, IconBuildingStore, IconShieldCheck, IconStar, IconChevronRight, IconTag, IconBolt } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { Product } from '@/types/product';
@@ -28,6 +30,7 @@ import { ProductImageGallery } from './ProductImageGallery';
 import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
 import { ReviewList } from '@/features/reviews';
+import { campaignService } from '@/services/campaign.service';
 
 interface ProductDetailClientProps {
     product: Product;
@@ -39,11 +42,30 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     const { addToCart, isAdding } = useCart();
     const [quantity, setQuantity] = useState(1);
 
+    // Fetch campaign price for this product
+    const { data: campaignData } = useQuery({
+        queryKey: ['product-campaign-price', product.id],
+        queryFn: async () => {
+            const res = await campaignService.getProductCampaignPrice(product.id);
+            return res.data;
+        },
+        staleTime: 30000, // 30 seconds
+    });
+
+    // Use campaign price if available
+    const hasCampaign = !!campaignData;
+    const displayPrice = hasCampaign && campaignData?.campaignPrice
+        ? Number(campaignData.campaignPrice)
+        : product.price;
+    const originalPrice = product.originalPrice || product.price;
+    const discountPercent = hasCampaign && campaignData?.discountPercent
+        ? campaignData.discountPercent
+        : originalPrice > product.price
+            ? Math.round(((originalPrice - product.price) / originalPrice) * 100)
+            : 0;
+
     const isOutOfStock = product.stock === 0;
     const maxQuantity = Math.min(99, product.stock);
-    const discountPercent = product.originalPrice
-        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-        : 0;
 
     const breadcrumbItems: BreadcrumbItem[] = [
         { title: 'Trang chủ', href: '/' },
@@ -145,14 +167,30 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
 
                         {/* Price */}
                         <Stack gap={4}>
+                            {/* Campaign Badge */}
+                            {hasCampaign && (
+                                <Group gap="xs" mb="xs">
+                                    <Badge
+                                        size="lg"
+                                        variant="filled"
+                                        color="red"
+                                        leftSection={<IconBolt size={14} />}
+                                    >
+                                        {campaignData?.campaignType === 'FLASH_SALE' ? 'Flash Sale' : 'Giảm giá'}
+                                    </Badge>
+                                    <Text size="sm" c="dimmed">
+                                        {campaignData?.campaignName}
+                                    </Text>
+                                </Group>
+                            )}
                             <Group gap="md" align="flex-end">
-                                <Text size="xl" fw={700} c="blue" style={{ fontSize: '2rem' }}>
-                                    {new Intl.NumberFormat('vi-VN').format(product.price)}đ
+                                <Text size="xl" fw={700} c={hasCampaign ? 'red' : 'blue'} style={{ fontSize: '2rem' }}>
+                                    {new Intl.NumberFormat('vi-VN').format(displayPrice)}đ
                                 </Text>
-                                {product.originalPrice && product.originalPrice > product.price && (
+                                {(discountPercent > 0 || (hasCampaign && originalPrice > displayPrice)) && (
                                     <>
                                         <Text size="lg" td="line-through" c="dimmed">
-                                            {new Intl.NumberFormat('vi-VN').format(product.originalPrice)}đ
+                                            {new Intl.NumberFormat('vi-VN').format(originalPrice)}đ
                                         </Text>
                                         <Badge size="lg" variant="filled" color="red">
                                             -{discountPercent}%

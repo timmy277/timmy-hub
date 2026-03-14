@@ -61,6 +61,16 @@ export class PromotionCampaignsController {
         return ResponseDto.success('Lấy sản phẩm trong chiến dịch thành công', products);
     }
 
+    /**
+     * Public API - Lấy giá campaign của sản phẩm
+     */
+    @Get('product/:productId/price')
+    @ApiOperation({ summary: 'Lấy giá campaign của sản phẩm (public)' })
+    async getProductCampaignPrice(@Param('productId') productId: string) {
+        const result = await this.campaignsService.getProductCampaignPrice(productId);
+        return ResponseDto.success('Lấy giá campaign thành công', result);
+    }
+
     @Post()
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
