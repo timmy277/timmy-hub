@@ -20,7 +20,6 @@ import {
     useComputedColorScheme,
 } from '@mantine/core';
 import { IconLayoutGrid, IconList, IconLoader2 } from '@tabler/icons-react';
-import { m } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { ProductGrid } from '@/features/products/components/ProductGrid';
 import { Product } from '@/types/product';
@@ -40,21 +39,6 @@ interface HomePageClientProps {
 }
 
 const PRODUCTS_PAGE_SIZE = 20;
-
-const fadeInUp = {
-    initial: { opacity: 0, y: 30 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5 }
-};
-
-const staggerContainer = {
-    initial: {},
-    animate: {
-        transition: {
-            staggerChildren: 0.1
-        }
-    }
-};
 
 export function HomePageClient({ initialProducts }: HomePageClientProps) {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -112,116 +96,101 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                 <CategorySection />
 
                 {/* Flash Sale */}
-                <FlashSaleBanner products={products} />
+                <FlashSaleBanner />
 
                 {/* Main Products */}
-                <m.div
-                    variants={staggerContainer}
-                    initial="initial"
-                    whileInView="animate"
-                    viewport={{ once: true, amount: 0.2 }}
-                >
-                    <Stack gap="md" id="products-section">
-                        <m.div variants={fadeInUp}>
-                            <Group justify="space-between" align="center">
-                                <Box>
-                                    <Group gap="xs" align="center">
-                                        <Title order={2} mb={4}>Gợi Ý Hôm Nay</Title>
-                                        {isFetching && !isLoading && (
-                                            <IconLoader2
-                                                size={18}
-                                                style={{
-                                                    color: 'var(--mantine-color-blue-5)',
-                                                    animation: 'spin 1s linear infinite',
-                                                }}
-                                            />
-                                        )}
-                                    </Group>
-                                    <Text c="dimmed">
-                                        {filteredProducts.length > 0
-                                            ? `${filteredProducts.length} sản phẩm dành riêng cho bạn`
-                                            : 'Những sản phẩm tốt nhất dành riêng cho bạn'}
-                                    </Text>
-                                </Box>
-
-                                <Group>
-                                    <Tabs
-                                        value={activeTab}
-                                        onChange={(val) => {
-                                            setActiveTab(val);
-                                            setShowAll(false);
-                                        }}
-                                        variant="pills"
-                                        radius="xl"
-                                    >
-                                        <Tabs.List>
-                                            <Tabs.Tab value="all">Tất cả</Tabs.Tab>
-                                            <Tabs.Tab value="new">Mới nhất</Tabs.Tab>
-                                            <Tabs.Tab value="best">Bán chạy</Tabs.Tab>
-                                            <Tabs.Tab value="sale">Giảm giá</Tabs.Tab>
-                                            <Tabs.Tab value="featured">Nổi bật</Tabs.Tab>
-                                        </Tabs.List>
-                                    </Tabs>
-                                    <Group
-                                        gap={0}
+                <Stack gap="md" id="products-section">
+                    <Group justify="space-between" align="center">
+                        <Box>
+                            <Group gap="xs" align="center">
+                                <Title order={2} mb={4}>Gợi Ý Hôm Nay</Title>
+                                {isFetching && !isLoading && (
+                                    <IconLoader2
+                                        size={18}
                                         style={{
-                                            border: isDark
-                                                ? '1px solid var(--mantine-color-dark-4)'
-                                                : '1px solid #eee',
-                                            borderRadius: 8,
-                                            overflow: 'hidden',
+                                            color: 'var(--mantine-color-blue-5)',
+                                            animation: 'spin 1s linear infinite',
                                         }}
-                                    >
-                                        <ActionIcon
-                                            variant={viewMode === 'grid' ? 'filled' : 'subtle'}
-                                            color="blue"
-                                            size="lg"
-                                            onClick={() => setViewMode('grid')}
-                                            radius={0}
-                                        >
-                                            <IconLayoutGrid size={20} />
-                                        </ActionIcon>
-                                        <ActionIcon
-                                            variant={viewMode === 'list' ? 'filled' : 'subtle'}
-                                            color="blue"
-                                            size="lg"
-                                            onClick={() => setViewMode('list')}
-                                            radius={0}
-                                        >
-                                            <IconList size={20} />
-                                        </ActionIcon>
-                                    </Group>
-                                </Group>
+                                    />
+                                )}
                             </Group>
-                        </m.div>
+                            <Text c="dimmed">
+                                {filteredProducts.length > 0
+                                    ? `${filteredProducts.length} sản phẩm dành riêng cho bạn`
+                                    : 'Những sản phẩm tốt nhất dành riêng cho bạn'}
+                            </Text>
+                        </Box>
 
-                        <m.div variants={fadeInUp}>
-                            <ProductGrid
-                                products={displayProducts}
-                                viewMode={viewMode}
-                                isLoading={isLoading}
-                            />
-                        </m.div>
+                        <Group>
+                            <Tabs
+                                value={activeTab}
+                                onChange={(val) => {
+                                    setActiveTab(val);
+                                    setShowAll(false);
+                                }}
+                                variant="pills"
+                                radius="xl"
+                            >
+                                <Tabs.List>
+                                    <Tabs.Tab value="all">Tất cả</Tabs.Tab>
+                                    <Tabs.Tab value="new">Mới nhất</Tabs.Tab>
+                                    <Tabs.Tab value="best">Bán chạy</Tabs.Tab>
+                                    <Tabs.Tab value="sale">Giảm giá</Tabs.Tab>
+                                    <Tabs.Tab value="featured">Nổi bật</Tabs.Tab>
+                                </Tabs.List>
+                            </Tabs>
+                            <Group
+                                gap={0}
+                                style={{
+                                    border: isDark
+                                        ? '1px solid var(--mantine-color-dark-4)'
+                                        : '1px solid #eee',
+                                    borderRadius: 8,
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <ActionIcon
+                                    variant={viewMode === 'grid' ? 'filled' : 'subtle'}
+                                    color="blue"
+                                    size="lg"
+                                    onClick={() => setViewMode('grid')}
+                                    radius={0}
+                                >
+                                    <IconLayoutGrid size={20} />
+                                </ActionIcon>
+                                <ActionIcon
+                                    variant={viewMode === 'list' ? 'filled' : 'subtle'}
+                                    color="blue"
+                                    size="lg"
+                                    onClick={() => setViewMode('list')}
+                                    radius={0}
+                                >
+                                    <IconList size={20} />
+                                </ActionIcon>
+                            </Group>
+                        </Group>
+                    </Group>
 
-                        {hasMore && (
-                            <m.div variants={fadeInUp}>
-                                <Center mt="xl">
-                                    <m.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                        <Button
-                                            variant="outline"
-                                            size="md"
-                                            radius="xl"
-                                            px={40}
-                                            onClick={() => setShowAll(true)}
-                                        >
-                                            Xem Thêm ({filteredProducts.length - PRODUCTS_PAGE_SIZE} sản phẩm)
-                                        </Button>
-                                    </m.div>
-                                </Center>
-                            </m.div>
-                        )}
-                    </Stack>
-                </m.div>
+                    <ProductGrid
+                        products={displayProducts}
+                        viewMode={viewMode}
+                        isLoading={isLoading}
+                    />
+
+                    {hasMore && (
+                        <Center mt="xl">
+                            <Button
+                                variant="outline"
+                                size="md"
+                                radius="xl"
+                                px={40}
+                                onClick={() => setShowAll(true)}
+                            >
+                                Xem Thêm ({filteredProducts.length - PRODUCTS_PAGE_SIZE} sản phẩm)
+                            </Button>
+                        </Center>
+                    )}
+                </Stack>
 
                 {/* Footer Promo */}
                 <FooterPromo />

@@ -176,7 +176,12 @@ export class PromotionCampaignsService {
                             status: 'APPROVED',
                         },
                     },
-                    include: {
+                    select: {
+                        id: true,
+                        campaignPrice: true,
+                        discountPercent: true,
+                        maxQuantity: true,
+                        soldQuantity: true,
                         product: {
                             select: {
                                 id: true,
@@ -187,6 +192,8 @@ export class PromotionCampaignsService {
                                 originalPrice: true,
                                 stock: true,
                                 soldCount: true,
+                                ratingAvg: true,
+                                ratingCount: true,
                             },
                         },
                     },

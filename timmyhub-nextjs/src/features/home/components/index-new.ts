@@ -5,4 +5,3 @@ export { FlashSaleBanner } from './FlashSaleBanner';
 export { VoucherSection } from './VoucherSection';
 export { FeatureSection } from './FeatureSection';
 export { FooterPromo } from './FooterPromo';
-export { CampaignSection } from './CampaignSection';

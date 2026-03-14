@@ -153,6 +153,6 @@ export const campaignService = {
      * Lấy giá campaign của sản phẩm
      */
     async getProductCampaignPrice(productId: string): Promise<ApiResponse<ProductCampaignPrice | null>> {
-        return axios.get(`/promotion-campaigns/product/${productId}/price`);
+        return axios.get(`/promotion-campaigns/product/${productId}/price`) as Promise<ApiResponse<ProductCampaignPrice | null>>;
     }
 };
