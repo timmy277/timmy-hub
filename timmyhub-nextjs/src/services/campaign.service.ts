@@ -99,7 +99,7 @@ export const campaignService = {
     },
 
     /**
-     * Thêm sản phẩm vào campaign
+     * Thêm sản phẩm vào campaign (áp dụng chung cho tất cả)
      */
     async addProducts(campaignId: string, data: {
         productIds: string[];
@@ -108,6 +108,29 @@ export const campaignService = {
         maxQuantity?: number;
     }): Promise<ApiResponse<void>> {
         return axios.post(`/promotion-campaigns/${campaignId}/products`, data) as Promise<ApiResponse<void>>;
+    },
+
+    /**
+     * Thêm sản phẩm vào campaign (với giá riêng cho từng sản phẩm)
+     */
+    async addProductsWithPrices(campaignId: string, products: {
+        productId: string;
+        campaignPrice?: number;
+        discountPercent?: number;
+        maxQuantity?: number;
+    }[]): Promise<ApiResponse<void>> {
+        return axios.post(`/promotion-campaigns/${campaignId}/products/bulk`, { products }) as Promise<ApiResponse<void>>;
+    },
+
+    /**
+     * Cập nhật giá sản phẩm trong campaign
+     */
+    async updateProductPrice(campaignId: string, productId: string, data: {
+        campaignPrice?: number;
+        discountPercent?: number;
+        maxQuantity?: number;
+    }): Promise<ApiResponse<void>> {
+        return axios.patch(`/promotion-campaigns/${campaignId}/products/${productId}`, data) as Promise<ApiResponse<void>>;
     },
 
     /**

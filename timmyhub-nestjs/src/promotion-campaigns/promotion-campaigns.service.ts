@@ -12,7 +12,6 @@ import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { AddProductsToCampaignDto } from './dto/add-products.dto';
 
 const OWNER_TYPE_SELLER = 'SELLER';
-const OWNER_TYPE_PLATFORM = 'PLATFORM';
 
 @Injectable()
 export class PromotionCampaignsService {
@@ -268,24 +267,22 @@ export class PromotionCampaignsService {
         }
 
         // Calculate campaignPrice if discountPercent is provided
-        const campaignProducts = await Promise.all(
-            dto.productIds.map(async productId => {
-                const product = products.find(p => p.id === productId);
-                let campaignPrice = dto.campaignPrice;
+        const campaignProducts = dto.productIds.map(productId => {
+            const product = products.find(p => p.id === productId);
+            let campaignPrice = dto.campaignPrice;
 
-                if (!campaignPrice && dto.discountPercent) {
-                    campaignPrice = Number(product!.price) * (1 - dto.discountPercent / 100);
-                }
+            if (!campaignPrice && dto.discountPercent) {
+                campaignPrice = Number(product!.price) * (1 - dto.discountPercent / 100);
+            }
 
-                return {
-                    campaignId,
-                    productId,
-                    campaignPrice: campaignPrice ? new Prisma.Decimal(campaignPrice) : undefined,
-                    discountPercent: dto.discountPercent,
-                    maxQuantity: dto.maxQuantity,
-                };
-            }),
-        );
+            return {
+                campaignId,
+                productId,
+                campaignPrice: campaignPrice ? new Prisma.Decimal(campaignPrice) : undefined,
+                discountPercent: dto.discountPercent,
+                maxQuantity: dto.maxQuantity,
+            };
+        });
 
         // Upsert campaign products (create or update)
         for (const cp of campaignProducts) {
@@ -340,11 +337,145 @@ export class PromotionCampaignsService {
     }
 
     /**
+     * Thêm nhiều sản phẩm vào campaign với giá riêng cho từng sản phẩm
+     */
+    async bulkAddProducts(
+        campaignId: string,
+        userId: string,
+        dto: {
+            products: {
+                productId: string;
+                campaignPrice?: number;
+                discountPercent?: number;
+                maxQuantity?: number;
+            }[];
+        },
+        userRoles?: UserRole[],
+    ) {
+        const campaign = await this.prisma.promotionCampaign.findUnique({
+            where: { id: campaignId },
+        });
+
+        if (!campaign) {
+            throw new NotFoundException('Chiến dịch không tồn tại');
+        }
+
+        // Check permission
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
+        if (!isAdmin && (campaign.ownerType !== OWNER_TYPE_SELLER || campaign.ownerId !== userId)) {
+            throw new ForbiddenException('Bạn chỉ có thể thêm sản phẩm vào campaign của shop mình');
+        }
+
+        // Get all products
+        const productIds = dto.products.map(p => p.productId);
+        const products = await this.prisma.product.findMany({
+            where: { id: { in: productIds } },
+        });
+
+        if (products.length !== productIds.length) {
+            throw new BadRequestException('Một số sản phẩm không tồn tại');
+        }
+
+        // Create/update campaign products with individual prices
+        for (const item of dto.products) {
+            const product = products.find(p => p.id === item.productId);
+            let campaignPrice = item.campaignPrice;
+
+            // Calculate price if discountPercent is provided
+            if (!campaignPrice && item.discountPercent) {
+                campaignPrice = Number(product!.price) * (1 - item.discountPercent / 100);
+            }
+
+            await this.prisma.campaignProduct.upsert({
+                where: {
+                    campaignId_productId: {
+                        campaignId,
+                        productId: item.productId,
+                    },
+                },
+                create: {
+                    campaignId,
+                    productId: item.productId,
+                    campaignPrice: campaignPrice ? new Prisma.Decimal(campaignPrice) : undefined,
+                    discountPercent: item.discountPercent,
+                    maxQuantity: item.maxQuantity,
+                },
+                update: {
+                    campaignPrice: campaignPrice ? new Prisma.Decimal(campaignPrice) : undefined,
+                    discountPercent: item.discountPercent,
+                    maxQuantity: item.maxQuantity,
+                },
+            });
+        }
+
+        return { message: `Đã thêm ${dto.products.length} sản phẩm vào chiến dịch` };
+    }
+
+    /**
+     * Cập nhật giá sản phẩm trong campaign
+     */
+    async updateProductPrice(
+        campaignId: string,
+        productId: string,
+        userId: string,
+        dto: {
+            campaignPrice?: number;
+            discountPercent?: number;
+            maxQuantity?: number;
+        },
+        userRoles?: UserRole[],
+    ) {
+        const campaign = await this.prisma.promotionCampaign.findUnique({
+            where: { id: campaignId },
+        });
+
+        if (!campaign) {
+            throw new NotFoundException('Chiến dịch không tồn tại');
+        }
+
+        // Check permission
+        const isAdmin =
+            userRoles?.includes(UserRole.ADMIN) || userRoles?.includes(UserRole.SUPER_ADMIN);
+        if (!isAdmin && (campaign.ownerType !== OWNER_TYPE_SELLER || campaign.ownerId !== userId)) {
+            throw new ForbiddenException(
+                'Bạn chỉ có thể cập nhật sản phẩm trong campaign của shop mình',
+            );
+        }
+
+        // Get product to calculate price if needed
+        let campaignPrice = dto.campaignPrice;
+        if (!campaignPrice && dto.discountPercent) {
+            const product = await this.prisma.product.findUnique({
+                where: { id: productId },
+            });
+            if (product) {
+                campaignPrice = Number(product.price) * (1 - dto.discountPercent / 100);
+            }
+        }
+
+        await this.prisma.campaignProduct.update({
+            where: {
+                campaignId_productId: {
+                    campaignId,
+                    productId,
+                },
+            },
+            data: {
+                campaignPrice: campaignPrice ? new Prisma.Decimal(campaignPrice) : undefined,
+                discountPercent: dto.discountPercent,
+                maxQuantity: dto.maxQuantity,
+            },
+        });
+
+        return { message: 'Đã cập nhật giá sản phẩm trong chiến dịch' };
+    }
+
+    /**
      * Lấy sản phẩm trong campaign (public)
      */
     async getCampaignProducts(campaignId: string) {
-        const now = new Date();
-        return this.prisma.campaignProduct.findMany({
+        const products = await this.prisma.campaignProduct.findMany({
             where: {
                 campaignId,
                 product: {
@@ -369,5 +500,6 @@ export class PromotionCampaignsService {
             },
             orderBy: { soldQuantity: 'desc' },
         });
+        return products;
     }
 }

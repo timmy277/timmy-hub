@@ -20,6 +20,10 @@ import { PromotionCampaignsService } from './promotion-campaigns.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { AddProductsToCampaignDto } from './dto/add-products.dto';
+import {
+    BulkAddProductsToCampaignDto,
+    UpdateCampaignProductDto,
+} from './dto/bulk-add-products.dto';
 import { ResponseDto } from '../common/dto/response.dto';
 
 @ApiTags('Promotion Campaigns')
@@ -165,6 +169,52 @@ export class PromotionCampaignsController {
             id,
             ids,
             req.user.id,
+            req.user.roles,
+        );
+        return ResponseDto.success(result.message);
+    }
+
+    /**
+     * Thêm nhiều sản phẩm vào campaign với giá riêng cho từng sản phẩm
+     */
+    @Post(':id/products/bulk')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Thêm nhiều sản phẩm vào campaign với giá riêng' })
+    async bulkAddProducts(
+        @Param('id') id: string,
+        @Body() dto: BulkAddProductsToCampaignDto,
+        @Req() req: UserRequest,
+    ) {
+        const result = await this.campaignsService.bulkAddProducts(
+            id,
+            req.user.id,
+            dto as any,
+            req.user.roles,
+        );
+        return ResponseDto.success(result.message);
+    }
+
+    /**
+     * Cập nhật giá sản phẩm trong campaign
+     */
+    @Patch(':id/products/:productId')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SELLER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Cập nhật giá sản phẩm trong campaign' })
+    async updateProductPrice(
+        @Param('id') id: string,
+        @Param('productId') productId: string,
+        @Body() dto: UpdateCampaignProductDto,
+        @Req() req: UserRequest,
+    ) {
+        const result = await this.campaignsService.updateProductPrice(
+            id,
+            productId,
+            req.user.id,
+            dto as any,
             req.user.roles,
         );
         return ResponseDto.success(result.message);
