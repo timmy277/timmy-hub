@@ -35,7 +35,7 @@ export function LanguageSwitcher() {
         >
             <Menu.Target>
                 <Tooltip label={t('Change language') || 'Change language'}>
-                    <ActionIcon variant="default" size="lg" radius="md">
+                    <ActionIcon variant="subtle" size="lg" radius="md">
                         {currentLanguage.startsWith('vi') ? <FlagVN /> : <FlagUK />}
                     </ActionIcon>
                 </Tooltip>

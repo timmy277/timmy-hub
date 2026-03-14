@@ -40,7 +40,7 @@ export function ThemeSwitcher() {
             {/* Light/Dark Toggle */}
             <ActionIcon
                 onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
-                variant="default"
+                variant="subtle"
                 size="lg"
                 aria-label="Toggle color scheme"
                 radius="md"
@@ -56,7 +56,7 @@ export function ThemeSwitcher() {
             <Popover width={220} position="bottom" withArrow shadow="md">
                 <Popover.Target>
                     <Tooltip label="Change primary color">
-                        <ActionIcon variant="default" size="lg" radius="md" c={primaryColor}>
+                        <ActionIcon variant="subtle" size="lg" radius="md" c={primaryColor}>
                             <Iconify icon="solar:pallete-2-bold" width={18} />
                         </ActionIcon>
                     </Tooltip>
