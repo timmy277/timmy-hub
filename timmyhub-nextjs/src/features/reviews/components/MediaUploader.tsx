@@ -22,12 +22,7 @@ import {
     Loader,
 } from '@mantine/core';
 import { Dropzone, IMAGE_MIME_TYPE, type FileWithPath, type FileRejection } from '@mantine/dropzone';
-import {
-    IconUpload,
-    IconX,
-    IconPhoto,
-    IconVideo,
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { notifications } from '@mantine/notifications';
 import { fileService } from '@/services/file.service';
 
@@ -104,7 +99,7 @@ function ImagePreview({ item, onRemove }: { item: MediaItem; onRemove: () => voi
             )}
             {item.error && (
                 <Box style={{ ...OVERLAY_STYLE, background: 'rgba(200,0,0,0.6)' }}>
-                    <IconX size={16} color="white" />
+                    <Iconify icon="tabler:x" width={16} color="white" />
                 </Box>
             )}
             {done && (
@@ -135,7 +130,7 @@ function VideoPreview({ item, onRemove }: { item: MediaItem; onRemove: () => voi
                 />
             ) : (
                 <Box style={{ ...PREVIEW_STYLE, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e' }}>
-                    <IconVideo size={28} color="#ccc" />
+                    <Iconify icon="tabler:video" width={28} color="#ccc" />
                 </Box>
             )}
             {/* Video badge */}
@@ -143,7 +138,7 @@ function VideoPreview({ item, onRemove }: { item: MediaItem; onRemove: () => voi
                 size="xs"
                 radius="sm"
                 style={{ position: 'absolute', bottom: 4, left: 4 }}
-                leftSection={<IconVideo size={10} />}
+                leftSection={<Iconify icon="tabler:video" width={10} />}
                 color="dark"
                 variant="filled"
             >
@@ -159,7 +154,7 @@ function VideoPreview({ item, onRemove }: { item: MediaItem; onRemove: () => voi
             )}
             {item.error && (
                 <Box style={{ ...OVERLAY_STYLE, background: 'rgba(200,0,0,0.6)' }}>
-                    <IconX size={16} color="white" />
+                    <Iconify icon="tabler:x" width={16} color="white" />
                 </Box>
             )}
             {done && (
@@ -319,7 +314,7 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
                         >
                             <Stack align="center" justify="center" gap={4}>
                                 <ActionIcon variant="transparent" color="gray" size="sm">
-                                    <IconUpload size={16} />
+                                    <Iconify icon="tabler:upload" width={16} />
                                 </ActionIcon>
                                 <Text size="xs" c="dimmed">Thêm</Text>
                             </Stack>
@@ -341,7 +336,7 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
                     <Group justify="center" gap="xl" wrap="nowrap" py="xs">
                         <Dropzone.Accept>
                             <ThemeIcon size={48} radius="xl" variant="light" color="blue">
-                                <IconUpload size={24} />
+                                <Iconify icon="tabler:upload" width={24} />
                             </ThemeIcon>
                         </Dropzone.Accept>
                         <Dropzone.Reject>
@@ -352,10 +347,10 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
                         <Dropzone.Idle>
                             <Group gap="xs">
                                 <ThemeIcon size={40} radius="xl" variant="light" color="gray">
-                                    <IconPhoto size={20} />
+                                    <Iconify icon="tabler:photo" width={20} />
                                 </ThemeIcon>
                                 <ThemeIcon size={40} radius="xl" variant="light" color="gray">
-                                    <IconVideo size={20} />
+                                    <Iconify icon="tabler:video" width={20} />
                                 </ThemeIcon>
                             </Group>
                         </Dropzone.Idle>

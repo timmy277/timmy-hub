@@ -16,7 +16,7 @@ import {
     Center,
     Box,
 } from '@mantine/core';
-import { IconCheck, IconShieldCheck, IconInfoCircle, IconUsers } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { Role, Permission } from '@/types/rbac';
 import { formatDate } from '@/utils/date';
 import { useRoleDetail } from '@/hooks/useRbac';
@@ -78,7 +78,7 @@ export function RoleDetail({ role: initialRole }: RoleDetailProps) {
                 <SimpleGrid cols={{ base: 1, sm: 2 }}>
                     <Stack gap="xs">
                         <Group gap="xs">
-                            <IconInfoCircle size={18} color="var(--mantine-color-blue-6)" />
+                            <Iconify icon="tabler:info-circle" width={18} color="var(--mantine-color-blue-6)" />
                             <Text fw={500}>{t('rbac.description')}:</Text>
                         </Group>
                         <Text ml={26}>{role.description || t('common.noDescription')}</Text>
@@ -86,7 +86,7 @@ export function RoleDetail({ role: initialRole }: RoleDetailProps) {
 
                     <Stack gap="xs">
                         <Group gap="xs">
-                            <IconUsers size={18} color="var(--mantine-color-indigo-6)" />
+                            <Iconify icon="tabler:users" width={18} color="var(--mantine-color-indigo-6)" />
                             <Text fw={500}>{t('common.usersCount')}:</Text>
                         </Group>
                         <Text ml={26}>
@@ -114,7 +114,7 @@ export function RoleDetail({ role: initialRole }: RoleDetailProps) {
 
                 <Stack gap="md">
                     <Group>
-                        <IconShieldCheck size={18} color="var(--mantine-color-green-6)" />
+                        <Iconify icon="tabler:shield-check" width={18} color="var(--mantine-color-green-6)" />
                         <Text fw={500}>
                             {t('rbac.assignedPermissions')} ({role._count?.permissions || 0})
                         </Text>
@@ -133,7 +133,7 @@ export function RoleDetail({ role: initialRole }: RoleDetailProps) {
                                         center
                                         icon={
                                             <ThemeIcon color="teal" size={20} radius="xl">
-                                                <IconCheck size={12} />
+                                                <Iconify icon="tabler:check" width={12} />
                                             </ThemeIcon>
                                         }
                                     >

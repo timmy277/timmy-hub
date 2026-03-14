@@ -31,7 +31,7 @@ import {
     Divider,
     Skeleton,
 } from '@mantine/core';
-import { IconFilter, IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useQuery } from '@tanstack/react-query';
 import { productService, ProductsResponse, ProductFilterParams } from '@/services/product.service';
 import { ProductGrid } from '@/features/products/components/ProductGrid';
@@ -442,7 +442,7 @@ function CollectionPageContent() {
                                         hiddenFrom="md"
                                         onClick={() => setMobileFiltersOpen(true)}
                                     >
-                                        <IconFilter size={20} />
+                                        <Iconify icon="tabler:filter" />
                                     </ActionIcon>
 
                                     <Tabs value={sortOption} onChange={(val) => val && handleSortChange(val)}>
@@ -462,7 +462,7 @@ function CollectionPageContent() {
                                 <Group mt="md" gap="xs">
                                     {categoryId && currentCategory && (
                                         <Badge variant="light" rightSection={
-                                            <IconX size={12} style={{ cursor: 'pointer' }} onClick={() => handleTabChange('all')} />
+                                            <Iconify icon="tabler:x" />
                                         }>
                                             {currentCategory.name}
                                         </Badge>
@@ -471,7 +471,7 @@ function CollectionPageContent() {
                                         const brand = (brandsData || []).find(b => b.id === brandId);
                                         return brand ? (
                                             <Badge key={brandId} variant="light" rightSection={
-                                                <IconX size={12} style={{ cursor: 'pointer' }} onClick={() => {
+                                                <Iconify icon="tabler:x" width={12} style={{ cursor: 'pointer' }} onClick={() => {
                                                     setSelectedBrands([]);
                                                     updateParams({ brandId: null, page: '1' });
                                                 }} />
@@ -482,7 +482,7 @@ function CollectionPageContent() {
                                     })}
                                     {(priceRange[0] > 0 || priceRange[1] < 50000000) && (
                                         <Badge variant="light" rightSection={
-                                            <IconX size={12} style={{ cursor: 'pointer' }} onClick={() => {
+                                            <Iconify icon="tabler:x" width={12} style={{ cursor: 'pointer' }} onClick={() => {
                                                 setPriceRange([0, 50000000]);
                                                 updateParams({ minPrice: null, maxPrice: null, page: '1' });
                                             }} />

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Box, Image, Group, ActionIcon, Modal, Stack } from '@mantine/core';
-import { IconZoomIn, IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useDisclosure } from '@mantine/hooks';
 interface ProductImageGalleryProps {
     images: string[];
@@ -79,7 +79,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                             openZoom();
                         }}
                     >
-                        <IconZoomIn size={20} />
+                        <Iconify icon="tabler:zoom-in" width={20} />
                     </ActionIcon>
                 </Box>
 
@@ -142,7 +142,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                         className="absolute top-[10px] right-[10px] z-10"
                         onClick={closeZoom}
                     >
-                        <IconX size={20} />
+                        <Iconify icon="tabler:x" width={20} />
                     </ActionIcon>
                     <Image
                         src={mainImage}

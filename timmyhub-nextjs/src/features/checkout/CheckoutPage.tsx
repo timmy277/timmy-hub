@@ -26,15 +26,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { voucherService } from '@/services/voucher.service';
 import { notifications } from '@mantine/notifications';
-import {
-    IconCreditCard,
-    IconAlertCircle,
-    IconDiscount2,
-    IconTicket,
-    IconCheck,
-    IconX,
-    IconCopy,
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
@@ -286,7 +278,7 @@ export function CheckoutPage() {
         return (
             <Container size="lg" py="xl">
                 <Paper p="xl" withBorder>
-                    <Alert icon={<IconAlertCircle size={18} />} title="Giỏ hàng trống" color="blue">
+                    <Alert icon={<Iconify icon="tabler:alert-circle" width={18} />} title="Giỏ hàng trống" color="blue">
                         Bạn chưa có sản phẩm nào để thanh toán. Vui lòng thêm sản phẩm vào giỏ hàng
                         trước.
                     </Alert>
@@ -365,7 +357,7 @@ export function CheckoutPage() {
                                     value={voucherCode}
                                     onChange={e => setVoucherCode(e.currentTarget.value)}
                                     disabled={!!appliedVoucher || isApplyingVoucher}
-                                    leftSection={<IconDiscount2 size={16} />}
+                                    leftSection={<Iconify icon="tabler:discount-2" width={16} />}
                                 />
                                 {appliedVoucher ? (
                                     <Button
@@ -391,7 +383,7 @@ export function CheckoutPage() {
                                     variant="subtle"
                                     size="xs"
                                     mt="xs"
-                                    leftSection={<IconTicket size={14} />}
+                                    leftSection={<Iconify icon="tabler:ticket" width={14} />}
                                     onClick={openVoucherModal}
                                 >
                                     Chọn từ voucher của bạn
@@ -422,7 +414,7 @@ export function CheckoutPage() {
                         size="md"
                         fullWidth
                         mt="lg"
-                        leftSection={<IconCreditCard size={18} />}
+                        leftSection={<Iconify icon="tabler:credit-card" width={18} />}
                         onClick={handlePayWithVnpay}
                         loading={isSubmitting}
                     >
@@ -508,19 +500,19 @@ export function CheckoutPage() {
                                                                     copy();
                                                                 }}
                                                             >
-                                                                {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                                                                {copied ? <Iconify icon="tabler:check" width={14} /> : <Iconify icon="tabler:copy" width={14} />}
                                                             </Button>
                                                         </Tooltip>
                                                     )}
                                                 </CopyButton>
                                                 {usable && (
                                                     <ThemeIcon size={24} radius="xl" color="green" variant="light">
-                                                        <IconCheck size={14} />
+                                                        <Iconify icon="tabler:check" width={14} />
                                                     </ThemeIcon>
                                                 )}
                                                 {!usable && (
                                                     <ThemeIcon size={24} radius="xl" color="gray" variant="light">
-                                                        <IconX size={14} />
+                                                        <Iconify icon="tabler:x" width={14} />
                                                     </ThemeIcon>
                                                 )}
                                             </Group>

@@ -14,7 +14,7 @@ import {
     Stack,
 } from '@mantine/core';
 import Link from 'next/link';
-import { IconRefresh } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { orderService } from '@/services/order.service';
 import type { Order, OrderStatus } from '@/types/order';
 import { QUERY_KEYS, ORDER_STATUS_LABELS, getOrderStatusColor } from '@/constants';
@@ -35,7 +35,7 @@ export function AdminOrdersPage() {
                         <Title order={3}>Quản lý đơn hàng</Title>
                         <Button
                             variant="outline"
-                            leftSection={<IconRefresh size={16} />}
+                            leftSection={<Iconify icon="tabler:refresh" width={16} />}
                             onClick={() => refetch()}
                             loading={isLoading}
                         >

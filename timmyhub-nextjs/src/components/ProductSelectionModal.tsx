@@ -19,7 +19,7 @@ import {
     Tooltip,
     Paper,
 } from '@mantine/core';
-import { IconSearch, IconX, IconCheck, IconPlus } from '@tabler/icons-react';
+import { Icon } from '@iconify/react';
 import { useQuery } from '@tanstack/react-query';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
@@ -174,7 +174,7 @@ export function ProductSelectionModal({
                 <Group>
                     <TextInput
                         placeholder="Tìm sản phẩm..."
-                        leftSection={<IconSearch size={16} />}
+                        leftSection={<Icon icon="tabler:search" width={16} />}
                         value={search}
                         onChange={(e) => {
                             setSearch(e.currentTarget.value);
@@ -353,7 +353,7 @@ export function ProductSelectionModal({
                                                             variant="light"
                                                             onClick={() => handleEditSave(item.productId)}
                                                         >
-                                                            <IconCheck size={16} />
+                                                            <Icon icon="tabler:check" width={16} />
                                                         </ActionIcon>
                                                     </Tooltip>
                                                     <Tooltip label="Hủy">
@@ -362,7 +362,7 @@ export function ProductSelectionModal({
                                                             variant="light"
                                                             onClick={handleEditCancel}
                                                         >
-                                                            <IconX size={16} />
+                                                            <Icon icon="tabler:x" width={16} />
                                                         </ActionIcon>
                                                     </Tooltip>
                                                 </Group>
@@ -388,7 +388,7 @@ export function ProductSelectionModal({
                                                             variant="subtle"
                                                             onClick={() => handleEditStart(item)}
                                                         >
-                                                            <IconPlus size={16} />
+                                                            <Icon icon="tabler:plus" width={16} />
                                                         </ActionIcon>
                                                     </Tooltip>
                                                     <Tooltip label="Xóa">
@@ -397,7 +397,7 @@ export function ProductSelectionModal({
                                                             variant="subtle"
                                                             onClick={() => handleRemove(item.productId)}
                                                         >
-                                                            <IconX size={16} />
+                                                            <Icon icon="tabler:x" width={16} />
                                                         </ActionIcon>
                                                     </Tooltip>
                                                 </Group>

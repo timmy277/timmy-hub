@@ -7,9 +7,8 @@
 import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColDef } from 'ag-grid-community';
-import { IconPackage } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { Badge, Group, ActionIcon, Tooltip } from '@mantine/core';
-import { IconEye } from '@tabler/icons-react';
 import { ICellRendererParams } from 'ag-grid-community';
 import { Product } from '@/types/product';
 import { createSellerProductColumns } from '@/constants/column';
@@ -70,7 +69,7 @@ export function SellerProductList() {
                                     color="blue"
                                     onClick={() => handleAction('Detail', product, product.name.slice(0, 15))}
                                 >
-                                    <IconEye size={16} />
+                                    <Iconify icon="tabler:eye" width={16} />
                                 </ActionIcon>
                             </Tooltip>
                         </Group>
@@ -91,7 +90,7 @@ export function SellerProductList() {
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
             searchPlaceholder="Tìm theo tên, SKU..."
-            listIcon={<IconPackage size={16} />}
+            listIcon={<Iconify icon="tabler:package" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

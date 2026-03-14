@@ -1,13 +1,12 @@
 'use client';
 
 import { SimpleGrid, Group, Text, ThemeIcon, Stack, Paper } from '@mantine/core';
-import { IconTruck, IconShieldCheck, IconPhoneCall, IconClock } from '@tabler/icons-react';
+import { Icon } from '@iconify/react';
 import { m } from 'framer-motion';
-import { ComponentType } from 'react';
 import { useComputedColorScheme } from '@mantine/core';
 
 interface Feature {
-    icon: ComponentType<{ size?: number }>;
+    icon: string;
     title: string;
     desc: string;
 }
@@ -32,10 +31,10 @@ export function FeatureSection() {
     const isDark = computedColorScheme === 'dark';
     
     const features: Feature[] = [
-        { icon: IconTruck, title: 'Miễn Phí Vận Chuyển', desc: 'Cho đơn từ 199k' },
-        { icon: IconShieldCheck, title: 'Bảo Hành Chính Hãng', desc: 'Cam kết 100%' },
-        { icon: IconPhoneCall, title: 'Hỗ Trợ 24/7', desc: 'Hotline: 1900 1234' },
-        { icon: IconClock, title: 'Giao Hàng Nhanh', desc: 'Nội thành 2h' },
+        { icon: 'tabler:truck', title: 'Miễn Phí Vận Chuyển', desc: 'Cho đơn từ 199k' },
+        { icon: 'tabler:shield-check', title: 'Bảo Hành Chính Hãng', desc: 'Cam kết 100%' },
+        { icon: 'tabler:phone-call', title: 'Hỗ Trợ 24/7', desc: 'Hotline: 1900 1234' },
+        { icon: 'tabler:clock', title: 'Giao Hàng Nhanh', desc: 'Nội thành 2h' },
     ];
 
     return (
@@ -65,7 +64,7 @@ export function FeatureSection() {
                             >
                                 <Group gap="sm">
                                     <ThemeIcon size={42} radius="md" variant="light" color="blue">
-                                        <Icon size={24} />
+                                        <Icon icon={f.icon} width={24} />
                                     </ThemeIcon>
                                     <Stack gap={0}>
                                         <Text fw={600} size="sm">{f.title}</Text>

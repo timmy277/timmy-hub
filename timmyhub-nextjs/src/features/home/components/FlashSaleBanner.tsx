@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Carousel } from '@mantine/carousel';
 import { Paper, Group, Title, Badge, Button, Text, useComputedColorScheme, Box, Skeleton } from '@mantine/core';
-import { IconFlame } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { ProductCard } from '@/features/products/components/ProductCard';
@@ -102,7 +102,7 @@ export function FlashSaleBanner() {
             <Paper p="xl" radius="lg" bg={isDark ? 'red.9' : 'red.0'} style={{ border: '2px solid var(--mantine-color-red-filled)' }}>
                 <Group justify="space-between" mb="lg" align="flex-end">
                     <Group gap="xs">
-                        <IconFlame size={32} color="red" fill="orange" />
+                        <Iconify icon="tabler:flame" width={32} color="red" style={{ fill: 'orange' }} />
                         <Title order={2} c="red.8" tt="uppercase" style={{ letterSpacing: 1 }}>Flash Sale</Title>
                         <Badge size="lg" color="red" variant="filled" ml="md">Kết thúc sau</Badge>
                         <Group gap={4}>

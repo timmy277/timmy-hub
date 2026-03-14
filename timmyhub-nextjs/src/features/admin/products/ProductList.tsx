@@ -10,7 +10,7 @@ import {
     Stack,
     Box,
 } from '@mantine/core';
-import { IconPackage } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useAdminProducts } from '@/hooks/useProducts';
 import { useAction } from 'next-safe-action/hooks';
 import { approveProductAction, rejectProductAction, createProductAction } from '@/actions/product.actions';
@@ -22,8 +22,6 @@ import { createProductColumns, createActionColumn } from '@/constants/column';
 import { ProductDetail } from './ProductDetail';
 import { ProductForm, ProductFormValues } from './ProductForm';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconX } from '@tabler/icons-react';
-
 /**
  * Trang quản lý sản phẩm cho Admin (Sử dụng ManagementPage pattern)
  */
@@ -38,7 +36,7 @@ export function ProductList() {
                 title: t('common.success'),
                 message: t('productManagement.approvedSuccess', { defaultValue: 'Đã duyệt sản phẩm thành công' }),
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
             refetch(); // Refresh list after action
         },
@@ -47,7 +45,7 @@ export function ProductList() {
                 title: t('common.error'),
                 message: error.serverError || 'Lỗi khi duyệt sản phẩm',
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         }
     });
@@ -58,7 +56,7 @@ export function ProductList() {
                 title: t('common.success'),
                 message: t('productManagement.rejectedSuccess', { defaultValue: 'Đã từ chối sản phẩm' }),
                 color: 'orange',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
             setRejectingId(null);
             setRejectNote('');
@@ -69,7 +67,7 @@ export function ProductList() {
                 title: t('common.error'),
                 message: error.serverError || 'Lỗi khi từ chối sản phẩm',
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         }
     });
@@ -80,7 +78,7 @@ export function ProductList() {
                 title: t('common.success'),
                 message: t('productManagement.createSuccess', { defaultValue: 'Tạo sản phẩm thành công' }),
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
             closeTab(ManagementTabType.CREATE);
             refetch();
@@ -90,7 +88,7 @@ export function ProductList() {
                 title: t('common.error'),
                 message: error.serverError || 'Lỗi khi tạo sản phẩm',
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         }
     });
@@ -179,7 +177,7 @@ export function ProductList() {
                 onAdd={() => handleAction('Create')}
                 renderTabContent={renderTabContent}
                 searchPlaceholder={t('productManagement.searchPlaceholder', { defaultValue: 'Tìm kiếm sản phẩm...' })}
-                listIcon={<IconPackage size={16} />}
+                listIcon={<Iconify icon="tabler:package" width={16} />}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 openTabs={openTabs}

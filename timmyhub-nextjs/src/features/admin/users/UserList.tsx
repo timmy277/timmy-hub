@@ -3,7 +3,7 @@
 import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColDef } from 'ag-grid-community';
-import { IconUsers, IconAlertTriangle } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { modals } from '@mantine/modals';
 import { useRouter } from 'next/navigation';
 import { Text } from '@mantine/core';
@@ -87,7 +87,7 @@ export function UserList() {
                 },
                 confirmProps: {
                     color: user.isActive ? 'red' : 'green',
-                    leftSection: <IconAlertTriangle size={16} />,
+                    leftSection: <Iconify icon="tabler:alert-triangle" width={16} />,
                 },
                 onConfirm: () => {
                     toggleStatusMutation.mutate(user.id);
@@ -128,7 +128,7 @@ export function UserList() {
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
             searchPlaceholder={t('userManagement.searchPlaceholder')}
-            listIcon={<IconUsers size={16} />}
+            listIcon={<Iconify icon="tabler:users" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

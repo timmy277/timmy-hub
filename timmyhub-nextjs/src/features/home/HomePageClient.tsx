@@ -19,7 +19,7 @@ import {
     Box,
     useComputedColorScheme,
 } from '@mantine/core';
-import { IconLayoutGrid, IconList, IconLoader2 } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useQuery } from '@tanstack/react-query';
 import { ProductGrid } from '@/features/products/components/ProductGrid';
 import { Product } from '@/types/product';
@@ -105,8 +105,9 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                             <Group gap="xs" align="center">
                                 <Title order={2} mb={4}>Gợi Ý Hôm Nay</Title>
                                 {isFetching && !isLoading && (
-                                    <IconLoader2
-                                        size={18}
+                                    <Iconify
+                                        icon="tabler:loader-2"
+                                        width={18}
                                         style={{
                                             color: 'var(--mantine-color-blue-5)',
                                             animation: 'spin 1s linear infinite',
@@ -156,7 +157,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                                     onClick={() => setViewMode('grid')}
                                     radius={0}
                                 >
-                                    <IconLayoutGrid size={20} />
+                                    <Iconify icon="tabler:layout-grid" width={20} />
                                 </ActionIcon>
                                 <ActionIcon
                                     variant={viewMode === 'list' ? 'filled' : 'subtle'}
@@ -165,7 +166,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                                     onClick={() => setViewMode('list')}
                                     radius={0}
                                 >
-                                    <IconList size={20} />
+                                    <Iconify icon="tabler:list" width={20} />
                                 </ActionIcon>
                             </Group>
                         </Group>

@@ -4,7 +4,7 @@ import { useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { systemLogsService, type SystemLog } from '@/services/system-logs.service';
 import { Flex, Code, Text } from '@mantine/core';
-import { IconActivity } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { ManagementPage } from '@/components/shared/ManagementPage';
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
@@ -48,7 +48,7 @@ export default function SystemLogsPage() {
             onRefresh={refetch}
             renderTabContent={renderTabContent}
             searchPlaceholder="Tìm kiếm logs..."
-            listIcon={<IconActivity size={16} />}
+            listIcon={<Iconify icon="tabler:activity" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

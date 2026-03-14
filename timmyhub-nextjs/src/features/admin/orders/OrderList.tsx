@@ -3,7 +3,7 @@
 import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColDef } from 'ag-grid-community';
-import { IconCalendarStats } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { ManagementPage } from '@/components/shared/ManagementPage';
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
@@ -51,7 +51,7 @@ export function OrderList() {
             onRefresh={refetch}
             renderTabContent={renderTabContent}
             searchPlaceholder="Tìm đơn hàng..."
-            listIcon={<IconCalendarStats size={16} />}
+            listIcon={<Iconify icon="tabler:calendar-stats" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

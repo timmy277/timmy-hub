@@ -15,7 +15,7 @@ import {
     Text,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconInfoCircle } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useCreateSellerProduct } from '@/hooks/useSellerProducts';
 
 interface FormValues {
@@ -77,7 +77,7 @@ export function CreateSellerProduct({ onSuccess, onCancel }: Props) {
     return (
         <form onSubmit={handleSubmit}>
             <Stack gap="md" p="md">
-                <Alert icon={<IconInfoCircle size={18} />} color="blue" variant="light">
+                <Alert icon={<Iconify icon="tabler:info-circle" width={18} />} color="blue" variant="light">
                     Sản phẩm sau khi đăng sẽ ở trạng thái{' '}
                     <Text span fw={600}>Chờ duyệt</Text>. Admin sẽ phê duyệt trước khi hiển thị trên sàn.
                 </Alert>

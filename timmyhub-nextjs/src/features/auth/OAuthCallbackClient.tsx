@@ -13,7 +13,7 @@ import { authService } from '@/services/auth.service';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { UserRole } from '@/types/auth';
 import { notifications } from '@mantine/notifications';
-import { IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 
 export function OAuthCallbackClient() {
     const router = useRouter();
@@ -28,7 +28,7 @@ export function OAuthCallbackClient() {
                 title: 'Đăng nhập thất bại',
                 message: 'Không thể đăng nhập bằng tài khoản mạng xã hội.',
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
             router.replace('/login');
             return;
@@ -66,7 +66,7 @@ export function OAuthCallbackClient() {
                     title: 'Lỗi xác thực',
                     message: 'Không thể lấy thông tin tài khoản. Vui lòng thử lại.',
                     color: 'red',
-                    icon: <IconX size={18} />,
+                    icon: <Iconify icon="tabler:x" width={18} />,
                 });
                 router.replace('/login');
             });

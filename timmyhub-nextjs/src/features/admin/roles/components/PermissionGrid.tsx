@@ -12,7 +12,7 @@ import {
     ThemeIcon,
     rem,
 } from '@mantine/core';
-import { IconSettings } from '@tabler/icons-react';
+import { Icon } from '@iconify/react';
 import { Permission } from '@/types/rbac';
 
 interface PermissionGridProps {
@@ -79,7 +79,7 @@ export function PermissionGrid({ permissions, value, onChange }: PermissionGridP
                                 <Accordion.Control
                                     icon={
                                         <ThemeIcon variant="light" size="sm" radius="md">
-                                            <IconSettings size={rem(14)} />
+                                            <Icon icon="tabler:settings" width={rem(14)} />
                                         </ThemeIcon>
                                     }
                                 >

@@ -2,7 +2,7 @@
 
 import { Carousel } from '@mantine/carousel';
 import { Box, Group, Title, Button, Paper, Text, ThemeIcon, useMantineTheme } from '@mantine/core';
-import { IconArrowRight } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { m } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -39,7 +39,7 @@ export function CategorySection() {
             <Box py="xl">
                 <Group justify="space-between" mb="lg">
                     <Title order={3}>Danh Mục Nổi Bật</Title>
-                    <Button variant="subtle" rightSection={<IconArrowRight size={16} />} onClick={() => router.push('/collection')}>Xem tất cả</Button>
+                    <Button variant="subtle" rightSection={<Iconify icon="tabler:arrow-right" width={16} />} onClick={() => router.push('/collection')}>Xem tất cả</Button>
                 </Group>
                 <Carousel slideSize={{ base: '33%', sm: '20%', md: '14%' }} slideGap="md" withControls>
                     {CATEGORIES.map((cat) => (

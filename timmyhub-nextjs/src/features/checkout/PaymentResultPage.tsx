@@ -12,7 +12,7 @@ import {
     Stack,
     ThemeIcon,
 } from '@mantine/core';
-import { IconCircleCheck, IconCircleX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 
 function PaymentResultContent() {
@@ -33,9 +33,9 @@ function PaymentResultContent() {
                         variant="light"
                     >
                         {success ? (
-                            <IconCircleCheck size={40} stroke={2} />
+                            <Iconify icon="tabler:circle-check" width={40} stroke={2} />
                         ) : (
-                            <IconCircleX size={40} stroke={2} />
+                            <Iconify icon="tabler:circle-x" width={40} stroke={2} />
                         )}
                     </ThemeIcon>
                     <Title order={2}>

@@ -16,7 +16,7 @@ import {
     Progress,
     Anchor,
 } from '@mantine/core';
-import { IconHeart, IconStar, IconFlame } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { m } from 'framer-motion';
 import Link from 'next/link';
 import { Product } from '@/types/product';
@@ -99,7 +99,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                 <Text size="xs" c="red" fw={700}>
                                     Đã bán {product.soldCount}
                                 </Text>
-                                <IconFlame size={14} color="orange" />
+                                <Iconify icon="tabler:flame" width={14} color="orange" />
                             </Group>
                             <Progress
                                 value={soldPercentage}
@@ -171,7 +171,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                         <Title order={4}>{product.name}</Title>
                                     </Anchor>
                                     <Group gap={4}>
-                                        <IconStar size={16} fill="orange" color="orange" />
+                                        <Iconify icon="tabler:star" width={16} style={{ fill: 'orange' }} color="orange" />
                                         <Text size="sm">{product.ratingAvg.toFixed(1)} ({product.ratingCount} đánh giá)</Text>
                                     </Group>
                                     <Text lineClamp={2} c="dimmed" size="sm">
@@ -250,11 +250,11 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                 -{discountPercentage}%
                             </Badge>
                         )}
-                        <WishlistButton 
-                            productId={product.id} 
-                            pos="absolute" 
-                            bottom={10} 
-                            right={10} 
+                        <WishlistButton
+                            productId={product.id}
+                            pos="absolute"
+                            bottom={10}
+                            right={10}
                         />
                     </Box>
                 </Card.Section>
@@ -285,7 +285,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                         </Anchor>
 
                         <Group gap={4}>
-                            <IconStar size={14} fill="orange" color="orange" />
+                            <Iconify icon="tabler:star" width={14} style={{ fill: 'orange' }} color="orange" />
                             <Text size="xs">{product.ratingAvg.toFixed(1)}</Text>
                             <Text size="xs" c="dimmed">({product.ratingCount} đánh giá)</Text>
                         </Group>

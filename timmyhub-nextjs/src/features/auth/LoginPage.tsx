@@ -20,7 +20,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
-import { IconAt, IconLock, IconArrowRight, IconCheck, IconX, IconBrandGoogle, IconBrandFacebook } from '@tabler/icons-react';
+import { Icon } from '@iconify/react';
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -88,7 +88,7 @@ function InnerLoginPage() {
                 title: 'Error',
                 message: extractLoginError(error),
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Icon icon="tabler:x" width={18} />,
             });
             return;
         }
@@ -106,7 +106,7 @@ function InnerLoginPage() {
             title: 'Success',
             message: successMessage,
             color: 'green',
-            icon: <IconCheck size={18} />,
+            icon: <Icon icon="tabler:check" width={18} />,
         });
 
         const roles = Array.isArray(user.roles) ? user.roles : [(user as { role?: string }).role ?? 'CUSTOMER'];
@@ -196,7 +196,7 @@ function InnerLoginPage() {
                                         placeholder="Enter your email"
                                         size="md"
                                         radius="md"
-                                        leftSection={<IconAt size={16} stroke={1.5} />}
+                                        leftSection={<Icon icon="tabler:at" width={16} />}
                                         {...form.getInputProps('email')}
                                     />
 
@@ -206,7 +206,7 @@ function InnerLoginPage() {
                                         placeholder="Enter your password"
                                         size="md"
                                         radius="md"
-                                        leftSection={<IconLock size={16} stroke={1.5} />}
+                                        leftSection={<Icon icon="tabler:lock" width={16} />}
                                         {...form.getInputProps('password')}
                                     />
 
@@ -229,7 +229,7 @@ function InnerLoginPage() {
                                         radius="md"
                                         mt="md"
                                         loading={loginMutation.isPending}
-                                        rightSection={<IconArrowRight size={18} />}
+                                        rightSection={<Icon icon="tabler:arrow-right" width={18} />}
                                     >
                                         Sign In
                                     </Button>
@@ -246,7 +246,7 @@ function InnerLoginPage() {
                                     fullWidth
                                     size="md"
                                     radius="md"
-                                    leftSection={<IconBrandGoogle size={18} color="#EA4335" />}
+                                    leftSection={<Icon icon="tabler:brand-google" width={18} color="#EA4335" />}
                                 >
                                     Tiếp tục với Google
                                 </Button>
@@ -257,7 +257,7 @@ function InnerLoginPage() {
                                     fullWidth
                                     size="md"
                                     radius="md"
-                                    leftSection={<IconBrandFacebook size={18} color="#1877F2" />}
+                                    leftSection={<Icon icon="tabler:brand-facebook" width={18} color="#1877F2" />}
                                 >
                                     Tiếp tục với Facebook
                                 </Button>

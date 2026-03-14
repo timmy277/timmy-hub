@@ -23,11 +23,7 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-    IconStar,
-    IconCheck,
-    IconShoppingBag,
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { reviewService } from '@/services/review.service';
 import type { CreateReviewInput } from '@/types/review';
 import { MediaUploader } from './MediaUploader';
@@ -111,7 +107,7 @@ export function ReviewModal({
             title={
                 <Group gap="xs">
                     <ThemeIcon variant="light" color="orange" size="sm" radius="xl">
-                        <IconStar size={14} />
+                        <Iconify icon="tabler:star" width={14} />
                     </ThemeIcon>
                     <Text fw={700} size="md">Đánh giá sản phẩm</Text>
                 </Group>
@@ -145,7 +141,7 @@ export function ReviewModal({
                                         color="green"
                                         size="xs"
                                         mt={4}
-                                        leftSection={<IconShoppingBag size={10} />}
+                                        leftSection={<Iconify icon="tabler:shopping-bag" width={10} />}
                                     >
                                         Đã mua
                                     </Badge>
@@ -213,7 +209,7 @@ export function ReviewModal({
                                 radius="md"
                                 onClick={handleSubmit}
                                 loading={mutation.isPending}
-                                leftSection={<IconStar size={16} />}
+                                leftSection={<Iconify icon="tabler:star" width={16} />}
                                 color="orange"
                             >
                                 Gửi đánh giá
@@ -228,7 +224,7 @@ export function ReviewModal({
                 {styles => (
                     <Stack align="center" gap="md" py="xl" style={styles}>
                         <ThemeIcon size={80} radius="xl" color="green" variant="light">
-                            <IconCheck size={40} />
+                            <Iconify icon="tabler:check" width={40} />
                         </ThemeIcon>
                         <Title order={3} ta="center">Cảm ơn bạn!</Title>
                         <Text c="dimmed" ta="center" size="sm">

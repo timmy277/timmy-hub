@@ -1,16 +1,6 @@
 import { Badge, Group, ActionIcon, Tooltip, Avatar, Stack, Text, Image, Flex } from '@mantine/core';
 import NextImage from 'next/image';
-import {
-    IconEye,
-    IconEdit,
-    IconLock,
-    IconLockOpen,
-    IconCheck,
-    IconX,
-    IconStar,
-    IconMessage,
-    IconInfoCircle,
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { User } from '@/types/auth';
 import { Role, Permission } from '@/types/rbac';
@@ -20,7 +10,6 @@ import type { Order, OrderStatus } from '@/types/order';
 import { UserRole } from '@/types/enums';
 import { TFunction } from 'i18next';
 import { formatDate } from '@/utils/date';
-import { IconTrash } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import type { SystemLog as SystemLogType } from '@/services/system-logs.service';
 
@@ -373,7 +362,7 @@ export const createProductColumns = (options: ColumnConfigOptions): ColDef<Produ
             cellRenderer: (params: ICellRendererParams<Product>) => (
                 <Group gap={4} mt={10}>
                     <Text size="sm" fw={600}>{params.value || '0.0'}</Text>
-                    <IconStar size={14} color="var(--mantine-color-yellow-6)" fill="var(--mantine-color-yellow-6)" />
+                    <Iconify icon="tabler:star" width={14} color="var(--mantine-color-yellow-6)" style={{ fill: 'var(--mantine-color-yellow-6)' }} />
                 </Group>
             ),
         },
@@ -529,7 +518,7 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean; s
                                 onClick={() => props.onDetail!(item)}
                                 aria-label={t('table.actions.view')}
                             >
-                                <IconEye size={16} />
+                                <Iconify icon="tabler:eye" width={16} />
                             </ActionIcon>
                         </Tooltip>
                     )}
@@ -542,7 +531,7 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean; s
                                 onClick={() => props.onUpdate!(item)}
                                 aria-label={t('table.actions.edit')}
                             >
-                                <IconEdit size={16} />
+                                <Iconify icon="tabler:edit" width={16} />
                             </ActionIcon>
                         </Tooltip>
                     )}
@@ -561,7 +550,7 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean; s
                                     isActive ? t('table.actions.lock') : t('table.actions.unlock')
                                 }
                             >
-                                {isActive ? <IconLock size={16} /> : <IconLockOpen size={16} />}
+                                {isActive ? <Iconify icon="tabler:lock" width={16} /> : <Iconify icon="tabler:lock-open" width={16} />}
                             </ActionIcon>
                         </Tooltip>
                     )}
@@ -577,7 +566,7 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean; s
                                     'isSystem' in item && !!(item as unknown as Role).isSystem
                                 }
                             >
-                                <IconTrash size={16} />
+                                <Iconify icon="tabler:trash" width={16} />
                             </ActionIcon>
                         </Tooltip>
                     )}
@@ -590,7 +579,7 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean; s
                                 onClick={() => props.onApprove!(item)}
                                 aria-label={t('table.actions.approve')}
                             >
-                                <IconCheck size={16} />
+                                <Iconify icon="tabler:check" width={16} />
                             </ActionIcon>
                         </Tooltip>
                     )}
@@ -603,7 +592,7 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean; s
                                 onClick={() => props.onReject!(item)}
                                 aria-label={t('table.actions.reject')}
                             >
-                                <IconX size={16} />
+                                <Iconify icon="tabler:x" width={16} />
                             </ActionIcon>
                         </Tooltip>
                     )}
@@ -616,7 +605,7 @@ export const createActionColumn = <T extends { id: string; isActive?: boolean; s
                                 onClick={() => props.onMessage!(item)}
                                 aria-label={t('table.actions.message') || 'Nhắn tin'}
                             >
-                                <IconMessage size={16} />
+                                <Iconify icon="tabler:message" width={16} />
                             </ActionIcon>
                         </Tooltip>
                     )}
@@ -648,7 +637,7 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
                             color="blue"
                             onClick={() => props.onDetail!(item)}
                         >
-                            <IconEye size={16} />
+                            <Iconify icon="tabler:eye" width={16} />
                         </ActionIcon>
                     </Tooltip>
                 )}
@@ -659,7 +648,7 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
                             color="orange"
                             onClick={() => props.onUpdate!(item)}
                         >
-                            <IconEdit size={16} />
+                            <Iconify icon="tabler:edit" width={16} />
                         </ActionIcon>
                     </Tooltip>
                 )}
@@ -670,7 +659,7 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
                             color="red"
                             onClick={() => props.onDelete!(item)}
                         >
-                            <IconTrash size={16} />
+                            <Iconify icon="tabler:trash" width={16} />
                         </ActionIcon>
                     </Tooltip>
                 )}
@@ -682,7 +671,7 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
                             loading={props.isToggleLoading && props.toggleLoadingId === item.id}
                             onClick={() => props.onToggleStatus!(item)}
                         >
-                            {isActive ? <IconLock size={16} /> : <IconLockOpen size={16} />}
+                            {isActive ? <Iconify icon="tabler:lock" width={16} /> : <Iconify icon="tabler:lock-open" width={16} />}
                         </ActionIcon>
                     </Tooltip>
                 )}
@@ -693,7 +682,7 @@ export const getActionColumn = <T extends { id: string; isActive?: boolean }>(
                             color="cyan"
                             onClick={() => props.onMessage!(item)}
                         >
-                            <IconMessage size={16} />
+                            <Iconify icon="tabler:message" width={16} />
                         </ActionIcon>
                     </Tooltip>
                 )}
@@ -902,7 +891,7 @@ export const createSystemLogColumns = (
                         }}
                         aria-label="Xem chi tiết metadata"
                     >
-                        <IconInfoCircle size="1rem" />
+                        <Iconify icon="tabler:info-circle" width="1rem" />
                     </ActionIcon>
                 );
             },

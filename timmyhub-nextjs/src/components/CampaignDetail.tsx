@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
     Stack,
     Group,
@@ -11,7 +11,6 @@ import {
     Box,
     ThemeIcon,
     Table,
-    Button,
     ActionIcon,
     Tooltip,
     NumberInput,
@@ -19,12 +18,11 @@ import {
     Center,
 } from '@mantine/core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Iconify } from '@/components/iconify/Iconify';
 import { Campaign, campaignService, CampaignProduct } from '@/services/campaign.service';
 import { voucherService } from '@/services/voucher.service';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
-import { IconPlus, IconTrash, IconEdit } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 
 interface CampaignDetailProps {
     campaign: Campaign;
@@ -290,7 +288,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                                                                 onClick={() => handleEditSave(cp.id)}
                                                                 loading={updateMutation.isPending}
                                                             >
-                                                                <IconPlus size={14} />
+                                                                <Iconify icon="tabler:plus" width={14} />
                                                             </ActionIcon>
                                                         </Tooltip>
                                                         <Tooltip label="Hủy">
@@ -300,7 +298,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                                                                 size="sm"
                                                                 onClick={handleEditCancel}
                                                             >
-                                                                <IconTrash size={14} />
+                                                                <Iconify icon="tabler:trash" width={14} />
                                                             </ActionIcon>
                                                         </Tooltip>
                                                     </Group>
@@ -312,7 +310,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                                                                 size="sm"
                                                                 onClick={() => handleEditStart(cp)}
                                                             >
-                                                                <IconEdit size={14} />
+                                                                <Iconify icon="tabler:edit" width={14} />
                                                             </ActionIcon>
                                                         </Tooltip>
                                                         <Tooltip label="Xóa">
@@ -323,7 +321,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                                                                 onClick={() => handleRemove(cp.id)}
                                                                 loading={removeMutation.isPending}
                                                             >
-                                                                <IconTrash size={14} />
+                                                                <Iconify icon="tabler:trash" width={14} />
                                                             </ActionIcon>
                                                         </Tooltip>
                                                     </Group>

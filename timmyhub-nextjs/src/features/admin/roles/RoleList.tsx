@@ -3,7 +3,7 @@
 import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColDef } from 'ag-grid-community';
-import { IconShieldLock, IconAlertTriangle } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { modals } from '@mantine/modals';
 import { Text } from '@mantine/core';
 import { Role } from '@/types/rbac';
@@ -79,7 +79,7 @@ export function RoleList() {
                 },
                 confirmProps: {
                     color: 'red',
-                    leftSection: <IconAlertTriangle size={16} />,
+                    leftSection: <Iconify icon="tabler:alert-triangle" width={16} />,
                 },
                 onConfirm: () => {
                     deleteRoleMutation.mutate(role.id);
@@ -115,7 +115,7 @@ export function RoleList() {
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
             searchPlaceholder={t('rbac.searchPlaceholder')}
-            listIcon={<IconShieldLock size={16} />}
+            listIcon={<Iconify icon="tabler:shield-lock" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

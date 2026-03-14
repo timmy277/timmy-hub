@@ -8,7 +8,7 @@ import { campaignService } from '@/services/campaign.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import dayjs from 'dayjs';
-import { IconDiscount, IconAlertTriangle } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { Switch, Badge, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
@@ -61,7 +61,7 @@ export default function AdminCampaignsPage() {
             title: <Text fw={600} size="lg">Xóa Campaign</Text>,
             children: <Text size="sm">Bạn có chắc chắn muốn xóa campaign {item.name} này không?</Text>,
             labels: { confirm: 'Xóa', cancel: 'Hủy' },
-            confirmProps: { color: 'red', leftSection: <IconAlertTriangle size={16} /> },
+            confirmProps: { color: 'red', leftSection: <Iconify icon="tabler:alert-triangle" width={16} /> },
             onConfirm: () => deleteMutation.mutate(item.id),
         });
     }, [deleteMutation]);
@@ -140,12 +140,12 @@ export default function AdminCampaignsPage() {
                     return (
                         <div className="flex items-center h-full">
                             <Switch
-                            checked={params.value}
-                            onChange={e =>
-                                mutation.mutate({
-                                    id: params.data!.id,
-                                    isActive: e.currentTarget.checked,
-                                })
+                                checked={params.value}
+                                onChange={e =>
+                                    mutation.mutate({
+                                        id: params.data!.id,
+                                        isActive: e.currentTarget.checked,
+                                    })
                                 }
                             />
                         </div>
@@ -171,7 +171,7 @@ export default function AdminCampaignsPage() {
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
             searchPlaceholder="Tìm campaign..."
-            listIcon={<IconDiscount size={16} />}
+            listIcon={<Iconify icon="tabler:discount" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

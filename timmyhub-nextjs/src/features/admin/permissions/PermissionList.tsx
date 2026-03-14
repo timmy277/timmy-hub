@@ -3,7 +3,7 @@
 import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColDef } from 'ag-grid-community';
-import { IconKey, IconAlertTriangle } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { modals } from '@mantine/modals';
 import { Text } from '@mantine/core';
 import { Permission } from '@/types/rbac';
@@ -76,7 +76,7 @@ export function PermissionList() {
                 },
                 confirmProps: {
                     color: 'red',
-                    leftSection: <IconAlertTriangle size={16} />,
+                    leftSection: <Iconify icon="tabler:alert-triangle" width={16} />,
                 },
                 onConfirm: () => {
                     deleteMutation.mutate(permission.id);
@@ -111,7 +111,7 @@ export function PermissionList() {
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
             searchPlaceholder={t('rbac.searchPermissionPlaceholder')}
-            listIcon={<IconKey size={16} />}
+            listIcon={<Iconify icon="tabler:key" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

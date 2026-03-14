@@ -16,7 +16,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
-import { IconAt, IconArrowLeft, IconCheck, IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useForgotPasswordMutation } from '@/hooks/useAuth';
@@ -50,14 +50,14 @@ export function ForgotPasswordPage() {
                 title: 'Thành công',
                 message: 'Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn',
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
         } catch (error: unknown) {
             notifications.show({
                 title: 'Lỗi',
                 message: getApiErrorMessage(error, 'Không thể gửi email'),
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         }
     };
@@ -121,7 +121,7 @@ export function ForgotPasswordPage() {
                                         placeholder="your@email.com"
                                         size="md"
                                         radius="md"
-                                        leftSection={<IconAt size={16} />}
+                                        leftSection={<Iconify icon="tabler:at" width={16} />}
                                         {...form.getInputProps('email')}
                                     />
 
@@ -140,7 +140,7 @@ export function ForgotPasswordPage() {
 
                             <Anchor href="/login" size="sm" ta="center">
                                 <Group gap={4} justify="center">
-                                    <IconArrowLeft size={14} />
+                                    <Iconify icon="tabler:arrow-left" width={14} />
                                     <Text size="sm">Quay lại đăng nhập</Text>
                                 </Group>
                             </Anchor>

@@ -9,7 +9,7 @@ import Cookies from 'js-cookie';
 import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@/constants';
 import { UserRole } from '@/types/enums';
-import { IconRobot } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { SingleChat } from './SingleChat';
 import { TChatMessage } from '@/types/chat';
 
@@ -21,7 +21,7 @@ export function ChatWidget() {
     const [openedContactId, setOpenedContactId] = useState<string | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
     type Contact = { id: string; displayName: string; avatar: string | null; lastMessageAt: string; lastMessage: string };
-    
+
     const { data: adminRes } = useQuery({
         queryKey: QUERY_KEYS.CHAT_ADMIN,
         queryFn: () => chatService.getAdmin(),
@@ -52,7 +52,7 @@ export function ChatWidget() {
             if (!detail || !detail.id) return;
             // Prevent opening chat with oneself
             if (user?.id === detail.id) return;
-            
+
             setSocketNewContacts(prev => {
                 const exists = prev.some(c => c.id === detail.id) || (contactsRes?.data?.some(c => c.id === detail.id));
                 if (!exists) {
@@ -91,7 +91,7 @@ export function ChatWidget() {
                 setSocketNewContacts(prev => {
                     const exists = prev.some(c => c.id === msg.senderId) || (contactsRes?.data?.some(c => c.id === msg.senderId));
                     if (!exists) {
-                        refetchContacts(); 
+                        refetchContacts();
                         return [...prev, {
                             id: msg.senderId,
                             displayName: msg.sender?.profile?.displayName || 'Admin',
@@ -152,7 +152,7 @@ export function ChatWidget() {
                     contactName="Trợ lý AI"
                     contactAvatar={null}
                     isMain={true}
-                    mainIcon={<IconRobot size={24} color="currentColor" />}
+                    mainIcon={<Iconify icon="tabler:robot" width={24} color="currentColor" />}
                     opened={openedContactId === VIRTUAL_BOT_ID}
                     onToggle={() => setOpenedContactId(prev => prev === VIRTUAL_BOT_ID ? null : VIRTUAL_BOT_ID)}
                     socket={socket}

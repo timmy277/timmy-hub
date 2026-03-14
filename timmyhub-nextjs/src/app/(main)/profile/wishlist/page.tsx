@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { wishlistService, WishlistItem } from '@/services/wishlist.service';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { Product } from '@/types/product';
-import { IconHeartOff } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 
 export default function WishlistPage() {
     const { data: myWishlist, isLoading, error } = useQuery<WishlistItem[]>({
@@ -32,7 +32,7 @@ export default function WishlistPage() {
     if (myWishlist.length === 0) {
         return (
             <Stack align="center" justify="center" h={300} gap="sm">
-                <IconHeartOff size={48} color="var(--mantine-color-gray-4)" stroke={1.5} />
+                <Iconify icon="tabler:heart-off" width={48} color="var(--mantine-color-gray-4)" stroke={1.5} />
                 <Title order={4} c="dimmed">Chưa có sản phẩm nào</Title>
                 <Text size="sm" c="dimmed">
                     Bạn chưa thêm sản phẩm nào vào danh sách yêu thích.
@@ -44,7 +44,7 @@ export default function WishlistPage() {
     return (
         <Stack gap="lg">
             <Title order={3}>Sản phẩm yêu thích ({myWishlist.length})</Title>
-            
+
             <Grid>
                 {myWishlist.map((item) => {
                     // Chuyển đổi dữ liệu tạm để khớp với interface Product của ProductCard

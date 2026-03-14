@@ -1,10 +1,5 @@
 'use client';
 
-/**
- * CampaignDetailPage - Trang chi tiết chiến dịch khuyến mãi
- * Hiển thị banner, title, endtime, và danh sách sản phẩm theo category tabs
- */
-
 import { useState, useEffect, useMemo } from 'react';
 import {
     Container,
@@ -20,10 +15,10 @@ import {
     Skeleton,
     Grid,
 } from '@mantine/core';
-import { IconFlame, IconClock, IconShoppingCart, IconStar } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import { campaignService, Campaign, CampaignProduct } from '@/services/campaign.service';
+import { campaignService, Campaign } from '@/services/campaign.service';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { Product } from '@/types/product';
 
@@ -235,7 +230,7 @@ export default function CampaignDetailPage() {
                                     >
                                         <Stack gap={4} align="center">
                                             <Group gap="xs">
-                                                <IconClock size={20} color="white" />
+                                                <Iconify icon="tabler:clock" width={20} color="white" />
                                                 <Text c="white" fw={600}>Kết thúc sau</Text>
                                             </Group>
                                             <Text
@@ -305,7 +300,7 @@ export default function CampaignDetailPage() {
                                 >
                                     <Stack gap={4} align="center">
                                         <Group gap="xs">
-                                            <IconClock size={20} color={config.titleColor} />
+                                            <Iconify icon="tabler:clock" width={20} color={config.titleColor} />
                                             <Text c={config.titleColor} fw={600}>Kết thúc sau</Text>
                                         </Group>
                                         <Text
@@ -328,7 +323,7 @@ export default function CampaignDetailPage() {
                     <Grid.Col span={{ base: 6, sm: 3 }}>
                         <Paper p="md" radius="md" bg={isDark ? 'gray.8' : 'gray.1'} h="100%">
                             <Group gap="sm">
-                                <IconFlame size={24} color={config.backgroundColor} />
+                                <Iconify icon="tabler:flame" width={24} color={config.backgroundColor} />
                                 <Box>
                                     <Text size="xs" c="dimmed">Tổng sản phẩm</Text>
                                     <Text fw={700} size="lg">{campaignProducts.length}</Text>
@@ -339,7 +334,7 @@ export default function CampaignDetailPage() {
                     <Grid.Col span={{ base: 6, sm: 3 }}>
                         <Paper p="md" radius="md" bg={isDark ? 'gray.8' : 'gray.1'} h="100%">
                             <Group gap="sm">
-                                <IconShoppingCart size={24} color={config.backgroundColor} />
+                                <Iconify icon="tabler:shopping-cart" width={24} color={config.backgroundColor} />
                                 <Box>
                                     <Text size="xs" c="dimmed">Đã bán</Text>
                                     <Text fw={700} size="lg">
@@ -352,7 +347,7 @@ export default function CampaignDetailPage() {
                     <Grid.Col span={{ base: 6, sm: 3 }}>
                         <Paper p="md" radius="md" bg={isDark ? 'gray.8' : 'gray.1'} h="100%">
                             <Group gap="sm">
-                                <IconStar size={24} color="yellow" />
+                                <Iconify icon="tabler:star" width={24} color="yellow" />
                                 <Box>
                                     <Text size="xs" c="dimmed">Đánh giá TB</Text>
                                     <Text fw={700} size="lg">
@@ -365,7 +360,7 @@ export default function CampaignDetailPage() {
                     <Grid.Col span={{ base: 6, sm: 3 }}>
                         <Paper p="md" radius="md" bg={isDark ? 'gray.8' : 'gray.1'} h="100%">
                             <Group gap="sm">
-                                <IconClock size={24} color={config.backgroundColor} />
+                                <Iconify icon="tabler:clock" width={24} color={config.backgroundColor} />
                                 <Box>
                                     <Text size="xs" c="dimmed">Còn lại</Text>
                                     <Text fw={700} size="lg" c={timerDisplay === 'Đã kết thúc' ? 'red' : undefined}>

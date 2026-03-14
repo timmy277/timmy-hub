@@ -24,13 +24,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-    IconStar,
-    IconStarFilled,
-    IconCheck,
-    IconTruck,
-    IconAlertTriangle,
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 import { orderService } from '@/services/order.service';
 import type { Order, OrderItem } from '@/types/order';
@@ -93,7 +87,7 @@ function OrderItemRow({
                         radius="xl"
                         variant="light"
                         color="orange"
-                        leftSection={<IconStar size={12} />}
+                        leftSection={<Iconify icon="tabler:star" width={12} />}
                         onClick={() =>
                             onReview({
                                 orderItemId: item.id,
@@ -107,7 +101,7 @@ function OrderItemRow({
                     </Button>
                 )}
                 {item.isReviewed && (
-                    <Badge size="xs" variant="light" color="green" leftSection={<IconCheck size={10} />}>
+                    <Badge size="xs" variant="light" color="green" leftSection={<Iconify icon="tabler:check" width={10} />}>
                         Đã đánh giá
                     </Badge>
                 )}
@@ -145,7 +139,7 @@ export function OrderDetailPage() {
                 title: 'Xác nhận thành công',
                 message: 'Đơn hàng đã hoàn thành. Hãy đánh giá sản phẩm nhé!',
                 color: 'green',
-                icon: <IconCheck size={16} />,
+                icon: <Iconify icon="tabler:check" width={16} />,
             });
             void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDER(orderId) });
         },
@@ -208,7 +202,7 @@ export function OrderDetailPage() {
                     <Group gap="sm" justify="space-between" wrap="wrap">
                         <Group gap="sm">
                             <ThemeIcon color="teal" variant="light" size="md" radius="xl">
-                                <IconTruck size={16} />
+                                <Iconify icon="tabler:truck" width={16} />
                             </ThemeIcon>
                             <Box>
                                 <Text fw={600} size="sm">Bạn đã nhận được hàng chưa?</Text>
@@ -221,7 +215,7 @@ export function OrderDetailPage() {
                             size="sm"
                             radius="xl"
                             color="teal"
-                            leftSection={<IconCheck size={14} />}
+                            leftSection={<Iconify icon="tabler:check" width={14} />}
                             onClick={openConfirm}
                             loading={confirmMutation.isPending}
                         >
@@ -236,7 +230,7 @@ export function OrderDetailPage() {
                 <Paper withBorder radius="md" p="md" mb="md">
                     <Group gap="sm">
                         <ThemeIcon color="orange" variant="light" size="md" radius="xl">
-                            <IconStarFilled size={16} />
+                            <Iconify icon="tabler:star-filled" width={16} />
                         </ThemeIcon>
                         <Box flex={1}>
                             <Text fw={600} size="sm">Hãy đánh giá sản phẩm của bạn!</Text>
@@ -302,7 +296,7 @@ export function OrderDetailPage() {
                 title={
                     <Group gap="xs">
                         <ThemeIcon color="teal" variant="light" size="sm" radius="xl">
-                            <IconTruck size={14} />
+                            <Iconify icon="tabler:truck" width={14} />
                         </ThemeIcon>
                         <Text fw={700}>Xác nhận nhận hàng</Text>
                     </Group>
@@ -336,7 +330,7 @@ export function OrderDetailPage() {
                         <Button
                             color="teal"
                             radius="md"
-                            leftSection={<IconCheck size={14} />}
+                            leftSection={<Iconify icon="tabler:check" width={14} />}
                             loading={confirmMutation.isPending}
                             onClick={() => confirmMutation.mutate()}
                         >

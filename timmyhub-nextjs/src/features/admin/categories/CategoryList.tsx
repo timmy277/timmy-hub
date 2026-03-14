@@ -4,7 +4,7 @@ import { ReactNode, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAction } from 'next-safe-action/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconX, IconCategory } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { Box } from '@mantine/core';
 
 import { ManagementPage } from '@/components/shared/ManagementPage';
@@ -35,7 +35,7 @@ export default function CategoryList() {
                 title: t('common.success'),
                 message: 'Tạo danh mục thành công',
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
             closeTab(ManagementTabType.CREATE);
             refetch();
@@ -45,7 +45,7 @@ export default function CategoryList() {
                 title: t('common.error'),
                 message: error.serverError || 'Lỗi khi tạo danh mục',
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         },
     });
@@ -56,7 +56,7 @@ export default function CategoryList() {
                 title: t('common.success'),
                 message: 'Cập nhật danh mục thành công',
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
             openTabs.forEach(tab => {
                 if (tab.type === ManagementTabType.UPDATE) {
@@ -70,7 +70,7 @@ export default function CategoryList() {
                 title: t('common.error'),
                 message: error.serverError || 'Lỗi khi cập nhật danh mục',
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         },
     });
@@ -81,7 +81,7 @@ export default function CategoryList() {
                 title: t('common.success'),
                 message: 'Đã xóa danh mục',
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
             refetch();
         },
@@ -90,7 +90,7 @@ export default function CategoryList() {
                 title: t('common.error'),
                 message: error.serverError || 'Lỗi khi xóa danh mục',
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         },
     });
@@ -131,9 +131,9 @@ export default function CategoryList() {
             case ManagementTabType.UPDATE:
                 return (
                     <Box p="xl">
-                        <CategoryForm 
-                            initialValues={tab.data} 
-                            onSubmit={(values) => handleUpdate(tab.data!.id, values)} 
+                        <CategoryForm
+                            initialValues={tab.data}
+                            onSubmit={(values) => handleUpdate(tab.data!.id, values)}
                             isLoading={isUpdating}
                         />
                     </Box>
@@ -153,7 +153,7 @@ export default function CategoryList() {
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
             searchPlaceholder="Tìm danh mục..."
-            listIcon={<IconCategory size={16} />}
+            listIcon={<Iconify icon="tabler:category" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
-import { IconLock, IconCheck, IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useResetPasswordMutation } from '@/hooks/useAuth';
@@ -80,7 +80,7 @@ export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
                 title: 'Thành công',
                 message: 'Mật khẩu đã được đặt lại. Bạn có thể đăng nhập ngay.',
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
 
             router.push('/login');
@@ -89,7 +89,7 @@ export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
                 title: 'Lỗi',
                 message: getApiErrorMessage(error, 'Không thể đặt lại mật khẩu'),
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         }
     };
@@ -176,7 +176,7 @@ export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
                                     placeholder="Nhập mật khẩu mới"
                                     size="md"
                                     radius="md"
-                                    leftSection={<IconLock size={16} />}
+                                    leftSection={<Iconify icon="tabler:lock" width={16} />}
                                     {...form.getInputProps('password')}
                                 />
 
@@ -185,7 +185,7 @@ export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
                                     placeholder="Nhập lại mật khẩu"
                                     size="md"
                                     radius="md"
-                                    leftSection={<IconLock size={16} />}
+                                    leftSection={<Iconify icon="tabler:lock" width={16} />}
                                     {...form.getInputProps('confirmPassword')}
                                 />
 

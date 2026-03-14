@@ -14,7 +14,7 @@ import {
     Alert,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconRefresh, IconCheck, IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { sellerService } from '@/services/seller.service';
 import { QUERY_KEYS } from '@/constants';
 
@@ -33,7 +33,7 @@ export default function AdminSellerApplicationsPage() {
                 title: 'Đã duyệt',
                 message: 'Seller đã được duyệt và có thể đăng nhập gian hàng.',
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
         },
         onError: (err: unknown) => {
@@ -50,7 +50,7 @@ export default function AdminSellerApplicationsPage() {
                 title: 'Đã từ chối',
                 message: 'Đơn đăng ký seller đã được từ chối.',
                 color: 'orange',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         },
         onError: (err: unknown) => {
@@ -82,7 +82,7 @@ export default function AdminSellerApplicationsPage() {
                         </div>
                         <Button
                             variant="outline"
-                            leftSection={<IconRefresh size={16} />}
+                            leftSection={<Iconify icon="tabler:refresh" width={16} />}
                             onClick={() => refetch()}
                             loading={isLoading}
                         >
@@ -130,7 +130,7 @@ export default function AdminSellerApplicationsPage() {
                                                 <Button
                                                     size="xs"
                                                     color="green"
-                                                    leftSection={<IconCheck size={14} />}
+                                                    leftSection={<Iconify icon="tabler:check" width={14} />}
                                                     loading={approveMutation.isPending}
                                                     onClick={() => approveMutation.mutate(row.id)}
                                                 >
@@ -140,7 +140,7 @@ export default function AdminSellerApplicationsPage() {
                                                     size="xs"
                                                     color="red"
                                                     variant="light"
-                                                    leftSection={<IconX size={14} />}
+                                                    leftSection={<Iconify icon="tabler:x" width={14} />}
                                                     loading={rejectMutation.isPending}
                                                     onClick={() => rejectMutation.mutate(row.id)}
                                                 >

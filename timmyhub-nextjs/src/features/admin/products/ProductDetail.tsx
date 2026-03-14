@@ -17,13 +17,7 @@ import {
 } from '@mantine/core';
 import NextImage from 'next/image';
 import { useTranslation } from 'react-i18next';
-import { 
-    IconStar, 
-    IconTruck, 
-    IconBox, 
-    IconListDetails,
-    IconTag
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { Product, ResourceStatus } from '@/types/product';
 import { formatDate } from '@/utils/date';
 
@@ -74,11 +68,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
                         {product.isNew && <Badge color="blue" size="xs">New</Badge>}
                     </Group>
                 </Stack>
-                
+
                 <Group gap="xl">
                     <Stack gap={0} align="center">
                         <Group gap={4}>
-                            <IconStar size={14} color="var(--mantine-color-yellow-6)" fill="var(--mantine-color-yellow-6)" />
+                            <Iconify icon="tabler:star" width={14} color="var(--mantine-color-yellow-6)" style={{ fill: 'var(--mantine-color-yellow-6)' }} />
                             <Text fw={700}>{product.ratingAvg || '0.0'}</Text>
                         </Group>
                         <Text size="xs" c="dimmed">{product.ratingCount || 0} {t('table.columns.rating')}</Text>
@@ -114,12 +108,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
                         ) : (
                             <Card withBorder h={400} radius="md" flex={1}>
                                 <Stack align="center" justify="center" h="100%">
-                                    <IconBox size={40} color="gray" />
+                                    <Iconify icon="tabler:box" width={40} color="gray" />
                                     <Text c="dimmed">{t('common.noImage')}</Text>
                                 </Stack>
                             </Card>
                         )}
-                        
+
                         {product.images && product.images.length > 1 && (
                             <ScrollArea offsetScrollbars>
                                 <Group wrap="nowrap" gap="xs">
@@ -131,8 +125,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
                                             width={80}
                                             height={80}
                                             radius="sm"
-                                            style={{ 
-                                                cursor: 'pointer', 
+                                            style={{
+                                                cursor: 'pointer',
                                                 border: idx === 0 ? '2px solid var(--mantine-color-blue-6)' : 'none',
                                                 objectFit: 'cover'
                                             }}
@@ -173,7 +167,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                         {product.variants && product.variants.length > 0 && (
                             <Stack gap="xs">
                                 <Group gap="xs">
-                                    <IconTag size={18} />
+                                    <Iconify icon="tabler:tag" width={18} />
                                     <Text fw={700}>{t('table.columns.variants')}</Text>
                                 </Group>
                                 <Group gap="sm">
@@ -190,7 +184,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                         <SimpleGrid cols={2} spacing="lg">
                             <Stack gap="md">
                                 <Group gap="xs">
-                                    <IconTruck size={18} />
+                                    <Iconify icon="tabler:truck" width={18} />
                                     <Text fw={700}>{t('table.columns.dimensions')}</Text>
                                 </Group>
                                 <Stack gap="xs">
@@ -202,7 +196,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
                             <Stack gap="md">
                                 <Group gap="xs">
-                                    <IconListDetails size={18} />
+                                    <Iconify icon="tabler:list-details" width={18} />
                                     <Text fw={700}>{t('userManagement.basicInfo')}</Text>
                                 </Group>
                                 <Stack gap="xs">
@@ -229,7 +223,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <Grid.Col span={{ base: 12, md: 8 }}>
                     <Stack gap="sm">
                         <Group gap="xs">
-                            <IconListDetails size={20} />
+                            <Iconify icon="tabler:list-details" width={20} />
                             <Text fw={700} size="lg">{t('table.columns.description')}</Text>
                         </Group>
                         <Card withBorder p="xl" radius="md">
@@ -243,7 +237,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <Grid.Col span={{ base: 12, md: 4 }}>
                     <Stack gap="sm">
                         <Group gap="xs">
-                            <IconListDetails size={20} />
+                            <Iconify icon="tabler:list-details" width={20} />
                             <Text fw={700} size="lg">{t('table.columns.specifications')}</Text>
                         </Group>
                         <Card withBorder p={0} radius="md" style={{ overflow: 'hidden' }}>

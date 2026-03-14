@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
 import { ProductSelectionModal } from '@/components/ProductSelectionModal';
 import { Product } from '@/types/product';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 
 interface SelectedProduct {
     productId: string;
@@ -182,7 +182,7 @@ export function CreateCampaignForm({
                         <Button
                             variant="light"
                             size="xs"
-                            leftSection={<IconPlus size={14} />}
+                            leftSection={<Iconify icon="tabler:plus" width={14} />}
                             onClick={() => setModalOpened(true)}
                         >
                             Thêm sản phẩm
@@ -227,7 +227,7 @@ export function CreateCampaignForm({
                                                     size="sm"
                                                     onClick={() => handleRemoveProduct(item.productId)}
                                                 >
-                                                    <IconTrash size={14} />
+                                                    <Iconify icon="tabler:trash" width={14} />
                                                 </ActionIcon>
                                             </Tooltip>
                                         )}

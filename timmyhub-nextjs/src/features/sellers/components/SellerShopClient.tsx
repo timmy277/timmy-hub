@@ -21,7 +21,7 @@ import {
     Box,
     Button,
 } from '@mantine/core';
-import { IconBuildingStore, IconShieldCheck, IconStar, IconPackage, IconCalendar, IconMessage } from '@tabler/icons-react';
+import { Icon } from '@iconify/react';
 import { SellerShop } from '@/types/product';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
@@ -43,7 +43,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
 
     const breadcrumbItems: BreadcrumbItem[] = [
         { title: 'Trang chủ', href: '/' },
-        { title: 'Gian hàng', href: '/shops', icon: <IconBuildingStore size={14} /> },
+        { title: 'Gian hàng', href: '/shops', icon: <Icon icon="tabler:building-store" width={14} /> },
         { title: shop.shopName },
     ];
 
@@ -62,7 +62,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
                             radius="lg"
                             color="blue"
                         >
-                            <IconBuildingStore size={48} />
+                            <Icon icon="tabler:building-store" width={48} />
                         </Avatar>
                     </Grid.Col>
 
@@ -74,7 +74,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
                                     <Badge
                                         leftSection={
                                             <ThemeIcon size={14} color="blue" variant="transparent" p={0}>
-                                                <IconShieldCheck size={14} />
+                                                <Icon icon="tabler:shield-check" width={14} />
                                             </ThemeIcon>
                                         }
                                         color="blue"
@@ -98,7 +98,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
 
                             <Group mt="xs">
                                 <Button 
-                                    leftSection={<IconMessage size={16} />} 
+                                    leftSection={<Icon icon="tabler:message" width={16} />} 
                                     variant="light" 
                                     color="blue" 
                                     size="sm"
@@ -118,7 +118,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
 
                             <Group gap="xl" mt="xs">
                                 <Group gap={6}>
-                                    <IconStar size={16} style={{ color: 'var(--mantine-color-yellow-6)' }} />
+                                    <Icon icon="tabler:star" width={16} style={{ color: 'var(--mantine-color-yellow-6)' }} />
                                     <Text size="sm" fw={600}>
                                         {shop.rating.toFixed(1)}
                                     </Text>
@@ -128,7 +128,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
                                 </Group>
 
                                 <Group gap={6}>
-                                    <IconPackage size={16} style={{ color: 'var(--mantine-color-blue-6)' }} />
+                                    <Icon icon="tabler:package" width={16} style={{ color: 'var(--mantine-color-blue-6)' }} />
                                     <Text size="sm" fw={600}>
                                         {shop.products.length}
                                     </Text>
@@ -138,7 +138,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
                                 </Group>
 
                                 <Group gap={6}>
-                                    <IconCalendar size={16} style={{ color: 'var(--mantine-color-gray-6)' }} />
+                                    <Icon icon="tabler:calendar" width={16} style={{ color: 'var(--mantine-color-gray-6)' }} />
                                     <Text size="sm" c="dimmed">
                                         Tham gia {joinedDate}
                                     </Text>
@@ -165,7 +165,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
                 {shop.products.length === 0 ? (
                     <Box ta="center" py="xl">
                         <ThemeIcon size={64} color="gray" variant="light" radius="xl" mx="auto" mb="md">
-                            <IconPackage size={32} />
+                            <Icon icon="tabler:package" width={32} />
                         </ThemeIcon>
                         <Text c="dimmed" size="lg">
                             Gian hàng chưa có sản phẩm nào

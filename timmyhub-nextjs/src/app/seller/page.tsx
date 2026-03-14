@@ -1,7 +1,7 @@
 'use client';
 
 import { Title, Text, Container, Paper, Stack, Group, Card, SimpleGrid, Alert } from '@mantine/core';
-import { IconPackage, IconTicket, IconDiscount, IconInfoCircle } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { sellerService } from '@/services/seller.service';
@@ -25,7 +25,7 @@ export default function SellerDashboardPage() {
         <Container fluid p="md">
             <Stack gap="lg">
                 {isPending && (
-                    <Alert icon={<IconInfoCircle size={20} />} title="Đang chờ duyệt" color="blue" variant="light">
+                    <Alert icon={<Iconify icon="tabler:info-circle" width={20} />} title="Đang chờ duyệt" color="blue" variant="light">
                         Đơn đăng ký gian hàng của bạn đang chờ admin duyệt. Sau khi được duyệt bạn có thể quản lý sản phẩm, voucher và campaign.
                     </Alert>
                 )}
@@ -46,7 +46,7 @@ export default function SellerDashboardPage() {
                         style={{ textDecoration: 'none', color: 'inherit' }}
                     >
                         <Group>
-                            <IconPackage size={32} stroke={1.5} />
+                            <Iconify icon="tabler:package" width={32} stroke={1.5} />
                             <div>
                                 <Text fw={600}>Sản phẩm</Text>
                                 <Text size="xs" c="dimmed">
@@ -64,7 +64,7 @@ export default function SellerDashboardPage() {
                         style={{ textDecoration: 'none', color: 'inherit' }}
                     >
                         <Group>
-                            <IconTicket size={32} stroke={1.5} />
+                            <Iconify icon="tabler:ticket" width={32} stroke={1.5} />
                             <div>
                                 <Text fw={600}>Voucher</Text>
                                 <Text size="xs" c="dimmed">
@@ -82,7 +82,7 @@ export default function SellerDashboardPage() {
                         style={{ textDecoration: 'none', color: 'inherit' }}
                     >
                         <Group>
-                            <IconDiscount size={32} stroke={1.5} />
+                            <Iconify icon="tabler:discount" width={32} stroke={1.5} />
                             <div>
                                 <Text fw={600}>Chương trình khuyến mãi</Text>
                                 <Text size="xs" c="dimmed">

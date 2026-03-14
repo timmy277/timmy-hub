@@ -1,7 +1,7 @@
 'use client';
 
 import { Title, Text, Button, Container, Group, Stack, Box } from '@mantine/core';
-import { IconLockOff } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { useRouter } from 'next/navigation';
 
 export default function ForbiddenPage() {
@@ -11,7 +11,7 @@ export default function ForbiddenPage() {
         <Container py={80}>
             <Box pos="relative">
                 <Stack align="center" gap="lg">
-                    <IconLockOff size={120} stroke={1.5} color="var(--mantine-color-red-6)" />
+                    <Iconify icon="tabler:lock-off" width={120} stroke={1.5} color="var(--mantine-color-red-6)" />
 
                     <Title
                         order={1}

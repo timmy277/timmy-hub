@@ -19,7 +19,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
-import { IconAt, IconLock, IconUser, IconCheck, IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
@@ -47,7 +47,7 @@ function PasswordRequirement({ meets, label }: { meets: boolean; label: string }
     return (
         <Text component="div" c={meets ? 'teal' : 'red'} mt={5} size="sm">
             <Center inline>
-                {meets ? <IconCheck size={14} stroke={1.5} /> : <IconX size={14} stroke={1.5} />}
+                {meets ? <Iconify icon="tabler:check" width={14} stroke={1.5} /> : <Iconify icon="tabler:x" width={14} stroke={1.5} />}
                 <Box ml={7}>{label}</Box>
             </Center>
         </Text>
@@ -125,7 +125,7 @@ export function RegisterPage() {
                 title: 'Thành công',
                 message: 'Tài khoản đã được tạo thành công! Vui lòng đăng nhập.',
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
 
             router.push('/login');
@@ -134,7 +134,7 @@ export function RegisterPage() {
                 title: 'Lỗi',
                 message: getApiErrorMessage(error, 'Không thể tạo tài khoản'),
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         }
     };
@@ -198,7 +198,7 @@ export function RegisterPage() {
                                         placeholder="Nhập tên"
                                         size="md"
                                         radius="md"
-                                        leftSection={<IconUser size={16} />}
+                                        leftSection={<Iconify icon="tabler:user" width={16} />}
                                         {...form.getInputProps('firstName')}
                                     />
                                     <TextInput
@@ -206,7 +206,7 @@ export function RegisterPage() {
                                         placeholder="Nhập họ"
                                         size="md"
                                         radius="md"
-                                        leftSection={<IconUser size={16} />}
+                                        leftSection={<Iconify icon="tabler:user" width={16} />}
                                         {...form.getInputProps('lastName')}
                                     />
                                 </Group>
@@ -216,7 +216,7 @@ export function RegisterPage() {
                                     placeholder="your@email.com"
                                     size="md"
                                     radius="md"
-                                    leftSection={<IconAt size={16} />}
+                                    leftSection={<Iconify icon="tabler:at" width={16} />}
                                     {...form.getInputProps('email')}
                                 />
 
@@ -226,32 +226,32 @@ export function RegisterPage() {
                                         placeholder="Tạo mật khẩu"
                                         size="md"
                                         radius="md"
-                                        leftSection={<IconLock size={16} />}
+                                        leftSection={<Iconify icon="tabler:lock" width={16} />}
                                         {...form.getInputProps('password')}
                                     />
 
                                     <Group gap={5} grow mt="xs" mb="md">
                                         {(['s0', 's1', 's2', 's3'] as const).map((barId, index) => (
-                                                <Progress
-                                                    key={barId}
-                                                    styles={{ section: { transitionDuration: '0ms' } }}
-                                                    value={
-                                                        form.values.password.length > 0 && index === 0
+                                            <Progress
+                                                key={barId}
+                                                styles={{ section: { transitionDuration: '0ms' } }}
+                                                value={
+                                                    form.values.password.length > 0 && index === 0
+                                                        ? 100
+                                                        : strength >= ((index + 1) / 4) * 100
                                                             ? 100
-                                                            : strength >= ((index + 1) / 4) * 100
-                                                                ? 100
-                                                                : 0
-                                                    }
-                                                    color={
-                                                        strength > 80
-                                                            ? 'teal'
-                                                            : strength > 50
-                                                                ? 'yellow'
-                                                                : 'red'
-                                                    }
-                                                    size={4}
-                                                />
-                                            ))}
+                                                            : 0
+                                                }
+                                                color={
+                                                    strength > 80
+                                                        ? 'teal'
+                                                        : strength > 50
+                                                            ? 'yellow'
+                                                            : 'red'
+                                                }
+                                                size={4}
+                                            />
+                                        ))}
                                     </Group>
 
                                     <PasswordRequirement
@@ -266,7 +266,7 @@ export function RegisterPage() {
                                     placeholder="Nhập lại mật khẩu"
                                     size="md"
                                     radius="md"
-                                    leftSection={<IconLock size={16} />}
+                                    leftSection={<Iconify icon="tabler:lock" width={16} />}
                                     {...form.getInputProps('confirmPassword')}
                                 />
 

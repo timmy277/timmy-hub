@@ -15,7 +15,7 @@ import {
 import { useForm } from '@mantine/form';
 import { z } from 'zod';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconX } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { sellerService } from '@/services/seller.service';
 
 const schema = z.object({
@@ -69,7 +69,7 @@ export default function BecomeSellerPage() {
                 title: 'Thành công',
                 message: 'Đăng ký gian hàng thành công. Vui lòng chờ admin duyệt.',
                 color: 'green',
-                icon: <IconCheck size={18} />,
+                icon: <Iconify icon="tabler:check" width={18} />,
             });
             router.replace('/seller');
         } catch (err: unknown) {
@@ -81,7 +81,7 @@ export default function BecomeSellerPage() {
                 title: 'Lỗi',
                 message: typeof msg === 'string' ? msg : 'Đăng ký thất bại',
                 color: 'red',
-                icon: <IconX size={18} />,
+                icon: <Iconify icon="tabler:x" width={18} />,
             });
         } finally {
             setLoading(false);

@@ -1,7 +1,7 @@
 'use client';
 
 import { SimpleGrid, Paper, Flex, Stack, Text, ThemeIcon, Button, useComputedColorScheme, Loader, Center, Badge, ActionIcon, Tooltip } from '@mantine/core';
-import { IconTicket, IconClock, IconHeart, IconHeartFilled } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { m } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { voucherService } from '@/services/voucher.service';
@@ -151,7 +151,7 @@ export function VoucherSection() {
                     >
                         <Flex gap="md" align="center">
                             <ThemeIcon size={48} radius="xl" color={color} variant="filled">
-                                <IconTicket size={24} />
+                                <Iconify icon="tabler:ticket" width={24} />
                             </ThemeIcon>
                             <Stack gap={2} style={{ flex: 1 }}>
                                 <Text fw={700} size="lg" c={isDark ? 'white' : `${color}.9`}>
@@ -163,7 +163,7 @@ export function VoucherSection() {
                                     </Text>
                                 </Flex>
                                 <Flex align="center" gap={4}>
-                                    <IconClock size={12} color={isDark ? `var(--mantine-color-${color}-2)` : `var(--mantine-color-${color}-7)`} />
+                                    <Iconify icon="tabler:clock" width={12} color={isDark ? `var(--mantine-color-${color}-2)` : `var(--mantine-color-${color}-7)`} />
                                     <Text size="xs" c={isDark ? `${color}.2` : `${color}.7`} fw={600}>
                                         HSD: {getTimeRemaining(voucher.endDate)}
                                     </Text>
@@ -190,7 +190,7 @@ export function VoucherSection() {
                                 fullWidth
                                 component={Link}
                                 href="/profile/voucher"
-                                leftSection={<IconHeartFilled size={14} />}
+                                leftSection={<Iconify icon="tabler:heart-filled" width={14} />}
                             >
                                 Đã lưu
                             </Button>
@@ -202,7 +202,7 @@ export function VoucherSection() {
                                 color={color}
                                 mt="sm"
                                 fullWidth
-                                leftSection={<IconHeart size={14} />}
+                                leftSection={<Iconify icon="tabler:heart" width={14} />}
                                 onClick={() => handleSaveVoucher(voucher.id, voucher.code)}
                                 loading={saveMutation.isPending}
                             >

@@ -8,7 +8,7 @@ import { voucherService } from '@/services/voucher.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import dayjs from 'dayjs';
-import { IconTicket, IconAlertTriangle } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { Switch, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
@@ -61,7 +61,7 @@ export default function AdminVouchersPage() {
             title: <Text fw={600} size="lg">Xóa Voucher</Text>,
             children: <Text size="sm">Bạn có chắc chắn muốn xóa voucher {item.code} này không?</Text>,
             labels: { confirm: 'Xóa', cancel: 'Hủy' },
-            confirmProps: { color: 'red', leftSection: <IconAlertTriangle size={16} /> },
+            confirmProps: { color: 'red', leftSection: <Iconify icon="tabler:alert-triangle" width={16} /> },
             onConfirm: () => deleteMutation.mutate(item.id),
         });
     }, [deleteMutation]);
@@ -205,7 +205,7 @@ export default function AdminVouchersPage() {
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
             searchPlaceholder="Tìm mã voucher..."
-            listIcon={<IconTicket size={16} />}
+            listIcon={<Iconify icon="tabler:ticket" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

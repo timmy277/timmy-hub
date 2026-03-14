@@ -15,7 +15,7 @@ import {
     Badge,
     Box,
 } from '@mantine/core';
-import { IconTrash, IconShoppingCart, IconAlertTriangle } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { modals } from '@mantine/modals';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
@@ -65,7 +65,7 @@ export function CartPage() {
         return (
             <Container size="lg" py="xl">
                 <Paper p="xl" ta="center" withBorder>
-                    <IconShoppingCart size={48} stroke={1.5} color="gray" />
+                    <Iconify icon="tabler:shopping-cart" width={48} stroke={1.5} color="gray" />
                     <Title order={2} mt="md">
                         Giỏ hàng trống
                     </Title>
@@ -84,7 +84,7 @@ export function CartPage() {
         modals.openConfirmModal({
             title: (
                 <Group gap="xs">
-                    <IconAlertTriangle size={18} color="var(--mantine-color-red-6)" />
+                    <Iconify icon="tabler:alert-triangle" width={18} color="var(--mantine-color-red-6)" />
                     <Text fw={600}>Xóa sản phẩm khỏi giỏ hàng</Text>
                 </Group>
             ),
@@ -106,7 +106,7 @@ export function CartPage() {
         modals.openConfirmModal({
             title: (
                 <Group gap="xs">
-                    <IconAlertTriangle size={18} color="var(--mantine-color-red-6)" />
+                    <Iconify icon="tabler:alert-triangle" width={18} color="var(--mantine-color-red-6)" />
                     <Text fw={600}>Xóa tất cả sản phẩm</Text>
                 </Group>
             ),
@@ -192,7 +192,7 @@ export function CartPage() {
                                                 }
                                                 loading={isRemoving}
                                             >
-                                                <IconTrash size={18} stroke={1.5} />
+                                                <Iconify icon="tabler:trash" width={18} stroke={1.5} />
                                             </ActionIcon>
                                         </Group>
 

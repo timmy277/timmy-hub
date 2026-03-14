@@ -30,14 +30,7 @@ import {
     Collapse,
 } from '@mantine/core';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import {
-    IconStar,
-    IconThumbUp,
-    IconShield,
-    IconMoodEmpty,
-    IconMessageCircle,
-    IconSend,
-} from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 
 function timeAgo(dateStr: string): string {
     const date = new Date(dateStr);
@@ -97,7 +90,7 @@ function StarFilterButton({
             size="xs"
             radius="xl"
             onClick={onClick}
-            leftSection={<IconStar size={12} />}
+            leftSection={<Iconify icon="tabler:star" width={12} />}
         >
             {star} sao {count > 0 && `(${count})`}
         </Button>
@@ -140,7 +133,7 @@ function RatingBreakdown({
                             <Group key={star} gap="xs" wrap="nowrap">
                                 <Group gap={4} w={50} wrap="nowrap" justify="flex-end">
                                     <Text size="xs" c="dimmed">{star}</Text>
-                                    <IconStar size={12} color="var(--mantine-color-orange-5)" fill="var(--mantine-color-orange-5)" />
+                                    <Iconify icon="tabler:star" width={12} color="var(--mantine-color-orange-5)" style={{ fill: 'var(--mantine-color-orange-5)' }} />
                                 </Group>
                                 <Progress
                                     value={pct}
@@ -304,10 +297,10 @@ function ReviewCard({
                 {/* Header */}
                 <Group gap="sm" justify="space-between" wrap="nowrap">
                     <Group gap="sm" wrap="nowrap">
-                        <Avatar 
-                            src={avatar} 
-                            radius="xl" 
-                            size="md" 
+                        <Avatar
+                            src={avatar}
+                            radius="xl"
+                            size="md"
                             color="orange"
                             style={{ cursor: 'pointer' }}
                             onClick={() => handleOpenChat(review.userId, displayName, avatar)}
@@ -315,9 +308,9 @@ function ReviewCard({
                             {initials}
                         </Avatar>
                         <Box>
-                            <Text 
-                                fw={600} 
-                                size="sm" 
+                            <Text
+                                fw={600}
+                                size="sm"
                                 style={{ cursor: 'pointer' }}
                                 onClick={() => handleOpenChat(review.userId, displayName, avatar)}
                             >
@@ -331,7 +324,7 @@ function ReviewCard({
                             size="xs"
                             variant="light"
                             color="green"
-                            leftSection={<IconShield size={10} />}
+                            leftSection={<Iconify icon="tabler:shield" width={10} />}
                         >
                             Đã mua
                         </Badge>
@@ -433,7 +426,7 @@ function ReviewCard({
                             onClick={() => onToggleHelpful(review.id)}
                             title={voted ? 'Bỏ vote hữu ích' : 'Đánh dấu hữu ích'}
                         >
-                            <IconThumbUp size={14} />
+                            <Iconify icon="tabler:thumb-up" width={14} />
                         </ActionIcon>
                         <Text size="xs" c={voted ? 'blue' : 'dimmed'}>
                             {review.helpfulCount > 0
@@ -444,7 +437,7 @@ function ReviewCard({
 
                     <Group gap="xs" style={{ cursor: 'pointer' }} onClick={() => setShowComments(!showComments)}>
                         <ActionIcon variant="subtle" color="gray" size="sm" radius="xl">
-                            <IconMessageCircle size={14} />
+                            <Iconify icon="tabler:message-circle" width={14} />
                         </ActionIcon>
                         <Text size="xs" c="dimmed">{review.comments?.length || 0} bình luận</Text>
                     </Group>
@@ -456,10 +449,10 @@ function ReviewCard({
                             {(review.comments || []).filter(cmt => !cmt.parentId).map(cmt => (
                                 <Box key={cmt.id}>
                                     <Group align="flex-start" gap="sm" wrap="nowrap">
-                                        <Avatar 
-                                            src={cmt.user.profile?.avatar} 
-                                            radius="xl" 
-                                            size="sm" 
+                                        <Avatar
+                                            src={cmt.user.profile?.avatar}
+                                            radius="xl"
+                                            size="sm"
                                             color="blue"
                                             style={{ cursor: 'pointer' }}
                                             onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || 'Ẩn danh', cmt.user.profile?.avatar)}
@@ -468,8 +461,8 @@ function ReviewCard({
                                         </Avatar>
                                         <Box flex={1}>
                                             <Group gap="xs" align="baseline">
-                                                <Text 
-                                                    fw={600} 
+                                                <Text
+                                                    fw={600}
                                                     size="xs"
                                                     style={{ cursor: 'pointer' }}
                                                     onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || 'Ẩn danh', cmt.user.profile?.avatar)}
@@ -479,10 +472,10 @@ function ReviewCard({
                                                 <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>{timeAgo(cmt.createdAt)}</Text>
                                             </Group>
                                             <Text size="sm">{cmt.content}</Text>
-                                            
-                                            <Text 
-                                                size="xs" 
-                                                c="orange" 
+
+                                            <Text
+                                                size="xs"
+                                                c="orange"
                                                 style={{ cursor: 'pointer', marginTop: 4, display: 'inline-block' }}
                                                 onClick={() => {
                                                     setReplyToId(cmt.id);
@@ -494,16 +487,16 @@ function ReviewCard({
                                             </Text>
                                         </Box>
                                     </Group>
-                                    
+
                                     {/* Sub-comments (replies) */}
                                     {cmt.replies && cmt.replies.length > 0 && (
                                         <Stack gap="xs" mt="xs" ml={32}>
                                             {cmt.replies.map(reply => (
                                                 <Group key={reply.id} align="flex-start" gap="sm" wrap="nowrap">
-                                                    <Avatar 
-                                                        src={reply.user.profile?.avatar} 
-                                                        radius="xl" 
-                                                        size="xs" 
+                                                    <Avatar
+                                                        src={reply.user.profile?.avatar}
+                                                        radius="xl"
+                                                        size="xs"
                                                         color="gray"
                                                         style={{ cursor: 'pointer' }}
                                                         onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || 'Ẩn danh', reply.user.profile?.avatar)}
@@ -512,9 +505,9 @@ function ReviewCard({
                                                     </Avatar>
                                                     <Box flex={1}>
                                                         <Group gap="xs" align="baseline">
-                                                            <Text 
-                                                                fw={600} 
-                                                                size="xs" 
+                                                            <Text
+                                                                fw={600}
+                                                                size="xs"
                                                                 style={{ fontSize: 11, cursor: 'pointer' }}
                                                                 onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || 'Ẩn danh', reply.user.profile?.avatar)}
                                                             >
@@ -523,9 +516,9 @@ function ReviewCard({
                                                             <Text size="xs" c="dimmed" style={{ fontSize: 9 }}>{timeAgo(reply.createdAt)}</Text>
                                                         </Group>
                                                         <Text size="sm" style={{ fontSize: 13 }}>{reply.content}</Text>
-                                                        <Text 
-                                                            size="xs" 
-                                                            c="orange" 
+                                                        <Text
+                                                            size="xs"
+                                                            c="orange"
                                                             style={{ cursor: 'pointer', marginTop: 4, display: 'inline-block' }}
                                                             onClick={() => {
                                                                 setReplyToId(cmt.id);
@@ -542,7 +535,7 @@ function ReviewCard({
                                     )}
                                 </Box>
                             ))}
-                            
+
                             <form onSubmit={handleCommentSubmit} style={{ marginTop: 8 }}>
                                 {replyToId && (
                                     <Group justify="space-between" mb={8}>
@@ -567,15 +560,15 @@ function ReviewCard({
                                     size="sm"
                                     radius="xl"
                                     rightSection={
-                                        <ActionIcon 
-                                            size={28} 
-                                            radius="xl" 
-                                            color="orange" 
-                                            variant="filled" 
+                                        <ActionIcon
+                                            size={28}
+                                            radius="xl"
+                                            color="orange"
+                                            variant="filled"
                                             disabled={!commentText.trim() || commentMutation.isPending}
                                             onClick={handleCommentSubmit}
                                         >
-                                            {commentMutation.isPending ? <Loader size={12} color="white" /> : <IconSend size={14} />}
+                                            {commentMutation.isPending ? <Loader size={12} color="white" /> : <Iconify icon="tabler:send" width={14} />}
                                         </ActionIcon>
                                     }
                                 />
@@ -607,7 +600,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
         onMutate: async (reviewId) => {
             await queryClient.cancelQueries({ queryKey: ['reviews', productId] });
             const previousData = queryClient.getQueryData(['reviews', productId]);
-            
+
             setOptimisticVotes(prev => {
                 const reviewData = (data as ReviewQueryData)?.data;
                 const review = reviewData?.reviews?.find(r => r.id === reviewId);
@@ -671,7 +664,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                         ...old.data,
                         reviews: old.data.reviews.map(r => {
                             if (r.id !== data.reviewId) return r;
-                            
+
                             // Nếu là comment chính
                             if (!data.comment.parentId) {
                                 return { ...r, comments: [...(r.comments || []), data.comment] };
@@ -680,8 +673,8 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                             // Nếu là reply comment
                             return {
                                 ...r,
-                                comments: (r.comments || []).map(cmt => 
-                                    cmt.id === data.comment.parentId 
+                                comments: (r.comments || []).map(cmt =>
+                                    cmt.id === data.comment.parentId
                                         ? { ...cmt, replies: [...(cmt.replies || []), data.comment] }
                                         : cmt
                                 )
@@ -693,9 +686,9 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
         );
     }, [queryClient, productId, sort, filterRating, page]);
 
-    useReviewSocket({ 
-        productId, 
-        onNewReview: handleNewReview, 
+    useReviewSocket({
+        productId,
+        onNewReview: handleNewReview,
         onRatingUpdated: handleRatingUpdated,
         onNewComment: handleNewComment,
     });
@@ -713,7 +706,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
             {/* Tiêu đề section */}
             <Group gap="xs">
                 <ThemeIcon variant="light" color="orange" size="md" radius="xl">
-                    <IconStar size={16} />
+                    <Iconify icon="tabler:star" width={16} />
                 </ThemeIcon>
                 <Title order={4}>Đánh giá sản phẩm</Title>
                 {currentCount > 0 && (
@@ -765,7 +758,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
             ) : reviews.length === 0 ? (
                 <Paper withBorder radius="md" p="xl" ta="center">
                     <ThemeIcon size={48} radius="xl" variant="light" color="gray" mb="md">
-                        <IconMoodEmpty size={24} />
+                        <Iconify icon="tabler:mood-empty" width={24} />
                     </ThemeIcon>
                     <Text c="dimmed" size="sm">
                         {filterRating

@@ -14,7 +14,7 @@ import {
     Alert,
 } from '@mantine/core';
 import NextImage from 'next/image';
-import { IconInfoCircle } from '@tabler/icons-react';
+import Iconify from '@/components/iconify/Iconify';
 import { Product, ResourceStatus } from '@/types/product';
 import { formatDate } from '@/utils/date';
 import { PRODUCT_STATUS_CONFIG } from '@/constants';
@@ -29,7 +29,7 @@ export function SellerProductDetail({ product }: Props) {
     return (
         <Stack gap="md" p="md">
             {product.status === ResourceStatus.REJECTED && product.reviewNote && (
-                <Alert icon={<IconInfoCircle size={18} />} color="red" variant="light" title="Lý do từ chối">
+                <Alert icon={<Iconify icon="tabler:info-circle" width={18} />} color="red" variant="light" title="Lý do từ chối">
                     {product.reviewNote}
                 </Alert>
             )}

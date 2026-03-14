@@ -19,7 +19,7 @@ import {
     ThemeIcon,
     Box,
 } from '@mantine/core';
-import { IconShoppingCart, IconAlertCircle, IconBuildingStore, IconShieldCheck, IconStar, IconChevronRight, IconTag, IconBolt } from '@tabler/icons-react';
+import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
@@ -73,7 +73,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             ? [{
                 title: product.category.name,
                 href: `/category/${product.category.slug ?? product.category.id}`,
-                icon: <IconTag size={14} />,
+                icon: <Icon icon="tabler:tag" width={14} />,
             }]
             : []),
         { title: product.name },
@@ -174,7 +174,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                         size="lg"
                                         variant="filled"
                                         color="red"
-                                        leftSection={<IconBolt size={14} />}
+                                        leftSection={<Icon icon="tabler:bolt" width={14} />}
                                     >
                                         {campaignData?.campaignType === 'FLASH_SALE' ? 'Flash Sale' : 'Giảm giá'}
                                     </Badge>
@@ -243,7 +243,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                 <Button
                                     size="lg"
                                     radius="md"
-                                    leftSection={<IconShoppingCart size={20} />}
+                                    leftSection={<Icon icon="tabler:shopping-cart" width={20} />}
                                     onClick={handleAddToCart}
                                     loading={isAdding}
                                     disabled={isOutOfStock}
@@ -266,7 +266,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                             </Group>
 
                             {!user && (
-                                <Alert color="blue" icon={<IconAlertCircle size={16} />}>
+                                <Alert color="blue" icon={<Icon icon="tabler:alert-circle" width={16} />}>
                                     <Text size="sm">
                                         Vui lòng{' '}
                                         <Anchor component={Link} href="/login" c="blue">
@@ -296,7 +296,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                             radius="md"
                                             color="blue"
                                         >
-                                            <IconBuildingStore size={24} />
+                                            <Icon icon="tabler:building-store" width={24} />
                                         </Avatar>
                                         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                                             <Group gap={6} wrap="nowrap">
