@@ -14,10 +14,27 @@ import {
     Loader,
     Alert,
     TextInput,
+    Modal,
+    ScrollArea,
+    ThemeIcon,
+    Badge,
+    Flex,
+    CopyButton,
+    Tooltip,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { useQuery } from '@tanstack/react-query';
 import { voucherService } from '@/services/voucher.service';
 import { notifications } from '@mantine/notifications';
-import { IconCreditCard, IconAlertCircle, IconDiscount2 } from '@tabler/icons-react';
+import {
+    IconCreditCard,
+    IconAlertCircle,
+    IconDiscount2,
+    IconTicket,
+    IconCheck,
+    IconX,
+    IconCopy,
+} from '@tabler/icons-react';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
@@ -38,6 +55,24 @@ type CartItem = {
     product: { price: number | string; name: string; images?: string[] };
     quantity: number;
 };
+
+type Voucher = {
+    id: string;
+    code: string;
+    type: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING';
+    value: number;
+    minOrderValue?: number;
+    maxDiscount?: number;
+    validFrom?: string;
+    validUntil?: string;
+};
+
+type UserVoucher = {
+    id: string;
+    status: 'SAVED' | 'USED' | 'EXPIRED';
+    voucher: Voucher;
+};
+
 type AnyRes = Record<string, unknown>;
 
 async function buildPaymentUrl(
@@ -71,8 +106,35 @@ async function buildPaymentUrl(
     return { paymentUrl: payData.url };
 }
 
+function isVoucherUsable(voucher: Voucher, totalAmount: number): { usable: boolean; reason?: string } {
+    const now = new Date();
+    if (voucher.validFrom && new Date(voucher.validFrom) > now) {
+        return { usable: false, reason: 'Chưa đến ngày áp dụng' };
+    }
+    if (voucher.validUntil && new Date(voucher.validUntil) < now) {
+        return { usable: false, reason: 'Đã hết hạn' };
+    }
+    if (voucher.minOrderValue && totalAmount < voucher.minOrderValue) {
+        return { usable: false, reason: `Đơn tối thiểu ${voucher.minOrderValue.toLocaleString()}đ` };
+    }
+    return { usable: true };
+}
+
+function formatDiscount(voucher: Voucher): string {
+    if (voucher.type === 'PERCENTAGE') {
+        return `${voucher.value}%`;
+    }
+    return `${voucher.value.toLocaleString()}đ`;
+}
+
+function getVoucherColor(voucher: Voucher): string {
+    if (voucher.type === 'PERCENTAGE' && voucher.value >= 50) return 'red';
+    if (voucher.type === 'FIXED_AMOUNT' && voucher.value >= 100000) return 'red';
+    return 'blue';
+}
+
 export function CheckoutPage() {
-    const { user } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const { cart, isLoading: cartLoading, refetch: refetchCart } = useCart();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -81,6 +143,21 @@ export function CheckoutPage() {
         null,
     );
     const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
+    const [voucherModalOpened, { open: openVoucherModal, close: closeVoucherModal }] = useDisclosure(false);
+
+    // Fetch user's saved vouchers
+    const { data: vouchersRes, isLoading: vouchersLoading } = useQuery({
+        queryKey: ['my-vouchers', 'SAVED'],
+        queryFn: () => voucherService.getMyVouchers('SAVED'),
+        enabled: isAuthenticated,
+    });
+
+    const myVouchers: UserVoucher[] = vouchersRes?.data || [];
+
+    const totalAmount = cart?.items?.reduce(
+        (sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity,
+        0,
+    ) || 0;
 
     const handlePayWithVnpay = async () => {
         if (!cart || cart.items.length === 0) return;
@@ -149,6 +226,46 @@ export function CheckoutPage() {
         }
     };
 
+    const handleSelectVoucher = async (userVoucher: UserVoucher) => {
+        const check = isVoucherUsable(userVoucher.voucher, totalAmount);
+        if (!check.usable) {
+            notifications.show({
+                title: 'Không thể sử dụng',
+                message: check.reason,
+                color: 'orange',
+            });
+            return;
+        }
+
+        try {
+            const res = await voucherService.validate(userVoucher.voucher.code, 'VNPAY');
+            if (res.data?.valid) {
+                setAppliedVoucher({
+                    code: res.data.code ?? userVoucher.voucher.code,
+                    discount: res.data.discount ?? 0,
+                });
+                closeVoucherModal();
+                notifications.show({
+                    title: 'Thành công',
+                    message: 'Đã áp dụng mã giảm giá',
+                    color: 'green',
+                });
+            } else {
+                notifications.show({
+                    title: 'Không thể áp dụng',
+                    message: res.data?.message || 'Voucher không hợp lệ',
+                    color: 'red',
+                });
+            }
+        } catch (err) {
+            notifications.show({
+                title: 'Lỗi',
+                message: getErrorMessage(err),
+                color: 'red',
+            });
+        }
+    };
+
     const handleRemoveVoucher = () => {
         setAppliedVoucher(null);
         setVoucherCode('');
@@ -181,10 +298,6 @@ export function CheckoutPage() {
         );
     }
 
-    const totalAmount = cart.items.reduce(
-        (sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity,
-        0,
-    );
     const itemCount = cart.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
 
     return (
@@ -272,6 +385,19 @@ export function CheckoutPage() {
                                     </Button>
                                 )}
                             </Group>
+
+                            {!appliedVoucher && myVouchers.length > 0 && (
+                                <Button
+                                    variant="subtle"
+                                    size="xs"
+                                    mt="xs"
+                                    leftSection={<IconTicket size={14} />}
+                                    onClick={openVoucherModal}
+                                >
+                                    Chọn từ voucher của bạn
+                                </Button>
+                            )}
+
                             {appliedVoucher && (
                                 <Text size="sm" c="green" mt="xs">
                                     Đã giảm: -{appliedVoucher.discount.toLocaleString()}đ
@@ -308,6 +434,104 @@ export function CheckoutPage() {
                     </Button>
                 </Paper>
             </Group>
+
+            {/* Voucher Selection Modal */}
+            <Modal
+                opened={voucherModalOpened}
+                onClose={closeVoucherModal}
+                title="Chọn voucher"
+                size="md"
+                scrollAreaComponent={ScrollArea.Autosize}
+            >
+                {vouchersLoading ? (
+                    <Group justify="center" py="md">
+                        <Loader size="sm" />
+                    </Group>
+                ) : myVouchers.length === 0 ? (
+                    <Text c="dimmed" ta="center" py="md">
+                        Bạn chưa có voucher nào
+                    </Text>
+                ) : (
+                    <ScrollArea.Autosize mah={400}>
+                        <Stack gap="sm">
+                            {myVouchers.map(uv => {
+                                const voucher = uv.voucher;
+                                const { usable, reason } = isVoucherUsable(voucher, totalAmount);
+                                const color = getVoucherColor(voucher);
+
+                                return (
+                                    <Paper
+                                        key={uv.id}
+                                        p="sm"
+                                        withBorder
+                                        style={{
+                                            cursor: usable ? 'pointer' : 'not-allowed',
+                                            opacity: usable ? 1 : 0.6,
+                                        }}
+                                        onClick={() => usable && handleSelectVoucher(uv)}
+                                    >
+                                        <Flex justify="space-between" align="center">
+                                            <Stack gap={2} style={{ flex: 1 }}>
+                                                <Group gap="xs">
+                                                    <Badge color={color} variant="light">
+                                                        {formatDiscount(voucher)}
+                                                    </Badge>
+                                                    {voucher.minOrderValue && voucher.minOrderValue > 0 && (
+                                                        <Text size="xs" c="dimmed">
+                                                            Tối thiểu {voucher.minOrderValue.toLocaleString()}đ
+                                                        </Text>
+                                                    )}
+                                                </Group>
+                                                <Text size="sm" fw={600}>
+                                                    {voucher.code}
+                                                </Text>
+                                                {voucher.maxDiscount && (
+                                                    <Text size="xs" c="dimmed">
+                                                        Giảm tối đa {voucher.maxDiscount.toLocaleString()}đ
+                                                    </Text>
+                                                )}
+                                                {!usable && reason && (
+                                                    <Text size="xs" c="red">
+                                                        {reason}
+                                                    </Text>
+                                                )}
+                                            </Stack>
+                                            <Group gap="xs">
+                                                <CopyButton value={voucher.code}>
+                                                    {({ copied, copy }) => (
+                                                        <Tooltip label={copied ? 'Đã copy' : 'Copy'}>
+                                                            <Button
+                                                                size="xs"
+                                                                variant="subtle"
+                                                                onClick={e => {
+                                                                    e.stopPropagation();
+                                                                    copy();
+                                                                }}
+                                                            >
+                                                                {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                                                            </Button>
+                                                        </Tooltip>
+                                                    )}
+                                                </CopyButton>
+                                                {usable && (
+                                                    <ThemeIcon size={24} radius="xl" color="green" variant="light">
+                                                        <IconCheck size={14} />
+                                                    </ThemeIcon>
+                                                )}
+                                                {!usable && (
+                                                    <ThemeIcon size={24} radius="xl" color="gray" variant="light">
+                                                        <IconX size={14} />
+                                                    </ThemeIcon>
+                                                )}
+                                            </Group>
+                                        </Flex>
+                                    </Paper>
+                                );
+                            })}
+                        </Stack>
+                    </ScrollArea.Autosize>
+                )}
+            </Modal>
         </Container>
     );
 }

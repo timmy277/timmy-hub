@@ -87,6 +87,55 @@ export class VouchersController {
         return ResponseDto.success('Lấy danh sách voucher khả dụng thành công', vouchers);
     }
 
+    @Get('public')
+    @ApiOperation({ summary: 'Lấy danh sách voucher công khai cho trang home' })
+    async findPublicVouchers() {
+        const vouchers = await this.vouchersService.findPublicVouchers();
+        return ResponseDto.success('Lấy danh sách voucher công khai thành công', vouchers);
+    }
+
+    // ===== User Voucher Endpoints (phải đặt TRƯỚC :id) =====
+
+    @Get('my-vouchers')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiQuery({ name: 'status', required: false, enum: ['SAVED', 'USED', 'EXPIRED'] })
+    @ApiOperation({ summary: 'Lấy danh sách voucher của tôi (lọc theo trạng thái)' })
+    async getMyVouchers(
+        @Req() req: UserRequest,
+        @Query('status') status?: 'SAVED' | 'USED' | 'EXPIRED',
+    ) {
+        const vouchers = await this.vouchersService.findUserVouchers(req.user.id, status);
+        return ResponseDto.success('Lấy danh sách voucher thành công', vouchers);
+    }
+
+    @Get('saved/:voucherId')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Kiểm tra voucher đã được lưu chưa' })
+    async checkSaved(@Param('voucherId') voucherId: string, @Req() req: UserRequest) {
+        const isSaved = await this.vouchersService.isVoucherSaved(req.user.id, voucherId);
+        return ResponseDto.success('OK', { isSaved });
+    }
+
+    @Post('save/:voucherId')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Lưu voucher vào danh sách của tôi' })
+    async saveVoucher(@Param('voucherId') voucherId: string, @Req() req: UserRequest) {
+        const userVoucher = await this.vouchersService.saveVoucher(req.user.id, voucherId);
+        return ResponseDto.success('Đã lưu voucher', userVoucher);
+    }
+
+    @Delete('save/:voucherId')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Xóa voucher khỏi danh sách của tôi' })
+    async removeMyVoucher(@Param('voucherId') voucherId: string, @Req() req: UserRequest) {
+        await this.vouchersService.removeVoucher(req.user.id, voucherId);
+        return ResponseDto.success('Đã xóa voucher khỏi danh sách');
+    }
+
     @Post('validate')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()

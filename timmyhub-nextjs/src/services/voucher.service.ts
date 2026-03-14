@@ -23,6 +23,13 @@ export interface Voucher {
     };
 }
 
+export interface UserVoucher {
+    id: string;
+    savedAt: string;
+    status: 'SAVED' | 'USED' | 'EXPIRED';
+    voucher: Voucher;
+}
+
 export interface VoucherValidationResult {
     valid: boolean;
     voucherId?: string;
@@ -80,5 +87,35 @@ export const voucherService = {
 
     async delete(id: string): Promise<ApiResponse<void>> {
         return axios.delete(`/vouchers/${id}`) as Promise<ApiResponse<void>>;
+    },
+
+    // ===== User Voucher Methods =====
+
+    /**
+     * Lưu voucher vào danh sách của user
+     */
+    async saveVoucher(voucherId: string): Promise<ApiResponse<UserVoucher>> {
+        return axios.post(`/vouchers/save/${voucherId}`) as Promise<ApiResponse<UserVoucher>>;
+    },
+
+    /**
+     * Xóa voucher khỏi danh sách của user
+     */
+    async removeSavedVoucher(voucherId: string): Promise<ApiResponse<void>> {
+        return axios.delete(`/vouchers/save/${voucherId}`) as Promise<ApiResponse<void>>;
+    },
+
+    /**
+     * Lấy danh sách voucher của user
+     */
+    async getMyVouchers(status?: 'SAVED' | 'USED' | 'EXPIRED'): Promise<ApiResponse<UserVoucher[]>> {
+        return axios.get('/vouchers/my-vouchers', { params: status ? { status } : {} }) as Promise<ApiResponse<UserVoucher[]>>;
+    },
+
+    /**
+     * Kiểm tra voucher đã được lưu chưa
+     */
+    async checkVoucherSaved(voucherId: string): Promise<ApiResponse<{ isSaved: boolean }>> {
+        return axios.get(`/vouchers/saved/${voucherId}`) as Promise<ApiResponse<{ isSaved: boolean }>>;
     }
 };

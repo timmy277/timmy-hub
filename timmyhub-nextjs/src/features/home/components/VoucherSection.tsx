@@ -1,13 +1,15 @@
 'use client';
 
-import { SimpleGrid, Paper, Flex, Stack, Text, ThemeIcon, Button, useComputedColorScheme, Loader, Center, Badge } from '@mantine/core';
-import { IconTicket, IconClock, IconArrowRight } from '@tabler/icons-react';
+import { SimpleGrid, Paper, Flex, Stack, Text, ThemeIcon, Button, useComputedColorScheme, Loader, Center, Badge, ActionIcon, Tooltip } from '@mantine/core';
+import { IconTicket, IconClock, IconHeart, IconHeartFilled } from '@tabler/icons-react';
 import { m } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { voucherService } from '@/services/voucher.service';
+import { useAuth } from '@/hooks/useAuth';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useState } from 'react';
+import { notifications } from '@mantine/notifications';
+import Link from 'next/link';
 
 dayjs.extend(relativeTime);
 
@@ -42,7 +44,7 @@ function getTimeRemaining(endDate: string): string {
     const now = dayjs();
     const end = dayjs(endDate);
     const diff = end.diff(now, 'day');
-    
+
     if (diff < 0) return 'Đã hết hạn';
     if (diff === 0) return 'Hết hạn trong ngày';
     if (diff === 1) return 'Còn 1 ngày';
@@ -61,20 +63,58 @@ function getMinOrderText(minOrderValue?: number): string {
 }
 
 export function VoucherSection() {
+    const queryClient = useQueryClient();
     const computedColorScheme = useComputedColorScheme('light');
     const isDark = computedColorScheme === 'dark';
-    const [savedVouchers, setSavedVouchers] = useState<Set<string>>(new Set());
+    const { isAuthenticated } = useAuth();
+
+    // Get saved vouchers to check which ones are already saved
+    const { data: savedRes } = useQuery({
+        queryKey: ['my-vouchers'],
+        queryFn: () => voucherService.getMyVouchers(undefined),
+        enabled: isAuthenticated,
+    });
+
+    const savedVoucherIds = new Set(savedRes?.data?.map(uv => uv.voucher.id) || []);
 
     const { data: res, isLoading, error } = useQuery({
         queryKey: ['public-vouchers'],
         queryFn: () => voucherService.getPublicVouchers(),
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 5 * 60 * 1000,
+    });
+
+    const saveMutation = useMutation({
+        mutationFn: (voucherId: string) => voucherService.saveVoucher(voucherId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['my-vouchers'] });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Đã lưu voucher vào danh sách của bạn',
+                color: 'green',
+            });
+        },
+        onError: (error: unknown) => {
+            const err = error as { response?: { data?: { message?: string } } };
+            notifications.show({
+                title: 'Lỗi',
+                message: err.response?.data?.message || 'Không thể lưu voucher',
+                color: 'red',
+            });
+        },
     });
 
     const vouchers: VoucherDisplay[] = res?.data || [];
 
-    const handleSaveVoucher = (code: string) => {
-        setSavedVouchers(prev => new Set(prev).add(code));
+    const handleSaveVoucher = (voucherId: string, voucherCode: string) => {
+        if (!isAuthenticated) {
+            notifications.show({
+                title: 'Đăng nhập để lưu voucher',
+                message: 'Vui lòng đăng nhập để lưu voucher vào danh sách của bạn',
+                color: 'yellow',
+            });
+            return;
+        }
+        saveMutation.mutate(voucherId);
     };
 
     if (isLoading) {
@@ -93,12 +133,12 @@ export function VoucherSection() {
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" mb="xl">
             {vouchers.slice(0, 6).map((voucher, i) => {
                 const color = getVoucherColor(voucher.type, i);
-                const isSaved = savedVouchers.has(voucher.code);
+                const isSaved = savedVoucherIds.has(voucher.id);
 
                 return (
                     <Paper key={voucher.id} p="md" radius="md" withBorder
                         bg={isDark ? `${color}.9` : `${color}.0`}
-                        style={{ 
+                        style={{
                             borderColor: isDark ? `var(--mantine-color-${color}-8)` : `var(--mantine-color-${color}-3)`,
                             transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                         }}
@@ -140,19 +180,35 @@ export function VoucherSection() {
                                 {voucher.description}
                             </Text>
                         )}
-                        <Button 
-                            size="xs" 
-                            radius="xl" 
-                            variant={isSaved ? 'light' : 'white'}
-                            color={color}
-                            mt="sm"
-                            fullWidth
-                            leftSection={!isSaved && <IconArrowRight size={14} />}
-                            onClick={() => handleSaveVoucher(voucher.code)}
-                            disabled={isSaved}
-                        >
-                            {isSaved ? 'Đã lưu' : 'Sao chép mã'}
-                        </Button>
+                        {isSaved ? (
+                            <Button
+                                size="xs"
+                                radius="xl"
+                                variant="light"
+                                color={color}
+                                mt="sm"
+                                fullWidth
+                                component={Link}
+                                href="/profile/voucher"
+                                leftSection={<IconHeartFilled size={14} />}
+                            >
+                                Đã lưu
+                            </Button>
+                        ) : (
+                            <Button
+                                size="xs"
+                                radius="xl"
+                                variant="white"
+                                color={color}
+                                mt="sm"
+                                fullWidth
+                                leftSection={<IconHeart size={14} />}
+                                onClick={() => handleSaveVoucher(voucher.id, voucher.code)}
+                                loading={saveMutation.isPending}
+                            >
+                                Lưu voucher
+                            </Button>
+                        )}
                     </Paper>
                 );
             })}

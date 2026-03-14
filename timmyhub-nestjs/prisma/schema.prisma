@@ -40,6 +40,7 @@ model User {
   userPermissions    UserPermission[]
   userRoles          UserSystemRole[]
   sellerVouchers     Voucher[]
+  userVouchers       UserVoucher[]
   wallet             Wallet?
   reviewComments     ReviewComment[]
   sentMessages       ChatMessage[]       @relation("SentMessages")
@@ -405,6 +406,7 @@ model Voucher {
   campaign       PromotionCampaign? @relation(fields: [campaignId], references: [id])
   seller         User?              @relation(fields: [sellerId], references: [id])
   usageLogs      VoucherUsageLog[]
+  userVouchers   UserVoucher[]
 
   @@index([code])
   @@index([sellerId])
@@ -424,6 +426,27 @@ model VoucherUsageLog {
   @@unique([voucherId, orderId])
   @@index([voucherId])
   @@index([userId])
+}
+
+model UserVoucher {
+  id        String   @id @default(cuid())
+  userId    String
+  voucherId String
+  savedAt   DateTime @default(now())
+  status    UserVoucherStatus @default(SAVED)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  voucher   Voucher  @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, voucherId])
+  @@index([userId])
+  @@index([voucherId])
+  @@index([userId, status])
+}
+
+enum UserVoucherStatus {
+  SAVED
+  USED
+  EXPIRED
 }
 
 model Review {

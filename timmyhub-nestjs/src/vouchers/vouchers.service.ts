@@ -6,10 +6,9 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
-import { UserRole, VoucherType, PaymentMethod, ResourceStatus } from '@prisma/client';
+import { UserRole, PaymentMethod, ResourceStatus, VoucherType } from '@prisma/client';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { UpdateVoucherDto } from './dto/update-voucher.dto';
-
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '@prisma/client';
 
@@ -339,6 +338,26 @@ export class VouchersService {
         };
     }
 
+    /**
+     * Lấy danh sách voucher công khai cho trang home
+     */
+    async findPublicVouchers() {
+        const now = new Date();
+        return this.prisma.voucher.findMany({
+            where: {
+                isActive: true,
+                startDate: { lte: now },
+                endDate: { gte: now },
+                sellerId: null, // Chỉ voucher của sàn (không thuộc seller cụ thể)
+            },
+            include: {
+                campaign: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 20,
+        });
+    }
+
     async findAvailableForCart(userId: string) {
         const cart = await this.prisma.cart.findUnique({
             where: { userId },
@@ -421,5 +440,102 @@ export class VouchersService {
             totalUsed,
             totalDiscount: totalDiscountAgg._sum.discount ?? 0,
         };
+    }
+
+    // ===== User Voucher Methods =====
+
+    /**
+     * Lưu voucher vào danh sách của user
+     */
+    async saveVoucher(userId: string, voucherId: string) {
+        const voucher = await this.prisma.voucher.findUnique({ where: { id: voucherId } });
+        if (!voucher) {
+            throw new NotFoundException('Voucher không tồn tại');
+        }
+
+        const now = new Date();
+        if (!voucher.isActive || voucher.startDate > now || voucher.endDate < now) {
+            throw new BadRequestException('Voucher không còn hiệu lực');
+        }
+
+        // Check if already saved
+        const existing = await this.prisma.userVoucher.findUnique({
+            where: { userId_voucherId: { userId, voucherId } },
+        });
+        if (existing) {
+            throw new BadRequestException('Voucher đã được lưu trước đó');
+        }
+
+        const userVoucher = await this.prisma.userVoucher.create({
+            data: { userId, voucherId, status: 'SAVED' as any },
+        });
+        return userVoucher;
+    }
+
+    /**
+     * Xóa voucher khỏi danh sách của user
+     */
+    async removeVoucher(userId: string, voucherId: string) {
+        const userVoucher = await this.prisma.userVoucher.findUnique({
+            where: { userId_voucherId: { userId, voucherId } },
+        });
+        if (!userVoucher) {
+            throw new NotFoundException('Voucher không tồn tại trong danh sách');
+        }
+
+        await this.prisma.userVoucher.delete({
+            where: { userId_voucherId: { userId, voucherId } },
+        });
+        return { success: true };
+    }
+
+    /**
+     * Lấy danh sách voucher của user (bao gồm đã lưu, đã dùng, đã hết hạn)
+     */
+    async findUserVouchers(userId: string, status?: 'SAVED' | 'USED' | 'EXPIRED') {
+        const now = new Date();
+
+        const userVouchers = await this.prisma.userVoucher.findMany({
+            where: {
+                userId,
+                ...(status ? { status: status as any } : {}),
+            },
+            include: {
+                voucher: {
+                    include: { campaign: true },
+                },
+            },
+            orderBy: { savedAt: 'desc' },
+        });
+
+        // Update expired status
+        const result = userVouchers.map(uv => {
+            const voucher = uv.voucher;
+            let finalStatus = uv.status;
+
+            // If voucher has expired, mark as EXPIRED
+            if (voucher.endDate < now && uv.status === 'SAVED') {
+                finalStatus = 'EXPIRED';
+            }
+
+            return {
+                id: uv.id,
+                savedAt: uv.savedAt,
+                status: finalStatus,
+                voucher,
+            };
+        });
+
+        return result;
+    }
+
+    /**
+     * Kiểm tra xem voucher đã được user lưu chưa
+     */
+    async isVoucherSaved(userId: string, voucherId: string): Promise<boolean> {
+        const userVoucher = await this.prisma.userVoucher.findUnique({
+            where: { userId_voucherId: { userId, voucherId } },
+        });
+        return !!userVoucher;
     }
 }
