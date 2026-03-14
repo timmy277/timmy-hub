@@ -91,4 +91,11 @@ export class SellerController {
         const profile = await this.sellerService.reject(id);
         return ResponseDto.success('Đã từ chối đơn', profile);
     }
+
+    @Get()
+    @ApiOperation({ summary: 'Lấy danh sách tất cả seller (Public)' })
+    async findAll() {
+        const sellers = await this.sellerService.findAllPublic();
+        return ResponseDto.success('Lấy danh sách seller thành công', sellers);
+    }
 }

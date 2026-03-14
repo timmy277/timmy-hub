@@ -173,4 +173,30 @@ export class SellerService {
             data: { status: ResourceStatus.REJECTED },
         });
     }
+
+    /** Lấy danh sách seller công khai */
+    async findAllPublic() {
+        return this.prisma.sellerProfile.findMany({
+            where: { status: ResourceStatus.APPROVED },
+            select: {
+                id: true,
+                shopName: true,
+                shopSlug: true,
+                shopLogo: true,
+                user: {
+                    select: {
+                        email: true,
+                        profile: {
+                            select: {
+                                firstName: true,
+                                lastName: true,
+                                displayName: true,
+                                avatar: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
 }

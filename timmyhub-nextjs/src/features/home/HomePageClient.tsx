@@ -38,7 +38,7 @@ interface HomePageClientProps {
     initialProducts: Product[];
 }
 
-const PRODUCTS_PAGE_SIZE = 20;
+const PRODUCTS_PAGE_SIZE = 10;
 
 export function HomePageClient({ initialProducts }: HomePageClientProps) {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');

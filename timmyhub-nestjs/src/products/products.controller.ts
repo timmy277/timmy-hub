@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Param, Patch, UseGuards, Req, Delete } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Param,
+    Patch,
+    UseGuards,
+    Req,
+    Delete,
+    Query,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { ProductsService } from './products.service';
@@ -35,6 +46,33 @@ export class ProductsController {
     async findAll() {
         const products = await this.productsService.findAll();
         return ResponseDto.success('Lấy danh sách sản phẩm thành công', products);
+    }
+
+    @Get('filter')
+    @ApiOperation({ summary: 'Lấy danh sách sản phẩm với bộ lọc (Public)' })
+    async findWithFilters(
+        @Query('page') page = '1',
+        @Query('limit') limit = '20',
+        @Query('categoryId') categoryId?: string,
+        @Query('brandId') brandId?: string,
+        @Query('minPrice') minPrice?: string,
+        @Query('maxPrice') maxPrice?: string,
+        @Query('minRating') minRating?: string,
+        @Query('sellerId') sellerId?: string,
+        @Query('sort') sort?: 'newest' | 'best_selling' | 'price_asc' | 'price_desc' | 'rating',
+    ) {
+        const result = await this.productsService.findWithFilters({
+            page: parseInt(page) || 1,
+            limit: parseInt(limit) || 20,
+            categoryId,
+            brandId,
+            minPrice: minPrice ? parseFloat(minPrice) : undefined,
+            maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+            minRating: minRating ? parseFloat(minRating) : undefined,
+            sellerId,
+            sort,
+        });
+        return ResponseDto.success('Lấy danh sách sản phẩm thành công', result);
     }
 
     @Get('seller/mine')

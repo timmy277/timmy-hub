@@ -4,6 +4,7 @@ import { Carousel } from '@mantine/carousel';
 import { Box, Group, Title, Button, Paper, Text, ThemeIcon, useMantineTheme } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
 import { m } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -32,12 +33,13 @@ const CATEGORIES: Category[] = [
 
 export function CategorySection() {
     const theme = useMantineTheme();
+    const router = useRouter();
     return (
         <m.div variants={fadeInUp} initial="initial" whileInView="animate" viewport={{ once: true, amount: 0.3 }}>
             <Box py="xl">
                 <Group justify="space-between" mb="lg">
                     <Title order={3}>Danh Mục Nổi Bật</Title>
-                    <Button variant="subtle" rightSection={<IconArrowRight size={16} />}>Xem tất cả</Button>
+                    <Button variant="subtle" rightSection={<IconArrowRight size={16} />} onClick={() => router.push('/collection')}>Xem tất cả</Button>
                 </Group>
                 <Carousel slideSize={{ base: '33%', sm: '20%', md: '14%' }} slideGap="md" withControls>
                     {CATEGORIES.map((cat) => (

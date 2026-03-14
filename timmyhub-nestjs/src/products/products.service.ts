@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import { ResourceStatus, Product, UserRole } from '@prisma/client';
+import { ResourceStatus, Product, UserRole, Prisma } from '@prisma/client';
 
 /**
  * Service quản lý sản phẩm và quy trình phê duyệt
@@ -59,6 +59,103 @@ export class ProductsService {
             orderBy: { createdAt: 'desc' },
             include: { category: true },
         });
+    }
+
+    /**
+     * Lấy danh sách sản phẩm với bộ lọc (Public)
+     */
+    async findWithFilters(params: {
+        page: number;
+        limit: number;
+        categoryId?: string;
+        brandId?: string;
+        minPrice?: number;
+        maxPrice?: number;
+        minRating?: number;
+        sellerId?: string;
+        sort?: 'newest' | 'best_selling' | 'price_asc' | 'price_desc' | 'rating';
+    }) {
+        const { page, limit, categoryId, brandId, minPrice, maxPrice, minRating, sellerId, sort } =
+            params;
+        const skip = (page - 1) * limit;
+
+        // Build where clause
+        const where: Prisma.ProductWhereInput = {
+            status: ResourceStatus.APPROVED,
+        };
+
+        if (categoryId) {
+            where.categoryId = categoryId;
+        }
+
+        if (brandId) {
+            where.brandId = brandId;
+        }
+
+        if (sellerId) {
+            where.sellerId = sellerId;
+        }
+
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            where.price = {};
+            if (minPrice !== undefined) where.price.gte = minPrice;
+            if (maxPrice !== undefined) where.price.lte = maxPrice;
+        }
+
+        if (minRating !== undefined) {
+            where.ratingAvg = { gte: minRating };
+        }
+
+        // Build orderBy
+        let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' };
+        switch (sort) {
+            case 'newest':
+                orderBy = { createdAt: 'desc' };
+                break;
+            case 'best_selling':
+                orderBy = { soldCount: 'desc' };
+                break;
+            case 'price_asc':
+                orderBy = { price: 'asc' };
+                break;
+            case 'price_desc':
+                orderBy = { price: 'desc' };
+                break;
+            case 'rating':
+                orderBy = { ratingAvg: 'desc' };
+                break;
+        }
+
+        // Execute query
+        const [products, total] = await Promise.all([
+            this.prisma.product.findMany({
+                where,
+                orderBy,
+                skip,
+                take: limit,
+                include: {
+                    category: true,
+                    seller: {
+                        select: {
+                            id: true,
+                            profile: true,
+                            sellerProfile: { select: { shopName: true, shopSlug: true } },
+                        },
+                    },
+                },
+            }),
+            this.prisma.product.count({ where }),
+        ]);
+
+        return {
+            data: products,
+            meta: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+            },
+        };
     }
 
     async findAllPending(): Promise<Product[]> {

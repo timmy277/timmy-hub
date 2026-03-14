@@ -1,6 +1,28 @@
 import axiosClient from '@/libs/axios';
-import { Product, CreateProductInput, SellerShop } from '@/types/product';
+import { Product, CreateProductInput, SellerShop, Category, Brand, Seller } from '@/types/product';
 import { ApiResponse } from '@/types/api';
+
+export interface ProductFilterParams {
+    page?: number;
+    limit?: number;
+    categoryId?: string;
+    brandId?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minRating?: number;
+    sellerId?: string;
+    sort?: 'newest' | 'best_selling' | 'price_asc' | 'price_desc' | 'rating';
+}
+
+export interface ProductsResponse {
+    data: Product[];
+    meta: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
+}
 
 /**
  * Service quản lý sản phẩm
@@ -12,6 +34,13 @@ export const productService = {
      */
     getProducts: async (): Promise<ApiResponse<Product[]>> => {
         return axiosClient.get('/products');
+    },
+
+    /**
+     * Lấy danh sách sản phẩm với bộ lọc (Public)
+     */
+    getProductsWithFilters: async (params: ProductFilterParams = {}): Promise<ApiResponse<ProductsResponse>> => {
+        return axiosClient.get('/products/filter', { params }) as Promise<ApiResponse<ProductsResponse>>;
     },
 
     /**
@@ -75,5 +104,26 @@ export const productService = {
      */
     getSellerShop: async (shopSlug: string): Promise<ApiResponse<SellerShop>> => {
         return axiosClient.get(`/seller/shop/${shopSlug}`);
+    },
+
+    /**
+     * Lấy danh sách categories
+     */
+    getCategories: async (): Promise<ApiResponse<Category[]>> => {
+        return axiosClient.get('/categories');
+    },
+
+    /**
+     * Lấy danh sách brands
+     */
+    getBrands: async (): Promise<ApiResponse<Brand[]>> => {
+        return axiosClient.get('/brands');
+    },
+
+    /**
+     * Lấy danh sách sellers
+     */
+    getSellers: async (): Promise<ApiResponse<Seller[]>> => {
+        return axiosClient.get('/sellers');
     },
 };

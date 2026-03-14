@@ -29,6 +29,7 @@ import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
 import { SystemLogsModule } from './system-logs/system-logs.module';
+import { BrandsModule } from './brands/brands.module';
 
 @Module({
     imports: [
@@ -84,6 +85,7 @@ import { SystemLogsModule } from './system-logs/system-logs.module';
         NotificationsModule,
         WishlistsModule,
         SystemLogsModule,
+        BrandsModule,
     ],
     controllers: [AppController],
     providers: [

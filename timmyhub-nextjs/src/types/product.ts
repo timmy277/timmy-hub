@@ -112,3 +112,24 @@ export interface CreateProductInput {
     categoryId?: string;
     images?: string[];
 }
+
+export interface Brand {
+    id: string;
+    name: string;
+    slug: string;
+    logo?: string | null;
+    isActive: boolean;
+}
+
+export interface Seller {
+    id: string;
+    email: string;
+    shopName?: string | null;
+    shopSlug?: string | null;
+    profile?: {
+        firstName: string;
+        lastName: string;
+        displayName: string;
+        avatar?: string;
+    } | null;
+}

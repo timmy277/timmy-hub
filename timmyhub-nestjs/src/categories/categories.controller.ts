@@ -22,16 +22,6 @@ import { ResponseDto } from '../common/dto/response.dto';
 export class CategoriesController {
     constructor(private readonly categoriesService: CategoriesService) {}
 
-    @Post()
-    @UseGuards(JwtAuthGuard, PermissionsGuard)
-    @Permissions('category:create')
-    @ApiBearerAuth()
-    @ApiOperation({ summary: 'Tạo danh mục mới (Admin mới có quyền)' })
-    async create(@Body() dto: CreateCategoryDto) {
-        const category = await this.categoriesService.create(dto);
-        return ResponseDto.success('Tạo danh mục thành công', category);
-    }
-
     @Get()
     @ApiOperation({ summary: 'Lấy danh sách tất cả danh mục (Public)' })
     async findAll(@Query('includeInactive') includeInactive?: string) {
@@ -39,7 +29,14 @@ export class CategoriesController {
         return ResponseDto.success('Lấy danh sách danh mục thành công', categories);
     }
 
-    @Get(':idOrSlug')
+    @Get('all')
+    @ApiOperation({ summary: 'Lấy danh sách tất cả danh mục (Public) - alias' })
+    async findAllAlias(@Query('includeInactive') includeInactive?: string) {
+        const categories = await this.categoriesService.findAll(includeInactive === 'true');
+        return ResponseDto.success('Lấy danh sách danh mục thành công', categories);
+    }
+
+    @Post()
     @ApiOperation({ summary: 'Lấy chi tiết danh mục theo ID hoặc Slug' })
     async findOne(@Param('idOrSlug') idOrSlug: string) {
         const category = await this.categoriesService.findOne(idOrSlug);
