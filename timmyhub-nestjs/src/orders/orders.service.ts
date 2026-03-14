@@ -106,6 +106,18 @@ export class OrdersService {
                 where: { cartId: cart.id },
             });
 
+            // Đánh dấu voucher đã sử dụng nếu có
+            if (voucherId) {
+                await tx.userVoucher.updateMany({
+                    where: {
+                        userId,
+                        voucherId,
+                        status: 'SAVED',
+                    },
+                    data: { status: 'USED' },
+                });
+            }
+
             return tx.order.findUnique({
                 where: { id: order.id },
                 include: { orderItems: true },

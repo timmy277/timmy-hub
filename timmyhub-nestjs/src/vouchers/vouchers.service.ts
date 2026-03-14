@@ -490,6 +490,23 @@ export class VouchersService {
     }
 
     /**
+     * Đánh dấu voucher đã được sử dụng (khi tạo đơn hàng thành công)
+     */
+    async markVoucherAsUsed(userId: string, voucherId: string) {
+        const userVoucher = await this.prisma.userVoucher.findUnique({
+            where: { userId_voucherId: { userId, voucherId } },
+        });
+        if (!userVoucher) {
+            return null;
+        }
+
+        return this.prisma.userVoucher.update({
+            where: { id: userVoucher.id },
+            data: { status: 'USED' },
+        });
+    }
+
+    /**
      * Lấy danh sách voucher của user (bao gồm đã lưu, đã dùng, đã hết hạn)
      */
     async findUserVouchers(userId: string, status?: 'SAVED' | 'USED' | 'EXPIRED') {
