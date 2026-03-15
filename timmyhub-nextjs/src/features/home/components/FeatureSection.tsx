@@ -1,7 +1,7 @@
 'use client';
 
 import { SimpleGrid, Group, Text, ThemeIcon, Stack, Paper } from '@mantine/core';
-import { Icon } from '@iconify/react';
+import Iconify from '@/components/iconify/Iconify';
 import { m } from 'framer-motion';
 import { useComputedColorScheme } from '@mantine/core';
 
@@ -63,7 +63,7 @@ export function FeatureSection() {
                             >
                                 <Group gap="sm">
                                     <ThemeIcon size={42} radius="md" variant="light" color="blue">
-                                        <Icon icon={f.icon} width={24} />
+                                        <Iconify icon={f.icon} width={24} />
                                     </ThemeIcon>
                                     <Stack gap={0}>
                                         <Text fw={600} size="sm">{f.title}</Text>
