@@ -19,7 +19,7 @@ import {
     ThemeIcon,
     Box,
 } from '@mantine/core';
-import { Icon } from '@iconify/react';
+import Iconify from '@/components/iconify/Iconify';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
@@ -73,7 +73,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             ? [{
                 title: product.category.name,
                 href: `/category/${product.category.slug ?? product.category.id}`,
-                icon: <Icon icon="tabler:tag" width={14} />,
+                icon: <Iconify icon="tabler:tag" width={14} />,
             }]
             : []),
         { title: product.name },
@@ -174,7 +174,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                         size="lg"
                                         variant="filled"
                                         color="red"
-                                        leftSection={<Icon icon="tabler:bolt" width={14} />}
+                                        leftSection={<Iconify icon="tabler:bolt" width={14} />}
                                     >
                                         {campaignData?.campaignType === 'FLASH_SALE' ? 'Flash Sale' : 'Giảm giá'}
                                     </Badge>
@@ -243,7 +243,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                 <Button
                                     size="lg"
                                     radius="md"
-                                    leftSection={<Icon icon="tabler:shopping-cart" width={20} />}
+                                    leftSection={<Iconify icon="tabler:shopping-cart" width={20} />}
                                     onClick={handleAddToCart}
                                     loading={isAdding}
                                     disabled={isOutOfStock}
@@ -266,7 +266,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                             </Group>
 
                             {!user && (
-                                <Alert color="blue" icon={<Icon icon="tabler:alert-circle" width={16} />}>
+                                <Alert color="blue" icon={<Iconify icon="tabler:alert-circle" width={16} />}>
                                     <Text size="sm">
                                         Vui lòng{' '}
                                         <Anchor component={Link} href="/login" c="blue">
@@ -296,7 +296,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                             radius="md"
                                             color="blue"
                                         >
-                                            <Icon icon="tabler:building-store" width={24} />
+                                            <Iconify icon="tabler:building-store" width={24} />
                                         </Avatar>
                                         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                                             <Group gap={6} wrap="nowrap">
@@ -305,13 +305,13 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                                 </Text>
                                                 {product.seller.sellerProfile.isVerified && (
                                                     <ThemeIcon size={16} color="blue" variant="transparent" p={0}>
-                                                        <IconShieldCheck size={16} />
+                                                        <Iconify icon="tabler:shield-check" width={16} />
                                                     </ThemeIcon>
                                                 )}
                                             </Group>
                                             <Group gap="xs">
                                                 <Group gap={4}>
-                                                    <IconStar size={12} style={{ color: 'var(--mantine-color-yellow-6)' }} />
+                                                    <Iconify icon="tabler:star" width={12} style={{ color: 'var(--mantine-color-yellow-6)' }} />
                                                     <Text size="xs" c="dimmed">
                                                         {product.seller.sellerProfile.rating.toFixed(1)}
                                                     </Text>
@@ -323,7 +323,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                             </Group>
                                         </Stack>
                                     </Group>
-                                    <IconChevronRight size={16} color="var(--mantine-color-dimmed)" />
+                                    <Iconify icon="tabler:chevron-right" width={16} color="var(--mantine-color-dimmed)" />
                                 </Group>
                             </Paper>
                         )}

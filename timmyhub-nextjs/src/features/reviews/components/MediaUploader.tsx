@@ -341,7 +341,7 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
                         </Dropzone.Accept>
                         <Dropzone.Reject>
                             <ThemeIcon size={48} radius="xl" variant="light" color="red">
-                                <IconX size={24} />
+                                <Iconify icon="tabler:x" width={24} />
                             </ThemeIcon>
                         </Dropzone.Reject>
                         <Dropzone.Idle>
