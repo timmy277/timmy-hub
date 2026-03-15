@@ -61,6 +61,7 @@ export function CartBadge() {
             position="bottom-end"
             offset={8}
             withArrow
+            withinPortal={false}
         >
             <Menu.Target>
                 <Indicator

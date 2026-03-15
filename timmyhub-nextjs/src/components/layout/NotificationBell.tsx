@@ -85,7 +85,7 @@ export function NotificationBell() {
     const unreadCount = unreadData?.count || 0;
 
     return (
-        <Popover opened={opened} onChange={setOpened} width={360} position="bottom-end" shadow="md" withArrow>
+        <Popover opened={opened} onChange={setOpened} width={360} position="bottom-end" shadow="md" withArrow withinPortal={false}>
             <Popover.Target>
                 <Indicator
                     inline
