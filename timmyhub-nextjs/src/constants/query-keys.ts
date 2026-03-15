@@ -32,6 +32,12 @@ export const QUERY_KEYS = {
     SELLER_PROFILE: ['seller-profile'] as const,
     ADMIN_SELLER_APPLICATIONS: ['admin-seller-applications'] as const,
 
+    // ── Campaigns ──────────────────────────────────────────────────────
+    ADMIN_CAMPAIGNS: ['admin-campaigns'] as const,
+
+    // ── Vouchers ────────────────────────────────────────────────────────
+    ADMIN_VOUCHERS: ['admin-vouchers'] as const,
+
     // ── Cart ──────────────────────────────────────────────────────────
     CART: ['cart'] as const,
 

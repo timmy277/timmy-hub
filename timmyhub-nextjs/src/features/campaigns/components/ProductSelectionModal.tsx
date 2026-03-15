@@ -61,7 +61,7 @@ export function ProductSelectionModal({
     }>({});
 
     // Fetch products
-    const { data: productsRes, isLoading } = useQuery({
+    const { data: productsRes } = useQuery({
         queryKey: ['products', 'admin', page, search, categoryId],
         queryFn: async () => {
             const params = new URLSearchParams();
@@ -224,7 +224,6 @@ export function ProductSelectionModal({
                                 const isSelected = selectedProducts.some(
                                     (sp) => sp.productId === product.id
                                 );
-                                const isEditing = editingId === product.id;
 
                                 return (
                                     <Table.Tr key={product.id}>

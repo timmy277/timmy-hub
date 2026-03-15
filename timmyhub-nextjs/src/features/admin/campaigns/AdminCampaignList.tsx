@@ -4,49 +4,62 @@ import { useCallback, useMemo } from 'react';
 import { ManagementPage } from '@/components/shared/ManagementPage';
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
-import { voucherService } from '@/services/voucher.service';
+import { campaignService, Campaign } from '@/services/campaign.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/constants';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import dayjs from 'dayjs';
 import Iconify from '@/components/iconify/Iconify';
-import { Badge, Text } from '@mantine/core';
+import { Switch, Badge, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { CreateVoucherForm } from '@/features/vouchers/components/CreateVoucherForm';
-import { VoucherDetail } from '@/features/vouchers/components/VoucherDetail';
+import { CreateCampaignForm } from '@/features/campaigns/components/CreateCampaignForm';
+import { CampaignDetail } from '@/features/campaigns/components/CampaignDetail';
 import { getActionColumn } from '@/constants/column';
-import type { Voucher } from '@/services/voucher.service';
 
-export default function SellerVouchersPage() {
+export function AdminCampaignList() {
     const queryClient = useQueryClient();
     const { data: res, isLoading, refetch } = useQuery({
-        queryKey: ['seller-vouchers'],
-        queryFn: () => voucherService.getSellerVouchers(),
+        queryKey: QUERY_KEYS.ADMIN_CAMPAIGNS,
+        queryFn: () => campaignService.getAdminCampaigns(),
+    });
+
+    const mutation = useMutation({
+        mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+            campaignService.update(id, { isActive }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN_CAMPAIGNS });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Cập nhật trạng thái thành công',
+                color: 'green',
+            });
+        },
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: string) => voucherService.delete(id),
+        mutationFn: (id: string) => campaignService.delete(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['seller-vouchers'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN_CAMPAIGNS });
             notifications.show({
                 title: 'Thành công',
-                message: 'Đã xóa voucher',
+                message: 'Đã xóa chương trình khuyến mãi',
                 color: 'green',
             });
         },
         onError: () => {
             notifications.show({
                 title: 'Lỗi',
-                message: 'Không thể xóa voucher này',
+                message: 'Không thể xóa campaign này',
                 color: 'red',
             });
         },
     });
 
-    const handleDelete = useCallback((item: Voucher) => {
+    const handleDelete = useCallback((item: Campaign) => {
         modals.openConfirmModal({
-            title: <Text fw={600} size="lg">Xóa Voucher</Text>,
-            children: <Text size="sm">Bạn có chắc chắn muốn xóa voucher {item.code} này không?</Text>,
+            title: <Text fw={600} size="lg">Xóa Campaign</Text>,
+            children: <Text size="sm">Bạn có chắc chắn muốn xóa campaign {item.name} này không?</Text>,
             labels: { confirm: 'Xóa', cancel: 'Hủy' },
             confirmProps: { color: 'red', leftSection: <Iconify icon="tabler:alert-triangle" width={16} /> },
             onConfirm: () => deleteMutation.mutate(item.id),
@@ -54,13 +67,13 @@ export default function SellerVouchersPage() {
     }, [deleteMutation]);
 
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
-        useManagementTabs<Voucher>('Voucher');
+        useManagementTabs<Campaign>('Campaign');
 
-    const renderTabContent = useCallback((tab: TabItem<Voucher>) => {
+    const renderTabContent = useCallback((tab: TabItem<Campaign>) => {
         switch (tab.type) {
             case ManagementTabType.CREATE:
                 return (
-                    <CreateVoucherForm
+                    <CreateCampaignForm
                         onSuccessCallback={() => {
                             setActiveTab(ManagementTabType.LIST);
                             refetch();
@@ -69,7 +82,7 @@ export default function SellerVouchersPage() {
                 );
             case ManagementTabType.UPDATE:
                 return tab.data ? (
-                    <CreateVoucherForm
+                    <CreateCampaignForm
                         initialData={tab.data}
                         onSuccessCallback={() => {
                             setActiveTab(ManagementTabType.LIST);
@@ -80,47 +93,35 @@ export default function SellerVouchersPage() {
                 ) : null;
             case ManagementTabType.DETAIL:
                 return tab.data ? (
-                    <VoucherDetail voucher={tab.data} />
+                    <CampaignDetail campaign={tab.data} />
                 ) : null;
             default:
                 return null;
         }
     }, [setActiveTab, refetch, closeTab]);
 
-    const columnDefs = useMemo<ColDef<Voucher>[]>(
+    const columnDefs = useMemo<ColDef<Campaign>[]>(
         () => [
-            { headerName: 'Mã', field: 'code', width: 150, cellStyle: { fontWeight: 600 } },
             {
                 headerName: 'Loại',
                 field: 'type',
-                width: 130,
-                valueFormatter: (params) => {
-                    const t = params.value;
-                    if (t === 'PERCENTAGE') return 'Giảm %';
-                    if (t === 'FREE_SHIPPING') return 'Freeship';
-                    return 'Giảm tiền';
-                }
+                width: 150,
             },
             {
-                headerName: 'Giá trị',
-                field: 'value',
+                headerName: 'Phân loại',
+                field: 'ownerType',
                 width: 120,
-                valueFormatter: (params) => {
-                    if (!params.data) return '';
-                    return params.data.type === 'PERCENTAGE'
-                        ? `${params.value}%`
-                        : `${params.value.toLocaleString()}đ`;
-                }
+                cellRenderer: (params: ICellRendererParams) => (
+                    <Badge color={params.value === 'PLATFORM' ? 'blue' : 'violet'}>
+                        {params.value}
+                    </Badge>
+                ),
             },
+            { headerName: 'Tên chương trình', field: 'name', width: 250, cellStyle: { fontWeight: 600 } },
             {
-                headerName: 'Đã dùng',
-                field: 'usedCount',
-                width: 120,
-                valueFormatter: (params) => {
-                    if (!params.data) return '';
-                    const limit = params.data.usageLimit;
-                    return `${params.value} ${limit ? `/ ${limit}` : ''}`;
-                }
+                headerName: 'Mô tả',
+                field: 'description',
+                width: 250,
             },
             {
                 headerName: 'Thời gian',
@@ -131,14 +132,25 @@ export default function SellerVouchersPage() {
                 }
             },
             {
-                headerName: 'Trạng thái',
+                headerName: 'Hoạt động',
                 field: 'isActive',
                 width: 120,
-                cellRenderer: (params: ICellRendererParams) => (
-                    <Badge color={params.value ? 'green' : 'gray'} variant="light">
-                        {params.value ? 'Hoạt động' : 'Đã tắt'}
-                    </Badge>
-                ),
+                cellRenderer: (params: ICellRendererParams) => {
+                    if (!params.data) return null;
+                    return (
+                        <div className="flex items-center h-full">
+                            <Switch
+                                checked={params.value}
+                                onChange={e =>
+                                    mutation.mutate({
+                                        id: params.data!.id,
+                                        isActive: e.currentTarget.checked,
+                                    })
+                                }
+                            />
+                        </div>
+                    );
+                },
             },
             getActionColumn({
                 onDetail: data => handleAction('Detail', data),
@@ -146,20 +158,20 @@ export default function SellerVouchersPage() {
                 onDelete: handleDelete,
             })
         ],
-        [handleAction, handleDelete],
+        [mutation, handleAction, handleDelete],
     );
 
     return (
-        <ManagementPage<Voucher>
-            entityName="Voucher"
+        <ManagementPage<Campaign>
+            entityName="Campaign"
             rowData={useMemo(() => res?.data || [], [res?.data])}
             columnDefs={columnDefs}
             isLoading={isLoading}
             onRefresh={refetch}
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
-            searchPlaceholder="Tìm mã voucher..."
-            listIcon={<Iconify icon="tabler:ticket" width={16} />}
+            searchPlaceholder="Tìm campaign..."
+            listIcon={<Iconify icon="tabler:discount" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             openTabs={openTabs}

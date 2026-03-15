@@ -7,9 +7,9 @@ import { campaignService, Campaign } from '@/services/campaign.service';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
-import { ProductSelectionModal } from '@/components/ProductSelectionModal';
 import { Product } from '@/types/product';
 import Iconify from '@/components/iconify/Iconify';
+import { ProductSelectionModal } from './ProductSelectionModal';
 
 interface SelectedProduct {
     productId: string;

@@ -12,8 +12,8 @@ import Iconify from '@/components/iconify/Iconify';
 import { Badge, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { CreateCampaignForm } from '@/components/CreateCampaignForm';
-import { CampaignDetail } from '@/components/CampaignDetail';
+import { CreateCampaignForm } from '@/features/campaigns/components/CreateCampaignForm';
+import { CampaignDetail } from '@/features/campaigns/components/CampaignDetail';
 import { getActionColumn } from '@/constants/column';
 import type { Campaign } from '@/services/campaign.service';
 
