@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { notifications } from '@mantine/notifications';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 dayjs.extend(relativeTime);
 
@@ -63,6 +64,7 @@ function getMinOrderText(minOrderValue?: number): string {
 }
 
 export function VoucherSection() {
+    const { t } = useTranslation();
     const queryClient = useQueryClient();
     const computedColorScheme = useComputedColorScheme('light');
     const isDark = computedColorScheme === 'dark';
@@ -155,7 +157,7 @@ export function VoucherSection() {
                             </ThemeIcon>
                             <Stack gap={2} style={{ flex: 1 }}>
                                 <Text fw={700} size="lg" c={isDark ? 'white' : `${color}.9`}>
-                                    GIẢM {formatVoucherValue(voucher)}
+                                    {t('voucher.discount', 'OFF')} {formatVoucherValue(voucher)}
                                 </Text>
                                 <Flex align="center" gap={4}>
                                     <Text size="xs" c={isDark ? 'dimmed' : 'dimmed'}>

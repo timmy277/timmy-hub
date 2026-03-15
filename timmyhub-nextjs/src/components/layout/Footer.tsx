@@ -3,41 +3,42 @@
 import { Container, Text, Group, ActionIcon, Box, Grid, Title, Stack, TextInput, ThemeIcon, useComputedColorScheme } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
-
-const FOOTER_LINKS = [
-    {
-        title: 'Về TimmyHub',
-        links: [
-            { label: 'Giới thiệu', link: '#' },
-            { label: 'Tuyển dụng', link: '#' },
-            { label: 'Chính sách bảo mật', link: '#' },
-            { label: 'Điều khoản dịch vụ', link: '#' },
-            { label: 'Blog', link: '#' },
-        ]
-    },
-    {
-        title: 'Hỗ Trợ Khách Hàng',
-        links: [
-            { label: 'Trung tâm trợ giúp', link: '#' },
-            { label: 'Hướng dẫn mua hàng', link: '#' },
-            { label: 'Chính sách đổi trả', link: '#' },
-            { label: 'Phương thức thanh toán', link: '#' },
-            { label: 'Vận chuyển', link: '#' },
-        ]
-    },
-    {
-        title: 'Hợp Tác',
-        links: [
-            { label: 'Bán hàng cùng TimmyHub', link: '#' },
-            { label: 'Affiliate Program', link: '#' },
-            { label: 'Nhà cung cấp', link: '#' },
-        ]
-    }
-];
+import { useTranslation } from 'react-i18next';
 
 export function Footer() {
+    const { t } = useTranslation();
     const computedColorScheme = useComputedColorScheme('light');
     const isDark = computedColorScheme === 'dark';
+
+    const FOOTER_LINKS = [
+        {
+            title: t('footer.about', 'About'),
+            links: [
+                { label: t('footer.aboutUs', 'About Us'), link: '#' },
+                { label: t('footer.careers', 'Careers'), link: '#' },
+                { label: t('footer.privacy', 'Privacy Policy'), link: '#' },
+                { label: t('footer.terms', 'Terms'), link: '#' },
+            ]
+        },
+        {
+            title: t('footer.help', 'Help'),
+            links: [
+                { label: t('footer.helpCenter', 'Help Center'), link: '#' },
+                { label: t('footer.buy', 'How to Buy'), link: '#' },
+                { label: t('footer.returns', 'Returns'), link: '#' },
+                { label: t('footer.payment', 'Payment Methods'), link: '#' },
+                { label: t('footer.shipping', 'Shipping'), link: '#' },
+            ]
+        },
+        {
+            title: t('footer.connect', 'Connect'),
+            links: [
+                { label: t('seller.becomeSeller', 'Sell on TimmyHub'), link: '#' },
+                { label: 'Affiliate Program', link: '#' },
+                { label: 'Suppliers', link: '#' },
+            ]
+        }
+    ];
 
     return (
         <Box
@@ -57,7 +58,7 @@ export function Footer() {
                                     TIMMY<Text span c="blue" inherit>HUB</Text>
                                 </Text>
                                 <Text size="sm" c="dimmed">
-                                    Nền tảng thương mại điện tử hàng đầu, mang đến trải nghiệm mua sắm tuyệt vời và tiện lợi nhất.
+                                    {t('home.welcome', 'Welcome to')} TimmyHub - {t('footer.aboutUs', 'The leading e-commerce platform')}
                                 </Text>
                             </Stack>
 
@@ -66,7 +67,7 @@ export function Footer() {
                                     <ThemeIcon variant="light" color="blue" size="md">
                                         <Iconify icon="solar:map-point-bold" width={16} />
                                     </ThemeIcon>
-                                    <Text size="sm" c="dimmed">Tầng 12, Tòa nhà Landmark 81, TP.HCM</Text>
+                                    <Text size="sm" c="dimmed">Floor 12, Landmark 81 Building, HCMC</Text>
                                 </Group>
                                 <Group gap="xs">
                                     <ThemeIcon variant="light" color="blue" size="md">
@@ -105,14 +106,14 @@ export function Footer() {
 
                     {/* Newsletter Column */}
                     <Grid.Col span={{ base: 12, md: 4, lg: 3 }}>
-                        <Title order={5} mb="md">Đăng Ký Nhận Tin</Title>
+                        <Title order={5} mb="md">{t('footer.subscribe', 'Subscribe')}</Title>
                         <Stack gap="md">
                             <Text size="sm" c="dimmed">
-                                Nhận thông tin về các chương trình khuyến mãi và mã giảm giá sớm nhất.
+                                {t('footer.subscribeDesc', 'Get updates on promotions and discount codes earliest.')}
                             </Text>
                             <Group gap={0}>
                                 <TextInput
-                                    placeholder="Email của bạn"
+                                    placeholder={t('common.email', 'Your email')}
                                     radius="xl"
                                     size="md"
                                     w="100%"
@@ -125,7 +126,7 @@ export function Footer() {
                                 />
                             </Group>
 
-                            <Title order={6} mt="md">Kết nối với chúng tôi</Title>
+                            <Title order={6} mt="md">{t('footer.connect', 'Connect with us')}</Title>
                             <Group gap="sm">
                                 <ActionIcon size="lg" color="blue" variant="light" radius="xl">
                                     <Iconify icon="solar:brand-facebook-bold" width={20} />
@@ -143,6 +144,11 @@ export function Footer() {
                         </Stack>
                     </Grid.Col>
                 </Grid>
+
+                {/* Copyright */}
+                <Text size="sm" c="dimmed" ta="center" mt={40}>
+                    {t('footer.copyright', '© 2024 TimmyHub. All rights reserved.')}
+                </Text>
             </Container>
         </Box>
     );

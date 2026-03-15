@@ -16,6 +16,7 @@ import {
     Image,
 } from '@mantine/core';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { orderService } from '@/services/order.service';
 import type { Order, OrderStatus } from '@/types/order';
 import { QUERY_KEYS, ORDER_ALL_VALUE, ORDER_STATUS_LIST, getOrderStatusColor } from '@/constants';
@@ -62,6 +63,7 @@ function OrderCard({ order }: { order: Order }) {
 }
 
 export function ProfileOrdersPage() {
+    const { t } = useTranslation();
     const [status, setStatus] = useState<OrderStatus | typeof ORDER_ALL_VALUE>(ORDER_ALL_VALUE);
 
     const apiStatus = status === ORDER_ALL_VALUE ? undefined : status;
@@ -75,7 +77,7 @@ export function ProfileOrdersPage() {
 
     return (
         <Box>
-            <Title order={3} mb="md">Đơn hàng của tôi</Title>
+            <Title order={3} mb="md">{t('orders.myOrders', 'My Orders')}</Title>
 
             <Tabs value={status} onChange={v => setStatus((v as OrderStatus | typeof ORDER_ALL_VALUE) ?? ORDER_ALL_VALUE)}>
                 <Tabs.List mb="md" style={{ flexWrap: 'wrap', gap: 4 }}>

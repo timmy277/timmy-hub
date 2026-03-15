@@ -30,6 +30,7 @@ import { orderService } from '@/services/order.service';
 import type { Order, OrderItem } from '@/types/order';
 import { QUERY_KEYS } from '@/constants';
 import { ReviewModal } from '@/features/reviews';
+import { useTranslation } from 'react-i18next';
 
 const ORDER_STATUS_MAP: Record<string, { label: string; color: string }> = {
     PENDING: { label: 'Chờ xác nhận', color: 'yellow' },
@@ -111,6 +112,7 @@ function OrderItemRow({
 }
 
 export function OrderDetailPage() {
+    const { t } = useTranslation();
     const params = useParams();
     const orderId = params.id as string;
     const queryClient = useQueryClient();
@@ -282,7 +284,7 @@ export function OrderDetailPage() {
 
             <Group mt="lg" gap="sm">
                 <Button component={Link} href="/profile/orders" variant="light">
-                    Đơn hàng của tôi
+                    {t('orders.myOrders', 'My Orders')}
                 </Button>
                 <Button component={Link} href="/" variant="subtle">
                     Về trang chủ
@@ -310,7 +312,7 @@ export function OrderDetailPage() {
                     <Paper withBorder radius="md" p="md" bg="yellow.0">
                         <Group gap="sm" align="flex-start">
                             <ThemeIcon color="yellow" variant="light" size="sm" radius="xl" mt={2}>
-                                <IconAlertTriangle size={14} />
+                                <Iconify icon="tabler:alert-triangle" width={14} />
                             </ThemeIcon>
                             <Text size="sm">
                                 Sau khi xác nhận, bạn{' '}

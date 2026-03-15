@@ -6,8 +6,10 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { sellerService } from '@/services/seller.service';
 import { QUERY_KEYS } from '@/constants';
+import { useTranslation } from 'react-i18next';
 
 export default function SellerDashboardPage() {
+    const { t } = useTranslation();
     const { data: checkRes } = useQuery({
         queryKey: QUERY_KEYS.SELLER_PROFILE_CHECK,
         queryFn: () => sellerService.checkProfile(),
@@ -25,14 +27,14 @@ export default function SellerDashboardPage() {
         <Container fluid p="md">
             <Stack gap="lg">
                 {isPending && (
-                    <Alert icon={<Iconify icon="tabler:info-circle" width={20} />} title="Đang chờ duyệt" color="blue" variant="light">
-                        Đơn đăng ký gian hàng của bạn đang chờ admin duyệt. Sau khi được duyệt bạn có thể quản lý sản phẩm, voucher và campaign.
+                    <Alert icon={<Iconify icon="tabler:info-circle" width={20} />} title={t('seller.pendingApproval', 'Pending Approval')} color="blue" variant="light">
+                        {t('seller.pendingApprovalMessage', 'Your seller application is pending approval. Once approved, you can manage products, vouchers and campaigns.')}
                     </Alert>
                 )}
                 <div>
-                    <Title order={2}>Tổng quan gian hàng</Title>
+                    <Title order={2}>{t('seller.dashboard', 'Store Overview')}</Title>
                     <Text c="dimmed" size="sm" mt={4}>
-                        {shop?.shopName && `Xin chào, ${shop.shopName}`}
+                        {shop?.shopName && `${t('seller.welcome', 'Welcome')}, ${shop.shopName}`}
                     </Text>
                 </div>
 
