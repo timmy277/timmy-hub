@@ -29,7 +29,7 @@ const staggerContainer = {
 export function FeatureSection() {
     const computedColorScheme = useComputedColorScheme('light');
     const isDark = computedColorScheme === 'dark';
-    
+
     const features: Feature[] = [
         { icon: 'tabler:truck', title: 'Miễn Phí Vận Chuyển', desc: 'Cho đơn từ 199k' },
         { icon: 'tabler:shield-check', title: 'Bảo Hành Chính Hãng', desc: 'Cam kết 100%' },
@@ -46,7 +46,6 @@ export function FeatureSection() {
         >
             <SimpleGrid cols={{ base: 2, md: 4 }} spacing="lg" my="xl">
                 {features.map((f) => {
-                    const Icon = f.icon;
                     return (
                         <m.div
                             key={f.title}
@@ -57,8 +56,8 @@ export function FeatureSection() {
                                 radius="md"
                                 withBorder
                                 style={{
-                                    backgroundColor: isDark 
-                                        ? 'var(--mantine-color-dark-7)' 
+                                    backgroundColor: isDark
+                                        ? 'var(--mantine-color-dark-7)'
                                         : 'var(--mantine-color-white)',
                                 }}
                             >
