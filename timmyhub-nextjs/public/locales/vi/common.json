@@ -19,7 +19,27 @@
         "profile": "Cá nhân",
         "settings": "Cài đặt",
         "dangerZone": "Vùng nguy hiểm",
-        "guest": "Khách"
+        "guest": "Khách",
+        "loading": "Đang tải...",
+        "error": "Lỗi",
+        "success": "Thành công",
+        "confirm": "Xác nhận",
+        "yes": "Có",
+        "no": "Không",
+        "close": "Đóng",
+        "search": "Tìm kiếm",
+        "filter": "Lọc",
+        "sort": "Sắp xếp",
+        "refresh": "Làm mới",
+        "viewAll": "Xem tất cả",
+        "seeMore": "Xem thêm",
+        "back": "Quay lại",
+        "next": "Tiếp theo",
+        "previous": "Trước đó",
+        "submit": "Gửi",
+        "reset": "Đặt lại",
+        "noData": "Không có dữ liệu",
+        "noResults": "Không tìm thấy kết quả"
     },
     "sidebar": {
         "dashboard": "Bảng điều khiển",
@@ -32,7 +52,27 @@
         "categories": "Danh mục",
         "orders": "Đơn hàng",
         "customers": "Khách hàng",
-        "settings": "Cài đặt"
+        "settings": "Cài đặt",
+        "seller": {
+            "overview": "Tổng quan",
+            "products": "Sản phẩm",
+            "vouchers": "Voucher",
+            "promotions": "Khuyến mãi"
+        },
+        "systemManagement": "Quản lý hệ thống",
+        "rolesAndPermissions": "Vai trò & Quyền",
+        "systemLogs": "Nhật ký hệ thống",
+        "sales": "Bán hàng",
+        "chat": "Trò chuyện",
+        "productManagement": "Quản lý sản phẩm",
+        "productList": "Danh sách sản phẩm",
+        "sellerManagement": "Quản lý Seller",
+        "promotions": "Khuyến mãi",
+        "promotionPrograms": "Chương trình KM"
+    },
+    "appBar": {
+        "myStore": "Gian hàng",
+        "becomeSeller": "Trở thành seller"
     },
     "auth": {
         "welcomeBack": "Chào mừng quay trở lại!",
@@ -173,5 +213,14 @@
         "module": "Module",
         "action": "Hành động",
         "deletePermission": "Xóa quyền hạn"
+    },
+    "products": {
+        "loading": "Đang tải sản phẩm..."
+    },
+    "users": {
+        "loading": "Đang tải người dùng..."
+    },
+    "dashboard": {
+        "loading": "Đang tải dashboard..."
     }
 }

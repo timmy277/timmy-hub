@@ -31,11 +31,11 @@ interface PermissionCheck {
 }
 
 /** Sidebar cho khu vực seller (không dùng permission, tránh 403 khi click) */
-const getSellerSidebarData = (): SidebarItem[] => [
-    { label: 'Tổng quan', icon: 'solar:home-2-bold-duotone', link: '/seller' },
-    { label: 'Sản phẩm', icon: 'solar:box-bold-duotone', link: '/seller/products' },
-    { label: 'Voucher', icon: 'solar:ticket-bold-duotone', link: '/seller/vouchers' },
-    { label: 'Khuyến mãi', icon: 'solar:gift-bold-duotone', link: '/seller/campaigns' },
+const getSellerSidebarData = (t: TFunction): SidebarItem[] => [
+    { label: t('sidebar.seller.overview'), icon: 'solar:home-2-bold-duotone', link: '/seller' },
+    { label: t('sidebar.seller.products'), icon: 'solar:box-bold-duotone', link: '/seller/products' },
+    { label: t('sidebar.seller.vouchers'), icon: 'solar:ticket-bold-duotone', link: '/seller/vouchers' },
+    { label: t('sidebar.seller.promotions'), icon: 'solar:gift-bold-duotone', link: '/seller/campaigns' },
 ];
 
 const getMockData = (t: TFunction): SidebarItem[] => [
@@ -46,31 +46,31 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     },
     // ===== QUẢN LÝ HỆ THỐNG =====
     {
-        label: 'Quản lý hệ thống',
+        label: t('sidebar.systemManagement'),
         icon: 'solar:shield-bold-duotone',
         initiallyOpened: true,
         permission: { action: Action.Read, subject: 'SystemRole' },
         links: [
             {
-                label: 'Vai trò & Quyền',
+                label: t('sidebar.rolesAndPermissions'),
                 link: '/admin/roles',
                 icon: 'solar:shield-check-bold',
                 permission: { action: Action.Read, subject: 'SystemRole' },
             },
             {
-                label: 'Người dùng',
+                label: t('sidebar.users'),
                 link: '/admin/users',
                 icon: 'solar:user-rounded-bold',
                 permission: { action: Action.Read, subject: 'User' },
             },
             {
-                label: 'Quyền hệ thống',
+                label: t('sidebar.permissions'),
                 link: '/admin/permissions',
                 icon: 'solar:key-bold',
                 permission: { action: Action.Read, subject: 'Permission' },
             },
             {
-                label: 'Nhật ký hệ thống',
+                label: t('sidebar.systemLogs'),
                 link: '/admin/system-logs',
                 icon: 'solar:document-text-bold',
                 permission: { action: Action.Read, subject: 'SystemRole' },
@@ -79,24 +79,24 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     },
     // ===== BÁN HÀNG =====
     {
-        label: 'Bán hàng',
+        label: t('sidebar.sales'),
         icon: 'solar:cart-bold-duotone',
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
-                label: 'Đơn hàng',
+                label: t('sidebar.orders'),
                 link: '/admin/orders',
                 icon: 'solar:cart-check-bold',
                 permission: { action: Action.Read, subject: 'Order' },
             },
             {
-                label: 'Khách hàng',
+                label: t('sidebar.customers'),
                 link: '/admin/customers',
                 icon: 'solar:users-group-rounded-bold',
                 permission: { action: Action.Read, subject: 'User' },
             },
             {
-                label: 'Trò chuyện',
+                label: t('sidebar.chat'),
                 link: '/admin/chat',
                 icon: 'solar:chat-round-dots-bold',
                 permission: { action: Action.Read, subject: 'User' },
@@ -105,24 +105,24 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     },
     // ===== SẢN PHẨM =====
     {
-        label: 'Sản phẩm',
+        label: t('sidebar.productManagement'),
         icon: 'solar:box-bold-duotone',
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
-                label: 'Danh sách sản phẩm',
+                label: t('sidebar.productList'),
                 link: '/admin/products',
                 icon: 'solar:box-bold',
                 permission: { action: Action.Read, subject: 'Product' },
             },
             {
-                label: 'Danh mục',
+                label: t('sidebar.categories'),
                 link: '/admin/categories',
                 icon: 'solar:tag-bold-duotone',
                 permission: { action: Action.Read, subject: 'Category' },
             },
             {
-                label: 'Quản lý Seller',
+                label: t('sidebar.sellerManagement'),
                 link: '/admin/seller-applications',
                 icon: 'fa6-solid:user-gear',
                 permission: { action: Action.Read, subject: 'User' },
@@ -131,18 +131,18 @@ const getMockData = (t: TFunction): SidebarItem[] => [
     },
     // ===== KHUYẾN MÃI =====
     {
-        label: 'Khuyến mãi',
+        label: t('sidebar.promotions'),
         icon: 'solar:gift-bold-duotone',
         permission: { action: Action.Read, subject: 'Product' },
         links: [
             {
-                label: 'Chương trình KM',
+                label: t('sidebar.promotionPrograms'),
                 link: '/admin/campaigns',
                 icon: 'material-symbols:campaign',
                 permission: { action: Action.Read, subject: 'Product' },
             },
             {
-                label: 'Voucher',
+                label: t('sidebar.seller.vouchers'),
                 link: '/admin/vouchers',
                 icon: 'solar:ticket-bold-duotone',
                 permission: { action: Action.Read, subject: 'Product' },
@@ -161,7 +161,7 @@ export function Sidebar() {
 
     // ===== Component Logic =====
     const isSellerArea = pathname.startsWith('/seller');
-    const mockData = isSellerArea ? getSellerSidebarData() : getMockData(t);
+    const mockData = isSellerArea ? getSellerSidebarData(t) : getMockData(t);
     const isCollapsed = mounted ? collapsed : false;
 
     // Seller area: show all items. Admin area: filter by permissions

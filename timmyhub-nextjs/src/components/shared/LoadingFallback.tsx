@@ -1,20 +1,24 @@
 'use client';
 
 import { Center, Loader, Stack, Text } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 
 interface LoadingFallbackProps {
     message?: string;
     size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export function LoadingFallback({ message = 'Loading...', size = 'md' }: LoadingFallbackProps) {
+export function LoadingFallback({ message, size = 'md' }: LoadingFallbackProps) {
+    const { t } = useTranslation();
+    const defaultMessage = t('common.loading', 'Loading...');
+
     return (
         <Center style={{ minHeight: '400px' }}>
             <Stack align="center" gap="md">
                 <Loader size={size} />
-                {message && (
+                {(message ?? true) && (
                     <Text size="sm" c="dimmed">
-                        {message}
+                        {message === undefined ? defaultMessage : message}
                     </Text>
                 )}
             </Stack>
@@ -24,13 +28,16 @@ export function LoadingFallback({ message = 'Loading...', size = 'md' }: Loading
 
 // Skeleton components for specific pages
 export function ProductListSkeleton() {
-    return <LoadingFallback message="Loading products..." size="lg" />;
+    const { t } = useTranslation();
+    return <LoadingFallback message={t('products.loading', 'Loading products...')} size="lg" />;
 }
 
 export function UserListSkeleton() {
-    return <LoadingFallback message="Loading users..." size="lg" />;
+    const { t } = useTranslation();
+    return <LoadingFallback message={t('users.loading', 'Loading users...')} size="lg" />;
 }
 
 export function DashboardSkeleton() {
-    return <LoadingFallback message="Loading dashboard..." size="xl" />;
+    const { t } = useTranslation();
+    return <LoadingFallback message={t('dashboard.loading', 'Loading dashboard...')} size="xl" />;
 }

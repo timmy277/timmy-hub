@@ -102,7 +102,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                             size="sm"
                             leftSection={<Iconify icon="solar:shop-bold" width={18} />}
                         >
-                            Gian hàng
+                            {t('appBar.myStore')}
                         </Button>
                     ) : (
                         (user.roles?.includes(UserRole.CUSTOMER) || user.roles?.includes(UserRole.BRAND) || user.roles?.includes(UserRole.SHIPPER)) && (
@@ -113,7 +113,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                                 size="sm"
                                 leftSection={<Iconify icon="solar:shop-bold" width={18} />}
                             >
-                                Trở thành seller
+                                {t('appBar.becomeSeller')}
                             </Button>
                         )
                     )

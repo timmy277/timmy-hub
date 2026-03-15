@@ -57,18 +57,43 @@
             "createdAt": "Created At",
             "permissionName": "Permission Name",
             "module": "Module",
-            "action": "Action"
+            "action": "Action",
+            "product": "Product",
+            "image": "Image",
+            "category": "Category",
+            "seller": "Seller",
+            "price": "Price",
+            "originalPrice": "Original Price",
+            "discount": "Discount",
+            "stock": "Stock",
+            "sku": "SKU",
+            "soldCount": "Sold",
+            "viewCount": "Views",
+            "rating": "Rating",
+            "weight": "Weight",
+            "dimensions": "Dimensions",
+            "featured": "Featured",
+            "new": "New",
+            "specifications": "Specifications",
+            "attributes": "Attributes",
+            "variants": "Variants"
         },
         "status": {
             "active": "Active",
-            "inactive": "Locked"
+            "inactive": "Locked",
+            "approved": "Approved",
+            "pending": "Pending",
+            "rejected": "Rejected",
+            "deleted": "Deleted"
         },
         "actions": {
             "view": "View details",
             "edit": "Edit",
             "lock": "Lock",
             "unlock": "Unlock",
-            "delete": "Delete"
+            "delete": "Delete",
+            "approve": "Approve Product",
+            "reject": "Reject"
         }
     },
     "roles": {
@@ -141,5 +166,78 @@
         "module": "Module",
         "action": "Action",
         "deletePermission": "Delete Permission"
+    },
+    "productManagement": {
+        "title": "Product Management",
+        "searchPlaceholder": "Search products by name, SKU...",
+        "rejectReason": "Product rejection reason",
+        "rejectPlaceholder": "Please enter the rejection reason...",
+        "confirmReject": "Confirm Reject"
+    },
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "admin": "Administration",
+        "roles": "Roles",
+        "users": "Users",
+        "permissions": "Permissions",
+        "ecommerce": "E-commerce",
+        "products": "Products",
+        "categories": "Categories",
+        "orders": "Orders",
+        "customers": "Customers",
+        "settings": "Settings",
+        "seller": {
+            "overview": "Overview",
+            "products": "Products",
+            "vouchers": "Vouchers",
+            "promotions": "Promotions"
+        },
+        "systemManagement": "System Management",
+        "rolesAndPermissions": "Roles & Permissions",
+        "systemLogs": "System Logs",
+        "sales": "Sales",
+        "chat": "Chat",
+        "productManagement": "Product Management",
+        "productList": "Product List",
+        "sellerManagement": "Seller Management",
+        "promotions": "Promotions",
+        "promotionPrograms": "Promotion Programs"
+    },
+    "appBar": {
+        "myStore": "My Store",
+        "becomeSeller": "Become Seller"
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "confirm": "Confirm",
+        "yes": "Yes",
+        "no": "No",
+        "save": "Save",
+        "cancel": "Cancel",
+        "close": "Close",
+        "search": "Search",
+        "filter": "Filter",
+        "sort": "Sort",
+        "refresh": "Refresh",
+        "viewAll": "View All",
+        "seeMore": "See More",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "submit": "Submit",
+        "reset": "Reset",
+        "noData": "No data",
+        "noResults": "No results found"
+    },
+    "products": {
+        "loading": "Loading products..."
+    },
+    "users": {
+        "loading": "Loading users..."
+    },
+    "dashboard": {
+        "loading": "Loading dashboard..."
     }
 }
