@@ -27,7 +27,7 @@ function displayName(user: { profile?: { firstName?: string; lastName?: string; 
 export function AppBar({ withSidebarToggle = true }: AppBarProps) {
     const { t } = useTranslation();
     const { collapsed, toggleSidebar } = useSidebarStore();
-    const { user, logout, isProfileLoading } = useAuth();
+    const { user, logout } = useAuth();
     const pathname = usePathname();
 
     // ===== Component Logic =====
@@ -123,7 +123,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
 
                 <Divider orientation="vertical" h={24} my="auto" />
 
-                <Menu shadow="md" width={200} position="bottom-end">
+                <Menu shadow="md" width={220} position="bottom-end">
                     <Menu.Target>
                         <UnstyledButton className="p-1 px-2 rounded-md transition-colors hover:bg-(--mantine-color-gray-hover) dark:hover:bg-(--mantine-color-dark-6)">
                             <Group gap="sm">
@@ -135,19 +135,34 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                                 >
                                     {user ? (displayName(user) || '?').slice(0, 2).toUpperCase() : 'G'}
                                 </Avatar>
-                                <Box className="hidden lg:block text-left">
-                                    <Text size="sm" fw={600} className="leading-tight">
-                                        {user ? displayName(user) || user.email : t('common.guest')}
-                                    </Text>
-                                    <Text size="xs" c="dimmed" className="leading-tight">
-                                        {user?.role ?? (isProfileLoading ? '...' : '')}
-                                    </Text>
-                                </Box>
                             </Group>
                         </UnstyledButton>
                     </Menu.Target>
 
                     <Menu.Dropdown>
+                        <Box className="px-3 py-2">
+                            <Group gap="sm">
+                                <Avatar
+                                    radius="xl"
+                                    size="lg"
+                                    src={user?.profile?.avatar}
+                                    alt={user ? displayName(user) : ''}
+                                >
+                                    {user ? (displayName(user) || '?').slice(0, 2).toUpperCase() : 'G'}
+                                </Avatar>
+                                <Box>
+                                    <Text size="sm" fw={600}>
+                                        {user ? displayName(user) || user.email : t('common.guest')}
+                                    </Text>
+                                    {user?.roles && user.roles.length > 0 && !user.roles.includes(UserRole.CUSTOMER) && (
+                                        <Text size="xs" c="dimmed">
+                                            {user.roles.map(r => r.toLowerCase()).join(', ')}
+                                        </Text>
+                                    )}
+                                </Box>
+                            </Group>
+                        </Box>
+                        <Menu.Divider />
                         <Menu.Label>{t('common.application')}</Menu.Label>
                         <Menu.Item
                             component={Link}
@@ -168,7 +183,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                             leftSection={<Iconify icon="solar:logout-bold" width={16} />}
                             onClick={() => logout()}
                         >
-                            {t('auth.logout')}
+                            {t('common.logout')}
                         </Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
