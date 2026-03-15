@@ -63,10 +63,11 @@ export const useManagementTabs = <T extends { id: string }>(entityName: string) 
     );
 
     const handleAction = useCallback(
-        (action: 'Create' | 'Update' | 'Detail', data?: T, idSuffix?: string) => {
+        (action: 'Create' | 'Update' | 'Detail' | 'Edit', data?: T, idSuffix?: string) => {
             const typeMap: Record<string, ManagementTabType> = {
                 Create: ManagementTabType.CREATE,
                 Update: ManagementTabType.UPDATE,
+                Edit: ManagementTabType.UPDATE,
                 Detail: ManagementTabType.DETAIL,
             };
             addTab(typeMap[action], data, idSuffix);

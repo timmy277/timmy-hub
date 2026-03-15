@@ -8,6 +8,7 @@ import { parseArgs } from 'node:util';
 import { seedingPermissionsData } from './seeds/permission';
 import { seedingRolesData } from './seeds/role';
 import { seedingUsersData } from './seeds/user';
+import { seedingSellerProfilesData } from './seeds/seller';
 import { seedingCategoriesData } from './seeds/category';
 import { seedingProductsData } from './seeds/product';
 
@@ -36,6 +37,9 @@ async function seed() {
 
     // 3. Seed Users
     await seedingUsersData(prisma);
+
+    // 3.5. Seed Seller Profiles (after users, before products)
+    await seedingSellerProfilesData(prisma);
 
     // 4. Seed Categories
     await seedingCategoriesData(prisma);

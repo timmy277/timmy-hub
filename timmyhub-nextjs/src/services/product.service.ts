@@ -1,6 +1,7 @@
 import axiosClient from '@/libs/axios';
-import { Product, CreateProductInput, SellerShop, Category, Brand, Seller } from '@/types/product';
+import { Product, CreateProductInput, SellerShop, Brand, Seller } from '@/types/product';
 import { ApiResponse } from '@/types/api';
+import { Category } from '@/types/category';
 
 export interface ProductFilterParams {
     page?: number;
@@ -81,7 +82,7 @@ export const productService = {
     /**
      * Tạo sản phẩm mới
      */
-    createProduct: async (data: CreateProductInput): Promise<ApiResponse<Product>> => {
+    createProduct: async (data: Partial<CreateProductInput>): Promise<ApiResponse<Product>> => {
         return axiosClient.post('/products', data);
     },
 
@@ -97,6 +98,20 @@ export const productService = {
      */
     rejectProduct: async (id: string, note: string): Promise<ApiResponse<void>> => {
         return axiosClient.patch(`/products/${id}/reject`, { note });
+    },
+
+    /**
+     * Cập nhật sản phẩm (Seller/Admin)
+     */
+    updateProduct: async (id: string, data: Partial<CreateProductInput>): Promise<ApiResponse<Product>> => {
+        return axiosClient.patch(`/products/${id}`, data);
+    },
+
+    /**
+     * Xóa sản phẩm (Seller - chỉ khi chưa bán)
+     */
+    deleteProduct: async (id: string): Promise<ApiResponse<void>> => {
+        return axiosClient.delete(`/products/${id}`);
     },
 
     /**

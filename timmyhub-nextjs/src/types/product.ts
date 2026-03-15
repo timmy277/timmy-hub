@@ -107,6 +107,7 @@ export interface CreateProductInput {
     slug: string;
     description?: string;
     price: number;
+    originalPrice?: number;
     stock: number;
     sku?: string;
     categoryId?: string;

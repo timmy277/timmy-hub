@@ -8,6 +8,7 @@ export const CreateProductSchema = z.object({
   slug: z.string().nonempty('Slug không được để trống'),
   description: z.string().optional(),
   price: z.number().min(0, 'Giá bán không được âm'),
+  originalPrice: z.number().min(0).optional(),
   stock: z.number().int().min(0, 'Tồn kho không được âm'),
   sku: z.string().optional(),
   categoryId: z.string().optional(),

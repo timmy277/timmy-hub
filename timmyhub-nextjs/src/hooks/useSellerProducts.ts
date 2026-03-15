@@ -35,3 +35,48 @@ export const useCreateSellerProduct = () => {
         },
     });
 };
+
+export const useUpdateSellerProduct = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<CreateProductInput> }) =>
+            productService.updateProduct(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_PRODUCTS });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Cập nhật sản phẩm thành công. Vui lòng chờ admin duyệt lại.',
+                color: 'green',
+            });
+        },
+        onError: (err: unknown) => {
+            const msg =
+                err && typeof err === 'object' && 'response' in err
+                    ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+                    : 'Có lỗi xảy ra';
+            notifications.show({ title: 'Lỗi', message: String(msg ?? 'Có lỗi xảy ra'), color: 'red' });
+        },
+    });
+};
+
+export const useDeleteSellerProduct = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id: string) => productService.deleteProduct(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_PRODUCTS });
+            notifications.show({
+                title: 'Thành công',
+                message: 'Xóa sản phẩm thành công.',
+                color: 'green',
+            });
+        },
+        onError: (err: unknown) => {
+            const msg =
+                err && typeof err === 'object' && 'response' in err
+                    ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+                    : 'Có lỗi xảy ra';
+            notifications.show({ title: 'Lỗi', message: String(msg ?? 'Có lỗi xảy ra'), color: 'red' });
+        },
+    });
+};
