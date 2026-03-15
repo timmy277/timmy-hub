@@ -1,2 +1,2 @@
-export { ProfilePage } from './ProfilePage';
-export { ProfileOrdersPage } from './ProfileOrdersPage';
+export { WishlistPageContent } from './WishlistContent';
+export { ProfileVoucherContent } from './ProfileVoucherContent';

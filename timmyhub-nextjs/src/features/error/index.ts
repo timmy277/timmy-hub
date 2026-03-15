@@ -1,0 +1,1 @@
+export { ForbiddenPageContent } from './ForbiddenPageContent';

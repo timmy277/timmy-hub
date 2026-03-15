@@ -1,5 +1,3 @@
-'use client';
-
 /**
  * Seller Products Page - quản lý sản phẩm gian hàng
  * Layout (DashboardShell + breadcrumb) được inject bởi seller/layout.tsx

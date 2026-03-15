@@ -34,9 +34,11 @@ export const QUERY_KEYS = {
 
     // ── Campaigns ──────────────────────────────────────────────────────
     ADMIN_CAMPAIGNS: ['admin-campaigns'] as const,
+    SELLER_CAMPAIGNS: ['seller-campaigns'] as const,
 
     // ── Vouchers ────────────────────────────────────────────────────────
     ADMIN_VOUCHERS: ['admin-vouchers'] as const,
+    SELLER_VOUCHERS: ['seller-vouchers'] as const,
 
     // ── Cart ──────────────────────────────────────────────────────────
     CART: ['cart'] as const,
@@ -48,4 +50,10 @@ export const QUERY_KEYS = {
     CHAT_ADMIN: ['chat-admin'] as const,
     CHAT_CONTACTS: ['chat-contacts'] as const,
     CHAT_MESSAGES: (contactId: string) => ['chat-messages', contactId] as const,
+
+    // ── Wishlist ────────────────────────────────────────────────────
+    MY_WISHLIST: ['my-wishlist'] as const,
+
+    // ── Vouchers ───────────────────────────────────────────────────
+    MY_VOUCHERS: ['my-vouchers'] as const,
 } as const;
