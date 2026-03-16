@@ -1,52 +1,26 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import {
     Stack,
     Group,
     Text,
-    Rating,
-    Avatar,
-    Badge,
     Button,
-    Progress,
     Paper,
     SegmentedControl,
-    Divider,
-    Box,
-    ActionIcon,
-    SimpleGrid,
     Loader,
     Center,
     ThemeIcon,
     Title,
-    Modal,
-    TextInput,
-    Collapse,
+    Badge,
 } from '@mantine/core';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import Iconify from '@/components/iconify/Iconify';
-
-function timeAgo(dateStr: string): string {
-    const date = new Date(dateStr);
-    const diff = Date.now() - date.getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'vừa xong';
-    if (mins < 60) return `${mins} phút trước`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs} giờ trước`;
-    const days = Math.floor(hrs / 24);
-    if (days < 30) return `${days} ngày trước`;
-    const months = Math.floor(days / 30);
-    if (months < 12) return `${months} tháng trước`;
-    return `${Math.floor(months / 12)} năm trước`;
-}
-
 import { reviewService } from '@/services/review.service';
 import { useReviewSocket } from '@/hooks/useReviewSocket';
-import type { Review, ReviewSortOption, ReviewBreakdown } from '@/types/review';
-import { useChatStore } from '@/stores/useChatStore';
-import Image from 'next/image';
+import type { Review, ReviewSortOption, ReviewBreakdown, ReviewComment } from '@/types/review';
+import { ReviewCard } from './ReviewCard';
+import { RatingBreakdown } from './RatingBreakdown';
 
 type ReviewQueryData = {
     data?: {
@@ -69,510 +43,6 @@ const SORT_OPTIONS = [
     { value: 'highest', label: 'Sao cao nhất' },
     { value: 'lowest', label: 'Sao thấp nhất' },
 ];
-
-function StarFilterButton({
-    star,
-    count,
-    active,
-    onClick,
-}: {
-    star: number;
-    count: number;
-    active: boolean;
-    onClick: () => void;
-}) {
-    return (
-        <Button
-            variant={active ? 'filled' : 'default'}
-            size="xs"
-            radius="xl"
-            onClick={onClick}
-            leftSection={<Iconify icon="tabler:star" width={12} />}
-        >
-            {star} sao {count > 0 && `(${count})`}
-        </Button>
-    );
-}
-
-function RatingBreakdown({
-    breakdown,
-    total,
-    ratingAvg,
-    onFilter,
-    activeFilter,
-}: {
-    breakdown: ReviewBreakdown;
-    total: number;
-    ratingAvg: number;
-    onFilter: (star: number | undefined) => void;
-    activeFilter: number | undefined;
-}) {
-    return (
-        <Paper withBorder radius="md" p="md">
-            <Group gap="xl" wrap="nowrap" align="flex-start">
-                {/* Avg score */}
-                <Stack align="center" gap={4} style={{ minWidth: 80 }}>
-                    <Title order={1} style={{ fontSize: 48, lineHeight: 1, color: 'var(--mantine-color-orange-6)' }}>
-                        {ratingAvg.toFixed(1)}
-                    </Title>
-                    <Rating value={ratingAvg} readOnly fractions={2} size="sm" />
-                    <Text size="xs" c="dimmed">{total} đánh giá</Text>
-                </Stack>
-
-                <Divider orientation="vertical" />
-
-                {/* Breakdown bars */}
-                <Stack gap={6} flex={1}>
-                    {([5, 4, 3, 2, 1] as const).map(star => {
-                        const count = breakdown[star] ?? 0;
-                        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                        return (
-                            <Group key={star} gap="xs" wrap="nowrap">
-                                <Group gap={4} w={50} wrap="nowrap" justify="flex-end">
-                                    <Text size="xs" c="dimmed">{star}</Text>
-                                    <Iconify icon="tabler:star" width={12} color="var(--mantine-color-orange-5)" style={{ fill: 'var(--mantine-color-orange-5)' }} />
-                                </Group>
-                                <Progress
-                                    value={pct}
-                                    color="orange"
-                                    size="md"
-                                    radius="xl"
-                                    flex={1}
-                                />
-                                <Text size="xs" c="dimmed" w={32} ta="right">{count}</Text>
-                            </Group>
-                        );
-                    })}
-                </Stack>
-            </Group>
-
-            <Divider my="sm" />
-            <Group gap="xs" wrap="wrap">
-                <Button
-                    variant={activeFilter === undefined ? 'filled' : 'default'}
-                    size="xs"
-                    radius="xl"
-                    onClick={() => onFilter(undefined)}
-                >
-                    Tất cả
-                </Button>
-                {([5, 4, 3, 2, 1] as const).map(star => (
-                    <StarFilterButton
-                        key={star}
-                        star={star}
-                        count={breakdown[star] ?? 0}
-                        active={activeFilter === star}
-                        onClick={() => onFilter(star)}
-                    />
-                ))}
-            </Group>
-        </Paper>
-    );
-}
-
-function MediaLightbox({
-    items,
-    startIndex,
-    onClose,
-}: {
-    items: { src: string; type: 'image' | 'video' }[];
-    startIndex: number;
-    onClose: () => void;
-}) {
-    const [idx, setIdx] = useState(startIndex);
-    const item = items[idx];
-    return (
-        <Modal
-            opened
-            onClose={onClose}
-            size="xl"
-            centered
-            padding={0}
-            withCloseButton
-            styles={{ body: { padding: 0, background: '#000' } }}
-        >
-            <Box style={{ position: 'relative', background: '#000', minHeight: 360, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {item.type === 'image' ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                        src={item.src}
-                        alt="Review media"
-                        style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain' }}
-                    />
-                ) : (
-                    <video
-                        src={item.src}
-                        controls
-                        autoPlay
-                        style={{ maxWidth: '100%', maxHeight: '70vh' }}
-                    />
-                )}
-            </Box>
-            {items.length > 1 && (
-                <Group justify="center" p="sm" style={{ background: '#111' }} gap="xs">
-                    {items.map((it, i) => (
-                        <Box
-                            key={i}
-                            onClick={() => setIdx(i)}
-                            style={{
-                                width: 52,
-                                height: 52,
-                                borderRadius: 6,
-                                overflow: 'hidden',
-                                cursor: 'pointer',
-                                border: i === idx ? '2px solid var(--mantine-color-orange-5)' : '2px solid transparent',
-                                flexShrink: 0,
-                            }}
-                        >
-                            {it.type === 'image' ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={it.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                                <video src={it.src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            )}
-                        </Box>
-                    ))}
-                </Group>
-            )}
-        </Modal>
-    );
-}
-
-function ReviewCard({
-    review,
-    voted,
-    onToggleHelpful,
-}: {
-    review: Review;
-    voted: boolean;
-    onToggleHelpful: (id: string) => void;
-}) {
-    const displayName = review.user.profile?.displayName ?? 'Người dùng ẩn danh';
-    const avatar = review.user.profile?.avatar;
-    const initials = displayName.slice(0, 2).toUpperCase();
-
-    const mediaItems = [
-        ...review.images.map(src => ({ src, type: 'image' as const })),
-        ...review.videos.map(src => ({ src, type: 'video' as const })),
-    ];
-    const openChat = useChatStore()
-    const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-
-    const [showComments, setShowComments] = useState(false);
-    const [commentText, setCommentText] = useState('');
-    const [replyToId, setReplyToId] = useState<string | undefined>(undefined);
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    const commentMutation = useMutation({
-        mutationFn: (data: { content: string; parentId?: string }) => reviewService.addComment(review.id, data.content, data.parentId),
-        onSuccess: () => {
-            setCommentText('');
-            setReplyToId(undefined);
-        },
-    });
-
-    const handleCommentSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!commentText.trim()) return;
-        commentMutation.mutate({ content: commentText, parentId: replyToId });
-    };
-
-    const handleOpenChat = (userId: string, name: string, userAvatar: string | null | undefined) => {
-        openChat.openChat({
-            id: userId,
-            name,
-            avatar: userAvatar || null,
-        });
-    };
-
-    return (
-        <Paper withBorder radius="md" p="md">
-            <Stack gap="xs">
-                {/* Header */}
-                <Group gap="sm" justify="space-between" wrap="nowrap">
-                    <Group gap="sm" wrap="nowrap">
-                        <Avatar
-                            src={avatar}
-                            radius="xl"
-                            size="md"
-                            color="orange"
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleOpenChat(review.userId, displayName, avatar)}
-                        >
-                            {initials}
-                        </Avatar>
-                        <Box>
-                            <Text
-                                fw={600}
-                                size="sm"
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => handleOpenChat(review.userId, displayName, avatar)}
-                            >
-                                {displayName}
-                            </Text>
-                            <Text size="xs" c="dimmed">{timeAgo(review.createdAt)}</Text>
-                        </Box>
-                    </Group>
-                    {review.isVerified && (
-                        <Badge
-                            size="xs"
-                            variant="light"
-                            color="green"
-                            leftSection={<Iconify icon="tabler:shield" width={10} />}
-                        >
-                            Đã mua
-                        </Badge>
-                    )}
-                </Group>
-
-                {/* Stars */}
-                <Rating value={review.rating} readOnly size="sm" />
-
-                {/* Comment */}
-                {review.comment && (
-                    <Text size="sm" style={{ lineHeight: 1.6 }}>{review.comment}</Text>
-                )}
-
-                {/* Ảnh + video grid */}
-                {mediaItems.length > 0 && (
-                    <SimpleGrid
-                        cols={{ base: 2, xs: 3, sm: Math.min(mediaItems.length, 5) }}
-                        spacing="xs"
-                    >
-                        {mediaItems.map((item, i) => (
-                            <Box
-                                key={i}
-                                style={{
-                                    borderRadius: 8,
-                                    overflow: 'hidden',
-                                    cursor: 'pointer',
-                                    position: 'relative',
-                                    aspectRatio: '1 / 1',
-                                    background: '#000',
-                                }}
-                                onClick={() => setLightboxIdx(i)}
-                            >
-                                {item.type === 'image' ? (
-                                    <Image
-                                        src={item.src}
-                                        alt={`Ảnh review ${i + 1}`}
-                                        className="w-full h-full object-cover block"
-                                    />
-                                ) : (
-                                    <>
-                                        <video
-                                            src={item.src}
-                                            className="w-full h-full object-cover block"
-                                            preload="metadata"
-                                        />
-                                        {/* Play overlay */}
-                                        <Box
-                                            style={{
-                                                position: 'absolute',
-                                                inset: 0,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                background: 'rgba(0,0,0,0.35)',
-                                            }}
-                                        >
-                                            <Box
-                                                style={{
-                                                    width: 36,
-                                                    height: 36,
-                                                    borderRadius: '50%',
-                                                    background: 'rgba(255,255,255,0.9)',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                }}
-                                            >
-                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                                    <path d="M3 2L12 7L3 12V2Z" fill="#222" />
-                                                </svg>
-                                            </Box>
-                                        </Box>
-                                    </>
-                                )}
-                            </Box>
-                        ))}
-                    </SimpleGrid>
-                )}
-
-                {/* Lightbox */}
-                {lightboxIdx !== null && (
-                    <MediaLightbox
-                        items={mediaItems}
-                        startIndex={lightboxIdx}
-                        onClose={() => setLightboxIdx(null)}
-                    />
-                )}
-
-                {/* Actions: Helpful & Comment toggle */}
-                <Group gap="md" pt={4}>
-                    <Group gap="xs">
-                        <ActionIcon
-                            variant={voted ? 'filled' : 'subtle'}
-                            color={voted ? 'blue' : 'gray'}
-                            size="sm"
-                            radius="xl"
-                            onClick={() => onToggleHelpful(review.id)}
-                            title={voted ? 'Bỏ vote hữu ích' : 'Đánh dấu hữu ích'}
-                        >
-                            <Iconify icon="tabler:thumb-up" width={14} />
-                        </ActionIcon>
-                        <Text size="xs" c={voted ? 'blue' : 'dimmed'}>
-                            {review.helpfulCount > 0
-                                ? `${review.helpfulCount}`
-                                : '0'}
-                        </Text>
-                    </Group>
-
-                    <Group gap="xs" style={{ cursor: 'pointer' }} onClick={() => setShowComments(!showComments)}>
-                        <ActionIcon variant="subtle" color="gray" size="sm" radius="xl">
-                            <Iconify icon="tabler:message-circle" width={14} />
-                        </ActionIcon>
-                        <Text size="xs" c="dimmed">{review.comments?.length || 0} bình luận</Text>
-                    </Group>
-                </Group>
-
-                <Collapse in={showComments}>
-                    <Box mt="sm" p="sm" style={{ background: 'var(--mantine-color-gray-0)', borderRadius: 8 }}>
-                        <Stack gap="sm">
-                            {(review.comments || []).filter(cmt => !cmt.parentId).map(cmt => (
-                                <Box key={cmt.id}>
-                                    <Group align="flex-start" gap="sm" wrap="nowrap">
-                                        <Avatar
-                                            src={cmt.user.profile?.avatar}
-                                            radius="xl"
-                                            size="sm"
-                                            color="blue"
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || 'Ẩn danh', cmt.user.profile?.avatar)}
-                                        >
-                                            {cmt.user.profile?.displayName?.slice(0, 2).toUpperCase() || 'U'}
-                                        </Avatar>
-                                        <Box flex={1}>
-                                            <Group gap="xs" align="baseline">
-                                                <Text
-                                                    fw={600}
-                                                    size="xs"
-                                                    style={{ cursor: 'pointer' }}
-                                                    onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || 'Ẩn danh', cmt.user.profile?.avatar)}
-                                                >
-                                                    {cmt.user.profile?.displayName || 'Ẩn danh'}
-                                                </Text>
-                                                <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>{timeAgo(cmt.createdAt)}</Text>
-                                            </Group>
-                                            <Text size="sm">{cmt.content}</Text>
-
-                                            <Text
-                                                size="xs"
-                                                c="orange"
-                                                style={{ cursor: 'pointer', marginTop: 4, display: 'inline-block' }}
-                                                onClick={() => {
-                                                    setReplyToId(cmt.id);
-                                                    setCommentText(`@${cmt.user.profile?.displayName || 'Ẩn danh'} `);
-                                                    inputRef.current?.focus();
-                                                }}
-                                            >
-                                                Phản hồi
-                                            </Text>
-                                        </Box>
-                                    </Group>
-
-                                    {/* Sub-comments (replies) */}
-                                    {cmt.replies && cmt.replies.length > 0 && (
-                                        <Stack gap="xs" mt="xs" ml={32}>
-                                            {cmt.replies.map(reply => (
-                                                <Group key={reply.id} align="flex-start" gap="sm" wrap="nowrap">
-                                                    <Avatar
-                                                        src={reply.user.profile?.avatar}
-                                                        radius="xl"
-                                                        size="xs"
-                                                        color="gray"
-                                                        style={{ cursor: 'pointer' }}
-                                                        onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || 'Ẩn danh', reply.user.profile?.avatar)}
-                                                    >
-                                                        {reply.user.profile?.displayName?.slice(0, 2).toUpperCase() || 'U'}
-                                                    </Avatar>
-                                                    <Box flex={1}>
-                                                        <Group gap="xs" align="baseline">
-                                                            <Text
-                                                                fw={600}
-                                                                size="xs"
-                                                                style={{ fontSize: 11, cursor: 'pointer' }}
-                                                                onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || 'Ẩn danh', reply.user.profile?.avatar)}
-                                                            >
-                                                                {reply.user.profile?.displayName || 'Ẩn danh'}
-                                                            </Text>
-                                                            <Text size="xs" c="dimmed" style={{ fontSize: 9 }}>{timeAgo(reply.createdAt)}</Text>
-                                                        </Group>
-                                                        <Text size="sm" style={{ fontSize: 13 }}>{reply.content}</Text>
-                                                        <Text
-                                                            size="xs"
-                                                            c="orange"
-                                                            style={{ cursor: 'pointer', marginTop: 4, display: 'inline-block' }}
-                                                            onClick={() => {
-                                                                setReplyToId(cmt.id);
-                                                                setCommentText(`@${reply.user.profile?.displayName || 'Ẩn danh'} `);
-                                                                inputRef.current?.focus();
-                                                            }}
-                                                        >
-                                                            Phản hồi
-                                                        </Text>
-                                                    </Box>
-                                                </Group>
-                                            ))}
-                                        </Stack>
-                                    )}
-                                </Box>
-                            ))}
-
-                            <form onSubmit={handleCommentSubmit} className="mt-2">
-                                {replyToId && (
-                                    <Group justify="space-between" className="mb-2">
-                                        <Text size="xs" c="dimmed">
-                                            Đang phản hồi bình luận
-                                        </Text>
-                                        <ActionIcon size="xs" variant="subtle" color="gray" onClick={() => {
-                                            setReplyToId(undefined);
-                                            setCommentText('');
-                                        }}>
-                                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                                                <path d="M1 1L13 13M1 13L13 1L1 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                                            </svg>
-                                        </ActionIcon>
-                                    </Group>
-                                )}
-                                <TextInput
-                                    ref={inputRef}
-                                    placeholder={replyToId ? "Viết phản hồi..." : "Viết bình luận..."}
-                                    value={commentText}
-                                    onChange={e => setCommentText(e.target.value)}
-                                    size="sm"
-                                    radius="xl"
-                                    rightSection={
-                                        <ActionIcon
-                                            size={28}
-                                            radius="xl"
-                                            color="orange"
-                                            variant="filled"
-                                            disabled={!commentText.trim() || commentMutation.isPending}
-                                            onClick={handleCommentSubmit}
-                                        >
-                                            {commentMutation.isPending ? <Loader size={12} color="white" /> : <Iconify icon="tabler:send" width={14} />}
-                                        </ActionIcon>
-                                    }
-                                />
-                            </form>
-                        </Stack>
-                    </Box>
-                </Collapse>
-            </Stack>
-        </Paper>
-    );
-}
 
 export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: ReviewListProps) {
     const queryClient = useQueryClient();
@@ -616,7 +86,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
             }
             setOptimisticVotes(prev => {
                 const next = { ...prev };
-                delete next[reviewId]; // reset
+                delete next[reviewId];
                 return next;
             });
         },
@@ -646,7 +116,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
         setLiveRating({ avg: updated.ratingAvg, count: updated.ratingCount });
     }, []);
 
-    const handleNewComment = useCallback((data: { reviewId: string; comment: import('@/types/review').ReviewComment }) => {
+    const handleNewComment = useCallback((data: { reviewId: string; comment: ReviewComment }) => {
         queryClient.setQueryData(
             ['reviews', productId, { sort, rating: filterRating, page }],
             (old: ReviewQueryData | undefined) => {
@@ -658,24 +128,22 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                         reviews: old.data.reviews.map(r => {
                             if (r.id !== data.reviewId) return r;
 
-                            // Nếu là comment chính
                             if (!data.comment.parentId) {
                                 return { ...r, comments: [...(r.comments || []), data.comment] };
                             }
 
-                            // Nếu là reply comment
                             return {
                                 ...r,
                                 comments: (r.comments || []).map(cmt =>
                                     cmt.id === data.comment.parentId
                                         ? { ...cmt, replies: [...(cmt.replies || []), data.comment] }
                                         : cmt
-                                )
+                                ),
                             };
-                        })
-                    }
-                }
-            }
+                        }),
+                    },
+                };
+            },
         );
     }, [queryClient, productId, sort, filterRating, page]);
 
@@ -696,7 +164,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
 
     return (
         <Stack gap="md">
-            {/* Tiêu đề section */}
+            {/* Header section */}
             <Group gap="xs">
                 <ThemeIcon variant="light" color="orange" size="md" radius="xl">
                     <Iconify icon="tabler:star" width={16} />
@@ -743,7 +211,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                 </Group>
             )}
 
-            {/* Reviews */}
+            {/* Reviews list */}
             {isLoading ? (
                 <Center py="xl">
                     <Loader size="sm" />

@@ -108,7 +108,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
                                         openChat({
                                             id: shop.userId,
                                             name: shop.shopName,
-                                            avatar: shop.shopLogo ?? shop.user.profile?.avatar
+                                            avatar: (shop.shopLogo ?? shop.user.profile?.avatar) || null
                                         });
                                     }}
                                 >
