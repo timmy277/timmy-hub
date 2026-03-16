@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Box, Stack } from '@mantine/core';
 import { useAuth } from '@/hooks/useAuth';
 import { chatService } from '@/services/chat.service';
@@ -12,14 +12,20 @@ import { UserRole } from '@/types/enums';
 import Iconify from '@/components/iconify/Iconify';
 import { SingleChat } from './SingleChat';
 import { TChatMessage } from '@/types/chat';
+import { useChatStore } from '@/stores/useChatStore';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
 const VIRTUAL_BOT_ID = 'ai-assistant-bot';
 
-export function ChatWidget() {
+interface ChatWidgetProps {
+    externalOpenContactId?: string | null;
+}
+
+export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
     const { user, isAuthenticated } = useAuth();
     const [openedContactId, setOpenedContactId] = useState<string | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
+    const { activeChat, openChat } = useChatStore();
     type Contact = { id: string; displayName: string; avatar: string | null; lastMessageAt: string; lastMessage: string };
 
     const { data: adminRes } = useQuery({
@@ -39,39 +45,38 @@ export function ChatWidget() {
 
     const [socketNewContacts, setSocketNewContacts] = useState<Contact[]>([]);
 
+    // Derive contacts from store + API - no need for useEffect with setState
+    const effectiveOpenedContactId = externalOpenContactId || openedContactId || activeChat?.id || null;
+
     const dynamicContacts = useMemo(() => {
         const base = contactsRes?.data || [];
-        const combined = [...socketNewContacts, ...base];
-        // Deduplicate by ID
+        // Add activeChat if it's not already in the list
+        const activeContact = activeChat && !base.some(c => c.id === activeChat.id) && !socketNewContacts.some(c => c.id === activeChat.id)
+            ? [{
+                id: activeChat.id,
+                displayName: activeChat.name,
+                avatar: activeChat.avatar,
+                lastMessageAt: new Date().toISOString(),
+                lastMessage: ''
+            }]
+            : [];
+        const combined = [...socketNewContacts, ...activeContact, ...base];
         return combined.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
-    }, [contactsRes?.data, socketNewContacts]);
+    }, [contactsRes?.data, socketNewContacts, activeChat]);
 
+    // Keep event listener for backward compatibility, but prioritize store
     useEffect(() => {
         const handleOpenChat = (e: Event) => {
             const detail = (e as CustomEvent).detail;
             if (!detail || !detail.id) return;
-            // Prevent opening chat with oneself
             if (user?.id === detail.id) return;
 
-            setSocketNewContacts(prev => {
-                const exists = prev.some(c => c.id === detail.id) || (contactsRes?.data?.some(c => c.id === detail.id));
-                if (!exists) {
-                    return [...prev, {
-                        id: detail.id,
-                        displayName: detail.name,
-                        avatar: detail.avatar || null,
-                        lastMessageAt: new Date().toISOString(),
-                        lastMessage: ''
-                    }];
-                }
-                return prev;
-            });
-            setTimeout(() => setOpenedContactId(detail.id), 50);
+            openChat({ id: detail.id, name: detail.name, avatar: detail.avatar || null });
         };
 
         window.addEventListener('openChat', handleOpenChat);
         return () => window.removeEventListener('openChat', handleOpenChat);
-    }, [contactsRes?.data, user?.id]);
+    }, [openChat, user?.id]);
 
     useEffect(() => {
         if (!isAuthenticated || !user) return;
@@ -86,7 +91,6 @@ export function ChatWidget() {
         });
 
         newSocket.on('chat:receive', (msg: TChatMessage) => {
-            // Check if sender is already in contacts, if not, refetch!
             if (msg.senderId !== defaultAdmin?.id && msg.senderId !== user.id) {
                 setSocketNewContacts(prev => {
                     const exists = prev.some(c => c.id === msg.senderId) || (contactsRes?.data?.some(c => c.id === msg.senderId));
@@ -126,7 +130,7 @@ export function ChatWidget() {
                         contactId={contact.id}
                         contactName={contact.displayName}
                         contactAvatar={contact.avatar || null}
-                        opened={openedContactId === contact.id}
+                        opened={effectiveOpenedContactId === contact.id}
                         onToggle={() => setOpenedContactId(prev => prev === contact.id ? null : contact.id)}
                         socket={socket}
                         currentUser={user}
@@ -139,7 +143,7 @@ export function ChatWidget() {
                         contactId={defaultAdmin.id}
                         contactName={defaultAdmin.displayName || 'Admin Hỗ Trợ'}
                         contactAvatar={defaultAdmin.avatar || null}
-                        opened={openedContactId === defaultAdmin.id}
+                        opened={effectiveOpenedContactId === defaultAdmin.id}
                         onToggle={() => setOpenedContactId(prev => prev === defaultAdmin.id ? null : defaultAdmin.id)}
                         socket={socket}
                         currentUser={user}
@@ -153,7 +157,7 @@ export function ChatWidget() {
                     contactAvatar={null}
                     isMain={true}
                     mainIcon={<Iconify icon="tabler:robot" width={24} color="currentColor" />}
-                    opened={openedContactId === VIRTUAL_BOT_ID}
+                    opened={effectiveOpenedContactId === VIRTUAL_BOT_ID}
                     onToggle={() => setOpenedContactId(prev => prev === VIRTUAL_BOT_ID ? null : VIRTUAL_BOT_ID)}
                     socket={socket}
                     currentUser={user}

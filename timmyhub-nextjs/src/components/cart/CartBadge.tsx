@@ -3,7 +3,7 @@
 import {
     ActionIcon,
     Indicator,
-    Menu,
+    Popover,
     Stack,
     Text,
     Group,
@@ -12,6 +12,7 @@ import {
     Divider,
     Box,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import Iconify from '@/components/iconify/Iconify';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,12 +23,17 @@ export function CartBadge() {
     const { user } = useAuth();
     const { cart, isLoading } = useCart();
     const router = useRouter();
+    const [opened, { close, toggle }] = useDisclosure(false);
     const itemCount = cart?.itemCount ?? 0;
 
     const handleIconClick = () => {
         if (!user) {
             router.push('/login?callbackUrl=/cart');
         }
+    };
+
+    const handleLinkClick = () => {
+        close();
     };
 
     if (!user) {
@@ -55,15 +61,16 @@ export function CartBadge() {
     const cartItems = cart?.items ?? [];
 
     return (
-        <Menu
-            shadow="md"
+        <Popover
+            opened={opened}
+            onClose={close}
             width={320}
             position="bottom-end"
             offset={8}
             withArrow
-            withinPortal={false}
+            trapFocus
         >
-            <Menu.Target>
+            <Popover.Target>
                 <Indicator
                     label={itemCount}
                     size={20}
@@ -71,13 +78,13 @@ export function CartBadge() {
                     color="red"
                     offset={7}
                 >
-                    <ActionIcon variant="subtle" size="lg" loading={isLoading}>
+                    <ActionIcon variant="subtle" size="lg" loading={isLoading} onClick={toggle}>
                         <Iconify icon="solar:cart-3-bold" width={20} />
                     </ActionIcon>
                 </Indicator>
-            </Menu.Target>
+            </Popover.Target>
 
-            <Menu.Dropdown p={0}>
+            <Popover.Dropdown p={0}>
                 <Box p="md" pb="xs">
                     <Text size="sm" fw={600} mb="xs">
                         Giỏ hàng ({itemCount} sản phẩm)
@@ -96,6 +103,7 @@ export function CartBadge() {
                             variant="light"
                             size="sm"
                             fullWidth
+                            onClick={handleLinkClick}
                         >
                             Tiếp tục mua sắm
                         </Button>
@@ -157,17 +165,29 @@ export function CartBadge() {
                                 {cart?.totalAmount?.toLocaleString() ?? 0}đ
                             </Text>
                             <Group gap="xs">
-                                <Button component={Link} href="/cart" size="sm" variant="light">
+                                <Button
+                                    component={Link}
+                                    href="/cart"
+                                    size="sm"
+                                    variant="light"
+                                    onClick={handleLinkClick}
+                                >
                                     Xem giỏ hàng
                                 </Button>
-                                <Button component={Link} href="/checkout" size="sm" variant="filled">
+                                <Button
+                                    component={Link}
+                                    href="/checkout"
+                                    size="sm"
+                                    variant="filled"
+                                    onClick={handleLinkClick}
+                                >
                                     Thanh toán
                                 </Button>
                             </Group>
                         </Group>
                     </>
                 )}
-            </Menu.Dropdown>
-        </Menu>
+            </Popover.Dropdown>
+        </Popover>
     );
 }

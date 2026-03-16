@@ -5,6 +5,7 @@ import { LanguageSwitcher, ThemeSwitcher } from '../shared';
 import { Logo } from '../common';
 import { CartBadge } from '../cart/CartBadge';
 import { NotificationBell } from './NotificationBell';
+import { MessageIcon } from './MessageIcon';
 import { SellerButton } from './SellerButton';
 import { UserMenu } from './UserMenu';
 import Iconify from '@/components/iconify/Iconify';
@@ -87,6 +88,7 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
             <Group gap="md">
                 {user && !isAdminPage && <SellerButton user={user} />}
                 {user && <NotificationBell />}
+                {user && <MessageIcon />}
                 {!isAdminPage && <CartBadge />}
                 <LanguageSwitcher />
                 <ThemeSwitcher />
