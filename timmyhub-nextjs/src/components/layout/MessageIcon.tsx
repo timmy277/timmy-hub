@@ -225,9 +225,12 @@ export function MessageIcon() {
                                         Nhắn tin cho admin
                                     </Text>
                                 </Stack>
-                                <ActionIcon variant="subtle" color="blue" size="sm">
+                                <Box
+                                    className="cursor-pointer p-1 rounded hover:bg-gray-100"
+                                    onClick={() => router.push('/messages')}
+                                >
                                     <Iconify icon="ph:pencil-simple-bold" width={16} />
-                                </ActionIcon>
+                                </Box>
                             </UnstyledButton>
                         </Box>
                     )}
