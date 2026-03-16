@@ -1,10 +1,5 @@
 'use client';
 
-/**
- * ReviewList — Danh sách đánh giá sản phẩm với real-time Socket.io
- * UI: Rating breakdown + filter + sort + từng review card
- * Không dùng CSS module — Mantine + Tailwind
- */
 import { useState, useCallback, useRef } from 'react';
 import {
     Stack,
@@ -50,6 +45,8 @@ function timeAgo(dateStr: string): string {
 import { reviewService } from '@/services/review.service';
 import { useReviewSocket } from '@/hooks/useReviewSocket';
 import type { Review, ReviewSortOption, ReviewBreakdown } from '@/types/review';
+import { useChatStore } from '@/stores/useChatStore';
+import Image from 'next/image';
 
 type ReviewQueryData = {
     data?: {
@@ -258,6 +255,7 @@ function ReviewCard({
         ...review.images.map(src => ({ src, type: 'image' as const })),
         ...review.videos.map(src => ({ src, type: 'video' as const })),
     ];
+    const openChat = useChatStore()
     const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
     const [showComments, setShowComments] = useState(false);
@@ -280,15 +278,11 @@ function ReviewCard({
     };
 
     const handleOpenChat = (userId: string, name: string, userAvatar: string | null | undefined) => {
-        window.dispatchEvent(
-            new CustomEvent('openChat', {
-                detail: {
-                    id: userId,
-                    name,
-                    avatar: userAvatar || null,
-                },
-            })
-        );
+        openChat.openChat({
+            id: userId,
+            name,
+            avatar: userAvatar || null,
+        });
     };
 
     return (
@@ -359,17 +353,16 @@ function ReviewCard({
                                 onClick={() => setLightboxIdx(i)}
                             >
                                 {item.type === 'image' ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
+                                    <Image
                                         src={item.src}
                                         alt={`Ảnh review ${i + 1}`}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                        className="w-full h-full object-cover block"
                                     />
                                 ) : (
                                     <>
                                         <video
                                             src={item.src}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                            className="w-full h-full object-cover block"
                                             preload="metadata"
                                         />
                                         {/* Play overlay */}
@@ -536,9 +529,9 @@ function ReviewCard({
                                 </Box>
                             ))}
 
-                            <form onSubmit={handleCommentSubmit} style={{ marginTop: 8 }}>
+                            <form onSubmit={handleCommentSubmit} className="mt-2">
                                 {replyToId && (
-                                    <Group justify="space-between" mb={8}>
+                                    <Group justify="space-between" className="mb-2">
                                         <Text size="xs" c="dimmed">
                                             Đang phản hồi bình luận
                                         </Text>

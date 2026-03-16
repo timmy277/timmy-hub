@@ -25,12 +25,14 @@ import { Icon } from '@iconify/react';
 import { SellerShop } from '@/types/product';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
+import { useChatStore } from '@/stores/useChatStore';
 
 interface SellerShopClientProps {
     shop: SellerShop;
 }
 
 export function SellerShopClient({ shop }: SellerShopClientProps) {
+    const openChat = useChatStore((state) => state.openChat);
     const sellerName =
         shop.user.profile?.displayName ||
         `${shop.user.profile?.firstName ?? ''} ${shop.user.profile?.lastName ?? ''}`.trim() ||
@@ -97,19 +99,17 @@ export function SellerShopClient({ shop }: SellerShopClientProps) {
                             )}
 
                             <Group mt="xs">
-                                <Button 
-                                    leftSection={<Icon icon="tabler:message" width={16} />} 
-                                    variant="light" 
-                                    color="blue" 
+                                <Button
+                                    leftSection={<Icon icon="tabler:message" width={16} />}
+                                    variant="light"
+                                    color="blue"
                                     size="sm"
                                     onClick={() => {
-                                        window.dispatchEvent(new CustomEvent('openChat', { 
-                                            detail: { 
-                                                id: shop.userId, 
-                                                name: shop.shopName, 
-                                                avatar: shop.shopLogo ?? shop.user.profile?.avatar
-                                            } 
-                                        }));
+                                        openChat({
+                                            id: shop.userId,
+                                            name: shop.shopName,
+                                            avatar: shop.shopLogo ?? shop.user.profile?.avatar
+                                        });
                                     }}
                                 >
                                     Chat với người bán
