@@ -1,9 +1,6 @@
 ---
-description: NestJS backend patterns and conventions
-globs: timmyhub-nestjs/**/*.ts
-alwaysApply: false
+alwaysApply: true
 ---
-
 # NestJS Backend Patterns
 
 ## API Response Format
@@ -264,7 +261,7 @@ class BaseService<T> {
 ### Ví dụ cách nhắc:
 
 ```
-⚠️ **Gợi ý tối ưu**: 
+⚠️ **Gợi ý tối ưu**:
 - Bạn đang hash password thủ công. Nên dùng `bcryptjs`: `await bcrypt.hash(password, BCRYPT_SALT_ROUNDS)`
 - Query này có N+1 problem, nên dùng Prisma `include` hoặc batch
 - Logic này lặp lại ở nhiều service, nên tạo base service hoặc helper

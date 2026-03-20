@@ -1,9 +1,6 @@
 ---
-description: React/Next.js frontend patterns and conventions
-globs: timmyhub-nextjs/**/*.{ts,tsx}
-alwaysApply: false
+alwaysApply: true
 ---
-
 # React/Next.js Frontend Patterns
 
 ## Component Props
@@ -293,7 +290,7 @@ export default async function Page() {
 
 // ✅ GOOD - Selective data fetching
 export default async function ProductCard({ id }: { id: string }) {
-  const product = await getProduct(id, { 
+  const product = await getProduct(id, {
     select: { id: true, name: true, price: true, image: true } // Chỉ fetch cần thiết
   });
   return <Card product={product} />;
@@ -545,8 +542,8 @@ interface Product {
 
 const columnDefs: ColDef<Product>[] = [
   { field: 'name', headerName: 'Tên sản phẩm', sortable: true, filter: true },
-  { 
-    field: 'price', 
+  {
+    field: 'price',
     headerName: 'Giá',
     cellRenderer: (params: { value: number }) => {
       return `${params.value.toLocaleString('vi-VN')} đ`;
@@ -591,11 +588,11 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token');
-  
+
   if (!token && request.nextUrl.pathname.startsWith('/admin')) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
-  
+
   return NextResponse.next();
 }
 
@@ -621,7 +618,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (isLoading) return <LoadingSkeleton />;
   if (!user) return null;
-  
+
   return <>{children}</>;
 }
 ```
@@ -829,7 +826,7 @@ function useImage(id: string, type: 'avatar' | 'product') {
 ### Ví dụ cách nhắc:
 
 ```
-⚠️ **Gợi ý tối ưu**: 
+⚠️ **Gợi ý tối ưu**:
 - Bạn đang format date thủ công. Có thể dùng `date-fns`: `format(date, 'dd/MM/yyyy')`
 - Component này re-render nhiều, nên dùng `React.memo` hoặc `useMemo`
 - Logic này lặp lại ở 3 nơi, nên tạo custom hook `useImage()`

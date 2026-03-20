@@ -1,9 +1,6 @@
 ---
-description: TypeScript coding standards - strict typing rules
-globs: **/*.ts
-alwaysApply: false
+alwaysApply: true
 ---
-
 # TypeScript Coding Standards
 
 ## Type Safety Rules
