@@ -12,7 +12,6 @@ import {
     Divider,
     Box,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import Iconify from '@/components/iconify/Iconify';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';

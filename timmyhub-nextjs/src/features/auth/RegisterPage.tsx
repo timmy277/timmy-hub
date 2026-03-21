@@ -24,6 +24,7 @@ import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { useRegisterMutation } from '@/hooks/useAuth';
+import { useMounted, useMediaQuery } from '@mantine/hooks';
 
 // Password requirements
 const requirements = [
@@ -43,7 +44,8 @@ function getStrength(password: string) {
     return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 0);
 }
 
-function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
+function PasswordRequirement({ meets, label, visible }: { meets: boolean; label: string; visible: boolean }) {
+    if (!visible) return null;
     return (
         <Text component="div" c={meets ? 'teal' : 'red'} mt={5} size="sm">
             <Center inline>
@@ -88,6 +90,9 @@ const schema = z
 type RegisterFormValues = z.infer<typeof schema>;
 
 export function RegisterPage() {
+    const mounted = useMounted();
+    const isMobile = useMediaQuery('(max-width: 576px)');
+    const isTablet = useMediaQuery('(min-width: 577px) and (max-width: 992px)');
     const router = useRouter();
     const registerMutation = useRegisterMutation();
 
@@ -104,13 +109,6 @@ export function RegisterPage() {
     });
 
     const strength = getStrength(form.values.password);
-    const checks = requirements.map((requirement) => (
-        <PasswordRequirement
-            key={requirement.label}
-            label={requirement.label}
-            meets={requirement.re.test(form.values.password)}
-        />
-    ));
 
     const handleSubmit = async (values: RegisterFormValues) => {
         try {
@@ -139,179 +137,219 @@ export function RegisterPage() {
         }
     };
 
+    if (!mounted) return null;
+
     return (
         <Box
             style={{
-                minHeight: '100vh',
+                minHeight: '100dvh',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: 'var(--mantine-spacing-md)',
+                padding: isMobile ? rem(8) : rem(16),
                 backgroundColor: 'var(--mantine-color-body)',
             }}
         >
-            <Container size={500} w="100%">
-                <Paper
-                    radius="md"
-                    p={{ base: 'lg', sm: 40 }}
-                    withBorder
+            <Container size={isMobile ? 'xs' : 600} w="100%">
+                <Box
                     style={{
-                        boxShadow: 'var(--mantine-shadow-xl)',
-                        borderColor: 'var(--mantine-color-default-border)',
-                        borderTop: `${rem(6)} solid var(--mantine-color-blue-6)`,
+                        borderRadius: isMobile ? rem(24) : rem(56),
+                        padding: isMobile ? rem(3) : rem(4.8),
+                        background:
+                            'linear-gradient(180deg, var(--mantine-primary-color-6) 10%, rgba(33, 150, 243, 0) 30%)',
                     }}
                 >
-                    <Stack gap="xl">
-                        <Box ta="center">
-                            <Group justify="center" mb="md">
-                                <Box
-                                    style={{
-                                        width: rem(48),
-                                        height: rem(48),
-                                        borderRadius: 'var(--mantine-radius-md)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'white',
-                                        fontWeight: 'bold',
-                                        fontSize: rem(24),
-                                        background:
-                                            'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5))',
-                                    }}
-                                >
-                                    T
-                                </Box>
-                            </Group>
-                            <Title order={2} fw={800}>
-                                Tạo Tài Khoản
-                            </Title>
-                            <Text c="dimmed" size="sm" mt={5}>
-                                Tham gia TimmyHub ngay hôm nay
-                            </Text>
-                        </Box>
-
-                        <form onSubmit={form.onSubmit(handleSubmit)}>
-                            <Stack gap="sm">
-                                <Group grow>
-                                    <TextInput
-                                        label="Tên"
-                                        placeholder="Nhập tên"
-                                        size="md"
-                                        radius="md"
-                                        leftSection={<Iconify icon="tabler:user" width={16} />}
-                                        {...form.getInputProps('firstName')}
-                                    />
-                                    <TextInput
-                                        label="Họ"
-                                        placeholder="Nhập họ"
-                                        size="md"
-                                        radius="md"
-                                        leftSection={<Iconify icon="tabler:user" width={16} />}
-                                        {...form.getInputProps('lastName')}
-                                    />
+                    <Paper
+                        radius={isMobile ? rem(21) : rem(53)}
+                        p={{ base: 'md', sm: isTablet ? 'lg' : 'xl', md: 50 }}
+                        withBorder
+                        style={{
+                            backgroundColor: 'white',
+                            borderColor: 'transparent',
+                            boxShadow: 'var(--mantine-shadow-md)',
+                        }}
+                        className="dark:bg-dark-900!"
+                    >
+                        <Stack gap={isMobile ? 'md' : 'xl'}>
+                            <Box ta="center">
+                                <Group justify="center" mb="lg">
+                                    <Box
+                                        style={{
+                                            width: isMobile ? rem(48) : rem(64),
+                                            height: isMobile ? rem(48) : rem(64),
+                                            borderRadius: 'var(--mantine-radius-md)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: 'white',
+                                            fontWeight: 'bold',
+                                            fontSize: isMobile ? rem(24) : rem(32),
+                                            background: 'var(--mantine-primary-color-6)',
+                                        }}
+                                    >
+                                        T
+                                    </Box>
                                 </Group>
+                                <Title
+                                    order={2}
+                                    fw={500}
+                                    size={isMobile ? rem(22) : rem(30)}
+                                    style={{ letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}
+                                >
+                                    Welcome to TimmyHub
+                                </Title>
+                                <Text c="dimmed" size={isMobile ? 'sm' : 'lg'} mt={5}>
+                                    Sign up to continue
+                                </Text>
+                            </Box>
 
-                                <TextInput
-                                    label="Email"
-                                    placeholder="your@email.com"
-                                    size="md"
-                                    radius="md"
-                                    leftSection={<Iconify icon="tabler:at" width={16} />}
-                                    {...form.getInputProps('email')}
-                                />
-
-                                <Box>
-                                    <PasswordInput
-                                        label="Mật khẩu"
-                                        placeholder="Tạo mật khẩu"
-                                        size="md"
-                                        radius="md"
-                                        leftSection={<Iconify icon="tabler:lock" width={16} />}
-                                        {...form.getInputProps('password')}
-                                    />
-
-                                    <Group gap={5} grow mt="xs" mb="md">
-                                        {(['s0', 's1', 's2', 's3'] as const).map((barId, index) => (
-                                            <Progress
-                                                key={barId}
-                                                styles={{ section: { transitionDuration: '0ms' } }}
-                                                value={
-                                                    form.values.password.length > 0 && index === 0
-                                                        ? 100
-                                                        : strength >= ((index + 1) / 4) * 100
-                                                            ? 100
-                                                            : 0
-                                                }
-                                                color={
-                                                    strength > 80
-                                                        ? 'teal'
-                                                        : strength > 50
-                                                            ? 'yellow'
-                                                            : 'red'
-                                                }
-                                                size={4}
-                                            />
-                                        ))}
+                            <form onSubmit={form.onSubmit(handleSubmit)}>
+                                <Stack gap="md">
+                                    <Group grow gap="sm" wrap="wrap">
+                                        <TextInput
+                                            label="Tên"
+                                            placeholder="Nhập tên"
+                                            size={isMobile ? 'sm' : 'md'}
+                                            radius="md"
+                                            leftSection={<Iconify icon="tabler:user" width={16} />}
+                                            {...form.getInputProps('firstName')}
+                                        />
+                                        <TextInput
+                                            label="Họ"
+                                            placeholder="Nhập họ"
+                                            size={isMobile ? 'sm' : 'md'}
+                                            radius="md"
+                                            leftSection={<Iconify icon="tabler:user" width={16} />}
+                                            {...form.getInputProps('lastName')}
+                                        />
                                     </Group>
 
-                                    <PasswordRequirement
-                                        label="Có ít nhất 8 ký tự"
-                                        meets={form.values.password.length > 7}
+                                    <TextInput
+                                        label="Email"
+                                        placeholder="your@email.com"
+                                        size={isMobile ? 'sm' : 'md'}
+                                        radius="md"
+                                        leftSection={<Iconify icon="tabler:at" width={16} />}
+                                        {...form.getInputProps('email')}
                                     />
-                                    {checks}
-                                </Box>
 
-                                <PasswordInput
-                                    label="Xác nhận mật khẩu"
-                                    placeholder="Nhập lại mật khẩu"
-                                    size="md"
-                                    radius="md"
-                                    leftSection={<Iconify icon="tabler:lock" width={16} />}
-                                    {...form.getInputProps('confirmPassword')}
-                                />
+                                    <Box>
+                                        <PasswordInput
+                                            label="Mật khẩu"
+                                            placeholder="Tạo mật khẩu"
+                                            size={isMobile ? 'sm' : 'md'}
+                                            radius="md"
+                                            leftSection={<Iconify icon="tabler:lock" width={16} />}
+                                            {...form.getInputProps('password')}
+                                        />
 
-                                <Checkbox
-                                    mt="xs"
-                                    label={
-                                        <Text size="sm">
-                                            Tôi đồng ý với{' '}
-                                            <Anchor size="sm" href="/terms" target="_blank">
-                                                Điều khoản sử dụng
-                                            </Anchor>{' '}
-                                            và{' '}
-                                            <Anchor size="sm" href="/privacy" target="_blank">
-                                                Chính sách bảo mật
-                                            </Anchor>
-                                        </Text>
-                                    }
-                                    {...form.getInputProps('agreeToTerms', { type: 'checkbox' })}
-                                />
+                                        <Group gap={5} grow mt="xs" mb="md">
+                                            {(['s0', 's1', 's2', 's3'] as const).map((barId, index) => (
+                                                <Progress
+                                                    key={barId}
+                                                    styles={{ section: { transitionDuration: '0ms' } }}
+                                                    value={
+                                                        form.values.password.length > 0 && index === 0
+                                                            ? 100
+                                                            : strength >= ((index + 1) / 4) * 100
+                                                                ? 100
+                                                                : 0
+                                                    }
+                                                    color={
+                                                        strength > 80
+                                                            ? 'teal'
+                                                            : strength > 50
+                                                                ? 'yellow'
+                                                                : 'red'
+                                                    }
+                                                    size={4}
+                                                />
+                                            ))}
+                                        </Group>
 
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    size="lg"
-                                    radius="md"
-                                    mt="xl"
-                                    loading={registerMutation.isPending}
-                                >
-                                    Tạo tài khoản
-                                </Button>
-                            </Stack>
-                        </form>
+                                        <PasswordRequirement
+                                            label="Có ít nhất 8 ký tự"
+                                            meets={form.values.password.length > 7}
+                                            visible={form.values.password.length > 0}
+                                        />
+                                        <PasswordRequirement
+                                            label="Bao gồm số"
+                                            meets={/[0-9]/.test(form.values.password)}
+                                            visible={form.values.password.length > 0 && /[0-9]/.test(form.values.password)}
+                                        />
+                                        <PasswordRequirement
+                                            label="Bao gồm chữ thường"
+                                            meets={/[a-z]/.test(form.values.password)}
+                                            visible={form.values.password.length > 0 && /[a-z]/.test(form.values.password)}
+                                        />
+                                        <PasswordRequirement
+                                            label="Bao gồm chữ hoa"
+                                            meets={/[A-Z]/.test(form.values.password)}
+                                            visible={form.values.password.length > 0 && /[A-Z]/.test(form.values.password)}
+                                        />
+                                        <PasswordRequirement
+                                            label="Bao gồm ký tự đặc biệt"
+                                            meets={/[$&+,:;=?@#|'<>.^*()%!-]/.test(form.values.password)}
+                                            visible={form.values.password.length > 0 && /[$&+,:;=?@#|'<>.^*()%!-]/.test(form.values.password)}
+                                        />
+                                    </Box>
 
-                        <Text c="dimmed" size="sm" ta="center">
-                            Đã có tài khoản?{' '}
-                            <Anchor href="/login" size="sm" fw={700}>
-                                Đăng nhập
-                            </Anchor>
-                        </Text>
-                    </Stack>
-                </Paper>
+                                    <PasswordInput
+                                        label="Xác nhận mật khẩu"
+                                        placeholder="Nhập lại mật khẩu"
+                                        size={isMobile ? 'sm' : 'md'}
+                                        radius="md"
+                                        leftSection={<Iconify icon="tabler:lock" width={16} />}
+                                        error={
+                                            form.values.confirmPassword.length > 0 &&
+                                                form.values.password !== form.values.confirmPassword
+                                                ? 'Mật khẩu không khớp'
+                                                : undefined
+                                        }
+                                        {...form.getInputProps('confirmPassword')}
+                                    />
+                                    <Box mb="md" visibleFrom="sm" />
 
-                <Text mt="xl" c="dimmed" size="xs" ta="center">
-                    &copy; 2026 TimmyHub. Secure Authentication.
-                </Text>
+                                    <Checkbox
+                                        mt="xs"
+                                        size={isMobile ? 'xs' : 'sm'}
+                                        label={
+                                            <Text size="sm">
+                                                Tôi đồng ý với{' '}
+                                                <Anchor size="sm" href="/terms" target="_blank">
+                                                    Điều khoản sử dụng
+                                                </Anchor>{' '}
+                                                và{' '}
+                                                <Anchor size="sm" href="/privacy" target="_blank">
+                                                    Chính sách bảo mật
+                                                </Anchor>
+                                            </Text>
+                                        }
+                                        {...form.getInputProps('agreeToTerms', { type: 'checkbox' })}
+                                    />
+
+                                    <Button
+                                        type="submit"
+                                        fullWidth
+                                        size={isMobile ? 'sm' : 'lg'}
+                                        radius="md"
+                                        mt="xl"
+                                        loading={registerMutation.isPending}
+                                    >
+                                        Tạo tài khoản
+                                    </Button>
+                                </Stack>
+                            </form>
+
+                            <Text c="dimmed" size="sm" ta="center">
+                                Already have an account?{' '}
+                                <Anchor href="/login" size="sm" fw={700} c="blue">
+                                    Sign in
+                                </Anchor>
+                            </Text>
+                        </Stack>
+                    </Paper>
+                </Box>
             </Container>
         </Box>
     );
