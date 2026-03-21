@@ -53,6 +53,9 @@ export const QUERY_KEYS = {
     CHAT_UNREAD: ['chat-unread'] as const,
     CHAT_UNREAD_TOTAL: ['chat-unread-total'] as const,
 
+    // ── Addresses (profile) ─────────────────────────────────────────
+    MY_ADDRESSES: ['my-addresses'] as const,
+
     // ── Wishlist ────────────────────────────────────────────────────
     MY_WISHLIST: ['my-wishlist'] as const,
 

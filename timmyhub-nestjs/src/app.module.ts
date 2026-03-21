@@ -30,6 +30,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
 import { SystemLogsModule } from './system-logs/system-logs.module';
 import { BrandsModule } from './brands/brands.module';
+import { AddressesModule } from './addresses/addresses.module';
 
 @Module({
     imports: [
@@ -86,6 +87,7 @@ import { BrandsModule } from './brands/brands.module';
         WishlistsModule,
         SystemLogsModule,
         BrandsModule,
+        AddressesModule,
     ],
     controllers: [AppController],
     providers: [

@@ -7,6 +7,8 @@ import { PaymentMethodEnum, OrderStatusEnum } from './enums';
 export const CreateOrderFromCartSchema = z.object({
   paymentMethod: PaymentMethodEnum.default('VNPAY').optional(),
   voucherCode: z.string().optional(),
+  addressId: z.string().cuid(),
+  customerNote: z.string().max(2000).optional(),
 });
 
 export const UpdateOrderStatusSchema = z.object({

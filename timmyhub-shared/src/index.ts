@@ -19,6 +19,7 @@ export * from './schemas/rbac.schema';
 export * from './schemas/seller.schema';
 export * from './schemas/voucher.schema';
 export * from './schemas/campaign.schema';
+export * from './schemas/address.schema';
 
 // Common utilities
 export * from './schemas/common.schema';

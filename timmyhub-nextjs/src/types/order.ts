@@ -68,6 +68,8 @@ export interface Payment {
 export interface CreateOrderFromCartDto {
     paymentMethod?: PaymentMethod;
     voucherCode?: string;
+    addressId: string;
+    customerNote?: string;
 }
 
 export interface CreateOrderFromCartResponse {

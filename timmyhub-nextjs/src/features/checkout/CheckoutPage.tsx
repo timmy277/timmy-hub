@@ -1,52 +1,51 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
-    Container,
-    Title,
-    Text,
-    Stack,
-    Group,
-    Button,
-    Paper,
-    Image,
-    Divider,
-    Box,
-    Loader,
     Alert,
-    TextInput,
+    Button,
+    Group,
+    Image,
+    Loader,
     Modal,
+    Paper,
     ScrollArea,
-    ThemeIcon,
+    Stack,
+    Text,
+    TextInput,
+    Textarea,
+    Title,
     Badge,
     Flex,
     CopyButton,
     Tooltip,
+    Radio,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
-import { voucherService } from '@/services/voucher.service';
 import { notifications } from '@mantine/notifications';
+import { useTranslation } from 'react-i18next';
 import Iconify from '@/components/iconify/Iconify';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
-import { useState } from 'react';
-import Link from 'next/link';
+import { QUERY_KEYS, DEFAULT_SHIPPING_FEE_VND } from '@/constants';
 import { orderService } from '@/services/order.service';
 import { paymentService } from '@/services/payment.service';
+import { voucherService } from '@/services/voucher.service';
+import { addressService } from '@/services/address.service';
+import type { Address } from '@/types/address';
+import type { PaymentMethod } from '@/types/order';
+import type { CartItem } from '@/types/cart';
 
 function getErrorMessage(err: unknown): string {
     if (err instanceof Error) return err.message;
     const ax = err as { response?: { data?: { message?: string } } };
     const apiMessage = ax.response?.data?.message;
     if (typeof apiMessage === 'string') return apiMessage;
-    return 'Có lỗi xảy ra, vui lòng thử lại';
+    return 'Error';
 }
-
-type CartItem = {
-    id: string;
-    product: { price: number | string; name: string; images?: string[] };
-    quantity: number;
-};
 
 type Voucher = {
     id: string;
@@ -65,37 +64,17 @@ type UserVoucher = {
     voucher: Voucher;
 };
 
-type AnyRes = Record<string, unknown>;
+type AppliedVoucher = {
+    code: string;
+    discount: number;
+    type?: string;
+};
 
-async function buildPaymentUrl(
-    cartItems: CartItem[],
-    refetchCart: () => Promise<{ data?: { items?: CartItem[] } }>,
-    voucherCode?: string,
-): Promise<{ paymentUrl: string } | null> {
-    const { data: freshCart } = await refetchCart();
-    const items = (freshCart as { items?: CartItem[] } | undefined)?.items ?? cartItems;
-    if (!items?.length) return null;
+type CheckoutPayment = 'COD' | 'VNPAY';
 
-    const orderRes = (await orderService.createFromCart({
-        paymentMethod: 'VNPAY',
-        voucherCode,
-    })) as unknown as AnyRes;
-    const orderData = (orderRes as { data?: { id?: string } }).data;
-    if (!orderData?.id) {
-        const msg = (orderRes as { message?: string }).message;
-        throw new Error(msg !== undefined ? msg : 'Tạo đơn hàng thất bại');
-    }
-
-    const payRes = (await paymentService.createVnpayUrl({
-        orderId: orderData.id,
-    })) as unknown as AnyRes;
-    const payData = (payRes as { data?: { url?: string } }).data;
-    if (!payData?.url) {
-        const msg = (payRes as { message?: string }).message;
-        throw new Error(msg !== undefined ? msg : 'Tạo link thanh toán thất bại');
-    }
-
-    return { paymentUrl: payData.url };
+function formatAddressOneLine(a: Address): string {
+    const tail = [a.ward, a.district, a.city].filter(Boolean).join(', ');
+    return [a.addressLine1, a.addressLine2, tail].filter(Boolean).join(', ');
 }
 
 function isVoucherUsable(voucher: Voucher, totalAmount: number): { usable: boolean; reason?: string } {
@@ -116,6 +95,9 @@ function formatDiscount(voucher: Voucher): string {
     if (voucher.type === 'PERCENTAGE') {
         return `${voucher.value}%`;
     }
+    if (voucher.type === 'FREE_SHIPPING') {
+        return 'Freeship';
+    }
     return `${voucher.value.toLocaleString()}đ`;
 }
 
@@ -126,18 +108,30 @@ function getVoucherColor(voucher: Voucher): string {
 }
 
 export function CheckoutPage() {
+    const { t } = useTranslation('common');
+    const router = useRouter();
     const { user, isAuthenticated } = useAuth();
     const { cart, isLoading: cartLoading, refetch: refetchCart } = useCart();
+
+    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+    const [paymentChoice, setPaymentChoice] = useState<CheckoutPayment>('VNPAY');
+    const [customerNote, setCustomerNote] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [voucherCode, setVoucherCode] = useState('');
-    const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discount: number } | null>(
-        null,
-    );
+    const [appliedVoucher, setAppliedVoucher] = useState<AppliedVoucher | null>(null);
     const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
     const [voucherModalOpened, { open: openVoucherModal, close: closeVoucherModal }] = useDisclosure(false);
 
-    // Fetch user's saved vouchers
+    const { data: addresses = [], isLoading: addressesLoading } = useQuery({
+        queryKey: QUERY_KEYS.MY_ADDRESSES,
+        queryFn: async () => {
+            const res = await addressService.list();
+            return res.data ?? [];
+        },
+        enabled: isAuthenticated,
+    });
+
     const { data: vouchersRes, isLoading: vouchersLoading } = useQuery({
         queryKey: ['my-vouchers', 'SAVED'],
         queryFn: () => voucherService.getMyVouchers('SAVED'),
@@ -146,69 +140,62 @@ export function CheckoutPage() {
 
     const myVouchers: UserVoucher[] = vouchersRes?.data || [];
 
-    const totalAmount = cart?.items?.reduce(
-        (sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity,
-        0,
-    ) || 0;
-
-    const handlePayWithVnpay = async () => {
-        if (!cart || cart.items.length === 0) return;
-        setIsSubmitting(true);
-        let result: { paymentUrl: string } | null = null;
-        try {
-            result = await buildPaymentUrl(
-                cart.items as CartItem[],
-                refetchCart as () => Promise<{ data?: { items?: CartItem[] } }>,
-                appliedVoucher?.code,
-            );
-        } catch (err) {
-            notifications.show({
-                title: 'Lỗi',
-                message: getErrorMessage(err),
-                color: 'red',
-            });
-            setIsSubmitting(false);
-            return;
+    useEffect(() => {
+        if (!selectedAddressId && addresses.length > 0) {
+            const def = addresses.find(a => a.isDefault);
+            setSelectedAddressId(def?.id ?? addresses[0]?.id ?? null);
         }
-        if (!result) {
-            notifications.show({
-                title: 'Giỏ hàng đã thay đổi',
-                message: 'Giỏ hàng trống hoặc đã được cập nhật. Vui lòng kiểm tra lại giỏ hàng.',
-                color: 'orange',
-            });
-            setIsSubmitting(false);
-            return;
-        }
-        window.location.href = result.paymentUrl;
-        setIsSubmitting(false);
-    };
+    }, [addresses, selectedAddressId]);
 
-    const handleApplyVoucher = async () => {
+    const itemsSubtotal =
+        cart?.items?.reduce(
+            (sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity,
+            0,
+        ) ?? 0;
+
+    const productDiscount = appliedVoucher?.discount ?? 0;
+    const afterDiscount = Math.max(0, itemsSubtotal - productDiscount);
+
+    const shippingFee = useMemo(() => {
+        if (appliedVoucher?.type === 'FREE_SHIPPING') {
+            return 0;
+        }
+        return DEFAULT_SHIPPING_FEE_VND;
+    }, [appliedVoucher?.type]);
+
+    const grandTotal = afterDiscount + shippingFee;
+
+    const itemCount = cart?.items?.reduce((sum: number, item: CartItem) => sum + item.quantity, 0) ?? 0;
+
+    const mapPaymentToApi = (): PaymentMethod => (paymentChoice === 'COD' ? 'COD' : 'VNPAY');
+
+    const handleApplyVoucher = async (): Promise<void> => {
         if (!voucherCode.trim()) return;
         setIsApplyingVoucher(true);
         try {
-            const res = await voucherService.validate(voucherCode.trim(), 'VNPAY');
+            const res = await voucherService.validate(voucherCode.trim(), mapPaymentToApi());
             if (res.data?.valid) {
                 setAppliedVoucher({
                     code: res.data.code ?? voucherCode.trim(),
                     discount: res.data.discount ?? 0,
+                    type: res.data.type,
                 });
                 notifications.show({
-                    title: 'Thành công',
-                    message: 'Đã áp dụng mã giảm giá',
+                    title: t('common.success'),
+                    message: t('common.saved'),
                     color: 'green',
                 });
             } else {
                 notifications.show({
-                    title: 'Không thể áp dụng',
-                    message: res.data?.message || 'Voucher không hợp lệ',
+                    title: t('common.error'),
+                    message: res.data?.message || 'Invalid',
                     color: 'red',
                 });
                 setAppliedVoucher(null);
             }
         } catch (err) {
             notifications.show({
-                title: 'Lỗi',
+                title: t('common.error'),
                 message: getErrorMessage(err),
                 color: 'red',
             });
@@ -218,220 +205,525 @@ export function CheckoutPage() {
         }
     };
 
-    const handleSelectVoucher = async (userVoucher: UserVoucher) => {
-        const check = isVoucherUsable(userVoucher.voucher, totalAmount);
+    const handleSelectVoucher = async (userVoucher: UserVoucher): Promise<void> => {
+        const check = isVoucherUsable(userVoucher.voucher, itemsSubtotal);
         if (!check.usable) {
             notifications.show({
-                title: 'Không thể sử dụng',
-                message: check.reason,
+                title: t('common.error'),
+                message: check.reason ?? '',
                 color: 'orange',
             });
             return;
         }
-
         try {
-            const res = await voucherService.validate(userVoucher.voucher.code, 'VNPAY');
+            const res = await voucherService.validate(userVoucher.voucher.code, mapPaymentToApi());
             if (res.data?.valid) {
                 setAppliedVoucher({
                     code: res.data.code ?? userVoucher.voucher.code,
                     discount: res.data.discount ?? 0,
+                    type: res.data.type,
                 });
                 closeVoucherModal();
                 notifications.show({
-                    title: 'Thành công',
-                    message: 'Đã áp dụng mã giảm giá',
+                    title: t('common.success'),
+                    message: t('common.saved'),
                     color: 'green',
                 });
             } else {
                 notifications.show({
-                    title: 'Không thể áp dụng',
-                    message: res.data?.message || 'Voucher không hợp lệ',
+                    title: t('common.error'),
+                    message: res.data?.message || 'Invalid',
                     color: 'red',
                 });
             }
         } catch (err) {
             notifications.show({
-                title: 'Lỗi',
+                title: t('common.error'),
                 message: getErrorMessage(err),
                 color: 'red',
             });
         }
     };
 
-    const handleRemoveVoucher = () => {
+    const handleRemoveVoucher = (): void => {
         setAppliedVoucher(null);
         setVoucherCode('');
     };
 
+    const handleConfirm = async (): Promise<void> => {
+        if (!cart || cart.items.length === 0) return;
+        if (!selectedAddressId) {
+            notifications.show({
+                title: t('common.error'),
+                message: t('checkout.selectAddress'),
+                color: 'orange',
+            });
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            const { data: freshCart } = await refetchCart();
+            const items = freshCart?.items ?? [];
+            if (!items.length) {
+                notifications.show({
+                    title: t('common.error'),
+                    message: t('checkout.cartEmptyHint'),
+                    color: 'orange',
+                });
+                setIsSubmitting(false);
+                return;
+            }
+
+            const paymentMethod = mapPaymentToApi();
+            const orderRes = await orderService.createFromCart({
+                addressId: selectedAddressId,
+                paymentMethod,
+                voucherCode: appliedVoucher?.code,
+                customerNote: customerNote.trim() || undefined,
+            });
+
+            const orderId = orderRes.data?.id;
+            if (!orderId) {
+                throw new Error(orderRes.message || 'Order failed');
+            }
+
+            if (paymentMethod === 'COD') {
+                router.push(`/payment/result?success=true&orderId=${encodeURIComponent(orderId)}`);
+                setIsSubmitting(false);
+                return;
+            }
+
+            const payRes = await paymentService.createVnpayUrl({ orderId });
+            const url = payRes.data?.url;
+            if (!url) {
+                throw new Error(payRes.message || 'VNPAY URL failed');
+            }
+            window.location.href = url;
+        } catch (err) {
+            notifications.show({
+                title: t('common.error'),
+                message: getErrorMessage(err),
+                color: 'red',
+            });
+            setIsSubmitting(false);
+        }
+    };
+
     if (!user || cartLoading) {
         return (
-            <Container size="lg" py="xl">
-                <Group justify="center" py="xl">
+            <div className="min-h-[50vh] bg-[#f6f7f8] dark:bg-[#111a21]">
+                <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-4 py-24">
                     <Loader size="lg" />
-                    <Text>Đang tải...</Text>
-                </Group>
-            </Container>
+                    <Text>{t('common.loading')}</Text>
+                </div>
+            </div>
         );
     }
 
     if (!cart || cart.items.length === 0) {
         return (
-            <Container size="lg" py="xl">
-                <Paper p="xl" withBorder>
-                    <Alert icon={<Iconify icon="tabler:alert-circle" width={18} />} title="Giỏ hàng trống" color="blue">
-                        Bạn chưa có sản phẩm nào để thanh toán. Vui lòng thêm sản phẩm vào giỏ hàng
-                        trước.
-                    </Alert>
-                    <Button component={Link} href="/cart" mt="md">
-                        Xem giỏ hàng
-                    </Button>
-                </Paper>
-            </Container>
+            <div className="min-h-[50vh] bg-[#f6f7f8] dark:bg-[#111a21]">
+                <div className="mx-auto max-w-7xl px-4 py-10">
+                    <Paper p="xl" withBorder radius="md">
+                        <Alert
+                            icon={<Iconify icon="tabler:alert-circle" width={18} />}
+                            title={t('checkout.cartEmpty')}
+                            color="blue"
+                        >
+                            {t('checkout.cartEmptyHint')}
+                        </Alert>
+                        <Button component={Link} href="/cart" mt="md" variant="light">
+                            {t('checkout.viewCart')}
+                        </Button>
+                    </Paper>
+                </div>
+            </div>
         );
     }
 
-    const itemCount = cart.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
-
     return (
-        <Container size="lg" py="xl">
-            <Title order={2} mb="xl">
-                Thanh toán
-            </Title>
+        <div className="min-h-screen w-full bg-[#f6f7f8] text-slate-900 dark:bg-[#111a21] dark:text-slate-100">
+            <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                {/* Stepper */}
+                <nav className="mb-8 flex flex-wrap items-center gap-2 text-sm font-medium">
+                    <span className="flex items-center gap-2 text-slate-500">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-xs dark:bg-slate-800">
+                            1
+                        </span>
+                        {t('checkout.stepShipping')}
+                    </span>
+                    <Iconify icon="tabler:chevron-right" className="text-slate-300" width={16} />
+                    <span className="flex items-center gap-2 text-[#238be7]">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#238be7] text-xs text-white">
+                            2
+                        </span>
+                        {t('checkout.stepPayment')}
+                    </span>
+                    <Iconify icon="tabler:chevron-right" className="text-slate-300" width={16} />
+                    <span className="flex items-center gap-2 text-slate-400">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs dark:bg-slate-800">
+                            3
+                        </span>
+                        {t('checkout.stepConfirm')}
+                    </span>
+                </nav>
 
-            <Group align="flex-start" gap="xl">
-                <Stack style={{ flex: 1 }} gap="md">
-                    <Paper p="md" withBorder>
-                        <Text fw={600} mb="sm">
-                            Sản phẩm ({itemCount})
-                        </Text>
-                        <Stack gap="sm">
-                            {cart.items.map(item => (
-                                <Group key={item.id} gap="sm">
-                                    <Image
-                                        src={item.product.images?.[0] || '/placeholder-product.jpg'}
-                                        alt={item.product.name}
-                                        w={56}
-                                        h={56}
-                                        fit="cover"
-                                        radius="sm"
-                                    />
-                                    <Box style={{ flex: 1 }}>
-                                        <Text size="sm" fw={500}>
-                                            {item.product.name}
-                                        </Text>
-                                        <Text size="xs" c="dimmed">
-                                            {item.quantity} x{' '}
-                                            {Number(item.product.price).toLocaleString()}đ
-                                        </Text>
-                                    </Box>
-                                    <Text size="sm" fw={600}>
-                                        {(
-                                            Number(item.product.price) * item.quantity
-                                        ).toLocaleString()}
-                                        đ
-                                    </Text>
-                                </Group>
-                            ))}
-                        </Stack>
-                    </Paper>
-                </Stack>
-
-                <Paper p="lg" withBorder style={{ width: 360, position: 'sticky', top: 80 }}>
-                    <Title order={4} mb="md">
-                        Tóm tắt
-                    </Title>
-                    <Stack gap="xs">
-                        <Group justify="space-between">
-                            <Text size="sm" c="dimmed">
-                                Tạm tính ({itemCount} sp):
-                            </Text>
-                            <Text fw={600}>{totalAmount.toLocaleString()}đ</Text>
-                        </Group>
-
-                        {/* Voucher Section */}
-                        <Box my="sm">
-                            <Group align="flex-end" gap="sm">
-                                <TextInput
-                                    style={{ flex: 1 }}
-                                    placeholder="Mã giảm giá"
-                                    value={voucherCode}
-                                    onChange={e => setVoucherCode(e.currentTarget.value)}
-                                    disabled={!!appliedVoucher || isApplyingVoucher}
-                                    leftSection={<Iconify icon="tabler:discount-2" width={16} />}
-                                />
-                                {appliedVoucher ? (
-                                    <Button
-                                        variant="light"
-                                        color="red"
-                                        onClick={handleRemoveVoucher}
-                                    >
-                                        Hủy
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        onClick={handleApplyVoucher}
-                                        loading={isApplyingVoucher}
-                                        disabled={!voucherCode.trim()}
-                                    >
-                                        Áp dụng
-                                    </Button>
-                                )}
-                            </Group>
-
-                            {!appliedVoucher && myVouchers.length > 0 && (
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+                    <div className="space-y-8 lg:col-span-8">
+                        {/* Địa chỉ */}
+                        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                            <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+                                <Title order={3} className="flex items-center gap-2 text-lg font-bold">
+                                    <Iconify icon="tabler:map-pin" className="text-[#238be7]" width={22} />
+                                    {t('checkout.shippingTitle')}
+                                </Title>
                                 <Button
+                                    component={Link}
+                                    href="/profile/addresses"
                                     variant="subtle"
                                     size="xs"
-                                    mt="xs"
-                                    leftSection={<Iconify icon="tabler:ticket" width={14} />}
-                                    onClick={openVoucherModal}
+                                    className="text-[#238be7]"
                                 >
-                                    Chọn từ voucher của bạn
+                                    + {t('checkout.addAddress')}
                                 </Button>
-                            )}
+                            </div>
 
-                            {appliedVoucher && (
-                                <Text size="sm" c="green" mt="xs">
-                                    Đã giảm: -{appliedVoucher.discount.toLocaleString()}đ
+                            {addressesLoading ? (
+                                <Loader size="sm" />
+                            ) : addresses.length === 0 ? (
+                                <Alert color="orange">{t('checkout.noAddresses')}</Alert>
+                            ) : (
+                                <Radio.Group
+                                    value={selectedAddressId ?? undefined}
+                                    onChange={setSelectedAddressId}
+                                >
+                                    <Stack gap="md">
+                                        {addresses.map(addr => (
+                                            <Radio
+                                                key={addr.id}
+                                                value={addr.id}
+                                                label={
+                                                    <div className="ml-1 flex flex-col gap-1">
+                                                        <div>
+                                                            <Text component="span" fw={700}>
+                                                                {addr.fullName}
+                                                            </Text>{' '}
+                                                            <Text component="span" c="dimmed" size="sm">
+                                                                ({addr.phone})
+                                                            </Text>
+                                                        </div>
+                                                        <Text size="sm" c="dimmed">
+                                                            {formatAddressOneLine(addr)}
+                                                        </Text>
+                                                        {addr.isDefault && (
+                                                            <Badge
+                                                                size="xs"
+                                                                variant="light"
+                                                                color="blue"
+                                                                className="w-fit"
+                                                            >
+                                                                {t('addresses.defaultBadge')}
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                }
+                                                classNames={{
+                                                    root: 'p-4 rounded-xl border-2 transition-all',
+                                                    body: 'w-full',
+                                                    label: 'w-full',
+                                                }}
+                                                styles={{
+                                                    root: {
+                                                        borderColor:
+                                                            selectedAddressId === addr.id
+                                                                ? '#238be7'
+                                                                : 'var(--mantine-color-gray-3)',
+                                                        background:
+                                                            selectedAddressId === addr.id
+                                                                ? 'rgba(35, 139, 231, 0.06)'
+                                                                : undefined,
+                                                    },
+                                                }}
+                                            />
+                                        ))}
+                                    </Stack>
+                                </Radio.Group>
+                            )}
+                        </section>
+
+                        {/* Thanh toán */}
+                        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                            <Title order={3} className="mb-6 flex items-center gap-2 text-lg font-bold">
+                                <Iconify icon="tabler:credit-card" className="text-[#238be7]" width={22} />
+                                {t('checkout.paymentTitle')}
+                            </Title>
+
+                            <Stack gap="sm">
+                                <Button
+                                    type="button"
+                                    onClick={() => setPaymentChoice('COD')}
+                                    aria-pressed={paymentChoice === 'COD'}
+                                    className={`flex w-full items-center rounded-xl border p-4 text-left transition-colors ${paymentChoice === 'COD'
+                                            ? 'border-[#238be7] bg-[#238be7]/5'
+                                            : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50'
+                                        }`}
+                                >
+                                    <span
+                                        className={`mr-4 flex h-4 w-4 shrink-0 rounded-full border-2 ${paymentChoice === 'COD'
+                                                ? 'border-[#238be7] bg-[#238be7]'
+                                                : 'border-slate-300 dark:border-slate-600'
+                                            }`}
+                                        aria-hidden
+                                    />
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                                            <Iconify icon="tabler:truck" className="text-slate-600" width={22} />
+                                        </div>
+                                        <div>
+                                            <Text fw={600}>{t('checkout.codTitle')}</Text>
+                                            <Text size="xs" c="dimmed">
+                                                {t('checkout.codFee')}
+                                            </Text>
+                                        </div>
+                                    </div>
+                                </Button>
+
+                                <Button
+                                    onClick={() => setPaymentChoice('VNPAY')}
+                                    aria-pressed={paymentChoice === 'VNPAY'}
+                                    className={`flex w-full items-center rounded-xl border p-4 text-left transition-colors ${paymentChoice === 'VNPAY'
+                                            ? 'border-[#238be7] bg-[#238be7]/5'
+                                            : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50'
+                                        }`}
+                                >
+                                    <span
+                                        className={`mr-4 flex h-4 w-4 shrink-0 rounded-full border-2 ${paymentChoice === 'VNPAY'
+                                                ? 'border-[#238be7] bg-[#238be7]'
+                                                : 'border-slate-300 dark:border-slate-600'
+                                            }`}
+                                        aria-hidden
+                                    />
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-100 bg-white p-1">
+                                            <Iconify icon="tabler:building-bank" width={28} className="text-[#238be7]" />
+                                        </div>
+                                        <div>
+                                            <Text fw={600}>{t('checkout.vnpayTitle')}</Text>
+                                            <Text size="xs" c="dimmed">
+                                                {t('checkout.vnpayHint')}
+                                            </Text>
+                                        </div>
+                                    </div>
+                                </Button>
+
+                                <div
+                                    className="flex cursor-not-allowed items-center rounded-xl border border-dashed border-slate-200 p-4 opacity-60 dark:border-slate-700"
+                                    title={t('checkout.momoDisabled')}
+                                    aria-disabled
+                                >
+                                    <span className="mr-4 h-4 w-4 shrink-0 rounded-full border-2 border-slate-300 opacity-50" aria-hidden />
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-50">
+                                            <Text fw={700} c="pink" size="sm">
+                                                MoMo
+                                            </Text>
+                                        </div>
+                                        <div>
+                                            <Text fw={600}>{t('checkout.momoTitle')}</Text>
+                                            <Text size="xs" c="dimmed">
+                                                {t('checkout.momoHint')}
+                                            </Text>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Stack>
+                        </section>
+
+                        {/* Ghi chú */}
+                        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                            <Title order={3} className="mb-4 text-lg font-bold">
+                                {t('checkout.noteTitle')}
+                            </Title>
+                            <Textarea
+                                placeholder={t('checkout.notePlaceholder')}
+                                rows={3}
+                                value={customerNote}
+                                onChange={e => setCustomerNote(e.currentTarget.value)}
+                                radius="md"
+                            />
+                        </section>
+                    </div>
+
+                    {/* Sidebar */}
+                    <div className="lg:col-span-4">
+                        <div className="sticky top-24 space-y-4">
+                            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                                <Title order={3} className="mb-6 border-b border-slate-100 pb-4 text-lg font-bold dark:border-slate-800">
+                                    {t('checkout.summaryTitle')}
+                                </Title>
+
+                                <div className="mb-6 space-y-4">
+                                    {cart.items.map((item: CartItem) => (
+                                        <div key={item.id} className="flex gap-3">
+                                            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800">
+                                                <Image
+                                                    src={item.product.images?.[0] || '/placeholder-product.jpg'}
+                                                    alt={item.product.name}
+                                                    w={64}
+                                                    h={64}
+                                                    fit="cover"
+                                                />
+                                            </div>
+                                            <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+                                                <div>
+                                                    <Text size="sm" fw={600} lineClamp={2}>
+                                                        {item.product.name}
+                                                    </Text>
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <Text size="xs">x{item.quantity}</Text>
+                                                    <Text size="sm" fw={700}>
+                                                        {(
+                                                            Number(item.product.price) * item.quantity
+                                                        ).toLocaleString('vi-VN')}
+                                                        ₫
+                                                    </Text>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="mb-6 flex gap-2">
+                                    <div className="relative min-w-0 flex-1">
+                                        <Iconify
+                                            icon="tabler:discount-2"
+                                            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                            width={18}
+                                        />
+                                        <TextInput
+                                            className="pl-10"
+                                            placeholder={t('checkout.voucherPlaceholder')}
+                                            value={voucherCode}
+                                            onChange={e => setVoucherCode(e.currentTarget.value)}
+                                            disabled={!!appliedVoucher || isApplyingVoucher}
+                                            size="sm"
+                                            radius="md"
+                                        />
+                                    </div>
+                                    {appliedVoucher ? (
+                                        <Button
+                                            variant="light"
+                                            color="red"
+                                            size="sm"
+                                            onClick={handleRemoveVoucher}
+                                        >
+                                            {t('common.cancel')}
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            size="sm"
+                                            onClick={() => void handleApplyVoucher()}
+                                            loading={isApplyingVoucher}
+                                            disabled={!voucherCode.trim()}
+                                            className="shrink-0 bg-slate-200 text-slate-900 hover:bg-[#238be7] hover:text-white dark:bg-slate-800"
+                                        >
+                                            {t('checkout.apply')}
+                                        </Button>
+                                    )}
+                                </div>
+
+                                {!appliedVoucher && myVouchers.length > 0 && (
+                                    <Button
+                                        variant="subtle"
+                                        size="xs"
+                                        mb="sm"
+                                        leftSection={<Iconify icon="tabler:ticket" width={14} />}
+                                        onClick={openVoucherModal}
+                                    >
+                                        {t('checkout.chooseSavedVoucher')}
+                                    </Button>
+                                )}
+
+                                <div className="space-y-3 border-t border-slate-100 pt-4 dark:border-slate-800">
+                                    <Group justify="space-between">
+                                        <Text size="sm" c="dimmed">
+                                            {t('checkout.subtotal', { count: itemCount })}
+                                        </Text>
+                                        <Text size="sm" fw={500}>
+                                            {itemsSubtotal.toLocaleString('vi-VN')}₫
+                                        </Text>
+                                    </Group>
+                                    <Group justify="space-between">
+                                        <Text size="sm" c="dimmed">
+                                            {t('checkout.shippingFee')}
+                                        </Text>
+                                        <Text size="sm" fw={500}>
+                                            {shippingFee === 0
+                                                ? `0₫ (${t('checkout.freeShipping')})`
+                                                : `${shippingFee.toLocaleString('vi-VN')}₫`}
+                                        </Text>
+                                    </Group>
+                                    {appliedVoucher && productDiscount > 0 && (
+                                        <Group justify="space-between" className="font-medium text-green-600">
+                                            <Text size="sm">{t('checkout.voucherDiscount')}</Text>
+                                            <Text size="sm">-{productDiscount.toLocaleString('vi-VN')}₫</Text>
+                                        </Group>
+                                    )}
+                                    <Group
+                                        justify="space-between"
+                                        className="mt-2 border-t border-slate-100 pt-4 dark:border-slate-800"
+                                    >
+                                        <Text className="text-lg font-bold">{t('checkout.total')}</Text>
+                                        <Text className="text-xl font-black text-[#238be7]">
+                                            {grandTotal.toLocaleString('vi-VN')}₫
+                                        </Text>
+                                    </Group>
+                                    <Text size="10px" ta="right" c="dimmed" fs="italic">
+                                        {t('checkout.vatNote')}
+                                    </Text>
+                                </div>
+
+                                <Button
+                                    fullWidth
+                                    mt="xl"
+                                    size="lg"
+                                    radius="md"
+                                    className="bg-[#238be7] font-bold shadow-lg shadow-[#238be7]/20 hover:bg-[#238be7]/90"
+                                    loading={isSubmitting}
+                                    onClick={() => void handleConfirm()}
+                                    disabled={!selectedAddressId || addresses.length === 0}
+                                >
+                                    {t('checkout.confirmCta')}
+                                </Button>
+
+                                <Group justify="center" gap="md" mt="lg" className="opacity-50 grayscale">
+                                    <Iconify icon="tabler:shield-check" width={16} />
+                                    <Text size="11px" fw={500} className="tracking-wider">
+                                        {t('checkout.secureBadge')}
+                                    </Text>
+                                </Group>
+                            </div>
+
+                            <div className="flex gap-3 rounded-xl border border-[#238be7]/10 bg-[#238be7]/5 p-4">
+                                <Iconify icon="tabler:info-circle" className="shrink-0 text-[#238be7]" width={20} />
+                                <Text size="xs" className="leading-relaxed text-[#238be7]">
+                                    {t('checkout.termsHint')}
                                 </Text>
-                            )}
-                        </Box>
+                            </div>
 
-                        <Divider />
-                        <Group justify="space-between">
-                            <Text fw={600}>Tổng cộng:</Text>
-                            <Text size="lg" fw={700} c="blue">
-                                {Math.max(
-                                    0,
-                                    totalAmount - (appliedVoucher?.discount || 0),
-                                ).toLocaleString()}
-                                đ
-                            </Text>
-                        </Group>
-                    </Stack>
+                            <Button component={Link} href="/cart" variant="light" fullWidth>
+                                {t('checkout.backCart')}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </main>
 
-                    <Button
-                        size="md"
-                        fullWidth
-                        mt="lg"
-                        leftSection={<Iconify icon="tabler:credit-card" width={18} />}
-                        onClick={handlePayWithVnpay}
-                        loading={isSubmitting}
-                    >
-                        Thanh toán qua VNPay
-                    </Button>
-
-                    <Button component={Link} href="/cart" variant="light" fullWidth mt="sm">
-                        Quay lại giỏ hàng
-                    </Button>
-                </Paper>
-            </Group>
-
-            {/* Voucher Selection Modal */}
             <Modal
                 opened={voucherModalOpened}
                 onClose={closeVoucherModal}
-                title="Chọn voucher"
+                title={t('checkout.chooseSavedVoucher')}
                 size="md"
                 scrollAreaComponent={ScrollArea.Autosize}
             >
@@ -441,16 +733,15 @@ export function CheckoutPage() {
                     </Group>
                 ) : myVouchers.length === 0 ? (
                     <Text c="dimmed" ta="center" py="md">
-                        Bạn chưa có voucher nào
+                        {t('common.noSavedVouchers')}
                     </Text>
                 ) : (
                     <ScrollArea.Autosize mah={400}>
                         <Stack gap="sm">
                             {myVouchers.map(uv => {
                                 const voucher = uv.voucher;
-                                const { usable, reason } = isVoucherUsable(voucher, totalAmount);
+                                const { usable, reason } = isVoucherUsable(voucher, itemsSubtotal);
                                 const color = getVoucherColor(voucher);
-
                                 return (
                                     <Paper
                                         key={uv.id}
@@ -460,7 +751,7 @@ export function CheckoutPage() {
                                             cursor: usable ? 'pointer' : 'not-allowed',
                                             opacity: usable ? 1 : 0.6,
                                         }}
-                                        onClick={() => usable && handleSelectVoucher(uv)}
+                                        onClick={() => usable && void handleSelectVoucher(uv)}
                                     >
                                         <Flex justify="space-between" align="center">
                                             <Stack gap={2} style={{ flex: 1 }}>
@@ -468,54 +759,36 @@ export function CheckoutPage() {
                                                     <Badge color={color} variant="light">
                                                         {formatDiscount(voucher)}
                                                     </Badge>
-                                                    {voucher.minOrderValue && voucher.minOrderValue > 0 && (
-                                                        <Text size="xs" c="dimmed">
-                                                            Tối thiểu {voucher.minOrderValue.toLocaleString()}đ
-                                                        </Text>
-                                                    )}
                                                 </Group>
                                                 <Text size="sm" fw={600}>
                                                     {voucher.code}
                                                 </Text>
-                                                {voucher.maxDiscount && (
-                                                    <Text size="xs" c="dimmed">
-                                                        Giảm tối đa {voucher.maxDiscount.toLocaleString()}đ
-                                                    </Text>
-                                                )}
                                                 {!usable && reason && (
                                                     <Text size="xs" c="red">
                                                         {reason}
                                                     </Text>
                                                 )}
                                             </Stack>
-                                            <Group gap="xs">
-                                                <CopyButton value={voucher.code}>
-                                                    {({ copied, copy }) => (
-                                                        <Tooltip label={copied ? 'Đã copy' : 'Copy'}>
-                                                            <Button
-                                                                size="xs"
-                                                                variant="subtle"
-                                                                onClick={e => {
-                                                                    e.stopPropagation();
-                                                                    copy();
-                                                                }}
-                                                            >
-                                                                {copied ? <Iconify icon="tabler:check" width={14} /> : <Iconify icon="tabler:copy" width={14} />}
-                                                            </Button>
-                                                        </Tooltip>
-                                                    )}
-                                                </CopyButton>
-                                                {usable && (
-                                                    <ThemeIcon size={24} radius="xl" color="green" variant="light">
-                                                        <Iconify icon="tabler:check" width={14} />
-                                                    </ThemeIcon>
+                                            <CopyButton value={voucher.code}>
+                                                {({ copied, copy }) => (
+                                                    <Tooltip label={copied ? 'OK' : 'Copy'}>
+                                                        <Button
+                                                            size="xs"
+                                                            variant="subtle"
+                                                            onClick={e => {
+                                                                e.stopPropagation();
+                                                                copy();
+                                                            }}
+                                                        >
+                                                            {copied ? (
+                                                                <Iconify icon="tabler:check" width={14} />
+                                                            ) : (
+                                                                <Iconify icon="tabler:copy" width={14} />
+                                                            )}
+                                                        </Button>
+                                                    </Tooltip>
                                                 )}
-                                                {!usable && (
-                                                    <ThemeIcon size={24} radius="xl" color="gray" variant="light">
-                                                        <Iconify icon="tabler:x" width={14} />
-                                                    </ThemeIcon>
-                                                )}
-                                            </Group>
+                                            </CopyButton>
                                         </Flex>
                                     </Paper>
                                 );
@@ -524,6 +797,6 @@ export function CheckoutPage() {
                     </ScrollArea.Autosize>
                 )}
             </Modal>
-        </Container>
+        </div>
     );
 }

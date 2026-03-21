@@ -1,26 +1,42 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { VouchersService } from '../vouchers/vouchers.service';
+import { AddressesService } from '../addresses/addresses.service';
 import {
     OrderStatus,
     PaymentMethod,
     PaymentStatus,
     ResourceStatus,
     NotificationType,
+    VoucherType,
 } from '@prisma/client';
 import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 import { NotificationsService } from '../notifications/notifications.service';
+import { DEFAULT_SHIPPING_FEE_VND } from './constants/shipping.constants';
 
 @Injectable()
 export class OrdersService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly vouchersService: VouchersService,
+        private readonly addressesService: AddressesService,
         private readonly notificationsService: NotificationsService,
     ) {}
 
     async createFromCart(userId: string, dto: CreateOrderFromCartDto) {
         const paymentMethod = dto.paymentMethod ?? PaymentMethod.VNPAY;
+
+        const shippingAddr = await this.addressesService.findOneForUserOrThrow(
+            userId,
+            dto.addressId,
+        );
+        const shippingAddressText = [
+            shippingAddr.addressLine1,
+            shippingAddr.addressLine2,
+            `${shippingAddr.ward}, ${shippingAddr.district}, ${shippingAddr.city}`,
+        ]
+            .filter(Boolean)
+            .join(', ');
 
         const cart = await this.prisma.cart.findUnique({
             where: { userId },
@@ -48,10 +64,13 @@ export class OrdersService {
             throw new BadRequestException('Không có sản phẩm hợp lệ trong giỏ hàng');
         }
 
-        let totalAmount = validItems.reduce(
+        const itemsSubtotal = validItems.reduce(
             (sum, item) => sum + Number(item.product.price) * item.quantity,
             0,
         );
+
+        let shippingFee = DEFAULT_SHIPPING_FEE_VND;
+        let afterDiscount = itemsSubtotal;
         let voucherId: string | undefined;
         let voucherDiscount: number | undefined;
         if (dto.voucherCode?.trim()) {
@@ -65,10 +84,15 @@ export class OrdersService {
             }
             voucherId = validation.voucherId;
             voucherDiscount = validation.discount ?? 0;
+            if (validation.type === VoucherType.FREE_SHIPPING) {
+                shippingFee = 0;
+            }
             if (voucherDiscount > 0) {
-                totalAmount = Math.max(0, totalAmount - voucherDiscount);
+                afterDiscount = Math.max(0, afterDiscount - voucherDiscount);
             }
         }
+
+        const totalAmount = afterDiscount + shippingFee;
 
         const order = await this.prisma.$transaction(async tx => {
             const order = await tx.order.create({
@@ -76,10 +100,16 @@ export class OrdersService {
                     userId,
                     status: OrderStatus.PENDING,
                     totalAmount,
+                    shippingFee,
                     paymentStatus: PaymentStatus.PENDING,
                     paymentMethod,
                     voucherId: voucherId ?? undefined,
                     voucherDiscount: voucherDiscount != null ? voucherDiscount : undefined,
+                    addressId: shippingAddr.id,
+                    shippingFullName: shippingAddr.fullName,
+                    shippingPhone: shippingAddr.phone,
+                    shippingAddress: shippingAddressText,
+                    customerNote: dto.customerNote?.trim() || undefined,
                 },
             });
 
