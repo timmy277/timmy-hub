@@ -565,6 +565,25 @@
         "backCart": "Quay lại giỏ hàng",
         "errorGeneric": "Có lỗi xảy ra, vui lòng thử lại"
     },
+    "paymentResult": {
+        "successTitle": "Thanh toán thành công!",
+        "successSubtitle": "Cảm ơn bạn đã tin tưởng mua sắm tại TimmyHub.",
+        "failureTitle": "Thanh toán thất bại",
+        "failureSubtitle": "Đơn hàng của bạn chưa được thanh toán. Bạn có thể thử lại hoặc chọn phương thức khác.",
+        "orderIdBadge": "Mã đơn hàng: #{{id}}",
+        "summaryTitle": "Tóm tắt đơn hàng",
+        "quantity": "Số lượng: {{count}}",
+        "subtotalLine": "Tạm tính",
+        "discountLine": "Giảm giá",
+        "continueShopping": "Tiếp tục mua sắm",
+        "downloadInvoice": "Tải hóa đơn (PDF)",
+        "footerNote": "Một email xác nhận đã được gửi đến địa chỉ của bạn. Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ bộ phận hỗ trợ.",
+        "viewOrder": "Xem đơn hàng",
+        "backHome": "Về trang chủ",
+        "invoiceSoon": "Tính năng tải hóa đơn PDF đang được hoàn thiện.",
+        "loadingOrder": "Đang tải thông tin đơn hàng...",
+        "loadOrderError": "Không tải được chi tiết đơn hàng. Bạn vẫn có thể xem đơn trong mục Đơn hàng."
+    },
     "reviews": {
         "title": "Đánh giá",
         "writeReview": "Viết đánh giá",

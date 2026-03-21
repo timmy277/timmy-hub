@@ -582,6 +582,25 @@
         "backCart": "Back to cart",
         "errorGeneric": "Something went wrong. Please try again."
     },
+    "paymentResult": {
+        "successTitle": "Payment successful!",
+        "successSubtitle": "Thank you for shopping at TimmyHub.",
+        "failureTitle": "Payment failed",
+        "failureSubtitle": "Your order was not paid. You can try again or choose another method.",
+        "orderIdBadge": "Order ID: #{{id}}",
+        "summaryTitle": "Order summary",
+        "quantity": "Qty: {{count}}",
+        "subtotalLine": "Subtotal",
+        "discountLine": "Discount",
+        "continueShopping": "Continue shopping",
+        "downloadInvoice": "Download invoice (PDF)",
+        "footerNote": "A confirmation email has been sent to your address. For any questions, please contact support.",
+        "viewOrder": "View order",
+        "backHome": "Back to home",
+        "invoiceSoon": "PDF invoice download is coming soon.",
+        "loadingOrder": "Loading order...",
+        "loadOrderError": "Could not load order details. You can still view it under Orders."
+    },
     "reviews": {
         "title": "Reviews",
         "writeReview": "Write a Review",

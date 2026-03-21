@@ -14,22 +14,12 @@ import {
     Title,
     Avatar,
 } from '@mantine/core';
-import {
-    IconBell,
-    IconHeart,
-    IconLock,
-    IconLogout,
-    IconMapPin,
-    IconPackage,
-    IconPencil,
-    IconTicket,
-    IconUser,
-} from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '@/hooks/useAuth';
+import Iconify from '@/components/iconify/Iconify';
 
 function displayUserName(profile: {
     firstName?: string;
@@ -42,13 +32,13 @@ function displayUserName(profile: {
 }
 
 const SIDEBAR_LINKS = [
-    { href: '/profile', labelKey: 'profile.personalInfo', icon: IconUser },
-    { href: '/profile/wishlist', labelKey: 'profile.myWishlist', icon: IconHeart },
-    { href: '/profile/voucher', labelKey: 'profile.myVouchers', icon: IconTicket },
-    { href: '/profile/orders', labelKey: 'profile.myOrders', icon: IconPackage },
-    { href: '/profile/addresses', labelKey: 'profile.addresses', icon: IconMapPin },
-    { href: '/profile/change-password', labelKey: 'profile.changePassword', icon: IconLock },
-    { href: '/profile/notifications', labelKey: 'profile.notificationSettings', icon: IconBell },
+    { href: '/profile', labelKey: 'profile.personalInfo', icon: 'mdi:user' },
+    { href: '/profile/wishlist', labelKey: 'profile.myWishlist', icon: 'mdi:heart' },
+    { href: '/profile/voucher', labelKey: 'profile.myVouchers', icon: 'mdi:ticket' },
+    { href: '/profile/orders', labelKey: 'profile.myOrders', icon: 'mdi:package' },
+    { href: '/profile/addresses', labelKey: 'profile.addresses', icon: 'mdi:map-marker' },
+    { href: '/profile/change-password', labelKey: 'profile.changePassword', icon: 'mdi:lock' },
+    { href: '/profile/notifications', labelKey: 'profile.notificationSettings', icon: 'mdi:bell' },
 ] as const;
 
 export function ProfileLayoutContent({
@@ -137,7 +127,7 @@ export function ProfileLayoutContent({
                                     color="orange"
                                     size="xs"
                                     radius="md"
-                                    leftSection={<IconPencil size={14} />}
+                                    leftSection={<Iconify icon="mdi:pencil" size={14} />}
                                     onClick={handleChangePhotoClick}
                                 >
                                     {t('profile.changePhoto')}
@@ -159,7 +149,7 @@ export function ProfileLayoutContent({
                                         component={Link}
                                         href={href}
                                         label={t(labelKey)}
-                                        leftSection={<Icon size={18} stroke={1.75} />}
+                                        leftSection={<Iconify icon={Icon} size={18} />}
                                         active={active}
                                         variant="light"
                                         color="orange"
@@ -175,7 +165,7 @@ export function ProfileLayoutContent({
                             component="button"
                             type="button"
                             label={t('common.logout')}
-                            leftSection={<IconLogout size={18} stroke={1.75} />}
+                            leftSection={<Iconify icon="mdi:logout" size={18} />}
                             color="red"
                             variant="light"
                             disabled={isLoggingOut}

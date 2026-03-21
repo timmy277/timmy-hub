@@ -44,6 +44,10 @@ export interface Order {
     userId: string;
     status: OrderStatus;
     totalAmount: number | string;
+    /** Phí vận chuyển (API trả về từ Prisma) */
+    shippingFee?: number | string;
+    /** Giảm giá voucher (API trả về từ Prisma) */
+    voucherDiscount?: number | string | null;
     paymentStatus: PaymentStatus;
     paymentMethod: PaymentMethod;
     createdAt: string;
