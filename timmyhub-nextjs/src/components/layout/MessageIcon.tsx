@@ -23,7 +23,7 @@ export function MessageIcon() {
     const { user } = useAuth();
     const router = useRouter();
     const [opened, setOpened] = useState(false);
-    const openChat = useChatStore((state) => state.openChat);
+    const { openChat, showAvatar } = useChatStore();
     const { primaryColor } = useThemeStore();
 
     // Query danh sách contacts (tin nhắn)
@@ -43,9 +43,11 @@ export function MessageIcon() {
     // Tính tổng số tin nhắn chưa đọc
     const unreadCount = contactsData?.data?.reduce((acc: number, contact: Contact) => acc + (contact.unreadCount || 0), 0) || 0;
 
-    // Xử lý khi click vào tin nhắn
+    // Xử lý khi click vào tin nhắn - mở chat widget VÀ hiện avatar (nếu đang bị ẩn)
     const handleMessageClick = (contact: Contact) => {
         setOpened(false);
+        // Hiện avatar nếu đang bị ẩn (giống Facebook)
+        showAvatar(contact.id);
         openChat({
             id: contact.id,
             name: contact.displayName,
@@ -53,10 +55,12 @@ export function MessageIcon() {
         });
     };
 
-    // Xử lý khi click vào admin chat
+    // Xử lý khi click vào admin chat - mở chat widget VÀ hiện avatar
     const handleAdminClick = () => {
         setOpened(false);
         if (adminData?.data) {
+            // Hiện avatar nếu đang bị ẩn (giống Facebook)
+            showAvatar(adminData.data.id);
             openChat({
                 id: adminData.data.id,
                 name: adminData.data.displayName || 'Admin Hỗ Trợ',

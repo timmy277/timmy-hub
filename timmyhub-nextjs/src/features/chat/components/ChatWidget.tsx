@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { Box, Stack } from '@mantine/core';
+import { Box, Stack, ActionIcon, Tooltip } from '@mantine/core';
 import { useAuth } from '@/hooks/useAuth';
 import { chatService } from '@/services/chat.service';
 import { io, Socket } from 'socket.io-client';
@@ -25,7 +25,7 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
     const { user, isAuthenticated } = useAuth();
     const [openedContactId, setOpenedContactId] = useState<string | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
-    const { activeChat, openChat } = useChatStore();
+    const { activeChat, openChat, hiddenAvatars, hideAvatar } = useChatStore();
     type Contact = { id: string; displayName: string; avatar: string | null; lastMessageAt: string; lastMessage: string };
 
     const { data: adminRes } = useQuery({
@@ -119,7 +119,16 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
         return null;
     }
 
-    const otherAdmins = dynamicContacts.filter(c => c.id !== defaultAdmin?.id && c.id !== VIRTUAL_BOT_ID);
+    // Filter bỏ các avatar đã bị ẩn (giống Facebook)
+    const visibleContacts = dynamicContacts.filter(c => !hiddenAvatars.includes(c.id));
+
+    // Filter admin và bot
+    const otherAdmins = visibleContacts.filter(c => c.id !== defaultAdmin?.id && c.id !== VIRTUAL_BOT_ID);
+
+    // Handler đóng chat - đóng khung chat
+    const handleCloseChat = (contactId: string) => {
+        setOpenedContactId(prev => prev === contactId ? null : prev);
+    };
 
     return (
         <Box style={{ position: 'fixed', bottom: 32, right: 32, zIndex: 9999 }}>
@@ -132,9 +141,11 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
                         contactAvatar={contact.avatar || null}
                         opened={effectiveOpenedContactId === contact.id}
                         onToggle={() => setOpenedContactId(prev => prev === contact.id ? null : contact.id)}
+                        onCloseChat={() => handleCloseChat(contact.id)}
                         socket={socket}
                         currentUser={user}
                         defaultAdminId={defaultAdmin?.id}
+                        hideAvatar={hideAvatar}
                     />
                 ))}
 
@@ -145,24 +156,30 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
                         contactAvatar={defaultAdmin.avatar || null}
                         opened={effectiveOpenedContactId === defaultAdmin.id}
                         onToggle={() => setOpenedContactId(prev => prev === defaultAdmin.id ? null : defaultAdmin.id)}
+                        onCloseChat={() => handleCloseChat(defaultAdmin.id)}
                         socket={socket}
                         currentUser={user}
                         defaultAdminId={defaultAdmin.id}
+                        hideAvatar={hideAvatar}
                     />
                 )}
 
-                <SingleChat
-                    contactId={VIRTUAL_BOT_ID}
-                    contactName="Trợ lý AI"
-                    contactAvatar={null}
-                    isMain={true}
-                    mainIcon={<Iconify icon="tabler:robot" width={24} color="currentColor" />}
-                    opened={effectiveOpenedContactId === VIRTUAL_BOT_ID}
-                    onToggle={() => setOpenedContactId(prev => prev === VIRTUAL_BOT_ID ? null : VIRTUAL_BOT_ID)}
-                    socket={socket}
-                    currentUser={user}
-                    defaultAdminId={defaultAdmin?.id}
-                />
+                {visibleContacts.filter(c => c.id === VIRTUAL_BOT_ID).length === 0 && (
+                    <SingleChat
+                        contactId={VIRTUAL_BOT_ID}
+                        contactName="Trợ lý AI"
+                        contactAvatar={null}
+                        isMain={true}
+                        mainIcon={<Iconify icon="tabler:robot" width={24} color="currentColor" />}
+                        opened={effectiveOpenedContactId === VIRTUAL_BOT_ID}
+                        onToggle={() => setOpenedContactId(prev => prev === VIRTUAL_BOT_ID ? null : VIRTUAL_BOT_ID)}
+                        onCloseChat={() => handleCloseChat(VIRTUAL_BOT_ID)}
+                        socket={socket}
+                        currentUser={user}
+                        defaultAdminId={defaultAdmin?.id}
+                        hideAvatar={hideAvatar}
+                    />
+                )}
             </Stack>
         </Box>
     );

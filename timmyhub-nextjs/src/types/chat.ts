@@ -17,9 +17,11 @@ export interface IChatHeadProps {
     isMain?: boolean;
     opened: boolean;
     onToggle: () => void;
+    onCloseChat: () => void;
     socket: Socket | null;
     currentUser: User;
     defaultAdminId?: string;
     unreadCount?: number;
     mainIcon?: React.ReactNode;
+    hideAvatar: (contactId: string) => void;
 }
