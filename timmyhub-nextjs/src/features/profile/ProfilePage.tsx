@@ -165,7 +165,7 @@ export function ProfilePage(): JSX.Element {
             <Box py="xl" ta="center">
                 <Loader size="sm" color="orange" />
                 <Text mt="sm" c="dimmed">
-                    {t('common.loading')}
+                    {t('common.loading', 'Đang tải...')}
                 </Text>
             </Box>
         );

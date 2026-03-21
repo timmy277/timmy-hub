@@ -74,7 +74,7 @@ export function ProfileLayoutContent({
                 <Flex justify="center" align="center" direction="column" gap="sm" py={80}>
                     <Loader size="md" color="orange" />
                     <Text c="dimmed" size="sm">
-                        {t('common.loading')}
+                        {t('common.loading', 'Đang tải...')}
                     </Text>
                 </Flex>
             </Container>

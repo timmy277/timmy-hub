@@ -4,9 +4,7 @@ import {
     Card,
     Group,
     Badge,
-    Button,
     Image,
-    ActionIcon,
     Text,
     Stack,
     Grid,
@@ -26,9 +24,10 @@ import { WishlistButton } from '@/components/wishlist/WishlistButton';
 interface ProductCardProps {
     product: Product;
     viewMode?: 'grid' | 'list' | 'flash-sale';
+    hideAddToCart?: boolean;
 }
 
-export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
+export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: ProductCardProps) {
     const discountPercentage = product.originalPrice
         ? Math.round((1 - product.price / product.originalPrice) * 100)
         : 0;
@@ -191,11 +190,13 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                     </Stack>
                                     <Group>
                                         <WishlistButton productId={product.id} variantType="button" />
-                                        <AddToCartButton
-                                            productId={product.id}
-                                            variant="button"
-                                            disabled={product.stock === 0}
-                                        />
+                                        {!hideAddToCart && (
+                                            <AddToCartButton
+                                                productId={product.id}
+                                                variant="button"
+                                                disabled={product.stock === 0}
+                                            />
+                                        )}
                                     </Group>
                                 </Group>
                             </Flex>
@@ -291,7 +292,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                         </Group>
                     </Stack>
 
-                    <Stack gap="xs" mt="md">
+                    <Stack gap="xs" mt="xs">
                         <Group justify="space-between" align="center" style={{ position: 'relative', zIndex: 1 }}>
                             <Stack gap={0}>
                                 <Text size="xl" fw={800} c="blue">
@@ -303,7 +304,9 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
                                     </Text>
                                 )}
                             </Stack>
-                            <AddToCartButton productId={product.id} disabled={product.stock === 0} />
+                            {!hideAddToCart && (
+                                <AddToCartButton productId={product.id} disabled={product.stock === 0} />
+                            )}
                         </Group>
 
                         {product.stock <= 10 && product.stock > 0 && (
