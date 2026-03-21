@@ -18,7 +18,6 @@ import {
     CopyButton,
     Tooltip,
 } from '@mantine/core';
-import { IconTicket, IconClock, IconCopy, IconCheck, IconTrash } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { voucherService, UserVoucher as UserVoucherType } from '@/services/voucher.service';
 import dayjs from 'dayjs';
@@ -26,6 +25,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { useState } from 'react';
 import Link from 'next/link';
 import { QUERY_KEYS } from '@/constants';
+import Iconify from '@/components/iconify/Iconify';
 
 dayjs.extend(relativeTime);
 
@@ -95,7 +95,7 @@ function VoucherCard({
         >
             <Flex gap="md" align="center">
                 <ThemeIcon size={48} radius="xl" color={color} variant="filled">
-                    <IconTicket size={24} />
+                    <Iconify icon="mdi:ticket" size={24} />
                 </ThemeIcon>
                 <Stack gap={2} style={{ flex: 1 }}>
                     <Group justify="space-between">
@@ -117,16 +117,7 @@ function VoucherCard({
                         </Text>
                     </Flex>
                     <Flex align="center" gap={4}>
-                        <IconClock
-                            size={12}
-                            color={
-                                isExpired
-                                    ? 'var(--mantine-color-red-6)'
-                                    : isDark
-                                        ? `var(--mantine-color-${color}-2)`
-                                        : `var(--mantine-color-${color}-7)`
-                            }
-                        />
+                        <Iconify icon="mdi:clock" size={12} />
                         <Text
                             size="xs"
                             c={isExpired ? 'red' : isDark ? `${color}.2` : `${color}.7`}
@@ -155,7 +146,7 @@ function VoucherCard({
                             radius="xl"
                             variant="light"
                             color={color}
-                            leftSection={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                            leftSection={copied ? <Iconify icon="mdi:check" size={14} /> : <Iconify icon="mdi:copy" size={14} />}
                             onClick={copy}
                         >
                             {copied ? 'Đã copy' : voucher.code}
@@ -170,7 +161,7 @@ function VoucherCard({
                             color="red"
                             onClick={onRemove}
                         >
-                            <IconTrash size={14} />
+                            <Iconify icon="mdi:trash-can" size={14} />
                         </ActionIcon>
                     </Tooltip>
                 )}
@@ -250,7 +241,7 @@ export function ProfileVoucherContent() {
                     ) : userVouchers.length === 0 ? (
                         <Stack align="center" py="xl" gap="md">
                             <ThemeIcon size={64} radius="xl" color="gray" variant="light">
-                                <IconTicket size={32} />
+                                <Iconify icon="mdi:ticket" size={32} />
                             </ThemeIcon>
                             <Text c="dimmed" ta="center">
                                 {activeTab === 'ALL'
@@ -265,7 +256,7 @@ export function ProfileVoucherContent() {
                                 component={Link}
                                 href="/"
                                 variant="light"
-                                leftSection={<IconTicket size={16} />}
+                                leftSection={<Iconify icon="mdi:ticket" size={16} />}
                             >
                                 Khám phá voucher ngay
                             </Button>
