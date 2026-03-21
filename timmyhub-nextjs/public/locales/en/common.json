@@ -304,7 +304,19 @@
         "district": "District",
         "ward": "Ward/Commune",
         "saveAddress": "Save Address",
-        "deleteAddress": "Delete Address"
+        "deleteAddress": "Delete Address",
+        "accountMenu": "Account",
+        "changePhoto": "Change photo",
+        "changePhotoSoon": "Avatar upload is coming soon",
+        "displayNameLabel": "Display name",
+        "saveChanges": "Save changes",
+        "profileUpdated": "Profile updated",
+        "profileUpdateFailed": "Update failed",
+        "notificationSettings": "Notifications",
+        "personalSection": "Personal",
+        "firstNamePlaceholder": "First name",
+        "lastNamePlaceholder": "Last name",
+        "displayNamePlaceholder": "Display name (optional)"
     },
     "cart": {
         "title": "Cart",

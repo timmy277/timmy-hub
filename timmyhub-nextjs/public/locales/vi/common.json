@@ -287,7 +287,19 @@
         "district": "Quận/Huyện",
         "ward": "Phường/Xã",
         "saveAddress": "Lưu địa chỉ",
-        "deleteAddress": "Xóa địa chỉ"
+        "deleteAddress": "Xóa địa chỉ",
+        "accountMenu": "Tài khoản",
+        "changePhoto": "Đổi ảnh",
+        "changePhotoSoon": "Tính năng đổi ảnh đại diện sắp ra mắt",
+        "displayNameLabel": "Tên hiển thị",
+        "saveChanges": "Lưu thay đổi",
+        "profileUpdated": "Đã cập nhật thông tin",
+        "profileUpdateFailed": "Cập nhật thất bại",
+        "notificationSettings": "Thông báo",
+        "personalSection": "Thông tin cá nhân",
+        "firstNamePlaceholder": "Nhập họ",
+        "lastNamePlaceholder": "Nhập tên",
+        "displayNamePlaceholder": "Tên hiển thị (tùy chọn)"
     },
     "cart": {
         "title": "Giỏ hàng",
