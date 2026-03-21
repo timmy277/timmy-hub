@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
     Alert,
-    Button,
     Group,
     Image,
     Loader,
@@ -22,6 +20,7 @@ import {
     CopyButton,
     Tooltip,
     Radio,
+    Button,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
@@ -38,6 +37,7 @@ import { addressService } from '@/services/address.service';
 import type { Address } from '@/types/address';
 import type { PaymentMethod } from '@/types/order';
 import type { CartItem } from '@/types/cart';
+import Link from 'next/link';
 
 function getErrorMessage(err: unknown): string {
     if (err instanceof Error) return err.message;
@@ -332,7 +332,7 @@ export function CheckoutPage() {
                         >
                             {t('checkout.cartEmptyHint')}
                         </Alert>
-                        <Button component={Link} href="/cart" mt="md" variant="light">
+                        <Button component={Link} href="/cart" variant="light">
                             {t('checkout.viewCart')}
                         </Button>
                     </Paper>
@@ -378,11 +378,11 @@ export function CheckoutPage() {
                                     {t('checkout.shippingTitle')}
                                 </Title>
                                 <Button
-                                    component={Link}
+                                    component="a"
                                     href="/profile/addresses"
                                     variant="subtle"
                                     size="xs"
-                                    className="text-[#238be7]"
+                                    className="inline-flex items-center justify-center font-medium transition-all duration-150"
                                 >
                                     + {t('checkout.addAddress')}
                                 </Button>
@@ -459,62 +459,67 @@ export function CheckoutPage() {
                             </Title>
 
                             <Stack gap="sm">
-                                <Button
+                                <button
                                     type="button"
                                     onClick={() => setPaymentChoice('COD')}
-                                    aria-pressed={paymentChoice === 'COD'}
-                                    className={`flex w-full items-center rounded-xl border p-4 text-left transition-colors ${paymentChoice === 'COD'
-                                            ? 'border-[#238be7] bg-[#238be7]/5'
-                                            : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50'
+                                    className={`group flex w-full items-center gap-3 rounded-xl border-2 bg-white px-4 py-3 text-left transition-all hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600 ${paymentChoice === 'COD'
+                                        ? 'border-[#238be7] bg-[#238be7]/5'
+                                        : 'border-slate-200'
                                         }`}
                                 >
                                     <span
-                                        className={`mr-4 flex h-4 w-4 shrink-0 rounded-full border-2 ${paymentChoice === 'COD'
-                                                ? 'border-[#238be7] bg-[#238be7]'
-                                                : 'border-slate-300 dark:border-slate-600'
+                                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${paymentChoice === 'COD'
+                                            ? 'border-[#238be7] bg-white dark:bg-slate-900'
+                                            : 'border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900'
                                             }`}
-                                        aria-hidden
-                                    />
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-                                            <Iconify icon="tabler:truck" className="text-slate-600" width={22} />
+                                    >
+                                        {paymentChoice === 'COD' ? (
+                                            <span className="h-2 w-2 rounded-full bg-[#238be7]" />
+                                        ) : null}
+                                    </span>
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                                        <Iconify icon="tabler:truck" className="text-slate-600 dark:text-slate-300" width={20} />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                            {t('checkout.codTitle')}
                                         </div>
-                                        <div>
-                                            <Text fw={600}>{t('checkout.codTitle')}</Text>
-                                            <Text size="xs" c="dimmed">
-                                                {t('checkout.codFee')}
-                                            </Text>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                                            {t('checkout.codFee')}
                                         </div>
                                     </div>
-                                </Button>
+                                </button>
 
-                                <Button
+                                <button
+                                    type="button"
                                     onClick={() => setPaymentChoice('VNPAY')}
-                                    aria-pressed={paymentChoice === 'VNPAY'}
-                                    className={`flex w-full items-center rounded-xl border p-4 text-left transition-colors ${paymentChoice === 'VNPAY'
-                                            ? 'border-[#238be7] bg-[#238be7]/5'
-                                            : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50'
+                                    className={`group flex w-full items-center gap-3 rounded-xl border-2 bg-white px-4 py-3 text-left transition-all hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600 ${paymentChoice === 'VNPAY'
+                                        ? 'border-[#238be7] bg-[#238be7]/5'
+                                        : 'border-slate-200'
                                         }`}
                                 >
                                     <span
-                                        className={`mr-4 flex h-4 w-4 shrink-0 rounded-full border-2 ${paymentChoice === 'VNPAY'
-                                                ? 'border-[#238be7] bg-[#238be7]'
-                                                : 'border-slate-300 dark:border-slate-600'
+                                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${paymentChoice === 'VNPAY'
+                                            ? 'border-[#238be7] bg-white dark:bg-slate-900'
+                                            : 'border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900'
                                             }`}
-                                        aria-hidden
-                                    />
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-100 bg-white p-1">
-                                            <Iconify icon="tabler:building-bank" width={28} className="text-[#238be7]" />
+                                    >
+                                        {paymentChoice === 'VNPAY' ? (
+                                            <span className="h-2 w-2 rounded-full bg-[#238be7]" />
+                                        ) : null}
+                                    </span>
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white dark:border-slate-600 dark:bg-slate-800">
+                                        <Iconify icon="tabler:building-bank" width={22} className="text-[#238be7]" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                            {t('checkout.vnpayTitle')}
                                         </div>
-                                        <div>
-                                            <Text fw={600}>{t('checkout.vnpayTitle')}</Text>
-                                            <Text size="xs" c="dimmed">
-                                                {t('checkout.vnpayHint')}
-                                            </Text>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                                            {t('checkout.vnpayHint')}
                                         </div>
                                     </div>
-                                </Button>
+                                </button>
 
                                 <div
                                     className="flex cursor-not-allowed items-center rounded-xl border border-dashed border-slate-200 p-4 opacity-60 dark:border-slate-700"
@@ -613,8 +618,7 @@ export function CheckoutPage() {
                                     </div>
                                     {appliedVoucher ? (
                                         <Button
-                                            variant="light"
-                                            color="red"
+                                            variant="destructive"
                                             size="sm"
                                             onClick={handleRemoveVoucher}
                                         >
@@ -686,9 +690,8 @@ export function CheckoutPage() {
 
                                 <Button
                                     fullWidth
-                                    mt="xl"
                                     size="lg"
-                                    radius="md"
+                                    mt="xl"
                                     className="bg-[#238be7] font-bold shadow-lg shadow-[#238be7]/20 hover:bg-[#238be7]/90"
                                     loading={isSubmitting}
                                     onClick={() => void handleConfirm()}
@@ -708,7 +711,15 @@ export function CheckoutPage() {
                             <div className="flex gap-3 rounded-xl border border-[#238be7]/10 bg-[#238be7]/5 p-4">
                                 <Iconify icon="tabler:info-circle" className="shrink-0 text-[#238be7]" width={20} />
                                 <Text size="xs" className="leading-relaxed text-[#238be7]">
-                                    {t('checkout.termsHint')}
+                                    {t('checkout.termsHintPre')}{' '}
+                                    <Link href="/terms" className="font-medium underline hover:no-underline">
+                                        {t('checkout.termsLink')}
+                                    </Link>{' '}
+                                    {t('checkout.termsAnd')}{' '}
+                                    <Link href="/privacy" className="font-medium underline hover:no-underline">
+                                        {t('checkout.privacyLink')}
+                                    </Link>{' '}
+                                    {t('checkout.termsHintSuf')}
                                 </Text>
                             </div>
 
@@ -779,6 +790,7 @@ export function CheckoutPage() {
                                                                 e.stopPropagation();
                                                                 copy();
                                                             }}
+                                                            className="inline-flex items-center justify-center font-medium transition-all duration-150"
                                                         >
                                                             {copied ? (
                                                                 <Iconify icon="tabler:check" width={14} />
