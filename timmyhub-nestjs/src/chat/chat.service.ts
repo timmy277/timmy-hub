@@ -134,4 +134,75 @@ export class ChatService {
 
         return message;
     }
+
+    /**
+     * Lấy số tin nhắn chưa đọc theo từng contact
+     */
+    async getUnreadCounts(userId: string): Promise<Record<string, number>> {
+        // Đếm số tin nhắn chưa đọc, nhóm theo senderId (người gửi)
+        const unreadMessages = await this.prisma.chatMessage.groupBy({
+            by: ['senderId'],
+            where: {
+                receiverId: userId,
+                isRead: false,
+            },
+            _count: {
+                id: true,
+            },
+        });
+
+        const unreadCounts: Record<string, number> = {};
+        for (const item of unreadMessages) {
+            unreadCounts[item.senderId] = item._count.id;
+        }
+
+        return unreadCounts;
+    }
+
+    /**
+     * Lấy tổng số tin nhắn chưa đọc
+     */
+    async getTotalUnreadCount(userId: string): Promise<number> {
+        return this.prisma.chatMessage.count({
+            where: {
+                receiverId: userId,
+                isRead: false,
+            },
+        });
+    }
+
+    /**
+     * Đánh dấu tất cả tin nhắn từ một contact là đã đọc
+     */
+    async markAsRead(userId: string, contactId: string): Promise<number> {
+        const result = await this.prisma.chatMessage.updateMany({
+            where: {
+                senderId: contactId,
+                receiverId: userId,
+                isRead: false,
+            },
+            data: {
+                isRead: true,
+            },
+        });
+
+        return result.count;
+    }
+
+    /**
+     * Đánh dấu tất cả tin nhắn của user là đã đọc
+     */
+    async markAllAsRead(userId: string): Promise<number> {
+        const result = await this.prisma.chatMessage.updateMany({
+            where: {
+                receiverId: userId,
+                isRead: false,
+            },
+            data: {
+                isRead: true,
+            },
+        });
+
+        return result.count;
+    }
 }

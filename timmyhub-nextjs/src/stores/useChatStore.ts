@@ -13,6 +13,8 @@ interface ChatState {
     isChatOpen: boolean;
     /** Danh sách các avatar đang bị ẩn (thuộc về user) */
     hiddenAvatars: string[];
+    /** Số tin nhắn chưa đọc theo contactId */
+    unreadCounts: Record<string, number>;
     openChat: (contact: ChatContact) => void;
     closeChat: () => void;
     toggleChat: () => void;
@@ -22,12 +24,21 @@ interface ChatState {
     showAvatar: (contactId: string) => void;
     /** Kiểm tra avatar có đang bị ẩn không */
     isAvatarHidden: (contactId: string) => boolean;
+    /** Tăng số tin nhắn chưa đọc (socket event) */
+    incrementUnread: (contactId: string) => void;
+    /** Reset số tin nhắn chưa đọc */
+    resetUnread: (contactId: string) => void;
+    /** Lấy số tin nhắn chưa đọc */
+    getUnreadCount: (contactId: string) => number;
+    /** Set tất cả unread counts từ BE */
+    setUnreadCounts: (counts: Record<string, number>) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
     activeChat: null,
     isChatOpen: false,
     hiddenAvatars: [],
+    unreadCounts: {},
 
     openChat: (contact) => set({ activeChat: contact, isChatOpen: true }),
 
@@ -46,4 +57,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
     })),
 
     isAvatarHidden: (contactId) => get().hiddenAvatars.includes(contactId),
+
+    incrementUnread: (contactId) => set((state) => ({
+        unreadCounts: {
+            ...state.unreadCounts,
+            [contactId]: (state.unreadCounts[contactId] || 0) + 1
+        }
+    })),
+
+    resetUnread: (contactId) => set((state) => ({
+        unreadCounts: {
+            ...state.unreadCounts,
+            [contactId]: 0
+        }
+    })),
+
+    getUnreadCount: (contactId) => get().unreadCounts[contactId] || 0,
+
+    setUnreadCounts: (counts) => set({ unreadCounts: counts }),
 }));

@@ -13,6 +13,7 @@ import Iconify from '@/components/iconify/Iconify';
 import { SingleChat } from './SingleChat';
 import { TChatMessage } from '@/types/chat';
 import { useChatStore } from '@/stores/useChatStore';
+import { useChatUnread } from '@/hooks/useChatUnread';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
 const VIRTUAL_BOT_ID = 'ai-assistant-bot';
@@ -25,7 +26,10 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
     const { user, isAuthenticated } = useAuth();
     const [openedContactId, setOpenedContactId] = useState<string | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
-    const { activeChat, openChat, hiddenAvatars, hideAvatar } = useChatStore();
+    const { activeChat, openChat, hiddenAvatars, hideAvatar, unreadCounts, resetUnread } = useChatStore();
+
+    // Hook để sync unread counts từ BE + gọi markAsRead
+    const { handleIncomingMessage, markAsRead } = useChatUnread();
     type Contact = { id: string; displayName: string; avatar: string | null; lastMessageAt: string; lastMessage: string };
 
     const { data: adminRes } = useQuery({
@@ -91,7 +95,11 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
         });
 
         newSocket.on('chat:receive', (msg: TChatMessage) => {
-            if (msg.senderId !== defaultAdmin?.id && msg.senderId !== user.id) {
+            const isIncoming = msg.senderId !== user.id && msg.receiverId === user.id;
+            const isFromNonAdmin = msg.senderId !== defaultAdmin?.id;
+
+            if (isIncoming && isFromNonAdmin) {
+                handleIncomingMessage(msg.senderId);
                 setSocketNewContacts(prev => {
                     const exists = prev.some(c => c.id === msg.senderId) || (contactsRes?.data?.some(c => c.id === msg.senderId));
                     if (!exists) {
@@ -113,7 +121,7 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
             newSocket.disconnect();
             setSocket(null);
         };
-    }, [isAuthenticated, user, defaultAdmin?.id, refetchContacts, contactsRes?.data]);
+    }, [isAuthenticated, user, defaultAdmin?.id, refetchContacts, contactsRes?.data, handleIncomingMessage]);
 
     if (!user || user.roles.includes(UserRole.ADMIN)) {
         return null;
@@ -140,12 +148,20 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
                         contactName={contact.displayName}
                         contactAvatar={contact.avatar || null}
                         opened={effectiveOpenedContactId === contact.id}
-                        onToggle={() => setOpenedContactId(prev => prev === contact.id ? null : contact.id)}
+                        onToggle={() => {
+                            if (effectiveOpenedContactId === contact.id) {
+                                setOpenedContactId(null);
+                            } else {
+                                setOpenedContactId(contact.id);
+                                markAsRead(contact.id);
+                            }
+                        }}
                         onCloseChat={() => handleCloseChat(contact.id)}
                         socket={socket}
                         currentUser={user}
                         defaultAdminId={defaultAdmin?.id}
                         hideAvatar={hideAvatar}
+                        unreadCount={unreadCounts[contact.id] || 0}
                     />
                 ))}
 
@@ -155,12 +171,20 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
                         contactName={defaultAdmin.displayName || 'Admin Hỗ Trợ'}
                         contactAvatar={defaultAdmin.avatar || null}
                         opened={effectiveOpenedContactId === defaultAdmin.id}
-                        onToggle={() => setOpenedContactId(prev => prev === defaultAdmin.id ? null : defaultAdmin.id)}
+                        onToggle={() => {
+                            if (effectiveOpenedContactId === defaultAdmin.id) {
+                                setOpenedContactId(null);
+                            } else {
+                                setOpenedContactId(defaultAdmin.id);
+                                markAsRead(defaultAdmin.id);
+                            }
+                        }}
                         onCloseChat={() => handleCloseChat(defaultAdmin.id)}
                         socket={socket}
                         currentUser={user}
                         defaultAdminId={defaultAdmin.id}
                         hideAvatar={hideAvatar}
+                        unreadCount={unreadCounts[defaultAdmin.id] || 0}
                     />
                 )}
 
@@ -178,6 +202,7 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
                         currentUser={user}
                         defaultAdminId={defaultAdmin?.id}
                         hideAvatar={hideAvatar}
+                        unreadCount={unreadCounts[VIRTUAL_BOT_ID] || 0}
                     />
                 )}
             </Stack>

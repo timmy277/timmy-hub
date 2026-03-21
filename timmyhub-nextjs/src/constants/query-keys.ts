@@ -50,6 +50,8 @@ export const QUERY_KEYS = {
     CHAT_ADMIN: ['chat-admin'] as const,
     CHAT_CONTACTS: ['chat-contacts'] as const,
     CHAT_MESSAGES: (contactId: string) => ['chat-messages', contactId] as const,
+    CHAT_UNREAD: ['chat-unread'] as const,
+    CHAT_UNREAD_TOTAL: ['chat-unread-total'] as const,
 
     // ── Wishlist ────────────────────────────────────────────────────
     MY_WISHLIST: ['my-wishlist'] as const,

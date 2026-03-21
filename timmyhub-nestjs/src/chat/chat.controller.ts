@@ -1,6 +1,7 @@
 import {
     Controller,
     Get,
+    Post,
     Param,
     Query,
     UseGuards,
@@ -49,5 +50,33 @@ export class ChatController {
     ) {
         const messages = await this.chatService.getMessages(req.user.id, contactId, page, limit);
         return ResponseDto.success('Lấy lịch sử tin nhắn thành công', messages);
+    }
+
+    @Get('unread')
+    @ApiOperation({ summary: 'Lấy số tin nhắn chưa đọc theo từng contact' })
+    async getUnreadCounts(@Req() req: UserRequest) {
+        const unreadCounts = await this.chatService.getUnreadCounts(req.user.id);
+        return ResponseDto.success('Lấy số tin nhắn chưa đọc thành công', unreadCounts);
+    }
+
+    @Get('unread/total')
+    @ApiOperation({ summary: 'Lấy tổng số tin nhắn chưa đọc' })
+    async getTotalUnreadCount(@Req() req: UserRequest) {
+        const total = await this.chatService.getTotalUnreadCount(req.user.id);
+        return ResponseDto.success('Lấy tổng số tin nhắn chưa đọc thành công', total);
+    }
+
+    @Post('read/:contactId')
+    @ApiOperation({ summary: 'Đánh dấu tin nhắn từ contact là đã đọc' })
+    async markAsRead(@Req() req: UserRequest, @Param('contactId') contactId: string) {
+        const count = await this.chatService.markAsRead(req.user.id, contactId);
+        return ResponseDto.success('Đánh dấu đã đọc thành công', { markedAsRead: count });
+    }
+
+    @Post('read-all')
+    @ApiOperation({ summary: 'Đánh dấu tất cả tin nhắn là đã đọc' })
+    async markAllAsRead(@Req() req: UserRequest) {
+        const count = await this.chatService.markAllAsRead(req.user.id);
+        return ResponseDto.success('Đánh dấu tất cả đã đọc thành công', { markedAsRead: count });
     }
 }

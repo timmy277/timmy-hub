@@ -14,6 +14,7 @@ import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useChatUnread } from '@/hooks/useChatUnread';
 
 interface AppBarProps {
     withSidebarToggle?: boolean;
@@ -24,6 +25,9 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
     const { collapsed, toggleSidebar } = useSidebarStore();
     const { user } = useAuth();
     const pathname = usePathname();
+
+    // Sync unread counts từ BE vào store
+    useChatUnread();
 
     // ===== Component Logic =====
     const isAdminPage = pathname.startsWith('/admin');

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Popover, ActionIcon, Group, Text, Stack, Avatar, Badge, Box, ScrollArea, UnstyledButton, Button } from '@mantine/core';
+import { Popover, ActionIcon, Group, Text, Stack, Avatar, Badge, Box, ScrollArea, UnstyledButton, Button, Indicator } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { useQuery } from '@tanstack/react-query';
 import { chatService } from '@/services/chat.service';
@@ -23,7 +23,7 @@ export function MessageIcon() {
     const { user } = useAuth();
     const router = useRouter();
     const [opened, setOpened] = useState(false);
-    const { openChat, showAvatar } = useChatStore();
+    const { openChat, showAvatar, unreadCounts } = useChatStore();
     const { primaryColor } = useThemeStore();
 
     // Query danh sách contacts (tin nhắn)
@@ -40,8 +40,8 @@ export function MessageIcon() {
         enabled: !!user,
     });
 
-    // Tính tổng số tin nhắn chưa đọc
-    const unreadCount = contactsData?.data?.reduce((acc: number, contact: Contact) => acc + (contact.unreadCount || 0), 0) || 0;
+    // Tính tổng số tin nhắn chưa đọc từ store
+    const unreadCount = Object.values(unreadCounts).reduce((acc: number, count) => acc + count, 0);
 
     // Xử lý khi click vào tin nhắn - mở chat widget VÀ hiện avatar (nếu đang bị ẩn)
     const handleMessageClick = (contact: Contact) => {
@@ -91,33 +91,24 @@ export function MessageIcon() {
                 withinPortal={false}
             >
                 <Popover.Target>
-                    <ActionIcon
-                        variant="subtle"
-                        color={primaryColor}
-                        size="lg"
-                        radius="md"
-                        onClick={() => setOpened((o) => !o)}
-                        pos="relative"
+                    <Indicator
+                        inline
+                        size={16}
+                        offset={4}
+                        color="red"
+                        label={unreadCount > 99 ? '99+' : unreadCount}
+                        disabled={unreadCount === 0}
                     >
-                        <Iconify icon="ri:messenger-fill" width={22} />
-                        {unreadCount > 0 && (
-                            <Badge
-                                size="xs"
-                                variant="filled"
-                                color="red"
-                                style={{
-                                    position: 'absolute',
-                                    top: -4,
-                                    right: -4,
-                                    minWidth: 18,
-                                    height: 18,
-                                    padding: 0,
-                                }}
-                            >
-                                {unreadCount > 9 ? '9+' : unreadCount}
-                            </Badge>
-                        )}
-                    </ActionIcon>
+                        <ActionIcon
+                            variant={opened ? 'light' : 'subtle'}
+                            color={primaryColor}
+                            size="lg"
+                            radius="md"
+                            onClick={() => setOpened((o) => !o)}
+                        >
+                            <Iconify icon="ri:messenger-fill" width={22} />
+                        </ActionIcon>
+                    </Indicator>
                 </Popover.Target>
 
                 <Popover.Dropdown p={0}>

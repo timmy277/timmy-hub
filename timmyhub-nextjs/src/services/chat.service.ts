@@ -10,5 +10,21 @@ export const chatService = {
     },
     getContacts: async (): Promise<ApiResponse<Array<{ id: string; displayName: string; avatar: string | null; lastMessage: string; lastMessageAt: string; }>>> => {
         return axiosClient.get('/chat/contacts');
-    }
+    },
+    /** Lấy số tin nhắn chưa đọc theo từng contact */
+    getUnreadCounts: async (): Promise<ApiResponse<Record<string, number>>> => {
+        return axiosClient.get('/chat/unread');
+    },
+    /** Lấy tổng số tin nhắn chưa đọc */
+    getTotalUnreadCount: async (): Promise<ApiResponse<number>> => {
+        return axiosClient.get('/chat/unread/total');
+    },
+    /** Đánh dấu tin nhắn từ một contact là đã đọc */
+    markAsRead: async (contactId: string): Promise<ApiResponse<{ markedAsRead: number }>> => {
+        return axiosClient.post(`/chat/read/${contactId}`);
+    },
+    /** Đánh dấu tất cả tin nhắn là đã đọc */
+    markAllAsRead: async (): Promise<ApiResponse<{ markedAsRead: number }>> => {
+        return axiosClient.post('/chat/read-all');
+    },
 };

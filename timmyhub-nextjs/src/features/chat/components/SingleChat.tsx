@@ -31,7 +31,8 @@ export function SingleChat({
     currentUser,
     defaultAdminId,
     mainIcon,
-    hideAvatar
+    hideAvatar,
+    unreadCount = 0
 }: IChatHeadProps) {
     const [isHovered, setIsHovered] = useState(false);
 
@@ -138,7 +139,31 @@ export function SingleChat({
                     }}
                 >
                     {isMain ? (
-                        mainIcon ? mainIcon : <IconPath name="message-circle" size={24} color="currentColor" />
+                        <Box pos="relative">
+                            {mainIcon ? mainIcon : <IconPath name="message-circle" size={24} color="currentColor" />}
+                            {!!unreadCount && unreadCount > 0 && !isHovered && (
+                                <Box
+                                    pos="absolute"
+                                    top={-4}
+                                    right={-4}
+                                    bg="red"
+                                    c="white"
+                                    px={6}
+                                    py={2}
+                                    style={{
+                                        borderRadius: 10,
+                                        fontSize: 10,
+                                        fontWeight: 700,
+                                        minWidth: 20,
+                                        textAlign: 'center',
+                                        zIndex: 10000,
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                    }}
+                                >
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                </Box>
+                            )}
+                        </Box>
                     ) : (
                         <Avatar src={contactAvatar} radius="xl" size={56}>
                             {contactName.charAt(0) || 'A'}
@@ -146,19 +171,19 @@ export function SingleChat({
                     )}
                 </ActionIcon>
 
-                {/* Icon close hiện khi hover - giống Facebook Messenger */}
-                {isHovered && !isMain && (
-                    <Box
-                        pos="absolute"
-                        top={-4}
-                        right={-4}
-                        style={{ zIndex: 10001, pointerEvents: 'auto' }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            handleCloseChat(e);
-                        }}
-                    >
+                {/* Icon close khi hover, badge khi bình thường - cùng vị trí */}
+                <Box
+                    pos="absolute"
+                    top={-4}
+                    right={-4}
+                    style={{ zIndex: 10001, pointerEvents: 'auto' }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        handleCloseChat(e);
+                    }}
+                >
+                    {isHovered ? (
                         <ActionIcon
                             size={20}
                             radius="xl"
@@ -171,8 +196,25 @@ export function SingleChat({
                         >
                             <IconPath name="x" size={12} color="white" />
                         </ActionIcon>
-                    </Box>
-                )}
+                    ) : !!unreadCount && unreadCount > 0 ? (
+                        <Box
+                            bg="red"
+                            c="white"
+                            px={6}
+                            py={2}
+                            style={{
+                                borderRadius: 10,
+                                fontSize: 10,
+                                fontWeight: 700,
+                                minWidth: 20,
+                                textAlign: 'center',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                            }}
+                        >
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                        </Box>
+                    ) : null}
+                </Box>
             </Box>
 
             <Popover
