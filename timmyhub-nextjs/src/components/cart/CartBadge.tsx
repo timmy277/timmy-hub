@@ -18,12 +18,13 @@ import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export function CartBadge() {
     const { user } = useAuth();
     const { cart, isLoading } = useCart();
     const router = useRouter();
-    const [opened, { close, toggle }] = useDisclosure(false);
+    const [opened, setOpened] = useState(false);
     const itemCount = cart?.itemCount ?? 0;
 
     const handleIconClick = () => {
@@ -33,7 +34,7 @@ export function CartBadge() {
     };
 
     const handleLinkClick = () => {
-        close();
+        setOpened(false);
     };
 
     if (!user) {
@@ -63,12 +64,11 @@ export function CartBadge() {
     return (
         <Popover
             opened={opened}
-            onClose={close}
+            onChange={setOpened}
             width={320}
             position="bottom-end"
             offset={8}
             withArrow
-            trapFocus
         >
             <Popover.Target>
                 <Indicator
@@ -78,7 +78,7 @@ export function CartBadge() {
                     color="red"
                     offset={7}
                 >
-                    <ActionIcon variant="subtle" size="lg" loading={isLoading} onClick={toggle}>
+                    <ActionIcon variant={opened ? 'light' : 'subtle'} size="lg" loading={isLoading} onClick={() => setOpened((o) => !o)}>
                         <Iconify icon="solar:cart-3-bold" width={20} />
                     </ActionIcon>
                 </Indicator>
