@@ -4,3 +4,4 @@ export * from './product';
 export * from './column';
 export * from './shipping';
 export * from './become-seller';
+export * from './seller-shop-ui';

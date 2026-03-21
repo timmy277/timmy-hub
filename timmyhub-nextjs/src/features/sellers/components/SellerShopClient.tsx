@@ -1,184 +1,190 @@
 'use client';
 
 /**
- * Component trang gian hàng công khai của seller
- * Hiển thị thông tin shop + danh sách sản phẩm đã duyệt
+ * Trang gian hàng công khai: toolbar, banner, tab, lưới sản phẩm, chân trang cửa hàng.
  */
-
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
 import {
     Container,
-    Grid,
-    Group,
+    Paper,
     Stack,
+    Tabs,
     Text,
     Title,
-    Avatar,
-    Badge,
-    Paper,
-    SimpleGrid,
-    Divider,
-    ThemeIcon,
-    Box,
-    Button,
 } from '@mantine/core';
-import { Icon } from '@iconify/react';
-import { SellerShop } from '@/types/product';
-import { ProductCard } from '@/features/products/components/ProductCard';
-import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
+import { notifications } from '@mantine/notifications';
+import { useTranslation } from 'react-i18next';
+import type { SellerShop } from '@/types/product';
 import { useChatStore } from '@/stores/useChatStore';
+import {
+    SELLER_SHOP_PAGE_SIZE,
+    type SellerShopSortMode,
+} from '@/constants/seller-shop-ui';
+import {
+    filterProductsByQuery,
+    sortProductsByMode,
+} from '@/features/sellers/utils/seller-shop-products';
+import { SellerShopToolbar } from './seller-shop/SellerShopToolbar';
+import { SellerShopHero } from './seller-shop/SellerShopHero';
+import { SellerShopProductBlock } from './seller-shop/SellerShopProductBlock';
+import { SellerShopFooter } from './seller-shop/SellerShopFooter';
 
 interface SellerShopClientProps {
     shop: SellerShop;
 }
 
-export function SellerShopClient({ shop }: SellerShopClientProps) {
+export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement {
+    const { t } = useTranslation('common');
     const openChat = useChatStore((state) => state.openChat);
-    const sellerName =
+    const [search, setSearch] = useState('');
+    const [sortMode, setSortMode] = useState<SellerShopSortMode>('popular');
+    const [visibleCount, setVisibleCount] = useState(SELLER_SHOP_PAGE_SIZE);
+    const [activeTab, setActiveTab] = useState<string | null>('home');
+
+    const sellerDisplayName =
         shop.user.profile?.displayName ||
         `${shop.user.profile?.firstName ?? ''} ${shop.user.profile?.lastName ?? ''}`.trim() ||
         shop.shopName;
 
-    const joinedDate = new Date(shop.createdAt).toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: 'long',
-    });
+    const filtered = useMemo(
+        () => filterProductsByQuery(shop.products, search),
+        [shop.products, search],
+    );
 
-    const breadcrumbItems: BreadcrumbItem[] = [
-        { title: 'Trang chủ', href: '/' },
-        { title: 'Gian hàng', href: '/shops', icon: <Icon icon="tabler:building-store" width={14} /> },
-        { title: shop.shopName },
-    ];
+    const sorted = useMemo(
+        () => sortProductsByMode(filtered, sortMode),
+        [filtered, sortMode],
+    );
+
+    useEffect(() => {
+        setVisibleCount(SELLER_SHOP_PAGE_SIZE);
+    }, [search, sortMode, shop.id]);
+
+    const handleShare = useCallback(async (): Promise<void> => {
+        if (typeof window === 'undefined') return;
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            notifications.show({
+                message: t('sellerShop.shareCopied'),
+                color: 'green',
+            });
+        } catch {
+            notifications.show({
+                message: t('sellerShop.errorCopy'),
+                color: 'red',
+            });
+        }
+    }, [t]);
+
+    const handleMore = useCallback((): void => {
+        notifications.show({
+            message: t('sellerShop.moreSoon'),
+            color: 'blue',
+        });
+    }, [t]);
+
+    const handleFollow = useCallback((): void => {
+        notifications.show({
+            message: t('sellerShop.followSoon'),
+            color: 'blue',
+        });
+    }, [t]);
+
+    const handleChat = useCallback((): void => {
+        openChat({
+            id: shop.userId,
+            name: shop.shopName,
+            avatar: (shop.shopLogo ?? shop.user.profile?.avatar) || null,
+        });
+    }, [openChat, shop.shopLogo, shop.shopName, shop.user.profile?.avatar, shop.userId]);
+
+    const loadMore = useCallback((): void => {
+        setVisibleCount((c) => c + SELLER_SHOP_PAGE_SIZE);
+    }, []);
+
+    const introText =
+        shop.description?.trim() ||
+        t('sellerShop.defaultIntro', { name: shop.shopName });
 
     return (
-        <Container size="xl" py="xl">
-            {/* Breadcrumb */}
-            <AppBreadcrumbs items={breadcrumbItems} />
+        <div
+            suppressHydrationWarning
+            className="min-h-[50vh] bg-[#f6f7f8] dark:bg-[#111a21]"
+        >
+            <SellerShopToolbar
+                searchQuery={search}
+                onSearchChange={setSearch}
+                onShare={handleShare}
+                onMore={handleMore}
+            />
 
-            {/* Shop Header */}
-            <Paper p="xl" radius="lg" withBorder mb="xl">
-                <Grid align="center">
-                    <Grid.Col span={{ base: 12, sm: 'content' }}>
-                        <Avatar
-                            src={shop.shopLogo ?? shop.user.profile?.avatar ?? null}
-                            size={100}
-                            radius="lg"
-                            color="blue"
-                        >
-                            <Icon icon="tabler:building-store" width={48} />
-                        </Avatar>
-                    </Grid.Col>
+            <SellerShopHero
+                shop={shop}
+                sellerDisplayName={sellerDisplayName}
+                onChat={handleChat}
+                onFollow={handleFollow}
+            />
 
-                    <Grid.Col span={{ base: 12, sm: 'auto' }}>
-                        <Stack gap="xs">
-                            <Group gap="sm" wrap="nowrap">
-                                <Title order={2}>{shop.shopName}</Title>
-                                {shop.isVerified && (
-                                    <Badge
-                                        leftSection={
-                                            <ThemeIcon size={14} color="blue" variant="transparent" p={0}>
-                                                <Icon icon="tabler:shield-check" width={14} />
-                                            </ThemeIcon>
-                                        }
-                                        color="blue"
-                                        variant="light"
-                                        size="md"
-                                    >
-                                        Đã xác minh
-                                    </Badge>
-                                )}
-                            </Group>
+            <Container size="xl" py="xl" className="max-w-[1280px]">
+                <Tabs value={activeTab} onChange={setActiveTab} variant="outline" radius="md">
+                    <Tabs.List grow mb="lg" className="flex-wrap">
+                        <Tabs.Tab value="home">{t('sellerShop.tabHome')}</Tabs.Tab>
+                        <Tabs.Tab value="all">{t('sellerShop.tabAll')}</Tabs.Tab>
+                        <Tabs.Tab value="reviews">{t('sellerShop.tabReviews')}</Tabs.Tab>
+                        <Tabs.Tab value="policies">{t('sellerShop.tabPolicies')}</Tabs.Tab>
+                    </Tabs.List>
 
-                            <Text size="sm" c="dimmed">
-                                Người bán: {sellerName}
-                            </Text>
-
-                            {shop.description && (
-                                <Text size="sm" c="dimmed" lineClamp={2}>
-                                    {shop.description}
+                    <Tabs.Panel value="home">
+                        <Stack gap="xl">
+                            <Paper p="lg" radius="lg" withBorder shadow="xs">
+                                <Title order={4} mb="sm">
+                                    {t('sellerShop.homeIntroTitle')}
+                                </Title>
+                                <Text c="dimmed" size="sm">
+                                    {introText}
                                 </Text>
-                            )}
-
-                            <Group mt="xs">
-                                <Button
-                                    leftSection={<Icon icon="tabler:message" width={16} />}
-                                    variant="light"
-                                    color="blue"
-                                    size="sm"
-                                    onClick={() => {
-                                        openChat({
-                                            id: shop.userId,
-                                            name: shop.shopName,
-                                            avatar: (shop.shopLogo ?? shop.user.profile?.avatar) || null
-                                        });
-                                    }}
-                                >
-                                    Chat với người bán
-                                </Button>
-                            </Group>
-
-                            <Group gap="xl" mt="xs">
-                                <Group gap={6}>
-                                    <Icon icon="tabler:star" width={16} style={{ color: 'var(--mantine-color-yellow-6)' }} />
-                                    <Text size="sm" fw={600}>
-                                        {shop.rating.toFixed(1)}
-                                    </Text>
-                                    <Text size="sm" c="dimmed">
-                                        đánh giá
-                                    </Text>
-                                </Group>
-
-                                <Group gap={6}>
-                                    <Icon icon="tabler:package" width={16} style={{ color: 'var(--mantine-color-blue-6)' }} />
-                                    <Text size="sm" fw={600}>
-                                        {shop.products.length}
-                                    </Text>
-                                    <Text size="sm" c="dimmed">
-                                        sản phẩm
-                                    </Text>
-                                </Group>
-
-                                <Group gap={6}>
-                                    <Icon icon="tabler:calendar" width={16} style={{ color: 'var(--mantine-color-gray-6)' }} />
-                                    <Text size="sm" c="dimmed">
-                                        Tham gia {joinedDate}
-                                    </Text>
-                                </Group>
-                            </Group>
+                            </Paper>
+                            <SellerShopProductBlock
+                                products={sorted}
+                                sortMode={sortMode}
+                                onSortModeChange={setSortMode}
+                                visibleCount={visibleCount}
+                                onLoadMore={loadMore}
+                            />
                         </Stack>
-                    </Grid.Col>
-                </Grid>
-            </Paper>
+                    </Tabs.Panel>
 
-            <Divider mb="xl" />
+                    <Tabs.Panel value="all">
+                        <SellerShopProductBlock
+                            products={sorted}
+                            sortMode={sortMode}
+                            onSortModeChange={setSortMode}
+                            visibleCount={visibleCount}
+                            onLoadMore={loadMore}
+                        />
+                    </Tabs.Panel>
 
-            {/* Product List */}
-            <Stack gap="lg">
-                <Group justify="space-between" align="center">
-                    <Title order={3}>
-                        Sản phẩm của gian hàng{' '}
-                        <Text component="span" c="dimmed" fw={400} size="lg">
-                            ({shop.products.length})
-                        </Text>
-                    </Title>
-                </Group>
+                    <Tabs.Panel value="reviews">
+                        <Paper p="xl" radius="lg" withBorder>
+                            <Title order={4} mb="sm">
+                                {t('sellerShop.reviewsTitle')}
+                            </Title>
+                            <Text c="dimmed">{t('sellerShop.reviewsPlaceholder')}</Text>
+                        </Paper>
+                    </Tabs.Panel>
 
-                {shop.products.length === 0 ? (
-                    <Box ta="center" py="xl">
-                        <ThemeIcon size={64} color="gray" variant="light" radius="xl" mx="auto" mb="md">
-                            <Icon icon="tabler:package" width={32} />
-                        </ThemeIcon>
-                        <Text c="dimmed" size="lg">
-                            Gian hàng chưa có sản phẩm nào
-                        </Text>
-                    </Box>
-                ) : (
-                    <SimpleGrid cols={{ base: 2, sm: 3, md: 4, lg: 5 }} spacing="md">
-                        {shop.products.map((product) => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
-                    </SimpleGrid>
-                )}
-            </Stack>
-        </Container>
+                    <Tabs.Panel value="policies">
+                        <Paper p="xl" radius="lg" withBorder>
+                            <Title order={4} mb="sm">
+                                {t('sellerShop.policiesTitle')}
+                            </Title>
+                            <Text c="dimmed">{t('sellerShop.policiesBody')}</Text>
+                        </Paper>
+                    </Tabs.Panel>
+                </Tabs>
+            </Container>
+
+            <SellerShopFooter shopName={shop.shopName} />
+        </div>
     );
 }
