@@ -24,7 +24,7 @@ import { Icon } from '@iconify/react';
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useMounted } from '@mantine/hooks';
+import { useMounted, useMediaQuery } from '@mantine/hooks';
 import { useLoginMutation } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Suspense } from 'react';
@@ -61,6 +61,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api';
 function InnerLoginPage() {
     // ===== Hooks & Context =====
     const mounted = useMounted();
+    const isMobile = useMediaQuery('(max-width: 576px)');
+    const isTablet = useMediaQuery('(min-width: 577px) and (max-width: 992px)');
     const setAuthData = useAuthStore(state => state.setAuthData);
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -127,26 +129,27 @@ function InnerLoginPage() {
     return (
         <Box
             style={{
-                minHeight: '100vh',
+                height: '100dvh',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: 'var(--mantine-spacing-md)',
+                padding: isMobile ? rem(8) : rem(16),
                 backgroundColor: 'var(--mantine-color-body)',
+                overflow: 'hidden',
             }}
         >
-            <Container size={600} w="100%">
+            <Container size={isMobile ? 'xs' : 600} w="100%">
                 <Box
                     style={{
-                        borderRadius: rem(56),
-                        padding: rem(4.8),
+                        borderRadius: isMobile ? rem(24) : rem(56),
+                        padding: isMobile ? rem(3) : rem(4.8),
                         background:
                             'linear-gradient(180deg, var(--mantine-primary-color-6) 10%, rgba(33, 150, 243, 0) 30%)',
                     }}
                 >
                     <Paper
-                        radius={rem(53)}
-                        p={{ base: 'xl', sm: 50 }}
+                        radius={isMobile ? rem(21) : rem(53)}
+                        p={{ base: 'md', sm: isTablet ? 'lg' : 'xl', md: 50 }}
                         withBorder
                         style={{
                             backgroundColor: 'white',
@@ -155,20 +158,20 @@ function InnerLoginPage() {
                         }}
                         className="dark:bg-dark-900!"
                     >
-                        <Stack gap="xl">
+                        <Stack gap={isMobile ? 'md' : 'xl'}>
                             <Box ta="center">
                                 <Group justify="center" mb="lg">
                                     <Box
                                         style={{
-                                            width: rem(64),
-                                            height: rem(64),
+                                            width: isMobile ? rem(48) : rem(64),
+                                            height: isMobile ? rem(48) : rem(64),
                                             borderRadius: 'var(--mantine-radius-md)',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             color: 'white',
                                             fontWeight: 'bold',
-                                            fontSize: rem(32),
+                                            fontSize: isMobile ? rem(24) : rem(32),
                                             background: 'var(--mantine-primary-color-6)',
                                         }}
                                     >
@@ -178,12 +181,12 @@ function InnerLoginPage() {
                                 <Title
                                     order={2}
                                     fw={500}
-                                    size={rem(30)}
+                                    size={isMobile ? rem(22) : rem(30)}
                                     style={{ letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}
                                 >
                                     Welcome to TimmyHub
                                 </Title>
-                                <Text c="dimmed" size="lg" mt={5}>
+                                <Text c="dimmed" size={isMobile ? 'sm' : 'lg'} mt={5}>
                                     Sign in to continue
                                 </Text>
                             </Box>
@@ -194,7 +197,7 @@ function InnerLoginPage() {
                                         id="login-email"
                                         label="Email"
                                         placeholder="Enter your email"
-                                        size="md"
+                                        size={isMobile ? 'sm' : 'md'}
                                         radius="md"
                                         leftSection={<Icon icon="tabler:at" width={16} />}
                                         {...form.getInputProps('email')}
@@ -204,20 +207,21 @@ function InnerLoginPage() {
                                         id="login-password"
                                         label="Password"
                                         placeholder="Enter your password"
-                                        size="md"
+                                        size={isMobile ? 'sm' : 'md'}
                                         radius="md"
                                         leftSection={<Icon icon="tabler:lock" width={16} />}
                                         {...form.getInputProps('password')}
                                     />
 
-                                    <Group justify="space-between" mt="sm">
+                                    <Group justify="space-between" mt="sm" wrap="wrap" gap="xs">
                                         <Checkbox
                                             id="login-remember"
                                             label="Remember me"
                                             fw={500}
+                                            size={isMobile ? 'xs' : 'sm'}
                                             {...form.getInputProps('remember', { type: 'checkbox' })}
                                         />
-                                        <Anchor href="/forgot-password" size="sm" fw={700} c="blue">
+                                        <Anchor href="/forgot-password" size="xs" fw={700} c="blue">
                                             Forgot password?
                                         </Anchor>
                                     </Group>
@@ -225,9 +229,9 @@ function InnerLoginPage() {
                                     <Button
                                         type="submit"
                                         fullWidth
-                                        size="md"
+                                        size={isMobile ? 'sm' : 'md'}
                                         radius="md"
-                                        mt="md"
+                                        mt="sm"
                                         loading={loginMutation.isPending}
                                         rightSection={<Icon icon="tabler:arrow-right" width={18} />}
                                     >
@@ -238,30 +242,30 @@ function InnerLoginPage() {
 
                             <Divider label="hoặc đăng nhập với" labelPosition="center" />
 
-                            <Stack gap="sm">
+                            <Group grow={!isMobile} gap="sm" wrap="wrap">
                                 <Button
                                     component="a"
                                     href={`${API_URL}/auth/google`}
                                     variant="default"
-                                    fullWidth
-                                    size="md"
+                                    size={isMobile ? 'sm' : 'md'}
                                     radius="md"
-                                    leftSection={<Icon icon="tabler:brand-google" width={18} color="#EA4335" />}
+                                    leftSection={<Icon icon="material-icon-theme:google" width={18} color="#EA4335" />}
+                                    fullWidth={isMobile}
                                 >
-                                    Tiếp tục với Google
+                                    Google
                                 </Button>
                                 <Button
                                     component="a"
                                     href={`${API_URL}/auth/facebook`}
                                     variant="default"
-                                    fullWidth
-                                    size="md"
+                                    size={isMobile ? 'sm' : 'md'}
                                     radius="md"
-                                    leftSection={<Icon icon="tabler:brand-facebook" width={18} color="#1877F2" />}
+                                    leftSection={<Icon icon="logos:facebook" width={18} color="#1877F2" />}
+                                    fullWidth={isMobile}
                                 >
-                                    Tiếp tục với Facebook
+                                    Facebook
                                 </Button>
-                            </Stack>
+                            </Group>
 
                             <Text c="dimmed" size="sm" ta="center">
                                 Don&apos;t have an account?{' '}
@@ -272,9 +276,6 @@ function InnerLoginPage() {
                         </Stack>
                     </Paper>
                 </Box>
-                <Text mt="xl" c="dimmed" size="xs" ta="center">
-                    &copy; 2026 TimmyHub. Secure Authentication.
-                </Text>
             </Container>
         </Box>
     );
