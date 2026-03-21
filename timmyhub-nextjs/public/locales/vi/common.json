@@ -107,7 +107,7 @@
     },
     "appBar": {
         "myStore": "Gian hàng",
-        "becomeSeller": "Trở thành seller"
+        "becomeSeller": "Trở thành người bán"
     },
     "auth": {
         "welcomeBack": "Chào mừng quay trở lại!",
@@ -583,6 +583,81 @@
         "invoiceSoon": "Tính năng tải hóa đơn PDF đang được hoàn thiện.",
         "loadingOrder": "Đang tải thông tin đơn hàng...",
         "loadOrderError": "Không tải được chi tiết đơn hàng. Bạn vẫn có thể xem đơn trong mục Đơn hàng."
+    },
+    "sellerLanding": {
+        "nav": {
+            "benefits": "Lợi ích",
+            "process": "Quy trình",
+            "fees": "Phí dịch vụ"
+        },
+        "hero": {
+            "badge": "Kênh người bán TimmyHub",
+            "titlePrefix": "Trở thành Người bán trên",
+            "titleBrand": "TimmyHub",
+            "description": "Bán hàng dễ dàng, tiếp cận triệu khách hàng và bùng nổ doanh số cùng nền tảng thương mại điện tử hàng đầu khu vực.",
+            "ctaPrimary": "Đăng ký ngay",
+            "ctaSecondary": "Tìm hiểu thêm",
+            "imageAlt": "Người bán sử dụng máy tính bảng tại cửa hàng hiện đại"
+        },
+        "benefits": {
+            "kicker": "Tại sao nên chọn TimmyHub?",
+            "title": "Lợi ích vượt trội cho nhà bán hàng",
+            "b1Title": "Bán hàng dễ dàng",
+            "b1Desc": "Giao diện quản lý thông minh, đăng sản phẩm chỉ trong vài phút với công cụ AI hỗ trợ mô tả.",
+            "b2Title": "Tiếp cận triệu khách hàng",
+            "b2Desc": "Quảng bá sản phẩm tới hệ sinh thái hơn 50 triệu người dùng năng động của TimmyHub.",
+            "b3Title": "Hỗ trợ 24/7",
+            "b3Desc": "Đội ngũ chuyên gia vận hành luôn sẵn sàng giải đáp và tối ưu gian hàng cho bạn."
+        },
+        "process": {
+            "kicker": "Quy trình bắt đầu",
+            "title": "3 bước đơn giản để bùng nổ doanh số",
+            "step1": {
+                "title": "Đăng ký tài khoản",
+                "desc": "Cung cấp thông tin cơ bản về shop và xác thực danh tính nhanh chóng."
+            },
+            "step2": {
+                "title": "Đăng tải sản phẩm",
+                "desc": "Cập nhật hình ảnh, giá cả và mô tả sản phẩm của bạn lên gian hàng."
+            },
+            "step3": {
+                "title": "Bắt đầu bán hàng",
+                "desc": "Sản phẩm của bạn đã sẵn sàng để tiếp cận hàng triệu khách hàng."
+            }
+        },
+        "fees": {
+            "title": "Phí dịch vụ minh bạch",
+            "description": "Hoa hồng và phí sàn được công bố rõ ràng. Ưu đãi miễn phí hoa hồng trong thời gian giới thiệu — xem chi tiết trong trung tâm nhà bán sau khi đăng ký."
+        },
+        "cta": {
+            "title": "Bạn đã sẵn sàng cùng TimmyHub vươn xa?",
+            "subtitle": "Đăng ký ngay hôm nay để nhận ưu đãi miễn phí hoa hồng trong 3 tháng đầu tiên!",
+            "button": "Bắt đầu ngay miễn phí"
+        }
+    },
+    "sellerRegister": {
+        "modalTitle": "Đăng ký gian hàng",
+        "title": "Tạo gian hàng",
+        "subtitle": "Điền thông tin để gửi đơn đăng ký. Admin sẽ duyệt trước khi bạn được mở bán.",
+        "shopName": "Tên gian hàng",
+        "shopNamePlaceholder": "VD: Shop ABC",
+        "shopSlug": "Slug gian hàng (URL)",
+        "shopSlugPlaceholder": "vd: shop-abc",
+        "shopSlugDesc": "Chỉ chữ thường, số và dấu gạch ngang. Dùng cho đường dẫn gian hàng công khai.",
+        "description": "Mô tả (tùy chọn)",
+        "descriptionPlaceholder": "Giới thiệu ngắn về gian hàng",
+        "submit": "Gửi đơn đăng ký",
+        "successMessage": "Đăng ký thành công. Vui lòng chờ admin duyệt.",
+        "errorGeneric": "Đăng ký thất bại. Vui lòng thử lại.",
+        "loginHint": "Bạn cần đăng nhập để đăng ký gian hàng.",
+        "loginCta": "Đăng nhập",
+        "registerCta": "Tạo tài khoản mới",
+        "validation": {
+            "shopNameMin": "Tên gian hàng tối thiểu 2 ký tự",
+            "shopNameMax": "Tên gian hàng tối đa 100 ký tự",
+            "slugMin": "Slug tối thiểu 2 ký tự",
+            "slugPattern": "Slug chỉ gồm chữ thường, số và dấu gạch ngang (vd: my-shop)"
+        }
     },
     "reviews": {
         "title": "Đánh giá",

@@ -96,7 +96,7 @@ export function proxy(request: NextRequest) {
         }
 
         // Cho phép mọi user đã đăng nhập vào /seller (CUSTOMER vào đăng ký bán hàng, SELLER vào dashboard)
-        // Layout seller sẽ redirect CUSTOMER chưa có gian hàng sang /seller/become
+        // Layout seller sẽ redirect user chưa có gian hàng sang /become-seller
 
         // B. Kiểm tra Permission-based Paths với Permission System
         const requiredPermissions = getRoutePermissions(normalizedPathname);

@@ -1,5 +1,6 @@
-import { BecomeSellerForm } from '@/features/seller/BecomeSellerForm';
+import { redirect } from 'next/navigation';
+import { BECOME_SELLER_PATH } from '@/constants/become-seller';
 
-export default function BecomeSellerPage() {
-    return <BecomeSellerForm />;
+export default function LegacyBecomeSellerPage(): never {
+    redirect(BECOME_SELLER_PATH);
 }

@@ -5,6 +5,7 @@ import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { ClientOnly } from '@/components/ClientOnly';
+import { BECOME_SELLER_PATH } from '@/constants/become-seller';
 
 export function Footer() {
     const { t } = useTranslation();
@@ -34,7 +35,7 @@ export function Footer() {
         {
             title: t('footer.connect', 'Connect'),
             links: [
-                { label: t('seller.becomeSeller', 'Sell on TimmyHub'), link: '#' },
+                { label: t('seller.becomeSeller', 'Sell on TimmyHub'), link: BECOME_SELLER_PATH },
                 { label: 'Affiliate Program', link: '#' },
                 { label: 'Suppliers', link: '#' },
             ]

@@ -4,6 +4,7 @@ import { Button } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
+import { BECOME_SELLER_PATH } from '@/constants/become-seller';
 import { UserRole, User } from '@/types/auth';
 
 interface SellerButtonProps {
@@ -39,7 +40,7 @@ export function SellerButton({ user }: SellerButtonProps) {
         return (
             <Button
                 component={Link}
-                href="/seller"
+                href={BECOME_SELLER_PATH}
                 variant="default"
                 size="sm"
                 leftSection={<Iconify icon="solar:shop-bold" width={18} />}

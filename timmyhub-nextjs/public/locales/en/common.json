@@ -205,7 +205,7 @@
     },
     "appBar": {
         "myStore": "My Store",
-        "becomeSeller": "Become Seller"
+        "becomeSeller": "Become a seller"
     },
     "common": {
         "loading": "Loading...",
@@ -600,6 +600,81 @@
         "invoiceSoon": "PDF invoice download is coming soon.",
         "loadingOrder": "Loading order...",
         "loadOrderError": "Could not load order details. You can still view it under Orders."
+    },
+    "sellerLanding": {
+        "nav": {
+            "benefits": "Benefits",
+            "process": "Process",
+            "fees": "Fees"
+        },
+        "hero": {
+            "badge": "TimmyHub seller channel",
+            "titlePrefix": "Become a seller on",
+            "titleBrand": "TimmyHub",
+            "description": "Sell with ease, reach millions of customers, and grow sales on the region's leading e-commerce platform.",
+            "ctaPrimary": "Register now",
+            "ctaSecondary": "Learn more",
+            "imageAlt": "Seller using a tablet in a modern store"
+        },
+        "benefits": {
+            "kicker": "Why TimmyHub?",
+            "title": "Outstanding benefits for sellers",
+            "b1Title": "Easy selling",
+            "b1Desc": "Smart management UI, list products in minutes with AI-assisted descriptions.",
+            "b2Title": "Reach millions of customers",
+            "b2Desc": "Promote products across TimmyHub's ecosystem of 50M+ active users.",
+            "b3Title": "24/7 support",
+            "b3Desc": "Operations experts are ready to help and optimize your shop."
+        },
+        "process": {
+            "kicker": "Getting started",
+            "title": "3 simple steps to grow sales",
+            "step1": {
+                "title": "Create your account",
+                "desc": "Provide basic shop information and verify your identity quickly."
+            },
+            "step2": {
+                "title": "Upload products",
+                "desc": "Add images, prices, and descriptions to your storefront."
+            },
+            "step3": {
+                "title": "Start selling",
+                "desc": "Your products are ready to reach millions of customers."
+            }
+        },
+        "fees": {
+            "title": "Transparent fees",
+            "description": "Commission and marketplace fees are clearly published. Introductory zero-commission offers may apply — see seller hub for details after registration."
+        },
+        "cta": {
+            "title": "Ready to grow with TimmyHub?",
+            "subtitle": "Register today to get zero commission for your first 3 months!",
+            "button": "Start for free"
+        }
+    },
+    "sellerRegister": {
+        "modalTitle": "Register your shop",
+        "title": "Create your shop",
+        "subtitle": "Submit your application. An admin will approve before you can sell.",
+        "shopName": "Shop name",
+        "shopNamePlaceholder": "e.g. ABC Store",
+        "shopSlug": "Shop slug (URL)",
+        "shopSlugPlaceholder": "e.g. abc-store",
+        "shopSlugDesc": "Lowercase letters, numbers, and hyphens only. Used for your public shop URL.",
+        "description": "Description (optional)",
+        "descriptionPlaceholder": "Short introduction to your shop",
+        "submit": "Submit application",
+        "successMessage": "Application submitted. Please wait for admin approval.",
+        "errorGeneric": "Registration failed. Please try again.",
+        "loginHint": "Sign in to register as a seller.",
+        "loginCta": "Sign in",
+        "registerCta": "Create an account",
+        "validation": {
+            "shopNameMin": "Shop name must be at least 2 characters",
+            "shopNameMax": "Shop name must be at most 100 characters",
+            "slugMin": "Slug must be at least 2 characters",
+            "slugPattern": "Slug may only contain lowercase letters, numbers, and hyphens (e.g. my-shop)"
+        }
     },
     "reviews": {
         "title": "Reviews",
