@@ -74,7 +74,7 @@ type AppliedVoucher = {
 type CheckoutPayment = 'COD' | 'VNPAY';
 
 function formatAddressOneLine(a: Address): string {
-    const tail = [a.ward, a.district, a.city].filter(Boolean).join(', ');
+    const tail = [a.wardName ?? a.wardCode, a.districtName ?? a.districtCode, a.provinceName ?? a.provinceCode].filter(Boolean).join(', ');
     return [a.addressLine1, a.addressLine2, tail].filter(Boolean).join(', ');
 }
 

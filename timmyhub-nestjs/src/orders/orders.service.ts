@@ -33,7 +33,7 @@ export class OrdersService {
         const shippingAddressText = [
             shippingAddr.addressLine1,
             shippingAddr.addressLine2,
-            `${shippingAddr.ward}, ${shippingAddr.district}, ${shippingAddr.city}`,
+            `${shippingAddr.wardName ?? shippingAddr.wardCode}, ${shippingAddr.districtName ?? shippingAddr.districtCode}, ${shippingAddr.provinceName ?? shippingAddr.provinceCode}`,
         ]
             .filter(Boolean)
             .join(', ');

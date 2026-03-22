@@ -1,38 +1,34 @@
 'use client';
 
-import { useEffect, useMemo, type JSX } from 'react';
+import { useEffect, type JSX } from 'react';
 import {
     Button,
     Checkbox,
     Group,
     Modal,
-    Select,
-    SimpleGrid,
+    SegmentedControl,
+    Box,
     Stack,
     Text,
     TextInput,
-    SegmentedControl,
-    Box,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import {
-    VIETNAM_ADMIN_UNITS,
-    findProvinceByCityName,
-    findDistrict,
-} from '@/constants/vn-admin-units';
+import { AddressSelect } from '@/components/AddressSelect/AddressSelect';
 import type { User } from '@/types/auth';
 import type { Address, CreateAddressDto } from '@/types/address';
 
 const addressFormSchema = z.object({
     fullName: z.string().min(1).max(200),
     phone: z.string().min(8).max(20),
-    /** Tỉnh/Thành phố — tên hiển thị khớp VIETNAM_ADMIN_UNITS */
-    city: z.string().min(1).max(200),
-    district: z.string().min(1).max(200),
-    ward: z.string().min(1).max(200),
+    provinceCode: z.string().min(1).max(50),
+    districtCode: z.string().min(1).max(50),
+    wardCode: z.string().min(1).max(50),
+    provinceName: z.string().optional(),
+    districtName: z.string().optional(),
+    wardName: z.string().optional(),
     addressLine1: z.string().min(1).max(500),
     addressType: z.enum(['home', 'office']),
     isDefault: z.boolean().optional(),
@@ -43,9 +39,12 @@ export type AddressFormModalValues = z.infer<typeof addressFormSchema>;
 const emptyValues: AddressFormModalValues = {
     fullName: '',
     phone: '',
-    city: '',
-    district: '',
-    ward: '',
+    provinceCode: '',
+    districtCode: '',
+    wardCode: '',
+    provinceName: '',
+    districtName: '',
+    wardName: '',
     addressLine1: '',
     addressType: 'home',
     isDefault: false,
@@ -68,7 +67,6 @@ export interface AddressFormModalProps {
     editing: Address | null;
     onSave: (dto: CreateAddressDto) => Promise<void>;
     isSaving: boolean;
-    /** User hiện tại — prefill fullName & phone khi thêm mới */
     user?: User | null;
 }
 
@@ -87,21 +85,6 @@ export function AddressFormModal({
         validate: zodResolver(addressFormSchema),
     });
 
-    const provinceOptions = useMemo(
-        () => VIETNAM_ADMIN_UNITS.map(p => ({ value: p.name, label: p.name })),
-        [],
-    );
-
-    const districtOptions = useMemo(() => {
-        const p = findProvinceByCityName(form.values.city);
-        return p?.districts.map(d => ({ value: d.name, label: d.name })) ?? [];
-    }, [form.values.city]);
-
-    const wardOptions = useMemo(() => {
-        const d = findDistrict(form.values.city, form.values.district);
-        return d?.wards.map(w => ({ value: w.name, label: w.name })) ?? [];
-    }, [form.values.city, form.values.district]);
-
     useEffect(() => {
         if (!opened) {
             form.setValues(emptyValues);
@@ -111,15 +94,17 @@ export function AddressFormModal({
             form.setValues({
                 fullName: editing.fullName,
                 phone: editing.phone,
-                city: editing.city,
-                district: editing.district,
-                ward: editing.ward,
+                provinceCode: editing.provinceCode ?? '',
+                districtCode: editing.districtCode ?? '',
+                wardCode: editing.wardCode ?? '',
+                provinceName: editing.provinceName ?? '',
+                districtName: editing.districtName ?? '',
+                wardName: editing.wardName ?? '',
                 addressLine1: editing.addressLine1,
                 addressType: inferAddressTypeFromLabel(editing.label),
                 isDefault: editing.isDefault,
             });
         } else {
-            // Thêm mới → prefill từ user profile
             form.setValues({
                 ...emptyValues,
                 fullName: user
@@ -128,21 +113,8 @@ export function AddressFormModal({
                 phone: user?.phone ?? '',
             });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- đồng bộ khi mở/đóng modal hoặc đổi địa chỉ đang sửa
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [opened, editing?.id]);
-
-    const handleProvinceChange = (value: string | null): void => {
-        const v = value ?? '';
-        form.setFieldValue('city', v);
-        form.setFieldValue('district', '');
-        form.setFieldValue('ward', '');
-    };
-
-    const handleDistrictChange = (value: string | null): void => {
-        const v = value ?? '';
-        form.setFieldValue('district', v);
-        form.setFieldValue('ward', '');
-    };
 
     const handleSubmit = form.onSubmit(async values => {
         const homeL = t('addresses.typeHomeLabel');
@@ -152,9 +124,12 @@ export function AddressFormModal({
             fullName: values.fullName.trim(),
             phone: values.phone.trim(),
             addressLine1: values.addressLine1.trim(),
-            ward: values.ward.trim(),
-            district: values.district.trim(),
-            city: values.city.trim(),
+            provinceCode: values.provinceCode,
+            districtCode: values.districtCode,
+            wardCode: values.wardCode,
+            provinceName: values.provinceName,
+            districtName: values.districtName,
+            wardName: values.wardName,
             isDefault: values.isDefault,
         };
         try {
@@ -163,9 +138,6 @@ export function AddressFormModal({
             /* mutation đã báo lỗi */
         }
     });
-
-    const districtDisabled = !form.values.city;
-    const wardDisabled = !form.values.city || !form.values.district;
 
     return (
         <Modal
@@ -187,7 +159,7 @@ export function AddressFormModal({
         >
             <form onSubmit={handleSubmit}>
                 <Stack gap="md">
-                    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                    <Group grow>
                         <TextInput
                             required
                             label={t('addresses.fullName')}
@@ -200,44 +172,24 @@ export function AddressFormModal({
                             placeholder="(+84) ..."
                             {...form.getInputProps('phone')}
                         />
-                    </SimpleGrid>
+                    </Group>
 
-                    <Select
-                        required
-                        searchable
-                        clearable
-                        label={t('addresses.province')}
-                        placeholder={t('addresses.selectProvince')}
-                        data={provinceOptions}
-                        value={form.values.city || null}
-                        onChange={handleProvinceChange}
-                        nothingFoundMessage={t('addresses.nothingFound')}
-                    />
-
-                    <Select
-                        required
-                        searchable
-                        clearable
-                        label={t('addresses.district')}
-                        placeholder={t('addresses.selectDistrict')}
-                        data={districtOptions}
-                        value={form.values.district || null}
-                        onChange={handleDistrictChange}
-                        disabled={districtDisabled}
-                        nothingFoundMessage={t('addresses.nothingFound')}
-                    />
-
-                    <Select
-                        required
-                        searchable
-                        clearable
-                        label={t('addresses.ward')}
-                        placeholder={t('addresses.selectWard')}
-                        data={wardOptions}
-                        value={form.values.ward || null}
-                        onChange={v => form.setFieldValue('ward', v ?? '')}
-                        disabled={wardDisabled}
-                        nothingFoundMessage={t('addresses.nothingFound')}
+                    <AddressSelect
+                        provinceCode={form.values.provinceCode}
+                        districtCode={form.values.districtCode}
+                        wardCode={form.values.wardCode}
+                        onProvinceChange={(code, name) => {
+                            form.setFieldValue('provinceCode', code ?? '');
+                            form.setFieldValue('provinceName', name ?? '');
+                        }}
+                        onDistrictChange={(code, name) => {
+                            form.setFieldValue('districtCode', code ?? '');
+                            form.setFieldValue('districtName', name ?? '');
+                        }}
+                        onWardChange={(code, name) => {
+                            form.setFieldValue('wardCode', code ?? '');
+                            form.setFieldValue('wardName', name ?? '');
+                        }}
                     />
 
                     <TextInput
@@ -247,7 +199,6 @@ export function AddressFormModal({
                         {...form.getInputProps('addressLine1')}
                     />
 
-                    {/* Placeholder bản đồ — tích hợp Google Maps sau */}
                     <Box
                         className="flex h-48 w-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 dark:border-slate-600 dark:bg-slate-800/50"
                         aria-hidden

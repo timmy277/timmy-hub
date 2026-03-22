@@ -129,6 +129,32 @@ const getMockData = (t: TFunction): SidebarItem[] => [
             },
         ],
     },
+    // ===== ĐỊA CHỈ =====
+    {
+        label: t('sidebar.address'),
+        icon: 'tabler:map',
+        permission: { action: Action.Read, subject: 'User' },
+        links: [
+            {
+                label: t('sidebar.provinces'),
+                link: '/admin/locations/provinces',
+                icon: 'tabler:map',
+                permission: { action: Action.Read, subject: 'User' },
+            },
+            {
+                label: t('sidebar.districts'),
+                link: '/admin/locations/districts',
+                icon: 'tabler:building',
+                permission: { action: Action.Read, subject: 'User' },
+            },
+            {
+                label: t('sidebar.wards'),
+                link: '/admin/locations/wards',
+                icon: 'tabler:home',
+                permission: { action: Action.Read, subject: 'User' },
+            },
+        ],
+    },
     // ===== KHUYẾN MÃI =====
     {
         label: t('sidebar.promotions'),

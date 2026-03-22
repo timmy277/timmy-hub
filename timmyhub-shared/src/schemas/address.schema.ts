@@ -7,9 +7,12 @@ export const CreateAddressSchema = z.object({
     phone: z.string().min(8).max(20),
     addressLine1: z.string().min(1).max(500),
     addressLine2: z.string().max(500).optional(),
-    ward: z.string().min(1).max(200),
-    district: z.string().min(1).max(200),
-    city: z.string().min(1).max(200),
+    provinceCode: z.string().min(1).max(50),
+    districtCode: z.string().min(1).max(50),
+    wardCode: z.string().min(1).max(50),
+    provinceName: z.string().max(200).optional(),
+    districtName: z.string().max(200).optional(),
+    wardName: z.string().max(200).optional(),
     isDefault: z.boolean().optional(),
 });
 

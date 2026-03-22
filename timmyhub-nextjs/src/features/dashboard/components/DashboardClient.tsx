@@ -35,7 +35,6 @@ export function DashboardClient(): ReactElement {
             </Center>
         );
     }
-    console.log(d);
 
     if (error || !d) {
         return (

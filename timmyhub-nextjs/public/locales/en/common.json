@@ -201,7 +201,11 @@
         "productList": "Product List",
         "sellerManagement": "Seller Management",
         "promotions": "Promotions",
-        "promotionPrograms": "Promotion Programs"
+        "promotionPrograms": "Promotion Programs",
+        "address": "Address",
+        "provinces": "Provinces/Cities",
+        "districts": "Districts",
+        "wards": "Wards/Communes"
     },
     "appBar": {
         "myStore": "My Store",

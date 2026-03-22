@@ -32,6 +32,7 @@ import { SystemLogsModule } from './system-logs/system-logs.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { BrandsModule } from './brands/brands.module';
 import { AddressesModule } from './addresses/addresses.module';
+import { LocationModule } from './location/location.module';
 
 @Module({
     imports: [
@@ -90,6 +91,7 @@ import { AddressesModule } from './addresses/addresses.module';
         DashboardModule,
         BrandsModule,
         AddressesModule,
+        LocationModule,
     ],
     controllers: [AppController],
     providers: [

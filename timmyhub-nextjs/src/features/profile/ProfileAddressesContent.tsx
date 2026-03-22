@@ -35,7 +35,7 @@ function getErrorMessage(err: unknown): string {
 }
 
 function formatAddressLines(a: Address): string {
-    const line2 = [a.ward, a.district, a.city].filter(Boolean).join(', ');
+    const line2 = [a.wardName ?? a.wardCode, a.districtName ?? a.districtCode, a.provinceName ?? a.provinceCode].filter(Boolean).join(', ');
     return [a.addressLine1, a.addressLine2, line2].filter(Boolean).join(', ');
 }
 

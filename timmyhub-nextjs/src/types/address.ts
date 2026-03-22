@@ -7,9 +7,12 @@ export interface Address {
     phone: string;
     addressLine1: string;
     addressLine2: string | null;
-    ward: string;
-    district: string;
-    city: string;
+    provinceCode: string | null;
+    districtCode: string | null;
+    wardCode: string | null;
+    provinceName: string | null;
+    districtName: string | null;
+    wardName: string | null;
     isDefault: boolean;
     createdAt: string;
     updatedAt: string;
@@ -20,9 +23,13 @@ export interface CreateAddressDto {
     fullName: string;
     phone: string;
     addressLine1: string;
-    ward: string;
-    district: string;
-    city: string;
+    addressLine2?: string;
+    provinceCode: string;
+    districtCode: string;
+    wardCode: string;
+    provinceName?: string;
+    districtName?: string;
+    wardName?: string;
     isDefault?: boolean;
 }
 

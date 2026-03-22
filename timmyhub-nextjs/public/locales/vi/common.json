@@ -104,7 +104,11 @@
         "productList": "Danh sách sản phẩm",
         "sellerManagement": "Quản lý Seller",
         "promotions": "Khuyến mãi",
-        "promotionPrograms": "Chương trình KM"
+        "promotionPrograms": "Chương trình KM",
+        "address": "Địa chỉ",
+        "provinces": "Tỉnh/Thành phố",
+        "districts": "Quận/Huyện",
+        "wards": "Phường/Xã"
     },
     "appBar": {
         "myStore": "Gian hàng",

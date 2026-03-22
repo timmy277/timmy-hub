@@ -64,4 +64,11 @@ export const QUERY_KEYS = {
 
     // ── Vouchers ───────────────────────────────────────────────────
     MY_VOUCHERS: ['my-vouchers'] as const,
+
+    // ── Locations (admin) ─────────────────────────────────────────
+    ADMIN_PROVINCES: ['admin-locations', 'provinces'] as const,
+    ADMIN_DISTRICTS: ['admin-locations', 'districts'] as const,
+    ADMIN_WARDS: ['admin-locations', 'wards'] as const,
+    ADMIN_LOCATIONS_PROVINCES: (includeInactive?: boolean) =>
+        ['admin-locations', 'provinces', includeInactive] as const,
 } as const;
