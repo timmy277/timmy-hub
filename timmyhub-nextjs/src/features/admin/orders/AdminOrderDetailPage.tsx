@@ -24,6 +24,7 @@ import type { Order, OrderStatus } from '@/types/order';
 import { PERMISSIONS } from '@/config/permissions';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { QUERY_KEYS, ORDER_STATUS_OPTIONS } from '@/constants';
+import { formatVND } from '@/utils/currency';
 
 export function AdminOrderDetailPage() {
     const params = useParams();
@@ -167,10 +168,10 @@ export function AdminOrderDetailPage() {
                                     <Stack gap={2} style={{ flex: 1 }}>
                                         <Text fw={500}>{item.name}</Text>
                                         <Text size="sm" c="dimmed">
-                                            {item.quantity} x {Number(item.price).toLocaleString()}đ
+                                            {item.quantity} x {formatVND(Number(item.price))}
                                         </Text>
                                     </Stack>
-                                    <Text fw={600}>{Number(item.subtotal).toLocaleString()}đ</Text>
+                                    <Text fw={600}>{formatVND(Number(item.subtotal))}</Text>
                                 </Group>
                             ))}
                         </Stack>
@@ -180,7 +181,7 @@ export function AdminOrderDetailPage() {
                                 Tổng cộng:
                             </Text>
                             <Text size="xl" fw={800} c="blue">
-                                {total.toLocaleString()}đ
+                                {formatVND(total)}
                             </Text>
                         </Group>
                     </Paper>

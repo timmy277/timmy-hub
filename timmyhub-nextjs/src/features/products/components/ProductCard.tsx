@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { Product } from '@/types/product';
 import { AddToCartButton } from '@/components/cart/AddToCartButton';
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
+import { formatVND } from '@/utils/currency';
 
 interface ProductCardProps {
     product: Product;
@@ -86,11 +87,11 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                             {product.name}
                         </Text>
                         <Text size="lg" fw={800} c="red">
-                            {product.price.toLocaleString()}đ
+                            {formatVND(product.price)}
                         </Text>
                         {product.originalPrice && (
                             <Text size="xs" td="line-through" c="dimmed">
-                                {product.originalPrice.toLocaleString()}đ
+                                {formatVND(product.originalPrice)}
                             </Text>
                         )}
                         <Stack gap={2} mt={5}>
@@ -180,11 +181,11 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                                 <Group justify="space-between" mt="md" style={{ position: 'relative', zIndex: 1 }}>
                                     <Stack gap={0}>
                                         <Text size="xl" fw={800} c="blue">
-                                            {product.price.toLocaleString()}đ
+                                            {formatVND(product.price)}
                                         </Text>
                                         {product.originalPrice && (
                                             <Text size="sm" td="line-through" c="dimmed">
-                                                {product.originalPrice.toLocaleString()}đ
+                                                {formatVND(product.originalPrice)}
                                             </Text>
                                         )}
                                     </Stack>
@@ -296,11 +297,11 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                         <Group justify="space-between" align="center" style={{ position: 'relative', zIndex: 1 }}>
                             <Stack gap={0}>
                                 <Text size="xl" fw={800} c="blue">
-                                    {product.price.toLocaleString()}đ
+                                    {formatVND(product.price)}
                                 </Text>
                                 {product.originalPrice && (
                                     <Text size="xs" td="line-through" c="dimmed">
-                                        {product.originalPrice.toLocaleString()}đ
+                                        {formatVND(product.originalPrice)}
                                     </Text>
                                 )}
                             </Stack>

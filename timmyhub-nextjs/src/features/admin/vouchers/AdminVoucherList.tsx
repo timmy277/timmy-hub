@@ -16,6 +16,7 @@ import { CreateVoucherForm } from '@/features/vouchers/components/CreateVoucherF
 import { VoucherDetail } from '@/features/vouchers/components/VoucherDetail';
 import { getActionColumn } from '@/constants/column';
 import { QUERY_KEYS } from '@/constants';
+import { formatVND } from '@/utils/currency';
 
 export function AdminVoucherList() {
     const queryClient = useQueryClient();
@@ -144,7 +145,7 @@ export function AdminVoucherList() {
                     if (!params.data) return '';
                     return params.data.type === 'PERCENTAGE'
                         ? `${params.value}%`
-                        : `${params.value.toLocaleString()}đ`;
+                        : `${formatVND(params.value)}`;
                 }
             },
             {

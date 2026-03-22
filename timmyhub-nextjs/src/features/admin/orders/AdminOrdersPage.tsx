@@ -18,6 +18,7 @@ import Iconify from '@/components/iconify/Iconify';
 import { orderService } from '@/services/order.service';
 import type { Order, OrderStatus } from '@/types/order';
 import { QUERY_KEYS, ORDER_STATUS_LABELS, getOrderStatusColor } from '@/constants';
+import { formatVND } from '@/utils/currency';
 
 export function AdminOrdersPage() {
     const { data: res, isLoading, refetch } = useQuery({
@@ -93,7 +94,7 @@ export function AdminOrdersPage() {
                                             </Table.Td>
                                             <Table.Td>
                                                 <Text size="sm" fw={600}>
-                                                    {Number(order.totalAmount).toLocaleString()}đ
+                                                    {formatVND(Number(order.totalAmount))}
                                                 </Text>
                                             </Table.Td>
                                             <Table.Td>

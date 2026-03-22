@@ -23,6 +23,7 @@ import { Icon } from '@iconify/react';
 import { useQuery } from '@tanstack/react-query';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
+import { formatVND } from '@/utils/currency';
 import { Product } from '@/types/product';
 import { Category } from '@/types/category';
 
@@ -245,7 +246,7 @@ export function ProductSelectionModal({
                                         </Table.Td>
                                         <Table.Td>
                                             <Text size="sm">
-                                                {Number(product.price).toLocaleString('vi-VN')}đ
+                                                {formatVND(Number(product.price))}
                                             </Text>
                                         </Table.Td>
                                         <Table.Td>
@@ -369,7 +370,7 @@ export function ProductSelectionModal({
                                                 <Group gap="xs">
                                                     {item.campaignPrice && (
                                                         <Badge color="red" variant="light" size="sm">
-                                                            {Number(item.campaignPrice).toLocaleString('vi-VN')}đ
+                                                            {formatVND(Number(item.campaignPrice))}
                                                         </Badge>
                                                     )}
                                                     {item.discountPercent && (

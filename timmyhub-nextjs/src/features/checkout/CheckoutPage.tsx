@@ -38,6 +38,7 @@ import type { Address } from '@/types/address';
 import type { PaymentMethod } from '@/types/order';
 import type { CartItem } from '@/types/cart';
 import Link from 'next/link';
+import { formatVND } from '@/utils/currency';
 
 function getErrorMessage(err: unknown): string {
     if (err instanceof Error) return err.message;
@@ -86,7 +87,7 @@ function isVoucherUsable(voucher: Voucher, totalAmount: number): { usable: boole
         return { usable: false, reason: 'Đã hết hạn' };
     }
     if (voucher.minOrderValue && totalAmount < voucher.minOrderValue) {
-        return { usable: false, reason: `Đơn tối thiểu ${voucher.minOrderValue.toLocaleString()}đ` };
+        return { usable: false, reason: `Đơn tối thiểu ${formatVND(voucher.minOrderValue)}` };
     }
     return { usable: true };
 }
@@ -98,7 +99,7 @@ function formatDiscount(voucher: Voucher): string {
     if (voucher.type === 'FREE_SHIPPING') {
         return 'Freeship';
     }
-    return `${voucher.value.toLocaleString()}đ`;
+    return `${formatVND(voucher.value)}`;
 }
 
 function getVoucherColor(voucher: Voucher): string {
@@ -588,10 +589,9 @@ export function CheckoutPage() {
                                                 <div className="flex items-center justify-between">
                                                     <Text size="xs">x{item.quantity}</Text>
                                                     <Text size="sm" fw={700}>
-                                                        {(
-                                                            Number(item.product.price) * item.quantity
-                                                        ).toLocaleString('vi-VN')}
-                                                        ₫
+                                                        {formatVND(
+                                                            Number(item.product.price) * item.quantity,
+                                                        )}
                                                     </Text>
                                                 </div>
                                             </div>
@@ -655,7 +655,7 @@ export function CheckoutPage() {
                                             {t('checkout.subtotal', { count: itemCount })}
                                         </Text>
                                         <Text size="sm" fw={500}>
-                                            {itemsSubtotal.toLocaleString('vi-VN')}₫
+                                            {formatVND(itemsSubtotal)}
                                         </Text>
                                     </Group>
                                     <Group justify="space-between">
@@ -664,14 +664,14 @@ export function CheckoutPage() {
                                         </Text>
                                         <Text size="sm" fw={500}>
                                             {shippingFee === 0
-                                                ? `0₫ (${t('checkout.freeShipping')})`
-                                                : `${shippingFee.toLocaleString('vi-VN')}₫`}
+                                                ? `Miễn phí (${t('checkout.freeShipping')})`
+                                                : formatVND(shippingFee)}
                                         </Text>
                                     </Group>
                                     {appliedVoucher && productDiscount > 0 && (
                                         <Group justify="space-between" className="font-medium text-green-600">
                                             <Text size="sm">{t('checkout.voucherDiscount')}</Text>
-                                            <Text size="sm">-{productDiscount.toLocaleString('vi-VN')}₫</Text>
+                                            <Text size="sm">-{formatVND(productDiscount)}</Text>
                                         </Group>
                                     )}
                                     <Group
@@ -680,7 +680,7 @@ export function CheckoutPage() {
                                     >
                                         <Text className="text-lg font-bold">{t('checkout.total')}</Text>
                                         <Text className="text-xl font-black text-[#238be7]">
-                                            {grandTotal.toLocaleString('vi-VN')}₫
+                                            {formatVND(grandTotal)}
                                         </Text>
                                     </Group>
                                     <Text size="10px" ta="right" c="dimmed" fs="italic">

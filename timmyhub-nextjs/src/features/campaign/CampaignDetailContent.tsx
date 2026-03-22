@@ -21,6 +21,7 @@ import { useParams } from 'next/navigation';
 import { campaignService, Campaign } from '@/services/campaign.service';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { Product } from '@/types/product';
+import { formatVND } from '@/utils/currency';
 
 const DEFAULT_BANNER = {
     backgroundColor: '#ff4d4f',
@@ -374,7 +375,7 @@ export function CampaignDetailContent() {
                                                 <Text fw={700} size="lg" c={config.backgroundColor}>
                                                     {voucher.type === 'PERCENTAGE'
                                                         ? `Giảm ${voucher.value}%`
-                                                        : `Giảm ${voucher.value.toLocaleString('vi-VN')}đ`}
+                                                        : `Giảm ${formatVND(voucher.value)}`}
                                                 </Text>
                                                 <Badge color={config.backgroundColor} variant="light">
                                                     {voucher.type === 'PERCENTAGE' ? '%' : 'đ'}
@@ -382,12 +383,12 @@ export function CampaignDetailContent() {
                                             </Group>
                                             {voucher.minOrderValue && (
                                                 <Text size="sm" c="dimmed">
-                                                    Tối thiểu {voucher.minOrderValue.toLocaleString('vi-VN')}đ
+                                                    Tối thiểu {formatVND(voucher.minOrderValue)}
                                                 </Text>
                                             )}
                                             {voucher.maxDiscount && (
                                                 <Text size="sm" c="dimmed">
-                                                    Tối đa {voucher.maxDiscount.toLocaleString('vi-VN')}đ
+                                                    Tối đa {formatVND(voucher.maxDiscount)}
                                                 </Text>
                                             )}
                                             <Text size="sm">

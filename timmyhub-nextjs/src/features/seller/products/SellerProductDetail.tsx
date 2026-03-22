@@ -17,6 +17,7 @@ import NextImage from 'next/image';
 import Iconify from '@/components/iconify/Iconify';
 import { Product, ResourceStatus } from '@/types/product';
 import { formatDate } from '@/utils/date';
+import { formatVND } from '@/utils/currency';
 import { PRODUCT_STATUS_CONFIG } from '@/constants';
 
 interface Props {
@@ -69,7 +70,7 @@ export function SellerProductDetail({ product }: Props) {
             <SimpleGrid cols={{ base: 2, sm: 4 }}>
                 <Paper withBorder p="sm" radius="md" ta="center">
                     <Text size="xl" fw={700} c="red">
-                        {Number(product.price).toLocaleString('vi-VN')} ₫
+                        {formatVND(Number(product.price))}
                     </Text>
                     <Text size="xs" c="dimmed">Giá bán</Text>
                 </Paper>

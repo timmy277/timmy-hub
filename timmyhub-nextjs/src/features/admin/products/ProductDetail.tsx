@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import Iconify from '@/components/iconify/Iconify';
 import { Product, ResourceStatus } from '@/types/product';
 import { formatDate } from '@/utils/date';
+import { formatVND } from '@/utils/currency';
 
 interface ProductDetailProps {
     product: Product;
@@ -146,12 +147,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
                             <Stack gap="xs">
                                 <Group align="flex-end" gap="xs">
                                     <Text size="xl" fw={800} c="red" style={{ fontSize: '1.8rem' }}>
-                                        {Number(product.price).toLocaleString()} ₫
+                                        {formatVND(Number(product.price))}
                                     </Text>
                                     {product.originalPrice && Number(product.originalPrice) > Number(product.price) && (
                                         <>
                                             <Text size="sm" c="dimmed" td="line-through">
-                                                {Number(product.originalPrice).toLocaleString()} ₫
+                                                {formatVND(Number(product.originalPrice))}
                                             </Text>
                                             <Badge color="red" variant="filled">
                                                 -{product.discount}%

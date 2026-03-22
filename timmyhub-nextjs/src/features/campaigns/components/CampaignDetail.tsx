@@ -23,6 +23,7 @@ import { voucherService } from '@/services/voucher.service';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import Iconify from '@/components/iconify/Iconify';
+import { formatVND } from '@/utils/currency';
 
 interface CampaignDetailProps {
     campaign: Campaign;
@@ -223,7 +224,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                                             </Table.Td>
                                             <Table.Td>
                                                 <Text size="sm">
-                                                    {Number(cp.product.price).toLocaleString('vi-VN')}đ
+                                                    {formatVND(Number(cp.product.price))}
                                                 </Text>
                                             </Table.Td>
                                             <Table.Td>
@@ -238,7 +239,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                                                 ) : (
                                                     <Text size="sm" fw={500} c="red">
                                                         {cp.campaignPrice
-                                                            ? Number(cp.campaignPrice).toLocaleString('vi-VN') + 'đ'
+                                                            ? formatVND(Number(cp.campaignPrice))
                                                             : '-'}
                                                     </Text>
                                                 )}
@@ -386,7 +387,7 @@ export function CampaignDetail({ campaign }: CampaignDetailProps) {
                                                     ? `${voucher.value}%`
                                                     : voucher.type === 'FREE_SHIPPING'
                                                         ? 'Miễn phí ship'
-                                                        : `${voucher.value.toLocaleString()}đ`}
+                                                        : `${formatVND(voucher.value)}`}
                                             </Text>
                                         </Table.Td>
                                         <Table.Td>

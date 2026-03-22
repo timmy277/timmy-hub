@@ -20,8 +20,9 @@ import {
     Box,
 } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { formatVND } from '@/utils/currency';
 import { useQuery } from '@tanstack/react-query';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
@@ -185,12 +186,12 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                             )}
                             <Group gap="md" align="flex-end">
                                 <Text size="xl" fw={700} c={hasCampaign ? 'red' : 'blue'} style={{ fontSize: '2rem' }}>
-                                    {new Intl.NumberFormat('vi-VN').format(displayPrice)}đ
+                                    {formatVND(displayPrice)}
                                 </Text>
                                 {(discountPercent > 0 || (hasCampaign && originalPrice > displayPrice)) && (
                                     <>
                                         <Text size="lg" td="line-through" c="dimmed">
-                                            {new Intl.NumberFormat('vi-VN').format(originalPrice)}đ
+                                            {formatVND(originalPrice)}
                                         </Text>
                                         <Badge size="lg" variant="filled" color="red">
                                             -{discountPercent}%

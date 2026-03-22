@@ -11,6 +11,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { notifications } from '@mantine/notifications';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import { formatVND } from '@/utils/currency';
 
 dayjs.extend(relativeTime);
 
@@ -35,7 +36,7 @@ function formatVoucherValue(voucher: VoucherDisplay): string {
         case 'FREE_SHIPPING':
             return 'Miễn phí vận chuyển';
         case 'FIXED_AMOUNT':
-            return `${voucher.value.toLocaleString()}đ`;
+            return `${formatVND(voucher.value)}`;
         default:
             return `${voucher.value}`;
     }
@@ -60,7 +61,7 @@ function getVoucherColor(type: string, index: number): string {
 
 function getMinOrderText(minOrderValue?: number): string {
     if (!minOrderValue) return 'Mọi đơn hàng';
-    return `Đơn từ ${minOrderValue.toLocaleString()}đ`;
+    return `Đơn từ ${formatVND(minOrderValue)}`;
 }
 
 export function VoucherSection() {

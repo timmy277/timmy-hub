@@ -10,6 +10,7 @@ import { AxiosError } from 'axios';
 import { Product } from '@/types/product';
 import Iconify from '@/components/iconify/Iconify';
 import { ProductSelectionModal } from './ProductSelectionModal';
+import { formatVND } from '@/utils/currency';
 
 interface SelectedProduct {
     productId: string;
@@ -205,7 +206,7 @@ export function CreateCampaignForm({
                                             </Text>
                                             {item.campaignPrice && (
                                                 <Badge color="red" variant="light" size="sm">
-                                                    {Number(item.campaignPrice).toLocaleString('vi-VN')}đ
+                                                    {formatVND(Number(item.campaignPrice))}
                                                 </Badge>
                                             )}
                                             {item.discountPercent && (

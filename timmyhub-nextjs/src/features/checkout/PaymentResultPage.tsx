@@ -12,10 +12,7 @@ import Iconify from '@/components/iconify/Iconify';
 import { orderService } from '@/services/order.service';
 import type { Order, OrderItem } from '@/types/order';
 import { QUERY_KEYS } from '@/constants';
-
-function formatVnd(value: number): string {
-    return `${value.toLocaleString('vi-VN')}₫`;
-}
+import { formatVND } from '@/utils/currency';
 
 function toNumber(v: number | string | undefined | null): number {
     if (v === undefined || v === null) return 0;
@@ -193,7 +190,7 @@ function PaymentResultContent(): ReactElement {
                                         </Text>
                                     </div>
                                     <Text className="shrink-0 text-sm font-bold text-slate-900 dark:text-slate-100">
-                                        {formatVnd(toNumber(item.subtotal))}
+                                        {formatVND(toNumber(item.subtotal))}
                                     </Text>
                                 </div>
                             ))}
@@ -202,21 +199,21 @@ function PaymentResultContent(): ReactElement {
                         <div className="mt-8 space-y-2 border-t border-slate-100 pt-6 dark:border-slate-800">
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-500 dark:text-slate-400">{t('paymentResult.subtotalLine')}</span>
-                                <span className="text-slate-900 dark:text-slate-100">{formatVnd(itemsSubtotal)}</span>
+                                <span className="text-slate-900 dark:text-slate-100">{formatVND(itemsSubtotal)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-500 dark:text-slate-400">{t('checkout.shippingFee')}</span>
-                                <span className="text-slate-900 dark:text-slate-100">{formatVnd(shippingFee)}</span>
+                                <span className="text-slate-900 dark:text-slate-100">{formatVND(shippingFee)}</span>
                             </div>
                             {voucherDiscount > 0 ? (
                                 <div className="flex justify-between text-sm">
                                     <span className="text-slate-500 dark:text-slate-400">{t('paymentResult.discountLine')}</span>
-                                    <span className="text-[#22c55e]">-{formatVnd(voucherDiscount)}</span>
+                                    <span className="text-[#22c55e]">-{formatVND(voucherDiscount)}</span>
                                 </div>
                             ) : null}
                             <div className="flex justify-between pt-2 text-lg font-extrabold">
                                 <span className="text-slate-900 dark:text-slate-100">{t('checkout.total')}</span>
-                                <span className="text-[#238be7]">{formatVnd(totalAmount)}</span>
+                                <span className="text-[#238be7]">{formatVND(totalAmount)}</span>
                             </div>
                         </div>
                     </div>

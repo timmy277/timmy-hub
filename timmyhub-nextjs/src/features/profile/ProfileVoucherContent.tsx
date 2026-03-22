@@ -26,6 +26,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { QUERY_KEYS } from '@/constants';
 import Iconify from '@/components/iconify/Iconify';
+import { formatVND } from '@/utils/currency';
 
 dayjs.extend(relativeTime);
 
@@ -38,7 +39,7 @@ function formatVoucherValue(voucher: { type: string; value: number }): string {
         case 'FREE_SHIPPING':
             return 'Miễn phí vận chuyển';
         case 'FIXED_AMOUNT':
-            return `${voucher.value.toLocaleString()}đ`;
+            return `${formatVND(voucher.value)}`;
         default:
             return `${voucher.value}`;
     }
@@ -63,7 +64,7 @@ function getVoucherColor(type: string, index: number): string {
 
 function getMinOrderText(minOrderValue?: number): string {
     if (!minOrderValue) return 'Mọi đơn hàng';
-    return `Đơn từ ${minOrderValue.toLocaleString()}đ`;
+    return `Đơn từ ${formatVND(minOrderValue)}`;
 }
 
 function VoucherCard({

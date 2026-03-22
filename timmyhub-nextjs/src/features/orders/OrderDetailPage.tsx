@@ -31,6 +31,7 @@ import type { Order, OrderItem } from '@/types/order';
 import { QUERY_KEYS } from '@/constants';
 import { ReviewModal } from '@/features/reviews';
 import { useTranslation } from 'react-i18next';
+import { formatVND } from '@/utils/currency';
 
 const ORDER_STATUS_MAP: Record<string, { label: string; color: string }> = {
     PENDING: { label: 'Chờ xác nhận', color: 'yellow' },
@@ -75,12 +76,12 @@ function OrderItemRow({
             <Stack gap={4} flex={1}>
                 <Text fw={500} size="sm" lineClamp={2}>{item.name}</Text>
                 <Text size="xs" c="dimmed">
-                    {item.quantity} x {Number(item.price).toLocaleString('vi-VN')}đ
+                    {item.quantity} x {formatVND(Number(item.price))}
                 </Text>
             </Stack>
             <Stack gap="xs" align="flex-end">
                 <Text fw={700} size="sm">
-                    {Number(item.subtotal).toLocaleString('vi-VN')}đ
+                    {formatVND(Number(item.subtotal))}
                 </Text>
                 {canReview && !item.isReviewed && (
                     <Button
@@ -277,7 +278,7 @@ export function OrderDetailPage() {
                 <Group justify="space-between">
                     <Text size="lg" fw={700}>Tổng cộng:</Text>
                     <Text size="xl" fw={800} c="blue">
-                        {total.toLocaleString('vi-VN')}đ
+                        {formatVND(total)}
                     </Text>
                 </Group>
             </Paper>

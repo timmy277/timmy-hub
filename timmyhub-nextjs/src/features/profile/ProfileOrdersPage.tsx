@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { orderService } from '@/services/order.service';
 import type { Order, OrderStatus } from '@/types/order';
 import { QUERY_KEYS, ORDER_ALL_VALUE, ORDER_STATUS_LIST, getOrderStatusColor } from '@/constants';
+import { formatVND } from '@/utils/currency';
 
 function OrderCard({ order }: { order: Order }) {
     const items = order.orderItems ?? [];
@@ -54,7 +55,7 @@ function OrderCard({ order }: { order: Order }) {
                     <Badge size="sm" variant="light" color={getOrderStatusColor(order.status as OrderStatus)}>
                         {ORDER_STATUS_LIST.find(s => s.value === order.status)?.label ?? order.status}
                     </Badge>
-                    <Text fw={700} c="blue">{total.toLocaleString()}đ</Text>
+                    <Text fw={700} c="blue">{formatVND(total)}</Text>
                     <Button size="xs" variant="light" component="span">Xem chi tiết</Button>
                 </Stack>
             </Group>

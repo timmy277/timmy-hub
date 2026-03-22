@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
+import { formatVND } from '@/utils/currency';
 
 export function CartBadge() {
     const { user } = useAuth();
@@ -149,10 +150,7 @@ export function CartBadge() {
                                         </Text>
                                         <Text size="xs" c="dimmed">
                                             {item.quantity} x{' '}
-                                            {Number(
-                                                item.product.price,
-                                            ).toLocaleString()}
-                                            đ
+                                            {formatVND(Number(item.product.price))}
                                         </Text>
                                     </Stack>
                                 </Group>
@@ -162,7 +160,7 @@ export function CartBadge() {
                         <Group justify="space-between" p="md" wrap="wrap" gap="xs">
                             <Text size="sm" fw={600}>
                                 Tạm tính:{' '}
-                                {cart?.totalAmount?.toLocaleString() ?? 0}đ
+                                {formatVND(cart?.totalAmount ?? 0)}
                             </Text>
                             <Group gap="xs">
                                 <Button

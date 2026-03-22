@@ -10,6 +10,7 @@ import type { Order, OrderStatus } from '@/types/order';
 import { UserRole } from '@/types/enums';
 import { TFunction } from 'i18next';
 import { formatDate } from '@/utils/date';
+import { formatVND } from '@/utils/currency';
 import dayjs from 'dayjs';
 import type { SystemLog as SystemLogType } from '@/services/system-logs.service';
 
@@ -319,12 +320,12 @@ export const createProductColumns = (options: ColumnConfigOptions): ColDef<Produ
                 return (
                     <Stack gap={0} py={4}>
                         <Text size="sm" fw={700} c="red">
-                            {price.toLocaleString()} ₫
+                            {formatVND(price)}
                         </Text>
                         {originalPrice > price && (
                             <Group gap={4}>
                                 <Text size="xs" c="dimmed" td="line-through">
-                                    {originalPrice.toLocaleString()} ₫
+                                    {formatVND(originalPrice)}
                                 </Text>
                                 <Badge size="xs" color="red" variant="filled" h={14} px={2} style={{ fontSize: '8px' }}>
                                     -{discount}%
@@ -437,7 +438,7 @@ export const createSellerProductColumns = (options: ColumnConfigOptions): ColDef
             width: 140,
             cellRenderer: (params: ICellRendererParams<Product>) => (
                 <Text size="sm" fw={700} c="red" mt={10}>
-                    {Number(params.value).toLocaleString('vi-VN')} ₫
+                    {formatVND(Number(params.value))}
                 </Text>
             ),
         },
@@ -808,7 +809,7 @@ export const createOrderColumns = (options: ColumnConfigOptions): ColDef<Order>[
             field: 'totalAmount',
             width: 130,
             valueFormatter: params =>
-                params.value != null ? `${Number(params.value).toLocaleString()}đ` : '',
+                params.value != null ? formatVND(Number(params.value)) : '',
         },
         {
             headerName: t('table.columns.createdAt'),

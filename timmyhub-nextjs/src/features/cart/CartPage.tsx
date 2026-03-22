@@ -22,6 +22,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { useDebouncedCallback } from '@mantine/hooks';
 import Link from 'next/link';
+import { formatVND } from '@/utils/currency';
 
 export function CartPage() {
     const { user } = useAuth();
@@ -199,11 +200,11 @@ export function CartPage() {
                                         <Group justify="space-between" align="center">
                                             <Group gap="md">
                                                 <Text size="lg" fw={700} c="blue">
-                                                    {Number(item.product.price).toLocaleString()}đ
+                                                    {formatVND(Number(item.product.price))}
                                                 </Text>
                                                 {item.product.originalPrice && (
                                                     <Text size="sm" td="line-through" c="dimmed">
-                                                        {Number(item.product.originalPrice).toLocaleString()}đ
+                                                        {formatVND(Number(item.product.originalPrice))}
                                                     </Text>
                                                 )}
                                             </Group>
@@ -265,10 +266,9 @@ export function CartPage() {
                                             </Text>
                                             <Text size="md" fw={600}>
                                                 Tạm tính:{' '}
-                                                {(
-                                                    Number(item.product.price) * currentQuantity
-                                                ).toLocaleString()}
-                                                đ
+                                                {formatVND(
+                                                    Number(item.product.price) * currentQuantity,
+                                                )}
                                             </Text>
                                         </Group>
                                     </Stack>
@@ -291,7 +291,7 @@ export function CartPage() {
 
                         <Group justify="space-between">
                             <Text c="dimmed">Tạm tính:</Text>
-                            <Text fw={600}>{liveTotalAmount.toLocaleString()}đ</Text>
+                            <Text fw={600}>{formatVND(liveTotalAmount)}</Text>
                         </Group>
 
                         <Group justify="space-between">
@@ -306,7 +306,7 @@ export function CartPage() {
                                 Tổng cộng:
                             </Text>
                             <Text size="xl" fw={800} c="blue">
-                                {liveTotalAmount.toLocaleString()}đ
+                                {formatVND(liveTotalAmount)}
                             </Text>
                         </Group>
 
