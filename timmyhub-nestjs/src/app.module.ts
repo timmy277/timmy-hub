@@ -29,6 +29,7 @@ import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
 import { SystemLogsModule } from './system-logs/system-logs.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { BrandsModule } from './brands/brands.module';
 import { AddressesModule } from './addresses/addresses.module';
 
@@ -86,6 +87,7 @@ import { AddressesModule } from './addresses/addresses.module';
         NotificationsModule,
         WishlistsModule,
         SystemLogsModule,
+        DashboardModule,
         BrandsModule,
         AddressesModule,
     ],

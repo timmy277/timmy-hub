@@ -1,20 +1,22 @@
 'use client';
 
-import { Title, Text, Container, Paper, Stack } from '@mantine/core';
+import { Container, Title, Group, Text, Stack } from '@mantine/core';
+import { DashboardClient } from './components/DashboardClient';
 
-/**
- * Trang Dashboard tổng quan cho Admin
- * Layout (AppBar + Sidebar) được cung cấp bởi AdminLayout ở cấp route
- */
-export function DashboardPage() {
+export function DashboardPage(): React.ReactElement {
     return (
         <Container fluid p="md">
-            <Paper withBorder p="xl" radius="md" shadow="sm">
-                <Stack gap="xs">
-                    <Title order={2}>Admin Panel</Title>
-                    <Text c="dimmed">Chào mừng bạn đến với hệ thống quản trị TimmyHub.</Text>
+            <Group justify="space-between" align="center" mb="xl">
+                <Stack gap={4}>
+                    <Title order={2} className="text-xl font-bold">
+                        Dashboard
+                    </Title>
+                    <Text c="dimmed" size="sm">
+                        Tổng quan hệ thống TimmyHub
+                    </Text>
                 </Stack>
-            </Paper>
+            </Group>
+            <DashboardClient />
         </Container>
     );
 }

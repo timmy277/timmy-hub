@@ -22,6 +22,7 @@
         "guest": "Khách",
         "loading": "Đang tải...",
         "error": "Lỗi",
+        "somethingWentWrong": "Đã xảy ra lỗi, vui lòng thử lại sau",
         "success": "Thành công",
         "confirm": "Xác nhận",
         "yes": "Có",
@@ -744,5 +745,24 @@
         "helpful": "Hữu ích",
         "report": "Báo cáo",
         "noReviews": "Chưa có đánh giá"
+    },
+    "dashboard": {
+        "totalRevenue": "Tổng doanh thu",
+        "totalOrders": "Tổng đơn hàng",
+        "totalUsers": "Tổng người dùng",
+        "totalProducts": "Tổng sản phẩm",
+        "revenueChart": "Doanh thu & Đơn hàng",
+        "orderStatus": "Trạng thái đơn hàng",
+        "topProducts": "Sản phẩm bán chạy",
+        "recentOrders": "Đơn hàng gần đây",
+        "recentActivity": "Hoạt động gần đây",
+        "revenue": "doanh thu",
+        "sold": "đã bán",
+        "vsLastPeriod": "so với kỳ trước",
+        "days": "ngày",
+        "viewAll": "Xem tất cả",
+        "view": "Xem",
+        "noData": "Chưa có dữ liệu",
+        "totalOrdersCount": "Tổng đơn"
     }
 }

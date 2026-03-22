@@ -210,6 +210,7 @@
     "common": {
         "loading": "Loading...",
         "error": "Error",
+        "somethingWentWrong": "Something went wrong, please try again later",
         "success": "Success",
         "confirm": "Confirm",
         "yes": "Yes",
@@ -749,8 +750,7 @@
         "defaultIntro": "Welcome to {{name}} on TimmyHub.",
         "followSoon": "Follow feature coming soon",
         "sellerLabelPrefix": "Seller:"
-    }
-},
+    },
 "reviews": {
         "title": "Reviews",
         "writeReview": "Write a Review",
@@ -762,5 +762,24 @@
         "helpful": "Helpful",
         "report": "Report",
         "noReviews": "No reviews yet"
+    },
+    "dashboard": {
+        "totalRevenue": "Total Revenue",
+        "totalOrders": "Total Orders",
+        "totalUsers": "Total Users",
+        "totalProducts": "Total Products",
+        "revenueChart": "Revenue & Orders",
+        "orderStatus": "Order Status",
+        "topProducts": "Top Products",
+        "recentOrders": "Recent Orders",
+        "recentActivity": "Recent Activity",
+        "revenue": "revenue",
+        "sold": "sold",
+        "vsLastPeriod": "vs last period",
+        "days": "days",
+        "viewAll": "View all",
+        "view": "View",
+        "noData": "No data available",
+        "totalOrdersCount": "Total"
     }
 }

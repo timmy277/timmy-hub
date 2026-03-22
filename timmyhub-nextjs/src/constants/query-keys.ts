@@ -43,6 +43,9 @@ export const QUERY_KEYS = {
     // ── Cart ──────────────────────────────────────────────────────────
     CART: ['cart'] as const,
 
+    // ── Dashboard ─────────────────────────────────────────────────────
+    DASHBOARD: (rangeDays?: number) => ['dashboard', rangeDays] as const,
+
     // ── System Logs ────────────────────────────────────────────────────
     ADMIN_SYSTEM_LOGS: ['admin-system-logs'] as const,
 
