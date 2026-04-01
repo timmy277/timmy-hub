@@ -1,11 +1,18 @@
 'use client';
 
-import { Container, Text, Group, ActionIcon, Box, Grid, Title, Stack, TextInput, ThemeIcon, useComputedColorScheme } from '@mantine/core';
+import { Container, Text, Group, ActionIcon, Box, Grid, Title, Stack, TextInput, ThemeIcon, useComputedColorScheme, Tooltip } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { ClientOnly } from '@/components/ClientOnly';
 import { BECOME_SELLER_PATH } from '@/constants/become-seller';
+
+const SOCIAL_LINKS = [
+    { label: 'Facebook', icon: 'mdi:facebook', color: '#1877F2', href: '#' },
+    { label: 'Instagram', icon: 'mdi:instagram', color: '#E1306C', href: '#' },
+    { label: 'TikTok', icon: 'ic:baseline-tiktok', color: '#010101', href: '#' },
+    { label: 'YouTube', icon: 'mdi:youtube', color: '#FF0000', href: '#' },
+];
 
 export function Footer() {
     const { t } = useTranslation();
@@ -65,24 +72,24 @@ export function Footer() {
                                     </Text>
                                 </Stack>
 
-                                <Stack gap="xs">
-                                    <Group gap="xs">
-                                        <ThemeIcon variant="light" color="blue" size="md">
+                                <Stack gap="sm">
+                                    <Group gap="sm" align="flex-start">
+                                        <ThemeIcon variant="gradient" gradient={{ from: 'blue', to: 'cyan', deg: 135 }} size={32} radius="md">
                                             <Iconify icon="solar:map-point-bold" width={16} />
                                         </ThemeIcon>
-                                        <Text size="sm" c="dimmed">Floor 12, Landmark 81 Building, HCMC</Text>
+                                        <Text size="sm" c="dimmed" style={{ flex: 1, paddingTop: 6 }}>Floor 12, Landmark 81 Building, HCMC</Text>
                                     </Group>
-                                    <Group gap="xs">
-                                        <ThemeIcon variant="light" color="blue" size="md">
-                                            <Iconify icon="solar:phone-bold" width={16} />
+                                    <Group gap="sm">
+                                        <ThemeIcon variant="gradient" gradient={{ from: 'teal', to: 'green', deg: 135 }} size={32} radius="md">
+                                            <Iconify icon="solar:phone-calling-bold" width={16} />
                                         </ThemeIcon>
-                                        <Text size="sm" c="dimmed">1900 1234 (8:00 - 22:00)</Text>
+                                        <Text size="sm" c="dimmed" style={{ paddingTop: 6 }}>1900 1234 (8:00 - 22:00)</Text>
                                     </Group>
-                                    <Group gap="xs">
-                                        <ThemeIcon variant="light" color="blue" size="md">
-                                            <Iconify icon="solar:mail-bold" width={16} />
+                                    <Group gap="sm">
+                                        <ThemeIcon variant="gradient" gradient={{ from: 'violet', to: 'blue', deg: 135 }} size={32} radius="md">
+                                            <Iconify icon="solar:letter-bold" width={16} />
                                         </ThemeIcon>
-                                        <Text size="sm" c="dimmed">support@timmyhub.com</Text>
+                                        <Text size="sm" c="dimmed" style={{ paddingTop: 6 }}>support@timmyhub.com</Text>
                                     </Group>
                                 </Stack>
                             </Stack>
@@ -121,8 +128,8 @@ export function Footer() {
                                         size="md"
                                         w="100%"
                                         rightSection={
-                                            <ActionIcon size={32} radius="xl" color="blue" variant="filled">
-                                                <Iconify icon="solar:arrow-right-bold" width={18} />
+                                            <ActionIcon size={32} radius="xl" variant="gradient" gradient={{ from: 'blue', to: 'cyan', deg: 135 }}>
+                                                <Iconify icon="solar:plain-bold" width={18} />
                                             </ActionIcon>
                                         }
                                         style={{ flex: 1 }}
@@ -130,19 +137,38 @@ export function Footer() {
                                 </Group>
 
                                 <Title order={6} mt="md">{t('footer.connect', 'Connect with us')}</Title>
-                                <Group gap="sm">
-                                    <ActionIcon size="lg" color="blue" variant="light" radius="xl">
-                                        <Iconify icon="mdi:facebook" width={20} />
-                                    </ActionIcon>
-                                    <ActionIcon size="lg" color="cyan" variant="light" radius="xl">
-                                        <Iconify icon="mdi:twitter" width={20} />
-                                    </ActionIcon>
-                                    <ActionIcon size="lg" color="red" variant="light" radius="xl">
-                                        <Iconify icon="mdi:youtube" width={20} />
-                                    </ActionIcon>
-                                    <ActionIcon size="lg" color="pink" variant="light" radius="xl">
-                                        <Iconify icon="mdi:instagram" width={20} />
-                                    </ActionIcon>
+                                <Group gap="xs">
+                                    {SOCIAL_LINKS.map((s) => (
+                                        <Tooltip key={s.label} label={s.label} withArrow position="top">
+                                            <ActionIcon
+                                                component="a"
+                                                href={s.href}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                size={38}
+                                                radius="xl"
+                                                variant="default"
+                                                style={{
+                                                    border: '1px solid var(--mantine-color-default-border)',
+                                                    transition: 'all 0.2s ease',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.backgroundColor = s.color;
+                                                    e.currentTarget.style.borderColor = s.color;
+                                                    e.currentTarget.style.color = '#fff';
+                                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.backgroundColor = '';
+                                                    e.currentTarget.style.borderColor = 'var(--mantine-color-default-border)';
+                                                    e.currentTarget.style.color = '';
+                                                    e.currentTarget.style.transform = '';
+                                                }}
+                                            >
+                                                <Iconify icon={s.icon} width={18} />
+                                            </ActionIcon>
+                                        </Tooltip>
+                                    ))}
                                 </Group>
                             </Stack>
                         </Grid.Col>
