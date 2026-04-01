@@ -122,7 +122,7 @@ export function NotificationBell() {
                     )}
                 </Group>
 
-                <ScrollArea.Autosize mah={400} type="scroll" className="p-2">
+                <ScrollArea.Autosize mah={400} type="never" className="p-2">
                     {isLoading && <Text size="sm" ta="center" py="md" c="dimmed">Đang tải...</Text>}
 
                     {!isLoading && listData?.notifications.length === 0 && (

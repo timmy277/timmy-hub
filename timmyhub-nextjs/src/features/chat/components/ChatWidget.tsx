@@ -194,7 +194,7 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
                         contactName="Trợ lý AI"
                         contactAvatar={null}
                         isMain={true}
-                        mainIcon={<Iconify icon="tabler:robot" width={24} color="currentColor" />}
+                        mainIcon={<Iconify icon="solar:stars-bold-duotone" width={24} color="currentColor" />}
                         opened={effectiveOpenedContactId === VIRTUAL_BOT_ID}
                         onToggle={() => setOpenedContactId(prev => prev === VIRTUAL_BOT_ID ? null : VIRTUAL_BOT_ID)}
                         onCloseChat={() => handleCloseChat(VIRTUAL_BOT_ID)}
