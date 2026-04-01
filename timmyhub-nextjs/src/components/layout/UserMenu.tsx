@@ -1,10 +1,11 @@
 'use client';
 
-import { Menu, Avatar, Text, Box, Group, UnstyledButton } from '@mantine/core';
+import { Menu, Avatar, Text, Box, Group, UnstyledButton, Button } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { UserRole } from '@/types/auth';
 
 function displayName(user: { profile?: { firstName?: string; lastName?: string; displayName?: string }; email?: string }): string {
@@ -17,6 +18,26 @@ function displayName(user: { profile?: { firstName?: string; lastName?: string; 
 export function UserMenu() {
     const { t } = useTranslation();
     const { user, logout } = useAuth();
+    const _hasHydrated = useAuthStore(s => s._hasHydrated);
+
+    // Chưa hydrate xong thì không render gì (tránh flash)
+    if (!_hasHydrated) return null;
+
+    // Chưa login → hiện nút Login
+    if (!user) {
+        return (
+            <Button
+                component={Link}
+                href="/login"
+                variant="light"
+                size="sm"
+                radius="xl"
+                leftSection={<Iconify icon="solar:user-rounded-bold" width={16} />}
+            >
+                {t('common.login', 'Login')}
+            </Button>
+        );
+    }
 
     return (
         <Menu shadow="md" width={220} position="bottom-end">
@@ -26,10 +47,10 @@ export function UserMenu() {
                         <Avatar
                             radius="xl"
                             size="md"
-                            src={user?.profile?.avatar}
-                            alt={user ? displayName(user) : ''}
+                            src={user.profile?.avatar}
+                            alt={displayName(user)}
                         >
-                            {user ? (displayName(user) || '?').slice(0, 2).toUpperCase() : 'G'}
+                            {(displayName(user) || '?').slice(0, 2).toUpperCase()}
                         </Avatar>
                     </Group>
                 </UnstyledButton>
@@ -41,16 +62,16 @@ export function UserMenu() {
                         <Avatar
                             radius="xl"
                             size="lg"
-                            src={user?.profile?.avatar}
-                            alt={user ? displayName(user) : ''}
+                            src={user.profile?.avatar}
+                            alt={displayName(user)}
                         >
-                            {user ? (displayName(user) || '?').slice(0, 2).toUpperCase() : 'G'}
+                            {(displayName(user) || '?').slice(0, 2).toUpperCase()}
                         </Avatar>
                         <Box>
                             <Text size="sm" fw={600}>
-                                {user ? displayName(user) || user.email : t('common.guest')}
+                                {displayName(user) || user.email}
                             </Text>
-                            {user?.roles && user.roles.length > 0 && !user.roles.includes(UserRole.CUSTOMER) && (
+                            {user.roles && user.roles.length > 0 && !user.roles.includes(UserRole.CUSTOMER) && (
                                 <Text size="xs" c="dimmed">
                                     {user.roles.map(r => r.toLowerCase()).join(', ')}
                                 </Text>

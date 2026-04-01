@@ -63,8 +63,7 @@ export const useAuth = () => {
         if (typeof window !== 'undefined') {
             localStorage.removeItem('auth-storage');
         }
-
-        router.push('/login');
+        router.replace('/login');
     };
 
     const logout = () => {
