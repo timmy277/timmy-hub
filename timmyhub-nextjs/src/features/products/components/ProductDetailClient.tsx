@@ -74,7 +74,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             ? [{
                 title: product.category.name,
                 href: `/category/${product.category.slug ?? product.category.id}`,
-                icon: <Iconify icon="tabler:tag" width={14} />,
+                icon: <Iconify icon="solar:tag-bold" width={14} />,
             }]
             : []),
         { title: product.name },
