@@ -3,6 +3,7 @@
 import { Paper, Group, Stack, Divider, Button, Rating, Text } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import type { ReviewBreakdown } from '@/types/review';
+import { useTranslation } from 'react-i18next';
 
 interface RatingBreakdownProps {
     breakdown: ReviewBreakdown;
@@ -23,6 +24,7 @@ function StarFilterButton({
     active: boolean;
     onClick: () => void;
 }) {
+    const { t } = useTranslation('common');
     return (
         <Button
             variant={active ? 'filled' : 'default'}
@@ -31,7 +33,7 @@ function StarFilterButton({
             onClick={onClick}
             leftSection={<Iconify icon="tabler:star" width={12} />}
         >
-            {star} sao {count > 0 && `(${count})`}
+            {t('reviews.filterStar', { count: star })} {count > 0 && `(${count})`}
         </Button>
     );
 }
@@ -43,6 +45,7 @@ export function RatingBreakdown({
     onFilter,
     activeFilter,
 }: RatingBreakdownProps) {
+    const { t } = useTranslation('common');
     return (
         <Paper withBorder radius="md" p="md">
             <Group gap="xl" wrap="nowrap" align="flex-start">
@@ -56,7 +59,7 @@ export function RatingBreakdown({
                         {ratingAvg.toFixed(1)}
                     </Text>
                     <Rating value={ratingAvg} readOnly fractions={2} size="sm" />
-                    <Text size="xs" c="dimmed">{total} đánh giá</Text>
+                    <Text size="xs" c="dimmed">{t('reviews.reviewCount', { count: total })}</Text>
                 </Stack>
 
                 <Divider orientation="vertical" />
@@ -93,7 +96,7 @@ export function RatingBreakdown({
                     radius="xl"
                     onClick={() => onFilter(undefined)}
                 >
-                    Tất cả
+                    {t('reviews.filterAll')}
                 </Button>
                 {([5, 4, 3, 2, 1] as const).map((star) => (
                     <StarFilterButton

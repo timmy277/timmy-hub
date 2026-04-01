@@ -7,6 +7,7 @@ import { campaignService } from '@/services/campaign.service';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export function CreateVoucherForm({
     onSuccessCallback,
@@ -15,6 +16,7 @@ export function CreateVoucherForm({
     onSuccessCallback?: () => void;
     initialData?: Voucher;
 }) {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
     const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
     const [code, setCode] = useState(initialData?.code || '');
@@ -45,8 +47,8 @@ export function CreateVoucherForm({
             queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
             setValidationErrors({});
             notifications.show({
-                title: 'Thành công',
-                message: isUpdate ? 'Cập nhật voucher thành công' : 'Tạo voucher thành công',
+                title: t('common.success'),
+                message: isUpdate ? t('voucher.createForm.successUpdate') : t('voucher.createForm.successCreate'),
                 color: 'green',
             });
             // Reset form
@@ -67,11 +69,11 @@ export function CreateVoucherForm({
                 setValidationErrors(data.validationErrors);
             }
             notifications.show({
-                title: 'Lỗi validation',
+                title: t('voucher.createForm.errorTitle'),
                 message:
                     data?.message ||
                     (Array.isArray(data?.error) ? data.error[0] : data?.error) ||
-                    (isUpdate ? 'Không thể cập nhật voucher' : 'Không thể tạo voucher'),
+                    (isUpdate ? t('voucher.createForm.errorUpdate') : t('voucher.createForm.errorCreate')),
                 color: 'red',
             });
         },
@@ -99,7 +101,7 @@ export function CreateVoucherForm({
         <Paper withBorder radius="md" p="lg" mt="md">
             <Stack gap="md" maw={600}>
                 {Object.keys(validationErrors).length > 0 && (
-                    <Alert icon={<Iconify icon="solar:danger-bold" width={16} />} color="red" title="Dữ liệu không hợp lệ">
+                    <Alert icon={<Iconify icon="solar:danger-bold" width={16} />} color="red" title={t('voucher.createForm.invalidData')}>
                         <Stack gap={4}>
                             {Object.entries(validationErrors).map(([field, messages]) =>
                                 messages.map((msg, i) => (
@@ -112,8 +114,8 @@ export function CreateVoucherForm({
                     </Alert>
                 )}
                 <TextInput
-                    label="Mã Voucher"
-                    description="Chỉ chữ hoa, số và dấu _ (VD: SALE_10)"
+                    label={t('voucher.createForm.codeLabel')}
+                    description={t('voucher.createForm.codeDesc')}
                     required
                     value={code}
                     readOnly={isUpdate}
@@ -121,15 +123,15 @@ export function CreateVoucherForm({
                     onChange={e => setCode(e.currentTarget.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
                 />
                 <TextInput
-                    label="Mô tả"
+                    label={t('voucher.createForm.descriptionLabel')}
                     value={description}
                     error={validationErrors['description']?.[0]}
                     onChange={e => setDescription(e.currentTarget.value)}
                 />
 
                 <Select
-                    label="Chương trình khuyến mãi (Tùy chọn)"
-                    placeholder="Không áp dụng campaign"
+                    label={t('voucher.createForm.campaignLabel')}
+                    placeholder={t('voucher.createForm.campaignPlaceholder')}
                     data={
                         campaignsRes?.data?.map(c => ({
                             value: c.id,
@@ -143,18 +145,18 @@ export function CreateVoucherForm({
                 />
                 <Group grow>
                     <Select
-                        label="Loại"
+                        label={t('voucher.createForm.typeLabel')}
                         data={[
-                            { value: 'PERCENTAGE', label: 'Phần trăm' },
-                            { value: 'FIXED_AMOUNT', label: 'Cố định' },
-                            { value: 'FREE_SHIPPING', label: 'Freeship' },
+                            { value: 'PERCENTAGE', label: t('voucher.createForm.typePercentage') },
+                            { value: 'FIXED_AMOUNT', label: t('voucher.createForm.typeFixed') },
+                            { value: 'FREE_SHIPPING', label: t('voucher.createForm.typeFreeship') },
                         ]}
                         value={type}
                         error={validationErrors['type']?.[0]}
                         onChange={v => setType(v as 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING')}
                     />
                     <NumberInput
-                        label="Giá trị"
+                        label={t('voucher.createForm.valueLabel')}
                         required
                         value={value}
                         error={validationErrors['value']?.[0]}
@@ -163,14 +165,14 @@ export function CreateVoucherForm({
                 </Group>
                 <Group grow>
                     <NumberInput
-                        label="Đơn tối thiểu"
+                        label={t('voucher.createForm.minOrderLabel')}
                         value={minOrderValue}
                         error={validationErrors['minOrderValue']?.[0]}
                         onChange={val => setMinOrderValue(typeof val === 'number' ? val : '')}
                     />
                     {type === 'PERCENTAGE' && (
                         <NumberInput
-                            label="Giảm tối đa"
+                            label={t('voucher.createForm.maxDiscountLabel')}
                             value={maxDiscount}
                             error={validationErrors['maxDiscount']?.[0]}
                             onChange={val => setMaxDiscount(typeof val === 'number' ? val : '')}
@@ -179,13 +181,13 @@ export function CreateVoucherForm({
                 </Group>
                 <Group grow>
                     <NumberInput
-                        label="Giới hạn dùng (Tổng)"
+                        label={t('voucher.createForm.usageLimitLabel')}
                         value={usageLimit}
                         error={validationErrors['usageLimit']?.[0]}
                         onChange={val => setUsageLimit(typeof val === 'number' ? val : '')}
                     />
                     <NumberInput
-                        label="Giới hạn mỗi user"
+                        label={t('voucher.createForm.perUserLimitLabel')}
                         required
                         min={1}
                         value={perUserLimit}
@@ -196,7 +198,7 @@ export function CreateVoucherForm({
                 <Group grow>
                     <TextInput
                         type="date"
-                        label="Ngày bắt đầu"
+                        label={t('voucher.createForm.startDateLabel')}
                         required
                         value={startDate}
                         error={validationErrors['startDate']?.[0]}
@@ -204,7 +206,7 @@ export function CreateVoucherForm({
                     />
                     <TextInput
                         type="date"
-                        label="Ngày kết thúc"
+                        label={t('voucher.createForm.endDateLabel')}
                         required
                         value={endDate}
                         error={validationErrors['endDate']?.[0]}
@@ -214,7 +216,7 @@ export function CreateVoucherForm({
 
                 <Group justify="right" mt="md">
                     <Button onClick={handleSubmit} loading={mutation.isPending}>
-                        {isUpdate ? 'Cập nhật' : 'Hoàn tất tạo'}
+                        {isUpdate ? t('voucher.createForm.submitUpdate') : t('voucher.createForm.submitCreate')}
                     </Button>
                 </Group>
             </Stack>

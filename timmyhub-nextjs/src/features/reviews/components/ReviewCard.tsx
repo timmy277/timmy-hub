@@ -22,6 +22,7 @@ import Image from 'next/image';
 import { reviewService } from '@/services/review.service';
 import { useChatStore } from '@/stores/useChatStore';
 import type { Review } from '@/types/review';
+import { useTranslation } from 'react-i18next';
 
 const MediaLightbox = lazy(() => import('./MediaLightbox').then(m => ({ default: m.MediaLightbox })));
 
@@ -47,7 +48,8 @@ function timeAgo(dateStr: string): string {
 }
 
 export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) {
-    const displayName = review.user.profile?.displayName ?? 'Người dùng ẩn danh';
+    const { t } = useTranslation('common');
+    const displayName = review.user.profile?.displayName ?? t('reviews.anonymous');
     const avatar = review.user.profile?.avatar;
     const initials = displayName.slice(0, 2).toUpperCase();
     const openChat = useChatStore((state) => state.openChat);
@@ -120,7 +122,7 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                             color="green"
                             leftSection={<Iconify icon="tabler:shield" width={10} />}
                         >
-                            Đã mua
+                            {t('reviews.verifiedBadge')}
                         </Badge>
                     )}
                 </Group>
@@ -211,7 +213,7 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                         <ActionIcon variant="subtle" color="gray" size="sm" radius="xl">
                             <Iconify icon="tabler:message-circle" width={14} />
                         </ActionIcon>
-                        <Text size="xs" c="dimmed">{review.comments?.length || 0} bình luận</Text>
+                        <Text size="xs" c="dimmed">{t('reviews.commentCount', { count: review.comments?.length || 0 })}</Text>
                     </Group>
                 </Group>
 
@@ -227,7 +229,7 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                                             size="sm"
                                             color="blue"
                                             className="cursor-pointer"
-                                            onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || 'Ẩn danh', cmt.user.profile?.avatar)}
+                                            onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || t('reviews.anonymous'), cmt.user.profile?.avatar)}
                                         >
                                             {cmt.user.profile?.displayName?.slice(0, 2).toUpperCase() || 'U'}
                                         </Avatar>
@@ -237,9 +239,9 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                                                     fw={600}
                                                     size="xs"
                                                     className="cursor-pointer"
-                                                    onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || 'Ẩn danh', cmt.user.profile?.avatar)}
+                                                    onClick={() => handleOpenChat(cmt.userId, cmt.user.profile?.displayName || t('reviews.anonymous'), cmt.user.profile?.avatar)}
                                                 >
-                                                    {cmt.user.profile?.displayName || 'Ẩn danh'}
+                                                    {cmt.user.profile?.displayName || t('reviews.anonymous')}
                                                 </Text>
                                                 <Text size="xs" c="dimmed" className="text-[10px]">{timeAgo(cmt.createdAt)}</Text>
                                             </Group>
@@ -251,11 +253,11 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                                                 className="cursor-pointer mt-1 inline-block"
                                                 onClick={() => {
                                                     setReplyToId(cmt.id);
-                                                    setCommentText(`@${cmt.user.profile?.displayName || 'Ẩn danh'} `);
+                                                    setCommentText(`@${cmt.user.profile?.displayName || t('reviews.anonymous')} `);
                                                     inputRef.current?.focus();
                                                 }}
                                             >
-                                                Phản hồi
+                                                {t('reviews.reply')}
                                             </Text>
                                         </Box>
                                     </Group>
@@ -271,7 +273,7 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                                                         size="xs"
                                                         color="gray"
                                                         className="cursor-pointer"
-                                                        onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || 'Ẩn danh', reply.user.profile?.avatar)}
+                                                        onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || t('reviews.anonymous'), reply.user.profile?.avatar)}
                                                     >
                                                         {reply.user.profile?.displayName?.slice(0, 2).toUpperCase() || 'U'}
                                                     </Avatar>
@@ -282,9 +284,9 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                                                                 size="xs"
                                                                 className="cursor-pointer"
                                                                 style={{ fontSize: 11 }}
-                                                                onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || 'Ẩn danh', reply.user.profile?.avatar)}
+                                                                onClick={() => handleOpenChat(reply.userId, reply.user.profile?.displayName || t('reviews.anonymous'), reply.user.profile?.avatar)}
                                                             >
-                                                                {reply.user.profile?.displayName || 'Ẩn danh'}
+                                                                {reply.user.profile?.displayName || t('reviews.anonymous')}
                                                             </Text>
                                                             <Text size="xs" c="dimmed" className="text-[9px]">{timeAgo(reply.createdAt)}</Text>
                                                         </Group>
@@ -295,11 +297,11 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                                                             className="cursor-pointer mt-1 inline-block"
                                                             onClick={() => {
                                                                 setReplyToId(cmt.id);
-                                                                setCommentText(`@${reply.user.profile?.displayName || 'Ẩn danh'} `);
+                                                                setCommentText(`@${reply.user.profile?.displayName || t('reviews.anonymous')} `);
                                                                 inputRef.current?.focus();
                                                             }}
                                                         >
-                                                            Phản hồi
+                                                            {t('reviews.reply')}
                                                         </Text>
                                                     </Box>
                                                 </Group>
@@ -313,7 +315,7 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                                 {replyToId && (
                                     <Group justify="space-between" className="mb-2">
                                         <Text size="xs" c="dimmed">
-                                            Đang phản hồi bình luận
+                                            {t('reviews.replyingTo')}
                                         </Text>
                                         <ActionIcon size="xs" variant="subtle" color="gray" onClick={() => {
                                             setReplyToId(undefined);
@@ -327,7 +329,7 @@ export function ReviewCard({ review, voted, onToggleHelpful }: ReviewCardProps) 
                                 )}
                                 <TextInput
                                     ref={inputRef}
-                                    placeholder={replyToId ? "Viết phản hồi..." : "Viết bình luận..."}
+                                    placeholder={replyToId ? t('reviews.writeReply') : t('reviews.writeComment')}
                                     value={commentText}
                                     onChange={e => setCommentText(e.target.value)}
                                     size="sm"

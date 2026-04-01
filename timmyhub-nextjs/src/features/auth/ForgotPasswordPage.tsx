@@ -20,6 +20,7 @@ import Iconify from '@/components/iconify/Iconify';
 import { notifications } from '@mantine/notifications';
 import { z } from 'zod';
 import { useForgotPasswordMutation } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 function getApiErrorMessage(error: unknown, fallback: string): string {
     const axiosError = error as { response?: { data?: { message?: string } } };
@@ -34,6 +35,7 @@ const schema = z.object({
 });
 
 export function ForgotPasswordPage() {
+    const { t } = useTranslation('common');
     const [emailSent, setEmailSent] = useState(false);
     const forgotPasswordMutation = useForgotPasswordMutation();
 
@@ -47,15 +49,15 @@ export function ForgotPasswordPage() {
             await forgotPasswordMutation.mutateAsync(values.email);
             setEmailSent(true);
             notifications.show({
-                title: 'Thành công',
-                message: 'Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn',
+                title: t('auth.forgotPasswordSuccess'),
+                message: t('auth.forgotPasswordSuccessMsg'),
                 color: 'green',
                 icon: <Iconify icon="tabler:check" width={18} />,
             });
         } catch (error: unknown) {
             notifications.show({
-                title: 'Lỗi',
-                message: getApiErrorMessage(error, 'Không thể gửi email'),
+                title: t('auth.forgotPasswordError'),
+                message: getApiErrorMessage(error, t('auth.forgotPasswordErrorMsg')),
                 color: 'red',
                 icon: <Iconify icon="tabler:x" width={18} />,
             });
@@ -107,17 +109,17 @@ export function ForgotPasswordPage() {
                                     </Box>
                                 </Group>
                                 <Title order={2} fw={800}>
-                                    Quên Mật Khẩu?
+                                    {t('auth.forgotPasswordTitle')}
                                 </Title>
                                 <Text c="dimmed" size="sm" mt={5}>
-                                    Nhập email để nhận hướng dẫn đặt lại mật khẩu
+                                    {t('auth.forgotPasswordDesc')}
                                 </Text>
                             </Box>
 
                             <form onSubmit={form.onSubmit(handleSubmit)}>
                                 <Stack gap="md">
                                     <TextInput
-                                        label="Email"
+                                        label={t('auth.emailLabel')}
                                         placeholder="your@email.com"
                                         size="md"
                                         radius="md"
@@ -133,7 +135,7 @@ export function ForgotPasswordPage() {
                                         mt="md"
                                         loading={forgotPasswordMutation.isPending}
                                     >
-                                        Gửi link đặt lại
+                                        {t('auth.sendResetLink')}
                                     </Button>
                                 </Stack>
                             </form>
@@ -141,7 +143,7 @@ export function ForgotPasswordPage() {
                             <Anchor href="/login" size="sm" ta="center">
                                 <Group gap={4} justify="center">
                                     <Iconify icon="tabler:arrow-left" width={14} />
-                                    <Text size="sm">Quay lại đăng nhập</Text>
+                                    <Text size="sm">{t('auth.backToLogin')}</Text>
                                 </Group>
                             </Anchor>
                         </Stack>
@@ -149,28 +151,28 @@ export function ForgotPasswordPage() {
                         <Stack gap="xl">
                             <Box ta="center">
                                 <Title order={2} fw={800} c="green">
-                                    Kiểm Tra Email
+                                    {t('auth.checkEmailTitle')}
                                 </Title>
                                 <Text c="dimmed" size="sm" mt="md">
-                                    Chúng tôi đã gửi hướng dẫn đặt lại mật khẩu đến{' '}
+                                    {t('auth.checkEmailDesc')}{' '}
                                     <strong>{form.values.email}</strong>
                                 </Text>
                             </Box>
 
                             <Text size="sm" c="dimmed" ta="center">
-                                Không nhận được email? Kiểm tra thư mục spam hoặc{' '}
-                                <Anchor onClick={() => setEmailSent(false)}>thử lại</Anchor>
+                                {t('auth.noEmailReceived')}{' '}
+                                <Anchor onClick={() => setEmailSent(false)}>{t('auth.tryAgain')}</Anchor>
                             </Text>
 
                             <Button component="a" href="/login" variant="light" fullWidth size="lg">
-                                Quay lại đăng nhập
+                                {t('auth.backToLogin')}
                             </Button>
                         </Stack>
                     )}
                 </Paper>
 
                 <Text mt="xl" c="dimmed" size="xs" ta="center">
-                    &copy; 2026 TimmyHub. Secure Authentication.
+                    {t('auth.copyright')}
                 </Text>
             </Container>
         </Box>

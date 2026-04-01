@@ -50,9 +50,9 @@ export function SellerDashboard() {
                         <Group>
                             <Iconify icon="tabler:package" width={32} stroke={1.5} />
                             <div>
-                                <Text fw={600}>Sản phẩm</Text>
+                                <Text fw={600}>{t('seller.products')}</Text>
                                 <Text size="xs" c="dimmed">
-                                    Quản lý sản phẩm của gian hàng
+                                    {t('seller.manageProducts')}
                                 </Text>
                             </div>
                         </Group>
@@ -68,9 +68,9 @@ export function SellerDashboard() {
                         <Group>
                             <Iconify icon="tabler:ticket" width={32} stroke={1.5} />
                             <div>
-                                <Text fw={600}>Voucher</Text>
+                                <Text fw={600}>{t('seller.vouchers')}</Text>
                                 <Text size="xs" c="dimmed">
-                                    Tạo và quản lý mã giảm giá
+                                    {t('seller.manageVouchers')}
                                 </Text>
                             </div>
                         </Group>
@@ -86,9 +86,9 @@ export function SellerDashboard() {
                         <Group>
                             <Iconify icon="tabler:discount" width={32} stroke={1.5} />
                             <div>
-                                <Text fw={600}>Chương trình khuyến mãi</Text>
+                                <Text fw={600}>{t('seller.campaigns')}</Text>
                                 <Text size="xs" c="dimmed">
-                                    Tạo campaign và gắn voucher
+                                    {t('seller.manageCampaigns')}
                                 </Text>
                             </div>
                         </Group>
@@ -97,18 +97,18 @@ export function SellerDashboard() {
 
                 <Paper withBorder p="xl" radius="md">
                     <Title order={4} mb="xs">
-                        Thông tin gian hàng
+                        {t('seller.shopInfo')}
                     </Title>
                     {shop ? (
                         <Stack gap="xs">
-                            <Text><strong>Tên gian hàng:</strong> {shop.shopName}</Text>
-                            <Text><strong>Slug:</strong> {shop.shopSlug}</Text>
+                            <Text><strong>{t('seller.shopName')}</strong> {shop.shopName}</Text>
+                            <Text><strong>{t('seller.shopSlug')}</strong> {shop.shopSlug}</Text>
                             {shop.description && (
-                                <Text><strong>Mô tả:</strong> {shop.description}</Text>
+                                <Text><strong>{t('seller.shopDescription')}</strong> {shop.description}</Text>
                             )}
                         </Stack>
                     ) : (
-                        <Text c="dimmed">Đang tải...</Text>
+                        <Text c="dimmed">{t('common.loading')}</Text>
                     )}
                 </Paper>
             </Stack>

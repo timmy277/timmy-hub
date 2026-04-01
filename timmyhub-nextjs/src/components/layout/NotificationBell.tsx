@@ -11,11 +11,13 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
 
 export function NotificationBell() {
+    const { t } = useTranslation('common');
     const router = useRouter();
     const queryClient = useQueryClient();
     const [opened, setOpened] = useState(false);
@@ -108,7 +110,7 @@ export function NotificationBell() {
 
             <Popover.Dropdown p={0}>
                 <Group justify="space-between" px="md" py="xs" className="border-b border-gray-100 dark:border-gray-800">
-                    <Text fw={600}>Thông báo</Text>
+                    <Text fw={600}>{t('notifications.title')}</Text>
                     {unreadCount > 0 && (
                         <Button
                             variant="subtle"
@@ -117,16 +119,16 @@ export function NotificationBell() {
                             onClick={() => markAllAsReadMutation.mutate()}
                             loading={markAllAsReadMutation.isPending}
                         >
-                            Đánh dấu đã đọc tất cả
+                            {t('notifications.markAllReadAll')}
                         </Button>
                     )}
                 </Group>
 
                 <ScrollArea.Autosize mah={400} type="never" className="p-2">
-                    {isLoading && <Text size="sm" ta="center" py="md" c="dimmed">Đang tải...</Text>}
+                    {isLoading && <Text size="sm" ta="center" py="md" c="dimmed">{t('notifications.loading')}</Text>}
 
                     {!isLoading && listData?.notifications.length === 0 && (
-                        <Text size="sm" ta="center" py="md" c="dimmed">Bạn không có thông báo nào.</Text>
+                        <Text size="sm" ta="center" py="md" c="dimmed">{t('notifications.noNotificationsDesc')}</Text>
                     )}
 
                     {!isLoading && listData?.notifications.map((notif: Notification) => (

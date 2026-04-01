@@ -27,6 +27,7 @@ import Iconify from '@/components/iconify/Iconify';
 import { reviewService } from '@/services/review.service';
 import type { CreateReviewInput } from '@/types/review';
 import { MediaUploader } from './MediaUploader';
+import { useTranslation } from 'react-i18next';
 
 const RATING_LABELS: Record<number, { label: string; color: string }> = {
     1: { label: 'Rất tệ', color: 'red' },
@@ -55,6 +56,7 @@ export function ReviewModal({
     orderItemId,
     onSuccess,
 }: ReviewModalProps) {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
@@ -70,8 +72,8 @@ export function ReviewModal({
         },
         onError: () => {
             notifications.show({
-                title: 'Lỗi',
-                message: 'Không thể gửi đánh giá. Vui lòng thử lại.',
+                title: t('common.error'),
+                message: t('reviews.submitError'),
                 color: 'red',
             });
         },
@@ -109,7 +111,7 @@ export function ReviewModal({
                     <ThemeIcon variant="light" color="orange" size="sm" radius="xl">
                         <Iconify icon="tabler:star" width={14} />
                     </ThemeIcon>
-                    <Text fw={700} size="md">Đánh giá sản phẩm</Text>
+                    <Text fw={700} size="md">{t('reviews.modalTitle')}</Text>
                 </Group>
             }
             centered
@@ -143,7 +145,7 @@ export function ReviewModal({
                                         mt={4}
                                         leftSection={<Iconify icon="tabler:shopping-bag" width={10} />}
                                     >
-                                        Đã mua
+                                        {t('reviews.purchasedBadge')}
                                     </Badge>
                                 </Box>
                             </Group>
@@ -152,7 +154,7 @@ export function ReviewModal({
                         {/* Rating stars */}
                         <Stack gap="xs" align="center">
                             <Text size="sm" c="dimmed" fw={500}>
-                                Chất lượng sản phẩm như thế nào?
+                                {t('reviews.ratingQuestion')}
                             </Text>
                             <Rating
                                 value={rating}
@@ -176,15 +178,15 @@ export function ReviewModal({
 
                         {/* Comment */}
                         <Textarea
-                            label="Nhận xét của bạn"
-                            placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này... (không bắt buộc)"
+                            label={t('reviews.commentLabel')}
+                            placeholder={t('reviews.commentPlaceholder')}
                             minRows={3}
                             maxRows={5}
                             autosize
                             value={comment}
                             onChange={e => setComment(e.currentTarget.value)}
                             maxLength={1000}
-                            description={`${comment.length}/1000 ký tự`}
+                            description={t('reviews.commentLength', { count: comment.length })}
                             radius="md"
                         />
 
@@ -203,7 +205,7 @@ export function ReviewModal({
                                 onClick={handleClose}
                                 disabled={mutation.isPending}
                             >
-                                Để sau
+                                {t('reviews.laterBtn')}
                             </Button>
                             <Button
                                 radius="md"
@@ -212,7 +214,7 @@ export function ReviewModal({
                                 leftSection={<Iconify icon="tabler:star" width={16} />}
                                 color="orange"
                             >
-                                Gửi đánh giá
+                                {t('reviews.submitBtn')}
                             </Button>
                         </Group>
                     </Stack>
@@ -226,12 +228,12 @@ export function ReviewModal({
                         <ThemeIcon size={80} radius="xl" color="green" variant="light">
                             <Iconify icon="tabler:check" width={40} />
                         </ThemeIcon>
-                        <Title order={3} ta="center">Cảm ơn bạn!</Title>
+                        <Title order={3} ta="center">{t('reviews.successTitle')}</Title>
                         <Text c="dimmed" ta="center" size="sm">
-                            Đánh giá của bạn đã được gửi và sẽ giúp người mua khác đưa ra quyết định tốt hơn.
+                            {t('reviews.successDesc')}
                         </Text>
                         <Button radius="md" onClick={handleClose} color="orange">
-                            Xong
+                            {t('reviews.doneBtn')}
                         </Button>
                     </Stack>
                 )}

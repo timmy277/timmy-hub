@@ -21,6 +21,7 @@ import { Product } from '@/types/product';
 import { AddToCartButton } from '@/components/cart/AddToCartButton';
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
 import { formatVND } from '@/utils/currency';
+import { useTranslation } from 'react-i18next';
 
 interface ProductCardProps {
     product: Product;
@@ -29,6 +30,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: ProductCardProps) {
+    const { t } = useTranslation('common');
     const discountPercentage = product.originalPrice
         ? Math.round((1 - product.price / product.originalPrice) * 100)
         : 0;
@@ -97,7 +99,7 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                         <Stack gap={2} mt={5}>
                             <Group justify="space-between">
                                 <Text size="xs" c="red" fw={700}>
-                                    Đã bán {product.soldCount}
+                                    {t('product.soldCount', { count: product.soldCount })}
                                 </Text>
                                 <Iconify icon="tabler:flame" width={14} color="orange" />
                             </Group>
@@ -110,7 +112,7 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                                 striped
                             />
                             <Text size="xs" c="dimmed">
-                                Còn lại {product.stock} sản phẩm
+                                {t('product.inStock', { count: product.stock })}
                             </Text>
                         </Stack>
                     </Stack>
@@ -156,9 +158,9 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                             <Flex direction="column" h="100%" justify="space-between">
                                 <Stack gap="xs">
                                     <Group justify="space-between">
-                                        <Badge color="gray">{product.category?.name || 'Chưa phân loại'}</Badge>
-                                        {product.isNew && <Badge color="green">Hàng Mới</Badge>}
-                                        {product.isFeatured && <Badge color="orange">Nổi Bật</Badge>}
+                                        <Badge color="gray">{product.category?.name || t('product.uncategorized')}</Badge>
+                                        {product.isNew && <Badge color="green">{t('product.new')}</Badge>}
+                                        {product.isFeatured && <Badge color="orange">{t('product.featured')}</Badge>}
                                     </Group>
                                     <Anchor
                                         component={Link}
@@ -172,10 +174,10 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                                     </Anchor>
                                     <Group gap={4}>
                                         <Iconify icon="tabler:star" width={16} style={{ fill: 'orange' }} color="orange" />
-                                        <Text size="sm">{product.ratingAvg.toFixed(1)} ({product.ratingCount} đánh giá)</Text>
+                                        <Text size="sm">{product.ratingAvg.toFixed(1)} {t('product.ratingCount', { count: product.ratingCount })}</Text>
                                     </Group>
                                     <Text lineClamp={2} c="dimmed" size="sm">
-                                        {product.description || 'Chưa có mô tả'}
+                                        {product.description || t('product.noDescription')}
                                     </Text>
                                 </Stack>
                                 <Group justify="space-between" mt="md" style={{ position: 'relative', zIndex: 1 }}>
@@ -239,12 +241,12 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                         />
                         {product.isNew && (
                             <Badge color="green" pos="absolute" top={10} right={10}>
-                                Mới
+                                {t('product.new')}
                             </Badge>
                         )}
                         {product.isFeatured && (
                             <Badge color="orange" pos="absolute" top={10} left={10}>
-                                Nổi bật
+                                {t('product.featured')}
                             </Badge>
                         )}
                         {discountPercentage > 0 && (
@@ -263,7 +265,7 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                 <Flex direction="column" style={{ flex: 1 }} mt="md">
                     <Stack gap="xs" style={{ flex: 1 }}>
                         <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
-                            {product.category?.name || 'Chưa phân loại'}
+                            {product.category?.name || t('product.uncategorized')}
                         </Text>
                         <Anchor
                             component={Link}
@@ -289,7 +291,7 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                         <Group gap={4}>
                             <Iconify icon="tabler:star" width={14} style={{ fill: 'orange' }} color="orange" />
                             <Text size="xs">{product.ratingAvg.toFixed(1)}</Text>
-                            <Text size="xs" c="dimmed">({product.ratingCount} đánh giá)</Text>
+                            <Text size="xs" c="dimmed">{t('product.ratingCount', { count: product.ratingCount })}</Text>
                         </Group>
                     </Stack>
 
@@ -312,12 +314,12 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
 
                         {product.stock <= 10 && product.stock > 0 && (
                             <Text size="xs" c="orange" fw={600}>
-                                Chỉ còn {product.stock} sản phẩm
+                                {t('product.lowStock', { count: product.stock })}
                             </Text>
                         )}
                         {product.stock === 0 && (
                             <Text size="xs" c="red" fw={600}>
-                                Hết hàng
+                                {t('product.outOfStock')}
                             </Text>
                         )}
                     </Stack>

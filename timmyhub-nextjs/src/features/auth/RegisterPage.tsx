@@ -25,6 +25,7 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { useRegisterMutation } from '@/hooks/useAuth';
 import { useMounted, useMediaQuery } from '@mantine/hooks';
+import { useTranslation } from 'react-i18next';
 
 // Password requirements
 const requirements = [
@@ -90,6 +91,7 @@ const schema = z
 type RegisterFormValues = z.infer<typeof schema>;
 
 export function RegisterPage() {
+    const { t } = useTranslation('common');
     const mounted = useMounted();
     const isMobile = useMediaQuery('(max-width: 576px)');
     const isTablet = useMediaQuery('(min-width: 577px) and (max-width: 992px)');
@@ -120,8 +122,8 @@ export function RegisterPage() {
             });
 
             notifications.show({
-                title: 'Thành công',
-                message: 'Tài khoản đã được tạo thành công! Vui lòng đăng nhập.',
+                title: t('auth.registerSuccess'),
+                message: t('auth.registerSuccessMsg'),
                 color: 'green',
                 icon: <Iconify icon="tabler:check" width={18} />,
             });
@@ -129,8 +131,8 @@ export function RegisterPage() {
             router.push('/login');
         } catch (error: unknown) {
             notifications.show({
-                title: 'Lỗi',
-                message: getApiErrorMessage(error, 'Không thể tạo tài khoản'),
+                title: t('auth.registerError'),
+                message: getApiErrorMessage(error, t('common.somethingWentWrong')),
                 color: 'red',
                 icon: <Iconify icon="tabler:x" width={18} />,
             });
@@ -196,10 +198,10 @@ export function RegisterPage() {
                                     size={isMobile ? rem(22) : rem(30)}
                                     style={{ letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}
                                 >
-                                    Welcome to TimmyHub
+                                    {t('auth.welcomeToTimmyHub')}
                                 </Title>
                                 <Text c="dimmed" size={isMobile ? 'sm' : 'lg'} mt={5}>
-                                    Sign up to continue
+                                    {t('auth.signUpToContinue')}
                                 </Text>
                             </Box>
 
@@ -207,16 +209,16 @@ export function RegisterPage() {
                                 <Stack gap="md">
                                     <Group grow gap="sm" wrap="wrap">
                                         <TextInput
-                                            label="Tên"
-                                            placeholder="Nhập tên"
+                                            label={t('auth.firstNameLabel')}
+                                            placeholder={t('auth.firstNamePlaceholder')}
                                             size={isMobile ? 'sm' : 'md'}
                                             radius="md"
                                             leftSection={<Iconify icon="tabler:user" width={16} />}
                                             {...form.getInputProps('firstName')}
                                         />
                                         <TextInput
-                                            label="Họ"
-                                            placeholder="Nhập họ"
+                                            label={t('auth.lastNameLabel')}
+                                            placeholder={t('auth.lastNamePlaceholder')}
                                             size={isMobile ? 'sm' : 'md'}
                                             radius="md"
                                             leftSection={<Iconify icon="tabler:user" width={16} />}
@@ -235,8 +237,8 @@ export function RegisterPage() {
 
                                     <Box>
                                         <PasswordInput
-                                            label="Mật khẩu"
-                                            placeholder="Tạo mật khẩu"
+                                            label={t('auth.passwordCreateLabel')}
+                                            placeholder={t('auth.passwordCreatePlaceholder')}
                                             size={isMobile ? 'sm' : 'md'}
                                             radius="md"
                                             leftSection={<Iconify icon="tabler:lock" width={16} />}
@@ -268,42 +270,42 @@ export function RegisterPage() {
                                         </Group>
 
                                         <PasswordRequirement
-                                            label="Có ít nhất 8 ký tự"
+                                            label={t('auth.passwordReq8Chars')}
                                             meets={form.values.password.length > 7}
                                             visible={form.values.password.length > 0}
                                         />
                                         <PasswordRequirement
-                                            label="Bao gồm số"
+                                            label={t('auth.passwordReqNumber')}
                                             meets={/[0-9]/.test(form.values.password)}
                                             visible={form.values.password.length > 0 && /[0-9]/.test(form.values.password)}
                                         />
                                         <PasswordRequirement
-                                            label="Bao gồm chữ thường"
+                                            label={t('auth.passwordReqLower')}
                                             meets={/[a-z]/.test(form.values.password)}
                                             visible={form.values.password.length > 0 && /[a-z]/.test(form.values.password)}
                                         />
                                         <PasswordRequirement
-                                            label="Bao gồm chữ hoa"
+                                            label={t('auth.passwordReqUpper')}
                                             meets={/[A-Z]/.test(form.values.password)}
                                             visible={form.values.password.length > 0 && /[A-Z]/.test(form.values.password)}
                                         />
                                         <PasswordRequirement
-                                            label="Bao gồm ký tự đặc biệt"
+                                            label={t('auth.passwordReqSpecial')}
                                             meets={/[$&+,:;=?@#|'<>.^*()%!-]/.test(form.values.password)}
                                             visible={form.values.password.length > 0 && /[$&+,:;=?@#|'<>.^*()%!-]/.test(form.values.password)}
                                         />
                                     </Box>
 
                                     <PasswordInput
-                                        label="Xác nhận mật khẩu"
-                                        placeholder="Nhập lại mật khẩu"
+                                        label={t('auth.confirmPasswordLabel')}
+                                        placeholder={t('auth.confirmPasswordPlaceholder')}
                                         size={isMobile ? 'sm' : 'md'}
                                         radius="md"
                                         leftSection={<Iconify icon="tabler:lock" width={16} />}
                                         error={
                                             form.values.confirmPassword.length > 0 &&
                                                 form.values.password !== form.values.confirmPassword
-                                                ? 'Mật khẩu không khớp'
+                                                ? t('auth.passwordMismatch')
                                                 : undefined
                                         }
                                         {...form.getInputProps('confirmPassword')}
@@ -315,13 +317,13 @@ export function RegisterPage() {
                                         size={isMobile ? 'xs' : 'sm'}
                                         label={
                                             <Text size="sm">
-                                                Tôi đồng ý với{' '}
+                                                {t('auth.agreeToTerms')}{' '}
                                                 <Anchor size="sm" href="/terms" target="_blank">
-                                                    Điều khoản sử dụng
+                                                    {t('auth.termsLink')}
                                                 </Anchor>{' '}
-                                                và{' '}
+                                                {t('auth.and')}{' '}
                                                 <Anchor size="sm" href="/privacy" target="_blank">
-                                                    Chính sách bảo mật
+                                                    {t('auth.privacyLink')}
                                                 </Anchor>
                                             </Text>
                                         }
@@ -336,15 +338,15 @@ export function RegisterPage() {
                                         mt="xl"
                                         loading={registerMutation.isPending}
                                     >
-                                        Tạo tài khoản
+                                        {t('auth.createAccount')}
                                     </Button>
                                 </Stack>
                             </form>
 
                             <Text c="dimmed" size="sm" ta="center">
-                                Already have an account?{' '}
+                                {t('auth.alreadyHaveAccount')}{' '}
                                 <Anchor href="/login" size="sm" fw={700} c="blue">
-                                    Sign in
+                                    {t('auth.signInLink')}
                                 </Anchor>
                             </Text>
                         </Stack>

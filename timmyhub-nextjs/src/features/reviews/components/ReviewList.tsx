@@ -21,6 +21,7 @@ import { useReviewSocket } from '@/hooks/useReviewSocket';
 import type { Review, ReviewSortOption, ReviewBreakdown, ReviewComment } from '@/types/review';
 import { ReviewCard } from './ReviewCard';
 import { RatingBreakdown } from './RatingBreakdown';
+import { useTranslation } from 'react-i18next';
 
 type ReviewQueryData = {
     data?: {
@@ -45,6 +46,7 @@ const SORT_OPTIONS = [
 ];
 
 export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: ReviewListProps) {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
     const [sort, setSort] = useState<ReviewSortOption>('newest');
     const [filterRating, setFilterRating] = useState<number | undefined>(undefined);
@@ -169,10 +171,10 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                 <ThemeIcon variant="light" color="orange" size="md" radius="xl">
                     <Iconify icon="tabler:star" width={16} />
                 </ThemeIcon>
-                <Title order={4}>Đánh giá sản phẩm</Title>
+                <Title order={4}>{t('reviews.productReviews')}</Title>
                 {currentCount > 0 && (
                     <Badge variant="light" color="orange" radius="xl">
-                        {currentCount} đánh giá
+                        {t('reviews.reviewCount', { count: currentCount })}
                     </Badge>
                 )}
             </Group>
@@ -195,7 +197,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
             {reviews.length > 0 && (
                 <Group justify="space-between" wrap="wrap" gap="xs">
                     <Text size="sm" c="dimmed">
-                        {(reviewData?.total ?? 0)} đánh giá
+                        {t('reviews.reviewCount', { count: reviewData?.total ?? 0 })}
                         {filterRating ? ` ${filterRating} sao` : ''}
                     </Text>
                     <SegmentedControl
@@ -204,7 +206,12 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                             setSort(v as ReviewSortOption);
                             setPage(1);
                         }}
-                        data={SORT_OPTIONS}
+                        data={[
+                            { value: 'newest', label: t('reviews.sortNewest') },
+                            { value: 'helpful', label: t('reviews.sortHelpful') },
+                            { value: 'highest', label: t('reviews.sortHighest') },
+                            { value: 'lowest', label: t('reviews.sortLowest') },
+                        ]}
                         size="xs"
                         radius="xl"
                     />
@@ -223,8 +230,8 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                     </ThemeIcon>
                     <Text c="dimmed" size="sm">
                         {filterRating
-                            ? `Chưa có đánh giá ${filterRating} sao`
-                            : 'Chưa có đánh giá nào. Hãy là người đầu tiên!'}
+                            ? t('reviews.noReviewsForStar', { count: filterRating })
+                            : t('reviews.noReviewsFirst')}
                     </Text>
                 </Paper>
             ) : (
@@ -250,7 +257,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                         disabled={page === 1}
                         onClick={() => setPage(p => p - 1)}
                     >
-                        Trước
+                        {t('reviews.prevPage')}
                     </Button>
                     <Text size="sm" c="dimmed">{page} / {totalPages}</Text>
                     <Button
@@ -260,7 +267,7 @@ export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: Review
                         disabled={page === totalPages}
                         onClick={() => setPage(p => p + 1)}
                     >
-                        Sau
+                        {t('reviews.nextPage')}
                     </Button>
                 </Group>
             )}

@@ -19,8 +19,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
 import { formatVND } from '@/utils/currency';
+import { useTranslation } from 'react-i18next';
 
 export function CartBadge() {
+    const { t } = useTranslation('common');
     const { user } = useAuth();
     const { cart, isLoading } = useCart();
     const router = useRouter();
@@ -88,7 +90,7 @@ export function CartBadge() {
             <Popover.Dropdown p={0}>
                 <Box p="md" pb="xs">
                     <Text size="sm" fw={600} mb="xs">
-                        Giỏ hàng ({itemCount} sản phẩm)
+                        {t('cart.myCart')} ({itemCount} {t('cart.items')})
                     </Text>
                 </Box>
                 <Divider />
@@ -96,7 +98,7 @@ export function CartBadge() {
                 {cartItems.length === 0 ? (
                     <Stack p="lg" align="center" gap="md">
                         <Text size="sm" c="dimmed">
-                            Giỏ hàng trống
+                            {t('cart.emptyCart')}
                         </Text>
                         <Button
                             component={Link}
@@ -106,7 +108,7 @@ export function CartBadge() {
                             fullWidth
                             onClick={handleLinkClick}
                         >
-                            Tiếp tục mua sắm
+                            {t('cart.continueShopping')}
                         </Button>
                     </Stack>
                 ) : (
@@ -159,7 +161,7 @@ export function CartBadge() {
                         <Divider />
                         <Group justify="space-between" p="md" wrap="wrap" gap="xs">
                             <Text size="sm" fw={600}>
-                                Tạm tính:{' '}
+                                {t('cart.subtotal')}:{' '}
                                 {formatVND(cart?.totalAmount ?? 0)}
                             </Text>
                             <Group gap="xs">
@@ -170,7 +172,7 @@ export function CartBadge() {
                                     variant="light"
                                     onClick={handleLinkClick}
                                 >
-                                    Xem giỏ hàng
+                                    {t('cart.myCart')}
                                 </Button>
                                 <Button
                                     component={Link}
@@ -179,7 +181,7 @@ export function CartBadge() {
                                     variant="filled"
                                     onClick={handleLinkClick}
                                 >
-                                    Thanh toán
+                                    {t('cart.checkout')}
                                 </Button>
                             </Group>
                         </Group>

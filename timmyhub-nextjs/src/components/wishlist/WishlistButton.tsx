@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { wishlistService, WishlistItem } from '@/services/wishlist.service';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 interface WishlistButtonProps extends ActionIconProps {
     productId: string;
@@ -13,6 +14,7 @@ interface WishlistButtonProps extends ActionIconProps {
 }
 
 export function WishlistButton({ productId, variantType = 'icon', ...props }: WishlistButtonProps) {
+    const { t } = useTranslation('common');
     const { isAuthenticated } = useAuth();
     const queryClient = useQueryClient();
 
@@ -44,14 +46,14 @@ export function WishlistButton({ productId, variantType = 'icon', ...props }: Wi
         onError: (err, variables, context) => {
             queryClient.setQueryData(['my-wishlist'], context?.previousWishlist);
             notifications.show({
-                title: 'Lỗi',
-                message: 'Không thể thêm vào mục yêu thích',
+                title: t('common.error'),
+                message: t('common.somethingWentWrong'),
                 color: 'red',
             });
         },
         onSuccess: (data) => {
             notifications.show({
-                title: 'Thành công',
+                title: t('common.success'),
                 message: data.message,
                 color: data.isWishlisted ? 'red' : 'gray',
                 icon: <Iconify icon="solar:heart-bold" width={16} />,
@@ -67,8 +69,8 @@ export function WishlistButton({ productId, variantType = 'icon', ...props }: Wi
         e.stopPropagation();
         if (!isAuthenticated) {
             notifications.show({
-                title: 'Chưa đăng nhập',
-                message: 'Vui lòng đăng nhập để sử dụng tính năng yêu thích!',
+                title: t('common.error'),
+                message: t('common.login'),
                 color: 'blue',
             });
             return;
@@ -85,7 +87,7 @@ export function WishlistButton({ productId, variantType = 'icon', ...props }: Wi
                 onClick={handleToggle}
                 loading={toggleMutation.isPending}
             >
-                {isWishlisted ? 'Đã Yêu thích' : 'Yêu thích'}
+                {isWishlisted ? t('common.saved2') : t('profile.myWishlist')}
             </Button>
         );
     }

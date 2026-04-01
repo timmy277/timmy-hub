@@ -23,6 +23,7 @@ import { QUERY_KEYS, ORDER_ALL_VALUE, ORDER_STATUS_LIST, getOrderStatusColor } f
 import { formatVND } from '@/utils/currency';
 
 function OrderCard({ order }: { order: Order }) {
+    const { t } = useTranslation();
     const items = order.orderItems ?? [];
     const firstImage = items[0]?.image;
     const total = Number(order.totalAmount);
@@ -48,7 +49,7 @@ function OrderCard({ order }: { order: Order }) {
                     <Stack gap={2} style={{ minWidth: 0 }}>
                         <Text fw={600} size="sm">#{shortId}</Text>
                         <Text size="xs" c="dimmed">{date}</Text>
-                        <Text size="sm" c="dimmed">{items.length} sản phẩm</Text>
+                        <Text size="sm" c="dimmed">{t('profileOrders.itemCount', { count: items.length })}</Text>
                     </Stack>
                 </Group>
                 <Stack gap={4} align="flex-end">
@@ -56,7 +57,7 @@ function OrderCard({ order }: { order: Order }) {
                         {ORDER_STATUS_LIST.find(s => s.value === order.status)?.label ?? order.status}
                     </Badge>
                     <Text fw={700} c="blue">{formatVND(total)}</Text>
-                    <Button size="xs" variant="light" component="span">Xem chi tiết</Button>
+                    <Button size="xs" variant="light" component="span">{t('profileOrders.viewDetail')}</Button>
                 </Stack>
             </Group>
         </Paper>
@@ -93,13 +94,13 @@ export function ProfileOrdersPage() {
             {isLoading ? (
                 <Group justify="center" py="xl">
                     <Loader size="sm" />
-                    <Text size="sm" c="dimmed">Đang tải...</Text>
+                    <Text size="sm" c="dimmed">{t('profileOrders.loading')}</Text>
                 </Group>
             ) : orders.length === 0 ? (
                 <Paper p="xl" withBorder ta="center">
-                    <Text c="dimmed">Chưa có đơn hàng nào.</Text>
+                    <Text c="dimmed">{t('profileOrders.noOrders')}</Text>
                     <Button component={Link} href="/" variant="light" mt="md">
-                        Mua sắm ngay
+                        {t('profileOrders.shopNow')}
                     </Button>
                 </Paper>
             ) : (

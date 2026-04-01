@@ -32,6 +32,7 @@ import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
 import { ReviewList } from '@/features/reviews';
 import { campaignService } from '@/services/campaign.service';
+import { useTranslation } from 'react-i18next';
 
 interface ProductDetailClientProps {
     product: Product;
@@ -42,6 +43,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     const { user } = useAuth();
     const { addToCart, isAdding } = useCart();
     const [quantity, setQuantity] = useState(1);
+    const { t } = useTranslation('common');
 
     // Fetch campaign price for this product
     const { data: campaignData } = useQuery({
@@ -69,7 +71,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     const maxQuantity = Math.min(99, product.stock);
 
     const breadcrumbItems: BreadcrumbItem[] = [
-        { title: 'Trang chủ', href: '/' },
+        { title: t('product.breadcrumbHome'), href: '/' },
         ...(product.category
             ? [{
                 title: product.category.name,
@@ -126,17 +128,17 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                             )}
                             {product.isNew && (
                                 <Badge size="lg" variant="filled" color="green">
-                                    Mới
+                                    {t('product.new')}
                                 </Badge>
                             )}
                             {product.isFeatured && (
                                 <Badge size="lg" variant="filled" color="orange">
-                                    Nổi bật
+                                    {t('product.featured')}
                                 </Badge>
                             )}
                             {isOutOfStock && (
                                 <Badge size="lg" variant="filled" color="red">
-                                    Hết hàng
+                                    {t('product.outOfStock')}
                                 </Badge>
                             )}
                         </Group>
@@ -157,12 +159,12 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                         ⭐ {product.ratingAvg.toFixed(1)}
                                     </Text>
                                     <Text size="sm" c="dimmed">
-                                        ({product.ratingCount} đánh giá)
+                                        {t('product.ratingCount', { count: product.ratingCount })}
                                     </Text>
                                 </Group>
                             )}
                             <Text size="sm" c="dimmed">
-                                Đã bán: {product.soldCount}
+                                {t('product.soldCount', { count: product.soldCount })}
                             </Text>
                         </Group>
 
@@ -177,7 +179,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                         color="red"
                                         leftSection={<Iconify icon="tabler:bolt" width={14} />}
                                     >
-                                        {campaignData?.campaignType === 'FLASH_SALE' ? 'Flash Sale' : 'Giảm giá'}
+                                        {campaignData?.campaignType === 'FLASH_SALE' ? 'Flash Sale' : t('product.flashSaleLabel')}
                                     </Badge>
                                     <Text size="sm" c="dimmed">
                                         {campaignData?.campaignName}
@@ -206,16 +208,16 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                         {/* Stock & Quantity */}
                         <Stack gap="md">
                             <Group justify="space-between">
-                                <Text fw={500}>Số lượng:</Text>
+                                <Text fw={500}>{t('product.quantity')}</Text>
                                 <Text c={isOutOfStock ? 'red' : 'green'} fw={600}>
-                                    {isOutOfStock ? 'Hết hàng' : `Còn ${product.stock} sản phẩm`}
+                                    {isOutOfStock ? t('product.outOfStock') : t('product.inStock', { count: product.stock })}
                                 </Text>
                             </Group>
 
                             {!isOutOfStock && (
                                 <Group>
                                     <Text fw={500} w={100}>
-                                        Chọn số lượng:
+                                        {t('product.selectQuantity')}
                                     </Text>
                                     <NumberInput
                                         value={quantity}
@@ -250,7 +252,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                     disabled={isOutOfStock}
                                     style={{ flex: 1 }}
                                 >
-                                    Thêm vào giỏ hàng
+                                    {t('product.addToCart')}
                                 </Button>
                                 <Button
                                     size="lg"
@@ -262,18 +264,18 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                     disabled={isOutOfStock}
                                     style={{ flex: 1 }}
                                 >
-                                    Mua ngay
+                                    {t('product.buyNow')}
                                 </Button>
                             </Group>
 
                             {!user && (
                                 <Alert color="blue" icon={<Iconify icon="tabler:alert-circle" width={16} />}>
                                     <Text size="sm">
-                                        Vui lòng{' '}
+                                        {t('product.loginToBuy')}{' '}
                                         <Anchor component={Link} href="/login" c="blue">
-                                            đăng nhập
+                                            {t('product.loginLink')}
                                         </Anchor>{' '}
-                                        để mua hàng
+                                        {t('product.loginToBuySuffix')}
                                     </Text>
                                 </Alert>
                             )}
@@ -319,7 +321,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                                 </Group>
                                                 <Text size="xs" c="dimmed">·</Text>
                                                 <Text size="xs" c="blue">
-                                                    Xem gian hàng
+                                                    {t('product.viewShop')}
                                                 </Text>
                                             </Group>
                                         </Stack>
@@ -334,7 +336,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                             <Paper p="md" radius="md" withBorder>
                                 <Group justify="space-between">
                                     <Text size="sm" c="dimmed">
-                                        Mã sản phẩm:
+                                        {t('product.productCode')}
                                     </Text>
                                     <Text size="sm" fw={500}>
                                         {product.sku || product.id.slice(0, 8).toUpperCase()}
@@ -346,7 +348,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                 <Paper p="md" radius="md" withBorder>
                                     <Group justify="space-between">
                                         <Text size="sm" c="dimmed">
-                                            Trọng lượng:
+                                            {t('product.weight')}
                                         </Text>
                                         <Text size="sm" fw={500}>
                                             {product.weight}kg
@@ -363,7 +365,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             {product.description && (
                 <Paper p="xl" radius="md" withBorder mt="xl">
                     <Title order={3} mb="md">
-                        Mô tả sản phẩm
+                        {t('product.description')}
                     </Title>
                     <Text size="sm" lh={1.8} style={{ whiteSpace: 'pre-line' }}>
                         {product.description}

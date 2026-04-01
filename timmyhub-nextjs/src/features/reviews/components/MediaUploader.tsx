@@ -25,6 +25,7 @@ import { Dropzone, IMAGE_MIME_TYPE, type FileWithPath, type FileRejection } from
 import Iconify from '@/components/iconify/Iconify';
 import { notifications } from '@mantine/notifications';
 import { fileService } from '@/services/file.service';
+import { useTranslation } from 'react-i18next';
 
 const VIDEO_MIME_TYPES = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v'] as const;
 const ACCEPTED_MIME = [...IMAGE_MIME_TYPE, ...VIDEO_MIME_TYPES];
@@ -172,6 +173,7 @@ function VideoPreview({ item, onRemove }: { item: MediaItem; onRemove: () => voi
 }
 
 export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
+    const { t } = useTranslation('common');
     const [media, setMedia] = useState<MediaItem[]>([]);
 
     const currentImages = media.filter(m => m.type === 'image' && !m.error);
@@ -195,11 +197,11 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
             for (const file of files) {
                 const isVideo = file.type.startsWith('video/');
                 if (isVideo && vidCount + accepted.filter(f => f.type.startsWith('video/')).length >= MAX_VIDEOS) {
-                    notifications.show({ message: `Tối đa ${MAX_VIDEOS} video`, color: 'orange' });
+                    notifications.show({ message: t('reviews.maxVideos', { count: MAX_VIDEOS }), color: 'orange' });
                     continue;
                 }
                 if (!isVideo && imgCount + accepted.filter(f => !f.type.startsWith('video/')).length >= MAX_IMAGES) {
-                    notifications.show({ message: `Tối đa ${MAX_IMAGES} ảnh`, color: 'orange' });
+                    notifications.show({ message: t('reviews.maxImages', { count: MAX_IMAGES }), color: 'orange' });
                     continue;
                 }
                 accepted.push(file);
@@ -243,8 +245,8 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
                         return updated;
                     });
                     notifications.show({
-                        title: 'Upload thất bại',
-                        message: `Không thể upload ${file.name}`,
+                        title: t('reviews.uploadFailed'),
+                        message: t('reviews.uploadFailedMsg', { name: file.name }),
                         color: 'red',
                     });
                 }
@@ -284,9 +286,9 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
     return (
         <Stack gap="xs">
             <Text size="sm" fw={500}>
-                Ảnh / Video
+                {t('reviews.mediaLabel')}
                 <Text span size="xs" c="dimmed" ml={6}>
-                    (tùy chọn — tối đa {MAX_IMAGES} ảnh, {MAX_VIDEOS} video, {MAX_SIZE_MB}MB/file)
+                    {t('reviews.mediaHint', { maxImages: MAX_IMAGES, maxVideos: MAX_VIDEOS, maxSize: MAX_SIZE_MB })}
                 </Text>
             </Text>
 
@@ -316,7 +318,7 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
                                 <ActionIcon variant="transparent" color="gray" size="sm">
                                     <Iconify icon="tabler:upload" width={16} />
                                 </ActionIcon>
-                                <Text size="xs" c="dimmed">Thêm</Text>
+                                <Text size="xs" c="dimmed">{t('reviews.addMore')}</Text>
                             </Stack>
                         </Dropzone>
                     )}
@@ -355,11 +357,11 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
                             </Group>
                         </Dropzone.Idle>
                         <Stack gap={4}>
-                            <Text size="sm" fw={500}>Kéo thả ảnh/video vào đây</Text>
+                            <Text size="sm" fw={500}>{t('reviews.dropHere')}</Text>
                             <Text size="xs" c="dimmed">
-                                hoặc click để chọn • jpg, png, webp, mp4, mov, webm
+                                {t('reviews.dropHint')}
                             </Text>
-                            <Text size="xs" c="dimmed">Tối đa {MAX_SIZE_MB}MB/file</Text>
+                            <Text size="xs" c="dimmed">{t('reviews.maxSize', { size: MAX_SIZE_MB })}</Text>
                         </Stack>
                     </Group>
                 </Dropzone>
@@ -370,7 +372,7 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
                 <Paper withBorder p="xs" radius="md">
                     <Group gap="xs">
                         <Loader size="xs" />
-                        <Text size="xs" c="dimmed">Đang tải lên...</Text>
+                        <Text size="xs" c="dimmed">{t('reviews.uploading')}</Text>
                     </Group>
                 </Paper>
             )}

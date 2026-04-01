@@ -27,17 +27,18 @@ import Link from 'next/link';
 import { QUERY_KEYS } from '@/constants';
 import Iconify from '@/components/iconify/Iconify';
 import { formatVND } from '@/utils/currency';
+import { useTranslation } from 'react-i18next';
 
 dayjs.extend(relativeTime);
 
 type VoucherStatus = 'SAVED' | 'USED' | 'EXPIRED' | 'ALL';
 
-function formatVoucherValue(voucher: { type: string; value: number }): string {
+function formatVoucherValue(voucher: { type: string; value: number }, t?: (key: string) => string): string {
     switch (voucher.type) {
         case 'PERCENTAGE':
             return `${voucher.value}%`;
         case 'FREE_SHIPPING':
-            return 'Miễn phí vận chuyển';
+            return t ? t('common.freeShipping2') : 'Miễn phí vận chuyển';
         case 'FIXED_AMOUNT':
             return `${formatVND(voucher.value)}`;
         default:
@@ -45,15 +46,15 @@ function formatVoucherValue(voucher: { type: string; value: number }): string {
     }
 }
 
-function getTimeRemaining(endDate: string): string {
+function getTimeRemaining(endDate: string, t?: (key: string, opts?: Record<string, unknown>) => string): string {
     const now = dayjs();
     const end = dayjs(endDate);
     const diff = end.diff(now, 'day');
 
-    if (diff < 0) return 'Đã hết hạn';
-    if (diff === 0) return 'Hết hạn trong ngày';
-    if (diff === 1) return 'Còn 1 ngày';
-    if (diff <= 7) return `Còn ${diff} ngày`;
+    if (diff < 0) return t ? t('common.expired2') : 'Đã hết hạn';
+    if (diff === 0) return t ? t('common.expiryToday') : 'Hết hạn trong ngày';
+    if (diff === 1) return t ? t('common.oneDayLeft') : 'Còn 1 ngày';
+    if (diff <= 7) return t ? t('common.daysLeft', { count: diff }) : `Còn ${diff} ngày`;
     return end.format('DD/MM');
 }
 
@@ -62,9 +63,9 @@ function getVoucherColor(type: string, index: number): string {
     return colors[index % colors.length];
 }
 
-function getMinOrderText(minOrderValue?: number): string {
-    if (!minOrderValue) return 'Mọi đơn hàng';
-    return `Đơn từ ${formatVND(minOrderValue)}`;
+function getMinOrderText(minOrderValue?: number, t?: (key: string, opts?: Record<string, unknown>) => string): string {
+    if (!minOrderValue) return t ? t('common.anyOrder') : 'Mọi đơn hàng';
+    return t ? `${t('common.minOrder')} ${formatVND(minOrderValue)}` : `Đơn từ ${formatVND(minOrderValue)}`;
 }
 
 function VoucherCard({
@@ -76,6 +77,7 @@ function VoucherCard({
     onRemove: () => void;
     index: number;
 }) {
+    const { t } = useTranslation('common');
     const computedColorScheme = useComputedColorScheme('light');
     const isDark = computedColorScheme === 'dark';
     const voucher = userVoucher.voucher;
@@ -101,7 +103,7 @@ function VoucherCard({
                 <Stack gap={2} style={{ flex: 1 }}>
                     <Group justify="space-between">
                         <Text fw={700} size="lg" c={isDark ? 'white' : `${color}.9`}>
-                            GIẢM {formatVoucherValue(voucher)}
+                            {t('profileVoucher.discountLabel')} {formatVoucherValue(voucher, t)}
                         </Text>
                         <Badge
                             color={
@@ -109,12 +111,12 @@ function VoucherCard({
                             }
                             variant="light"
                         >
-                            {status === 'SAVED' ? 'Còn dùng được' : status === 'USED' ? 'Đã dùng' : 'Hết hạn'}
+                            {status === 'SAVED' ? t('profileVoucher.statusSaved') : status === 'USED' ? t('profileVoucher.statusUsed') : t('profileVoucher.statusExpired')}
                         </Badge>
                     </Group>
                     <Flex align="center" gap={4}>
                         <Text size="xs" c="dimmed">
-                            {getMinOrderText(voucher.minOrderValue)}
+                            {getMinOrderText(voucher.minOrderValue, t)}
                         </Text>
                     </Flex>
                     <Flex align="center" gap={4}>
@@ -124,7 +126,7 @@ function VoucherCard({
                             c={isExpired ? 'red' : isDark ? `${color}.2` : `${color}.7`}
                             fw={600}
                         >
-                            HSD: {getTimeRemaining(voucher.endDate)}
+                            {t('profileVoucher.expiryLabel')} {getTimeRemaining(voucher.endDate, t)}
                         </Text>
                     </Flex>
                     {voucher.campaign && (
@@ -150,12 +152,12 @@ function VoucherCard({
                             leftSection={copied ? <Iconify icon="mdi:check" size={14} /> : <Iconify icon="mdi:copy" size={14} />}
                             onClick={copy}
                         >
-                            {copied ? 'Đã copy' : voucher.code}
+                            {copied ? t('profileVoucher.copied') : voucher.code}
                         </Button>
                     )}
                 </CopyButton>
                 {status === 'SAVED' && !isExpired && (
-                    <Tooltip label="Xóa khỏi danh sách">
+                    <Tooltip label={t('profileVoucher.removeTooltip')}>
                         <ActionIcon
                             size="sm"
                             variant="subtle"
@@ -172,6 +174,7 @@ function VoucherCard({
 }
 
 export function ProfileVoucherContent() {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState<VoucherStatus | null>('ALL');
 
@@ -207,30 +210,30 @@ export function ProfileVoucherContent() {
     return (
         <Box>
             <Flex justify="space-between" align="center" mb="md">
-                <Text fw={600} size="lg">Voucher của tôi</Text>
+                <Text fw={600} size="lg">{t('profileVoucher.title')}</Text>
                 <Button
                     component={Link}
                     href="/"
                     size="xs"
                     variant="light"
                 >
-                    Khám phá thêm voucher
+                    {t('profileVoucher.discoverMore')}
                 </Button>
             </Flex>
 
             <Tabs value={activeTab} onChange={(v) => setActiveTab(v as VoucherStatus)}>
                 <Tabs.List>
                     <Tabs.Tab value="ALL">
-                        Tất cả ({counts.ALL})
+                        {t('profileVoucher.tabAll', { count: counts.ALL })}
                     </Tabs.Tab>
                     <Tabs.Tab value="SAVED">
-                        Có thể dùng ({counts.SAVED})
+                        {t('profileVoucher.tabSaved', { count: counts.SAVED })}
                     </Tabs.Tab>
                     <Tabs.Tab value="USED">
-                        Đã dùng ({counts.USED})
+                        {t('profileVoucher.tabUsed', { count: counts.USED })}
                     </Tabs.Tab>
                     <Tabs.Tab value="EXPIRED">
-                        Hết hạn ({counts.EXPIRED})
+                        {t('profileVoucher.tabExpired', { count: counts.EXPIRED })}
                     </Tabs.Tab>
                 </Tabs.List>
 
@@ -246,12 +249,12 @@ export function ProfileVoucherContent() {
                             </ThemeIcon>
                             <Text c="dimmed" ta="center">
                                 {activeTab === 'ALL'
-                                    ? 'Bạn chưa lưu voucher nào'
+                                    ? t('profileVoucher.emptyAll')
                                     : activeTab === 'SAVED'
-                                        ? 'Bạn không có voucher nào có thể dùng'
+                                        ? t('profileVoucher.emptySaved')
                                         : activeTab === 'USED'
-                                            ? 'Bạn chưa dùng voucher nào'
-                                            : 'Bạn không có voucher nào hết hạn'}
+                                            ? t('profileVoucher.emptyUsed')
+                                            : t('profileVoucher.emptyExpired')}
                             </Text>
                             <Button
                                 component={Link}
@@ -259,7 +262,7 @@ export function ProfileVoucherContent() {
                                 variant="light"
                                 leftSection={<Iconify icon="mdi:ticket" size={16} />}
                             >
-                                Khám phá voucher ngay
+                                {t('profileVoucher.discoverNow')}
                             </Button>
                         </Stack>
                     ) : (

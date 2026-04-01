@@ -29,6 +29,7 @@ import { useLoginMutation } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Suspense } from 'react';
 import { LoadingFallback } from '@/components/shared/LoadingFallback';
+import { useTranslation } from 'react-i18next';
 
 function extractLoginError(error: unknown): string {
     const fallback = 'Failed to login. Please check your credentials.';
@@ -60,6 +61,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api';
 
 function InnerLoginPage() {
     // ===== Hooks & Context =====
+    const { t } = useTranslation('common');
     const mounted = useMounted();
     const isMobile = useMediaQuery('(max-width: 576px)');
     const isTablet = useMediaQuery('(min-width: 577px) and (max-width: 992px)');
@@ -184,10 +186,10 @@ function InnerLoginPage() {
                                     size={isMobile ? rem(22) : rem(30)}
                                     style={{ letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}
                                 >
-                                    Welcome to TimmyHub
+                                    {t('auth.welcomeToTimmyHub')}
                                 </Title>
                                 <Text c="dimmed" size={isMobile ? 'sm' : 'lg'} mt={5}>
-                                    Sign in to continue
+                                    {t('auth.signInToContinue')}
                                 </Text>
                             </Box>
 
@@ -195,8 +197,8 @@ function InnerLoginPage() {
                                 <Stack gap="md">
                                     <TextInput
                                         id="login-email"
-                                        label="Email"
-                                        placeholder="Enter your email"
+                                        label={t('auth.emailLabel')}
+                                        placeholder={t('auth.emailPlaceholder')}
                                         size={isMobile ? 'sm' : 'md'}
                                         radius="md"
                                         leftSection={<Icon icon="tabler:at" width={16} />}
@@ -205,8 +207,8 @@ function InnerLoginPage() {
 
                                     <PasswordInput
                                         id="login-password"
-                                        label="Password"
-                                        placeholder="Enter your password"
+                                        label={t('auth.passwordLabel')}
+                                        placeholder={t('auth.passwordPlaceholder')}
                                         size={isMobile ? 'sm' : 'md'}
                                         radius="md"
                                         leftSection={<Icon icon="tabler:lock" width={16} />}
@@ -216,13 +218,13 @@ function InnerLoginPage() {
                                     <Group justify="space-between" mt="sm" wrap="wrap" gap="xs">
                                         <Checkbox
                                             id="login-remember"
-                                            label="Remember me"
+                                            label={t('auth.rememberMe')}
                                             fw={500}
                                             size={isMobile ? 'xs' : 'sm'}
                                             {...form.getInputProps('remember', { type: 'checkbox' })}
                                         />
                                         <Anchor href="/forgot-password" size="xs" fw={700} c="blue">
-                                            Forgot password?
+                                            {t('auth.forgotPassword')}
                                         </Anchor>
                                     </Group>
 
@@ -235,12 +237,12 @@ function InnerLoginPage() {
                                         loading={loginMutation.isPending}
                                         rightSection={<Icon icon="tabler:arrow-right" width={18} />}
                                     >
-                                        Sign In
+                                        {t('auth.signIn')}
                                     </Button>
                                 </Stack>
                             </form>
 
-                            <Divider label="hoặc đăng nhập với" labelPosition="center" />
+                            <Divider label={t('auth.orLoginWith')} labelPosition="center" />
 
                             <Group grow={!isMobile} gap="sm" wrap="wrap">
                                 <Button
@@ -268,9 +270,9 @@ function InnerLoginPage() {
                             </Group>
 
                             <Text c="dimmed" size="sm" ta="center">
-                                Don&apos;t have an account?{' '}
+                                {t('auth.noAccount')}{' '}
                                 <Anchor href="/register" size="sm" fw={700} c="blue">
-                                    Register here
+                                    {t('auth.registerHere')}
                                 </Anchor>
                             </Text>
                         </Stack>

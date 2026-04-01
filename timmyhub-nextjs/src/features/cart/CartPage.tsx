@@ -23,9 +23,11 @@ import { useState } from 'react';
 import { useDebouncedCallback } from '@mantine/hooks';
 import Link from 'next/link';
 import { formatVND } from '@/utils/currency';
+import { useTranslation } from 'react-i18next';
 
 export function CartPage() {
     const { user } = useAuth();
+    const { t } = useTranslation('common');
     const {
         cart,
         isLoading,
@@ -57,7 +59,7 @@ export function CartPage() {
     if (!user || isLoading) {
         return (
             <Container size="lg" py="xl">
-                <Title order={2}>Đang tải giỏ hàng...</Title>
+                <Title order={2}>{t('cartPage.loading')}</Title>
             </Container>
         );
     }
@@ -68,13 +70,13 @@ export function CartPage() {
                 <Paper p="xl" ta="center" withBorder>
                     <Iconify icon="tabler:shopping-cart" width={48} stroke={1.5} color="gray" />
                     <Title order={2} mt="md">
-                        Giỏ hàng trống
+                        {t('cartPage.emptyTitle')}
                     </Title>
                     <Text c="dimmed" mt="sm">
-                        Bạn chưa có sản phẩm nào trong giỏ hàng
+                        {t('cartPage.emptyDesc')}
                     </Text>
                     <Button component={Link} href="/" mt="lg" size="md">
-                        Tiếp tục mua sắm
+                        {t('cartPage.continueShopping')}
                     </Button>
                 </Paper>
             </Container>
@@ -86,16 +88,15 @@ export function CartPage() {
             title: (
                 <Group gap="xs">
                     <Iconify icon="tabler:alert-triangle" width={18} color="var(--mantine-color-red-6)" />
-                    <Text fw={600}>Xóa sản phẩm khỏi giỏ hàng</Text>
+                    <Text fw={600}>{t('cartPage.removeItem')}</Text>
                 </Group>
             ),
             children: (
                 <Text size="sm">
-                    Bạn có chắc chắn muốn xóa <Text span fw={600}>{productName}</Text> khỏi giỏ
-                    hàng không?
+                    {t('cartPage.removeItemConfirm')} <Text span fw={600}>{productName}</Text> {t('cartPage.removeItemSuffix')}
                 </Text>
             ),
-            labels: { confirm: 'Xóa', cancel: 'Hủy' },
+            labels: { confirm: t('common.delete'), cancel: t('common.cancel') },
             confirmProps: { color: 'red' },
             onConfirm: () => {
                 void removeItem(itemId);
@@ -108,16 +109,15 @@ export function CartPage() {
             title: (
                 <Group gap="xs">
                     <Iconify icon="tabler:alert-triangle" width={18} color="var(--mantine-color-red-6)" />
-                    <Text fw={600}>Xóa tất cả sản phẩm</Text>
+                    <Text fw={600}>{t('cartPage.clearCartTitle')}</Text>
                 </Group>
             ),
             children: (
                 <Text size="sm">
-                    Bạn có chắc chắn muốn xóa <Text span fw={600}>tất cả</Text> sản phẩm trong giỏ
-                    hàng không? Hành động này không thể hoàn tác.
+                    {t('cartPage.clearCartConfirm')} <Text span fw={600}>{t('cartPage.clearCartAll')}</Text> {t('cartPage.clearCartSuffix')}
                 </Text>
             ),
-            labels: { confirm: 'Xóa tất cả', cancel: 'Hủy' },
+            labels: { confirm: t('cartPage.clearCartConfirmBtn'), cancel: t('common.cancel') },
             confirmProps: { color: 'red' },
             onConfirm: () => {
                 void clearCart();
@@ -139,7 +139,7 @@ export function CartPage() {
     return (
         <Container size="lg" py="xl">
             <Group justify="space-between" mb="xl">
-                <Title order={2}>Giỏ hàng của bạn</Title>
+                <Title order={2}>{t('cartPage.yourCart')}</Title>
                 {cart.items.length > 0 && (
                     <Button
                         variant="subtle"
@@ -147,7 +147,7 @@ export function CartPage() {
                         onClick={confirmClearCart}
                         loading={isClearing}
                     >
-                        Xóa tất cả
+                        {t('cartPage.clearAll')}
                     </Button>
                 )}
             </Group>
@@ -262,10 +262,10 @@ export function CartPage() {
 
                                         <Group justify="space-between" mt="xs">
                                             <Text size="sm" c="dimmed">
-                                                Còn lại: {item.product.stock} sản phẩm
+                                                {t('cartPage.stockRemaining', { count: item.product.stock })}
                                             </Text>
                                             <Text size="md" fw={600}>
-                                                Tạm tính:{' '}
+                                                {t('cartPage.itemSubtotal')}{' '}
                                                 {formatVND(
                                                     Number(item.product.price) * currentQuantity,
                                                 )}
@@ -280,30 +280,30 @@ export function CartPage() {
 
                 <Paper p="lg" withBorder style={{ width: 350, position: 'sticky', top: 80 }}>
                     <Title order={3} mb="md">
-                        Tóm tắt đơn hàng
+                        {t('cartPage.orderSummary')}
                     </Title>
 
                     <Stack gap="sm">
                         <Group justify="space-between">
-                            <Text c="dimmed">Số lượng sản phẩm:</Text>
-                            <Text fw={600}>{liveItemCount} sản phẩm</Text>
+                            <Text c="dimmed">{t('cartPage.itemCount')}</Text>
+                            <Text fw={600}>{liveItemCount} {t('cart.items')}</Text>
                         </Group>
 
                         <Group justify="space-between">
-                            <Text c="dimmed">Tạm tính:</Text>
+                            <Text c="dimmed">{t('cartPage.subtotal')}</Text>
                             <Text fw={600}>{formatVND(liveTotalAmount)}</Text>
                         </Group>
 
                         <Group justify="space-between">
-                            <Text c="dimmed">Phí vận chuyển:</Text>
-                            <Text fw={600}>Miễn phí</Text>
+                            <Text c="dimmed">{t('cart.shipping')}:</Text>
+                            <Text fw={600}>{t('cartPage.shippingFree')}</Text>
                         </Group>
 
                         <Divider my="sm" />
 
                         <Group justify="space-between">
                             <Text size="lg" fw={700}>
-                                Tổng cộng:
+                                {t('cart.total')}:
                             </Text>
                             <Text size="xl" fw={800} c="blue">
                                 {formatVND(liveTotalAmount)}
@@ -311,11 +311,11 @@ export function CartPage() {
                         </Group>
 
                         <Button component={Link} href="/checkout" size="lg" fullWidth mt="md">
-                            Thanh toán
+                            {t('cartPage.checkout')}
                         </Button>
 
                         <Button component={Link} href="/" variant="light" fullWidth>
-                            Tiếp tục mua sắm
+                            {t('cartPage.continueShopping')}
                         </Button>
                     </Stack>
                 </Paper>

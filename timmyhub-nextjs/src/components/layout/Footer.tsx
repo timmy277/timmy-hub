@@ -43,8 +43,8 @@ export function Footer() {
             title: t('footer.connect', 'Connect'),
             links: [
                 { label: t('seller.becomeSeller', 'Sell on TimmyHub'), link: BECOME_SELLER_PATH },
-                { label: 'Affiliate Program', link: '#' },
-                { label: 'Suppliers', link: '#' },
+                { label: t('footerExtra.affiliateProgram'), link: '#' },
+                { label: t('footerExtra.suppliers'), link: '#' },
             ]
         }
     ];
@@ -77,19 +77,19 @@ export function Footer() {
                                         <ThemeIcon variant="gradient" gradient={{ from: 'blue', to: 'cyan', deg: 135 }} size={32} radius="md">
                                             <Iconify icon="solar:map-point-bold" width={16} />
                                         </ThemeIcon>
-                                        <Text size="sm" c="dimmed" style={{ flex: 1, paddingTop: 6 }}>Floor 12, Landmark 81 Building, HCMC</Text>
+                                        <Text size="sm" c="dimmed" style={{ flex: 1, paddingTop: 6 }}>{t('footerExtra.address')}</Text>
                                     </Group>
                                     <Group gap="sm">
                                         <ThemeIcon variant="gradient" gradient={{ from: 'teal', to: 'green', deg: 135 }} size={32} radius="md">
                                             <Iconify icon="solar:phone-calling-bold" width={16} />
                                         </ThemeIcon>
-                                        <Text size="sm" c="dimmed" style={{ paddingTop: 6 }}>1900 1234 (8:00 - 22:00)</Text>
+                                        <Text size="sm" c="dimmed" style={{ paddingTop: 6 }}>{t('footerExtra.phone')}</Text>
                                     </Group>
                                     <Group gap="sm">
                                         <ThemeIcon variant="gradient" gradient={{ from: 'violet', to: 'blue', deg: 135 }} size={32} radius="md">
                                             <Iconify icon="solar:letter-bold" width={16} />
                                         </ThemeIcon>
-                                        <Text size="sm" c="dimmed" style={{ paddingTop: 6 }}>support@timmyhub.com</Text>
+                                        <Text size="sm" c="dimmed" style={{ paddingTop: 6 }}>{t('footerExtra.email')}</Text>
                                     </Group>
                                 </Stack>
                             </Stack>

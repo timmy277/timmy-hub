@@ -24,6 +24,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ProductGrid } from '@/features/products/components/ProductGrid';
 import { Product } from '@/types/product';
 import { productService } from '@/services/product.service';
+import { useTranslation } from 'react-i18next';
 
 import {
     HeroCarousel,
@@ -41,6 +42,7 @@ interface HomePageClientProps {
 const PRODUCTS_PAGE_SIZE = 10;
 
 export function HomePageClient({ initialProducts }: HomePageClientProps) {
+    const { t } = useTranslation('common');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [activeTab, setActiveTab] = useState<string | null>('all');
     const [showAll, setShowAll] = useState(false);
@@ -103,7 +105,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                     <Group justify="space-between" align="center">
                         <Box>
                             <Group gap="xs" align="center">
-                                <Title order={2} mb={4}>Gợi Ý Hôm Nay</Title>
+                                <Title order={2} mb={4}>{t('homePage.todaySuggestion')}</Title>
                                 {isFetching && !isLoading && (
                                     <Iconify
                                         icon="tabler:loader-2"
@@ -117,8 +119,8 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                             </Group>
                             <Text c="dimmed">
                                 {filteredProducts.length > 0
-                                    ? `${filteredProducts.length} sản phẩm dành riêng cho bạn`
-                                    : 'Những sản phẩm tốt nhất dành riêng cho bạn'}
+                                    ? t('homePage.productsForYou', { count: filteredProducts.length })
+                                    : t('homePage.bestForYou')}
                             </Text>
                         </Box>
 
@@ -133,11 +135,11 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                                 radius="xl"
                             >
                                 <Tabs.List>
-                                    <Tabs.Tab value="all">Tất cả</Tabs.Tab>
-                                    <Tabs.Tab value="new">Mới nhất</Tabs.Tab>
-                                    <Tabs.Tab value="best">Bán chạy</Tabs.Tab>
-                                    <Tabs.Tab value="sale">Giảm giá</Tabs.Tab>
-                                    <Tabs.Tab value="featured">Nổi bật</Tabs.Tab>
+                                    <Tabs.Tab value="all">{t('homePage.tabAll')}</Tabs.Tab>
+                                    <Tabs.Tab value="new">{t('homePage.tabNew')}</Tabs.Tab>
+                                    <Tabs.Tab value="best">{t('homePage.tabBest')}</Tabs.Tab>
+                                    <Tabs.Tab value="sale">{t('homePage.tabSale')}</Tabs.Tab>
+                                    <Tabs.Tab value="featured">{t('homePage.tabFeatured')}</Tabs.Tab>
                                 </Tabs.List>
                             </Tabs>
                             <Group
@@ -187,7 +189,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                                 px={40}
                                 onClick={() => setShowAll(true)}
                             >
-                                Xem Thêm ({filteredProducts.length - PRODUCTS_PAGE_SIZE} sản phẩm)
+                                {t('homePage.seeMore', { count: filteredProducts.length - PRODUCTS_PAGE_SIZE })}
                             </Button>
                         </Center>
                     )}

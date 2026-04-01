@@ -33,18 +33,18 @@ import { ReviewModal } from '@/features/reviews';
 import { useTranslation } from 'react-i18next';
 import { formatVND } from '@/utils/currency';
 
-const ORDER_STATUS_MAP: Record<string, { label: string; color: string }> = {
-    PENDING: { label: 'Chờ xác nhận', color: 'yellow' },
-    CONFIRMED: { label: 'Đã xác nhận', color: 'blue' },
-    PROCESSING: { label: 'Đang xử lý', color: 'blue' },
-    PACKED: { label: 'Đã đóng gói', color: 'teal' },
-    SHIPPING: { label: 'Đang giao', color: 'orange' },
-    DELIVERED: { label: 'Đã giao', color: 'green' },
-    COMPLETED: { label: 'Hoàn thành', color: 'green' },
-    CANCELLED: { label: 'Đã hủy', color: 'red' },
-    RETURN_REQUESTED: { label: 'Yêu cầu hoàn trả', color: 'orange' },
-    RETURNED: { label: 'Đã hoàn trả', color: 'gray' },
-    REFUNDED: { label: 'Đã hoàn tiền', color: 'gray' },
+const ORDER_STATUS_MAP: Record<string, { labelKey: string; color: string }> = {
+    PENDING: { labelKey: 'orderDetail.statusPending', color: 'yellow' },
+    CONFIRMED: { labelKey: 'orderDetail.statusConfirmed', color: 'blue' },
+    PROCESSING: { labelKey: 'orderDetail.statusProcessing', color: 'blue' },
+    PACKED: { labelKey: 'orderDetail.statusPacked', color: 'teal' },
+    SHIPPING: { labelKey: 'orderDetail.statusShipping', color: 'orange' },
+    DELIVERED: { labelKey: 'orderDetail.statusDelivered', color: 'green' },
+    COMPLETED: { labelKey: 'orderDetail.statusCompleted', color: 'green' },
+    CANCELLED: { labelKey: 'orderDetail.statusCancelled', color: 'red' },
+    RETURN_REQUESTED: { labelKey: 'orderDetail.statusReturnRequested', color: 'orange' },
+    RETURNED: { labelKey: 'orderDetail.statusReturned', color: 'gray' },
+    REFUNDED: { labelKey: 'orderDetail.statusRefunded', color: 'gray' },
 };
 
 interface ReviewTarget {
@@ -63,6 +63,7 @@ function OrderItemRow({
     canReview: boolean;
     onReview: (target: ReviewTarget) => void;
 }) {
+    const { t } = useTranslation();
     return (
         <Group gap="md" wrap="nowrap" py="sm">
             <Image
@@ -99,12 +100,12 @@ function OrderItemRow({
                             })
                         }
                     >
-                        Đánh giá
+                        {t('orderDetail.reviewBtn')}
                     </Button>
                 )}
                 {item.isReviewed && (
                     <Badge size="xs" variant="light" color="green" leftSection={<Iconify icon="tabler:check" width={10} />}>
-                        Đã đánh giá
+                        {t('orderDetail.reviewedBadge')}
                     </Badge>
                 )}
             </Stack>
@@ -139,8 +140,8 @@ export function OrderDetailPage() {
         onSuccess: () => {
             closeConfirm();
             notifications.show({
-                title: 'Xác nhận thành công',
-                message: 'Đơn hàng đã hoàn thành. Hãy đánh giá sản phẩm nhé!',
+                title: t('orderDetail.confirmSuccess'),
+                message: t('orderDetail.confirmSuccessMsg'),
                 color: 'green',
                 icon: <Iconify icon="tabler:check" width={16} />,
             });
@@ -148,8 +149,8 @@ export function OrderDetailPage() {
         },
         onError: () => {
             notifications.show({
-                title: 'Lỗi',
-                message: 'Không thể xác nhận. Vui lòng thử lại.',
+                title: t('orderDetail.confirmError'),
+                message: t('orderDetail.confirmErrorMsg'),
                 color: 'red',
             });
         },
@@ -160,7 +161,7 @@ export function OrderDetailPage() {
             <Container size="md" py="xl">
                 <Group justify="center" py="xl">
                     <Loader size="lg" />
-                    <Text>Đang tải đơn hàng...</Text>
+                    <Text>{t('orderDetail.loading')}</Text>
                 </Group>
             </Container>
         );
@@ -170,9 +171,9 @@ export function OrderDetailPage() {
         return (
             <Container size="md" py="xl">
                 <Paper p="xl" withBorder ta="center">
-                    <Text c="dimmed">Không tìm thấy đơn hàng hoặc bạn không có quyền xem.</Text>
+                    <Text c="dimmed">{t('orderDetail.notFound')}</Text>
                     <Button component={Link} href="/" mt="md">
-                        Về trang chủ
+                        {t('orderDetail.backHome')}
                     </Button>
                 </Paper>
             </Container>
@@ -181,7 +182,7 @@ export function OrderDetailPage() {
 
     const items = order.orderItems ?? [];
     const total = Number(order.totalAmount);
-    const statusInfo = ORDER_STATUS_MAP[order.status] ?? { label: order.status, color: 'gray' };
+    const statusInfo = ORDER_STATUS_MAP[order.status] ?? { labelKey: order.status, color: 'gray' };
     const pendingReviewCount = isCompleted ? items.filter(i => !i.isReviewed).length : 0;
 
     return (
@@ -189,13 +190,13 @@ export function OrderDetailPage() {
             {/* Header */}
             <Group justify="space-between" mb="xl" wrap="wrap" gap="sm">
                 <Box>
-                    <Title order={2}>Đơn hàng #{order.id.slice(-8).toUpperCase()}</Title>
+                    <Title order={2}>{t('orderDetail.orderTitle', { id: order.id.slice(-8).toUpperCase() })}</Title>
                     <Text size="sm" c="dimmed" mt={4}>
                         {new Date(order.createdAt).toLocaleString('vi-VN')}
                     </Text>
                 </Box>
                 <Badge size="lg" variant="light" color={statusInfo.color}>
-                    {statusInfo.label}
+                    {t(statusInfo.labelKey, order.status)}
                 </Badge>
             </Group>
 
@@ -208,9 +209,9 @@ export function OrderDetailPage() {
                                 <Iconify icon="tabler:truck" width={16} />
                             </ThemeIcon>
                             <Box>
-                                <Text fw={600} size="sm">Bạn đã nhận được hàng chưa?</Text>
+                                <Text fw={600} size="sm">{t('orderDetail.confirmReceivedQuestion')}</Text>
                                 <Text size="xs" c="dimmed">
-                                    Đơn đã thanh toán — xác nhận nhận hàng để mở tính năng đánh giá
+                                    {t('orderDetail.confirmReceivedDesc')}
                                 </Text>
                             </Box>
                         </Group>
@@ -222,7 +223,7 @@ export function OrderDetailPage() {
                             onClick={openConfirm}
                             loading={confirmMutation.isPending}
                         >
-                            Đã nhận hàng
+                            {t('orderDetail.confirmReceivedBtn')}
                         </Button>
                     </Group>
                 </Paper>
@@ -236,9 +237,9 @@ export function OrderDetailPage() {
                             <Iconify icon="tabler:star-filled" width={16} />
                         </ThemeIcon>
                         <Box flex={1}>
-                            <Text fw={600} size="sm">Hãy đánh giá sản phẩm của bạn!</Text>
+                            <Text fw={600} size="sm">{t('orderDetail.reviewBannerTitle')}</Text>
                             <Text size="xs" c="dimmed">
-                                Bạn có {pendingReviewCount} sản phẩm chưa được đánh giá
+                                {t('orderDetail.reviewBannerDesc', { count: pendingReviewCount })}
                             </Text>
                         </Box>
                     </Group>
@@ -249,11 +250,11 @@ export function OrderDetailPage() {
             <Paper p="lg" withBorder mb="md" radius="md">
                 <Stack gap="xs">
                     <Group justify="space-between">
-                        <Text size="sm" c="dimmed">Trạng thái thanh toán:</Text>
+                        <Text size="sm" c="dimmed">{t('orderDetail.paymentStatus')}</Text>
                         <Text fw={600}>{order.paymentStatus}</Text>
                     </Group>
                     <Group justify="space-between">
-                        <Text size="sm" c="dimmed">Phương thức thanh toán:</Text>
+                        <Text size="sm" c="dimmed">{t('orderDetail.paymentMethod')}</Text>
                         <Text fw={600}>{order.paymentMethod}</Text>
                     </Group>
                 </Stack>
@@ -261,7 +262,7 @@ export function OrderDetailPage() {
 
             {/* Products */}
             <Paper p="lg" withBorder radius="md">
-                <Text fw={600} mb="xs">Sản phẩm ({items.length})</Text>
+                <Text fw={600} mb="xs">{t('orderDetail.products', { count: items.length })}</Text>
                 <Stack gap={0}>
                     {items.map((item, idx) => (
                         <Box key={item.id}>
@@ -276,7 +277,7 @@ export function OrderDetailPage() {
                 </Stack>
                 <Divider my="md" />
                 <Group justify="space-between">
-                    <Text size="lg" fw={700}>Tổng cộng:</Text>
+                    <Text size="lg" fw={700}>{t('orderDetail.total')}</Text>
                     <Text size="xl" fw={800} c="blue">
                         {formatVND(total)}
                     </Text>
@@ -288,7 +289,7 @@ export function OrderDetailPage() {
                     {t('orders.myOrders', 'My Orders')}
                 </Button>
                 <Button component={Link} href="/" variant="subtle">
-                    Về trang chủ
+                    {t('orderDetail.backHome')}
                 </Button>
             </Group>
 
@@ -301,7 +302,7 @@ export function OrderDetailPage() {
                         <ThemeIcon color="teal" variant="light" size="sm" radius="xl">
                             <Iconify icon="tabler:truck" width={14} />
                         </ThemeIcon>
-                        <Text fw={700}>Xác nhận nhận hàng</Text>
+                        <Text fw={700}>{t('orderDetail.confirmReceivedTitle')}</Text>
                     </Group>
                 }
                 centered
@@ -316,19 +317,19 @@ export function OrderDetailPage() {
                                 <Iconify icon="tabler:alert-triangle" width={14} />
                             </ThemeIcon>
                             <Text size="sm">
-                                Sau khi xác nhận, bạn{' '}
-                                <Text span fw={700}>không thể hoàn tác</Text>
-                                {' '}và đơn hàng sẽ chuyển sang{' '}
-                                <Text span fw={700} c="green">Hoàn thành</Text>.
+                                {t('orderDetail.confirmReceivedWarning')}{' '}
+                                <Text span fw={700}>{t('orderDetail.confirmReceivedCannotUndo')}</Text>
+                                {' '}{t('orderDetail.confirmReceivedComplete')}{' '}
+                                <Text span fw={700} c="green">{t('orderDetail.confirmReceivedCompleted')}</Text>.
                             </Text>
                         </Group>
                     </Paper>
                     <Text size="sm" c="dimmed">
-                        Bạn đã nhận đủ hàng và hài lòng với đơn hàng này?
+                        {t('orderDetail.confirmReceivedSatisfied')}
                     </Text>
                     <Group justify="flex-end" gap="sm">
                         <Button variant="default" radius="md" onClick={closeConfirm}>
-                            Chưa nhận được
+                            {t('orderDetail.notReceivedBtn')}
                         </Button>
                         <Button
                             color="teal"
@@ -337,7 +338,7 @@ export function OrderDetailPage() {
                             loading={confirmMutation.isPending}
                             onClick={() => confirmMutation.mutate()}
                         >
-                            Đã nhận hàng
+                            {t('orderDetail.confirmReceivedBtn')}
                         </Button>
                     </Group>
                 </Stack>
