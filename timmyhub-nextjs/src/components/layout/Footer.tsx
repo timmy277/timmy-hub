@@ -132,16 +132,16 @@ export function Footer() {
                                 <Title order={6} mt="md">{t('footer.connect', 'Connect with us')}</Title>
                                 <Group gap="sm">
                                     <ActionIcon size="lg" color="blue" variant="light" radius="xl">
-                                        <Iconify icon="solar:brand-facebook-bold" width={20} />
+                                        <Iconify icon="mdi:facebook" width={20} />
                                     </ActionIcon>
                                     <ActionIcon size="lg" color="cyan" variant="light" radius="xl">
-                                        <Iconify icon="solar:brand-twitter-bold" width={20} />
+                                        <Iconify icon="mdi:twitter" width={20} />
                                     </ActionIcon>
                                     <ActionIcon size="lg" color="red" variant="light" radius="xl">
-                                        <Iconify icon="solar:brand-youtube-bold" width={20} />
+                                        <Iconify icon="mdi:youtube" width={20} />
                                     </ActionIcon>
                                     <ActionIcon size="lg" color="pink" variant="light" radius="xl">
-                                        <Iconify icon="solar:brand-instagram-bold" width={20} />
+                                        <Iconify icon="mdi:instagram" width={20} />
                                     </ActionIcon>
                                 </Group>
                             </Stack>
