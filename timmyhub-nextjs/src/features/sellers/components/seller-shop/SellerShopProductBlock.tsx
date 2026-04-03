@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 import type { Product } from '@/types/product';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import type { SellerShopSortMode } from '@/constants/seller-shop-ui';
-import { SELLER_SHOP_PAGE_SIZE } from '@/constants/seller-shop-ui';
 
 interface SellerShopProductBlockProps {
     products: Product[];

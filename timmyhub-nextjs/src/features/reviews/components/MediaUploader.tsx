@@ -12,7 +12,6 @@ import {
     Group,
     Text,
     ActionIcon,
-    Progress,
     Box,
     Badge,
     CloseButton,
@@ -252,7 +251,7 @@ export function MediaUploader({ onMediaChange }: MediaUploaderProps) {
                 }
             }
         },
-        [media, notifyUpdated],
+        [media, notifyUpdated, t],
     );
 
     const handleRemove = useCallback(

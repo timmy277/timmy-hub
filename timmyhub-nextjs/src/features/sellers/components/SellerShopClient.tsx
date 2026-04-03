@@ -56,10 +56,6 @@ export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement 
         [filtered, sortMode],
     );
 
-    useEffect(() => {
-        setVisibleCount(SELLER_SHOP_PAGE_SIZE);
-    }, [search, sortMode, shop.id]);
-
     const handleShare = useCallback(async (): Promise<void> => {
         if (typeof window === 'undefined') return;
         try {
@@ -113,7 +109,10 @@ export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement 
         >
             <SellerShopToolbar
                 searchQuery={search}
-                onSearchChange={setSearch}
+                onSearchChange={(v) => {
+                    setSearch(v);
+                    setVisibleCount(SELLER_SHOP_PAGE_SIZE);
+                }}
                 onShare={handleShare}
                 onMore={handleMore}
             />
@@ -147,7 +146,10 @@ export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement 
                             <SellerShopProductBlock
                                 products={sorted}
                                 sortMode={sortMode}
-                                onSortModeChange={setSortMode}
+                                onSortModeChange={(v) => {
+                                    setSortMode(v);
+                                    setVisibleCount(SELLER_SHOP_PAGE_SIZE);
+                                }}
                                 visibleCount={visibleCount}
                                 onLoadMore={loadMore}
                             />
@@ -158,7 +160,10 @@ export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement 
                         <SellerShopProductBlock
                             products={sorted}
                             sortMode={sortMode}
-                            onSortModeChange={setSortMode}
+                            onSortModeChange={(v) => {
+                                setSortMode(v);
+                                setVisibleCount(SELLER_SHOP_PAGE_SIZE);
+                            }}
                             visibleCount={visibleCount}
                             onLoadMore={loadMore}
                         />

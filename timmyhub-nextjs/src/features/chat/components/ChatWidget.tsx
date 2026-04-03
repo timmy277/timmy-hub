@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { Box, Stack, ActionIcon, Tooltip } from '@mantine/core';
+import { Box, Stack } from '@mantine/core';
 import { useAuth } from '@/hooks/useAuth';
 import { chatService } from '@/services/chat.service';
 import { io, Socket } from 'socket.io-client';
@@ -26,7 +26,7 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
     const { user, isAuthenticated } = useAuth();
     const [openedContactId, setOpenedContactId] = useState<string | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
-    const { activeChat, openChat, hiddenAvatars, hideAvatar, unreadCounts, resetUnread } = useChatStore();
+    const { activeChat, openChat, hiddenAvatars, hideAvatar, unreadCounts } = useChatStore();
 
     // Hook để sync unread counts từ BE + gọi markAsRead
     const { handleIncomingMessage, markAsRead } = useChatUnread();

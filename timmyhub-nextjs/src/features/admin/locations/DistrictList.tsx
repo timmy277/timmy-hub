@@ -7,7 +7,6 @@ import { notifications } from '@mantine/notifications';
 import Iconify from '@/components/iconify/Iconify';
 import { Box } from '@mantine/core';
 import { ColDef } from 'ag-grid-community';
-import { useQuery } from '@tanstack/react-query';
 
 import { ManagementPage } from '@/components/shared/ManagementPage';
 import { useManagementTabs, TabItem } from '@/hooks/useManagementTabs';

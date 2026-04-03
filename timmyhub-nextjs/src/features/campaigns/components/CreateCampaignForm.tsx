@@ -41,7 +41,7 @@ export function CreateCampaignForm({
 
     // Load existing campaign products if updating
     const existingProducts = initialData?.campaignProducts || [];
-    const [loadedExistingProducts, setLoadedExistingProducts] = useState<SelectedProduct[]>(
+    const [loadedExistingProducts] = useState<SelectedProduct[]>(
         existingProducts.map((cp) => ({
             productId: cp.productId,
             product: cp.product as unknown as Product,

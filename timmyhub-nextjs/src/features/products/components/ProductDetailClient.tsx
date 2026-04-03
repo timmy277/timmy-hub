@@ -17,7 +17,6 @@ import {
     Alert,
     Avatar,
     ThemeIcon,
-    Box,
 } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';

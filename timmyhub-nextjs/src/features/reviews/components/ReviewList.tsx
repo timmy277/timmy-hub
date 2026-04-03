@@ -38,13 +38,6 @@ interface ReviewListProps {
     ratingCount?: number;
 }
 
-const SORT_OPTIONS = [
-    { value: 'newest', label: 'Mới nhất' },
-    { value: 'helpful', label: 'Hữu ích nhất' },
-    { value: 'highest', label: 'Sao cao nhất' },
-    { value: 'lowest', label: 'Sao thấp nhất' },
-];
-
 export function ReviewList({ productId, ratingAvg = 0, ratingCount = 0 }: ReviewListProps) {
     const { t } = useTranslation('common');
     const queryClient = useQueryClient();

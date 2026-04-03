@@ -1,6 +1,6 @@
 'use client';
 
-import { SimpleGrid, Paper, Flex, Stack, Text, ThemeIcon, Button, useComputedColorScheme, Loader, Center, Badge, ActionIcon, Tooltip } from '@mantine/core';
+import { SimpleGrid, Paper, Flex, Stack, Text, ThemeIcon, Button, useComputedColorScheme, Loader, Center, Badge } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { m } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -108,7 +108,7 @@ export function VoucherSection() {
 
     const vouchers: VoucherDisplay[] = res?.data || [];
 
-    const handleSaveVoucher = (voucherId: string, voucherCode: string) => {
+    const handleSaveVoucher = (voucherId: string) => {
         if (!isAuthenticated) {
             notifications.show({
                 title: 'Đăng nhập để lưu voucher',
@@ -206,7 +206,7 @@ export function VoucherSection() {
                                 mt="sm"
                                 fullWidth
                                 leftSection={<Iconify icon="tabler:heart" width={14} />}
-                                onClick={() => handleSaveVoucher(voucher.id, voucher.code)}
+                                onClick={() => handleSaveVoucher(voucher.id)}
                                 loading={saveMutation.isPending}
                             >
                                 Lưu voucher

@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactElement } from 'react';
-import { Paper, Text, Stack, Group, Badge, Anchor, Box } from '@mantine/core';
+import { Paper, Text, Stack, Group, Badge, Anchor } from '@mantine/core';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { formatVND } from '@/utils/currency';
