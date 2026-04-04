@@ -33,6 +33,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { BrandsModule } from './brands/brands.module';
 import { AddressesModule } from './addresses/addresses.module';
 import { LocationModule } from './location/location.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
     imports: [
@@ -92,6 +93,7 @@ import { LocationModule } from './location/location.module';
         BrandsModule,
         AddressesModule,
         LocationModule,
+        SearchModule,
     ],
     controllers: [AppController],
     providers: [

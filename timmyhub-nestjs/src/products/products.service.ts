@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ResourceStatus, Product, UserRole, Prisma } from '@prisma/client';
+import { SearchService } from '../search/search.service';
 
 /**
  * Service quản lý sản phẩm và quy trình phê duyệt
@@ -15,7 +16,10 @@ import { ResourceStatus, Product, UserRole, Prisma } from '@prisma/client';
  */
 @Injectable()
 export class ProductsService {
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        private searchService: SearchService,
+    ) {}
 
     /**
      * Tạo sản phẩm mới (chờ duyệt)
@@ -250,7 +254,7 @@ export class ProductsService {
             throw new BadRequestException('Sản phẩm này đã được duyệt trước đó');
         }
 
-        return this.prisma.product.update({
+        const updated = await this.prisma.product.update({
             where: { id },
             data: {
                 status: ResourceStatus.APPROVED,
@@ -258,6 +262,10 @@ export class ProductsService {
                 reviewNote: 'Đã duyệt bởi hệ thống',
             },
         });
+
+        // Index vào Elasticsearch sau khi duyệt
+        void this.searchService.indexProduct(id);
+        return updated;
     }
 
     /**
@@ -312,10 +320,17 @@ export class ProductsService {
             if (existingSku) throw new ConflictException('Mã SKU đã tồn tại');
         }
 
-        return this.prisma.product.update({
+        const updated = await this.prisma.product.update({
             where: { id },
             data: dto,
         });
+
+        // Cập nhật index nếu sản phẩm đã được duyệt
+        if (updated.status === ResourceStatus.APPROVED) {
+            void this.searchService.indexProduct(id);
+        }
+
+        return updated;
     }
 
     /**
@@ -348,9 +363,13 @@ export class ProductsService {
         }
 
         // Soft delete by setting status to DELETED
-        return this.prisma.product.update({
+        const deleted = await this.prisma.product.update({
             where: { id },
             data: { status: ResourceStatus.DELETED },
         });
+
+        // Xóa khỏi index
+        void this.searchService.removeProduct(id);
+        return deleted;
     }
 }
