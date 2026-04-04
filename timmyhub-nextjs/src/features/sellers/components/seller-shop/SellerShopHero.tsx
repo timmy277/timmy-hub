@@ -76,6 +76,7 @@ export function SellerShopHero({
                                             color="blue"
                                             variant="light"
                                             size="md"
+                                            suppressHydrationWarning
                                             leftSection={
                                                 <ThemeIcon size={14} color="blue" variant="transparent" p={0}>
                                                     <Iconify icon="tabler:shield-check" width={14} />
