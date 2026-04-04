@@ -14,8 +14,6 @@ import {
     Group,
     Tabs,
     ActionIcon,
-    Button,
-    Center,
     Box,
     useComputedColorScheme,
 } from '@mantine/core';
@@ -39,13 +37,12 @@ interface HomePageClientProps {
     initialProducts: Product[];
 }
 
-const PRODUCTS_PAGE_SIZE = 10;
+const PRODUCTS_PAGE_SIZE = 8;
 
 export function HomePageClient({ initialProducts }: HomePageClientProps) {
     const { t } = useTranslation('common');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [activeTab, setActiveTab] = useState<string | null>('all');
-    const [showAll, setShowAll] = useState(false);
     const computedColorScheme = useComputedColorScheme('light');
     const isDark = computedColorScheme === 'dark';
 
@@ -76,11 +73,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
         }
     })();
 
-    const displayProducts = showAll
-        ? filteredProducts
-        : filteredProducts.slice(0, PRODUCTS_PAGE_SIZE);
-
-    const hasMore = filteredProducts.length > PRODUCTS_PAGE_SIZE && !showAll;
+    const displayProducts = filteredProducts.slice(0, PRODUCTS_PAGE_SIZE);
 
     return (
         <Container size="xl" py="lg">
@@ -129,7 +122,6 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                                 value={activeTab}
                                 onChange={(val) => {
                                     setActiveTab(val);
-                                    setShowAll(false);
                                 }}
                                 variant="pills"
                                 radius="xl"
@@ -179,20 +171,6 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                         viewMode={viewMode}
                         isLoading={isLoading}
                     />
-
-                    {hasMore && (
-                        <Center mt="xl">
-                            <Button
-                                variant="outline"
-                                size="md"
-                                radius="xl"
-                                px={40}
-                                onClick={() => setShowAll(true)}
-                            >
-                                {t('homePage.seeMore', { count: filteredProducts.length - PRODUCTS_PAGE_SIZE })}
-                            </Button>
-                        </Center>
-                    )}
                 </Stack>
 
                 {/* Footer Promo */}
