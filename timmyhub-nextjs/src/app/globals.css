@@ -35,3 +35,12 @@
         transition-duration: 0.01ms !important;
     }
 }
+
+/* Elasticsearch highlight */
+mark {
+    background: #fef08a;
+    color: inherit;
+    padding: 0 2px;
+    border-radius: 2px;
+    font-weight: 600;
+}

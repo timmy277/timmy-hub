@@ -214,19 +214,14 @@ export class SearchService implements OnModuleInit {
     // ── Search ───────────────────────────────────────────────────────────────
 
     async search(dto: SearchProductDto) {
-        if (!this.isAvailable) return this.fallbackSearch(dto);
+        // Đảm bảo page/limit luôn là number dù query param là string
+        const page = Number(dto.page ?? 1);
+        const limit = Number(dto.limit ?? 20);
+        const dtoNorm = { ...dto, page, limit };
 
-        const {
-            q,
-            category,
-            brand,
-            minPrice,
-            maxPrice,
-            minRating,
-            sortBy,
-            page = 1,
-            limit = 20,
-        } = dto;
+        if (!this.isAvailable) return this.fallbackSearch(dtoNorm);
+
+        const { q, category, brand, minPrice, maxPrice, minRating, sortBy } = dtoNorm;
         const from = (page - 1) * limit;
 
         // Build query
@@ -291,7 +286,7 @@ export class SearchService implements OnModuleInit {
         const result = await this.client.search({
             index: INDEX,
             from,
-            size: limit,
+            size: Number(limit),
             query: { bool: { must, filter } },
             sort,
             highlight: q
@@ -367,7 +362,7 @@ export class SearchService implements OnModuleInit {
 
     private async fallbackSearch(dto: SearchProductDto) {
         const { q, page = 1, limit = 20 } = dto;
-        const skip = (page - 1) * limit;
+        const skip = (Number(page) - 1) * Number(limit);
 
         const where = {
             status: ResourceStatus.APPROVED,
@@ -384,7 +379,7 @@ export class SearchService implements OnModuleInit {
             this.prisma.product.findMany({
                 where,
                 skip,
-                take: limit,
+                take: Number(limit),
                 orderBy: { soldCount: 'desc' },
                 include: { category: true },
             }),

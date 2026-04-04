@@ -27,9 +27,10 @@ interface ProductCardProps {
     product: Product;
     viewMode?: 'grid' | 'list' | 'flash-sale';
     hideAddToCart?: boolean;
+    highlight?: string; // HTML string từ ES highlight
 }
 
-export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: ProductCardProps) {
+export function ProductCard({ product, viewMode = 'grid', hideAddToCart, highlight }: ProductCardProps) {
     const { t } = useTranslation('common');
     const discountPercentage = product.originalPrice
         ? Math.round((1 - product.price / product.originalPrice) * 100)
@@ -285,7 +286,9 @@ export function ProductCard({ product, viewMode = 'grid', hideAddToCart }: Produ
                             }}
                             className="product-name-link"
                         >
-                            {product.name}
+                            {highlight
+                                ? <span dangerouslySetInnerHTML={{ __html: highlight }} />
+                                : product.name}
                         </Anchor>
 
                         <Group gap={4}>

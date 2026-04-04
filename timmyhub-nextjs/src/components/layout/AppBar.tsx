@@ -15,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useChatUnread } from '@/hooks/useChatUnread';
+import { SearchBar } from '@/components/common/SearchBar';
 
 interface AppBarProps {
     withSidebarToggle?: boolean;
@@ -89,6 +90,11 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                     <Logo />
                 )}
             </Group>
+
+            {/* Search bar - chỉ hiện ở main layout */}
+            {!isAdminPage && !isSellerPage && (
+                <SearchBar />
+            )}
 
             <Group gap="md">
                 {user && !isAdminPage && <SellerButton user={user} />}

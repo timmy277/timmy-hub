@@ -98,7 +98,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                     <Group justify="space-between" align="center">
                         <Box>
                             <Group gap="xs" align="center">
-                                <Title order={2} mb={4}>{t('homePage.todaySuggestion')}</Title>
+                                <Title order={2} mb={4} suppressHydrationWarning>{t('homePage.todaySuggestion')}</Title>
                                 {isFetching && !isLoading && (
                                     <Iconify
                                         icon="tabler:loader-2"

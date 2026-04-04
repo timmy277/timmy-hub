@@ -1,5 +1,5 @@
 import { IsOptional, IsString, IsNumber, Min, Max, IsEnum } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum SearchSortBy {
@@ -56,14 +56,14 @@ export class SearchProductDto {
 
     @ApiPropertyOptional({ default: 1 })
     @IsOptional()
-    @Type(() => Number)
+    @Transform(({ value }) => (value !== undefined ? parseInt(String(value), 10) : 1))
     @IsNumber()
     @Min(1)
     page?: number = 1;
 
     @ApiPropertyOptional({ default: 20 })
     @IsOptional()
-    @Type(() => Number)
+    @Transform(({ value }) => (value !== undefined ? parseInt(String(value), 10) : 20))
     @IsNumber()
     @Min(1)
     @Max(100)
