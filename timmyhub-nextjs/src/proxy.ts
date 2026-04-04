@@ -2,130 +2,130 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getRoutePermissions } from '@/config/permissions';
 
-// Danh sách các route public (không cần đăng nhập)
-const publicPaths = [
+// ─── Route groups ─────────────────────────────────────────────────────────────
+
+/** Không cần đăng nhập */
+const PUBLIC_PATHS = [
+    '/',
     '/login',
     '/register',
     '/forgot-password',
-    '/',
+    '/reset-password',
+    '/become-seller',
+    '/shop/(.*)',
     '/product/(.*)',
-    '/api/(.*)', // Các endpoint API thường có guard riêng hoặc public
+    '/category/(.*)',
+    '/search',
+    '/collection/(.*)',
+    '/campaign/(.*)',
 ];
 
-// Danh sách các route yêu cầu quyền admin
-const adminPaths = ['/admin(.*)'];
+/** Chỉ cần đăng nhập (mọi role) */
+const AUTH_PATHS = [
+    '/cart',
+    '/checkout',
+    '/profile',
+    '/orders',
+    '/wishlist',
+    '/notifications',
+    '/payment/(.*)',
+];
 
+/** Chỉ SELLER (hoặc SUPER_ADMIN) */
+const SELLER_PATHS = '/seller';
 
-// Danh sách các route user thông thường (chỉ cần đăng nhập, không cần permissions đặc biệt)
-const userRoutes = ['/cart', '/profile', '/orders'];
+/** Chỉ ADMIN (hoặc SUPER_ADMIN) */
+const ADMIN_PATHS = '/admin';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function matchesPath(pathname: string, patterns: string[]): boolean {
+    return patterns.some(p => {
+        if (p.includes('(.*)')) {
+            return new RegExp(`^${p.replace('(.*)', '.*')}$`).test(pathname);
+        }
+        return pathname === p || pathname.startsWith(p + '/');
+    });
+}
+
+// ─── Middleware ───────────────────────────────────────────────────────────────
 
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
+    const normalizedPath = pathname.replace(/\/$/, '') || '/';
 
-    // Normalize pathname (remove trailing slash)
-    const normalizedPathname = pathname.replace(/\/$/, '') || '/';
-
-    // Cho phép API routes luôn
-    if (normalizedPathname.startsWith('/api')) {
+    // Luôn cho qua static/api
+    if (normalizedPath.startsWith('/api') || normalizedPath.startsWith('/_next')) {
         return NextResponse.next();
     }
 
-    // Cho phép user routes (chỉ cần đăng nhập)
-    const isUserRoute = userRoutes.some(route => normalizedPathname.startsWith(route));
-    if (isUserRoute) {
-        return NextResponse.next();
-    }
-
-    // 1. Kiểm tra nếu là public path
-    const isPublicPath = publicPaths.some(path => {
-        if (path.includes('(.*)')) {
-            const regex = new RegExp(`^${path.replace('(.*)', '.*')}$`);
-            return regex.test(normalizedPathname);
-        }
-        return normalizedPathname === path;
-    });
-
-    // Lấy access_token và refresh_token từ cookie
     const token = request.cookies.get('access_token')?.value;
     const refreshToken = request.cookies.get('refresh_token')?.value;
+    const isLoggedIn = !!(token || refreshToken);
+    const userRole = request.cookies.get('user_role')?.value ?? '';
 
-    // 2. Nếu truy cập trang bảo vệ mà không có cả access_token và refresh_token -> Redirect về Login
-    // Nếu chỉ thiếu access_token nhưng còn refresh_token, cho phép vào để Axios interceptor xử lý refresh
-    if (!isPublicPath && !token && !refreshToken) {
+    // ── 1. Public paths: luôn cho qua ────────────────────────────────────────
+    if (matchesPath(normalizedPath, PUBLIC_PATHS)) {
+        // Nếu đã login mà vào /login hoặc /register → redirect về trang phù hợp
+        if (isLoggedIn && (normalizedPath === '/login' || normalizedPath === '/register')) {
+            const dest = ['ADMIN', 'SUPER_ADMIN'].includes(userRole) ? '/admin'
+                : userRole === 'SELLER' ? '/seller'
+                : '/';
+            return NextResponse.redirect(new URL(dest, request.url));
+        }
+        return NextResponse.next();
+    }
+
+    // ── 2. Chưa đăng nhập → redirect login ───────────────────────────────────
+    if (!isLoggedIn) {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
-        // Lưu lại url định truy cập để sau khi login quay lại
-        url.searchParams.set('callbackUrl', normalizedPathname);
+        url.searchParams.set('callbackUrl', normalizedPath);
         return NextResponse.redirect(url);
     }
 
-    // Lấy userRole sớm để dùng cho redirect logic
-    const userRole = request.cookies.get('user_role')?.value;
-
-    // 3. Nếu đã đăng nhập mà cố vào trang Login/Register -> Redirect về trang phù hợp với role
-    if (token && (normalizedPathname === '/login' || normalizedPathname === '/register')) {
-        // Redirect về trang phù hợp với role của user
-        const redirectPath = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN'
-            ? '/admin'
-            : '/'; // CUSTOMER hoặc SELLER về trang chủ
-        return NextResponse.redirect(new URL(redirectPath, request.url));
-    }
-
-    // 4. Kiểm tra quyền hạn nâng cao (Dựa vào User Role & Permissions)
-    const permissionsStr = request.cookies.get('user_permissions')?.value;
-    let userPermissions: string[] = [];
-
-    try {
-        if (permissionsStr) {
-            userPermissions = JSON.parse(decodeURIComponent(permissionsStr));
-        }
-    } catch (e) {
-        console.error('Failed to parse permissions cookie', e);
-    }
-
-    // Đặc cách cho SUPER_ADMIN
+    // ── 3. SUPER_ADMIN bypass tất cả ─────────────────────────────────────────
     if (userRole === 'SUPER_ADMIN') return NextResponse.next();
 
-    if (token) {
-        // A. Kiểm tra Role-based Paths
-        const isAdminPath = adminPaths.some(path =>
-            new RegExp(`^${path.replace('(.*)', '.*')}$`).test(normalizedPathname),
-        );
-        if (isAdminPath && userRole !== 'ADMIN') {
+    // ── 4. Auth paths: chỉ cần đăng nhập ─────────────────────────────────────
+    if (matchesPath(normalizedPath, AUTH_PATHS)) {
+        return NextResponse.next();
+    }
+
+    // ── 5. Admin paths: chỉ ADMIN ────────────────────────────────────────────
+    if (normalizedPath.startsWith(ADMIN_PATHS)) {
+        if (userRole !== 'ADMIN') {
             return NextResponse.redirect(new URL('/403', request.url));
         }
 
-        // Cho phép mọi user đã đăng nhập vào /seller (CUSTOMER vào đăng ký bán hàng, SELLER vào dashboard)
-        // Layout seller sẽ redirect user chưa có gian hàng sang /become-seller
+        // Permission-based check cho admin routes
+        const permissionsStr = request.cookies.get('user_permissions')?.value;
+        let userPermissions: string[] = [];
+        try {
+            if (permissionsStr) userPermissions = JSON.parse(decodeURIComponent(permissionsStr));
+        } catch { /* ignore */ }
 
-        // B. Kiểm tra Permission-based Paths với Permission System
-        const requiredPermissions = getRoutePermissions(normalizedPathname);
-
-        if (requiredPermissions.length > 0) {
-            // Check xem user có tất cả required permissions không
-            const hasAccess = requiredPermissions.every(perm =>
-                userPermissions.includes(perm),
-            );
-
-            if (!hasAccess) {
-                return NextResponse.redirect(new URL('/403', request.url));
-            }
+        const required = getRoutePermissions(normalizedPath);
+        if (required.length > 0 && !required.every(p => userPermissions.includes(p))) {
+            return NextResponse.redirect(new URL('/403', request.url));
         }
+
+        return NextResponse.next();
     }
 
+    // ── 6. Seller paths: chỉ SELLER ──────────────────────────────────────────
+    if (normalizedPath.startsWith(SELLER_PATHS)) {
+        if (userRole !== 'SELLER') {
+            // Customer chưa là seller → trang đăng ký
+            return NextResponse.redirect(new URL('/become-seller', request.url));
+        }
+        return NextResponse.next();
+    }
+
+    // ── 7. Mọi route còn lại: cho qua nếu đã đăng nhập ───────────────────────
     return NextResponse.next();
 }
 
-// Cấu hình các path mà middleware sẽ chạy qua
 export const config = {
-    matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         */
-        '/((?!_next/static|_next/image|favicon.ico).*)',
-    ],
+    matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 };

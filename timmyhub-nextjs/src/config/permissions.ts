@@ -37,12 +37,23 @@ export const PERMISSIONS = {
         PROCESS: 'orders:process',
         CANCEL: 'orders:cancel',
     },
+    // Seller
+    SELLER: {
+        PRODUCTS_READ: 'seller:products:read',
+        PRODUCTS_WRITE: 'seller:products:write',
+        ORDERS_READ: 'seller:orders:read',
+        VOUCHERS_WRITE: 'seller:vouchers:write',
+        CAMPAIGNS_WRITE: 'seller:campaigns:write',
+        ANALYTICS_READ: 'seller:analytics:read',
+    },
 } as const;
 
 // ===== ROUTE-PERMISSION MAPPING =====
 // Định nghĩa các route yêu cầu quyền truy cập cụ thể
 export const ROUTE_PERMISSIONS: Record<string, string[]> = {
-    '/admin': [PERMISSIONS.USERS.READ],
+    // Dashboard - mọi ADMIN đều vào được (role check đã xử lý ở middleware)
+    '/admin': [],
+    '/admin/dashboard': [],
 
     // Users
     '/admin/users': [PERMISSIONS.USERS.READ],
