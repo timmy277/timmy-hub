@@ -3,7 +3,7 @@
 /**
  * Trang gian hàng công khai: toolbar, banner, tab, lưới sản phẩm, chân trang cửa hàng.
  */
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useCallback, useMemo, useState, type ReactElement } from 'react';
 import {
     Container,
     Paper,
@@ -13,6 +13,7 @@ import {
     Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import Iconify from '@/components/iconify/Iconify';
 import { useTranslation } from 'react-i18next';
 import type { SellerShop } from '@/types/product';
 import { useChatStore } from '@/stores/useChatStore';
@@ -21,10 +22,8 @@ import {
     type SellerShopSortMode,
 } from '@/constants/seller-shop-ui';
 import {
-    filterProductsByQuery,
     sortProductsByMode,
 } from '@/features/sellers/utils/seller-shop-products';
-import { SellerShopToolbar } from './seller-shop/SellerShopToolbar';
 import { SellerShopHero } from './seller-shop/SellerShopHero';
 import { SellerShopProductBlock } from './seller-shop/SellerShopProductBlock';
 import { SellerShopFooter } from './seller-shop/SellerShopFooter';
@@ -36,7 +35,6 @@ interface SellerShopClientProps {
 export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement {
     const { t } = useTranslation('common');
     const openChat = useChatStore((state) => state.openChat);
-    const [search, setSearch] = useState('');
     const [sortMode, setSortMode] = useState<SellerShopSortMode>('popular');
     const [visibleCount, setVisibleCount] = useState(SELLER_SHOP_PAGE_SIZE);
     const [activeTab, setActiveTab] = useState<string | null>('home');
@@ -46,38 +44,10 @@ export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement 
         `${shop.user.profile?.firstName ?? ''} ${shop.user.profile?.lastName ?? ''}`.trim() ||
         shop.shopName;
 
-    const filtered = useMemo(
-        () => filterProductsByQuery(shop.products, search),
-        [shop.products, search],
-    );
-
     const sorted = useMemo(
-        () => sortProductsByMode(filtered, sortMode),
-        [filtered, sortMode],
+        () => sortProductsByMode(shop.products, sortMode),
+        [shop.products, sortMode],
     );
-
-    const handleShare = useCallback(async (): Promise<void> => {
-        if (typeof window === 'undefined') return;
-        try {
-            await navigator.clipboard.writeText(window.location.href);
-            notifications.show({
-                message: t('sellerShop.shareCopied'),
-                color: 'green',
-            });
-        } catch {
-            notifications.show({
-                message: t('sellerShop.errorCopy'),
-                color: 'red',
-            });
-        }
-    }, [t]);
-
-    const handleMore = useCallback((): void => {
-        notifications.show({
-            message: t('sellerShop.moreSoon'),
-            color: 'blue',
-        });
-    }, [t]);
 
     const handleFollow = useCallback((): void => {
         notifications.show({
@@ -103,20 +73,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement 
         t('sellerShop.defaultIntro', { name: shop.shopName });
 
     return (
-        <div
-            suppressHydrationWarning
-            className="min-h-[50vh] bg-[#f6f7f8] dark:bg-[#111a21]"
-        >
-            <SellerShopToolbar
-                searchQuery={search}
-                onSearchChange={(v) => {
-                    setSearch(v);
-                    setVisibleCount(SELLER_SHOP_PAGE_SIZE);
-                }}
-                onShare={handleShare}
-                onMore={handleMore}
-            />
-
+        <div suppressHydrationWarning className="min-h-[50vh] bg-[#f6f7f8] dark:bg-[#111a21]">
             <SellerShopHero
                 shop={shop}
                 sellerDisplayName={sellerDisplayName}
@@ -124,18 +81,18 @@ export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement 
                 onFollow={handleFollow}
             />
 
-            <Container size="xl" py="xl" className="max-w-[1280px]">
-                <Tabs value={activeTab} onChange={setActiveTab} variant="outline" radius="md">
-                    <Tabs.List grow mb="lg" className="flex-wrap">
-                        <Tabs.Tab value="home">{t('sellerShop.tabHome')}</Tabs.Tab>
-                        <Tabs.Tab value="all">{t('sellerShop.tabAll')}</Tabs.Tab>
-                        <Tabs.Tab value="reviews">{t('sellerShop.tabReviews')}</Tabs.Tab>
-                        <Tabs.Tab value="policies">{t('sellerShop.tabPolicies')}</Tabs.Tab>
+            <Container size="xl" py="xl" px="xl">
+                <Tabs value={activeTab} onChange={setActiveTab} variant="pills" radius="xl">
+                    <Tabs.List mb="xl">
+                        <Tabs.Tab value="home" leftSection={<Iconify icon="solar:home-2-bold" width={15} />}>{t('sellerShop.tabHome')}</Tabs.Tab>
+                        <Tabs.Tab value="all" leftSection={<Iconify icon="solar:box-bold" width={15} />}>{t('sellerShop.tabAll')}</Tabs.Tab>
+                        <Tabs.Tab value="reviews" leftSection={<Iconify icon="solar:star-bold" width={15} />}>{t('sellerShop.tabReviews')}</Tabs.Tab>
+                        <Tabs.Tab value="policies" leftSection={<Iconify icon="solar:shield-check-bold" width={15} />}>{t('sellerShop.tabPolicies')}</Tabs.Tab>
                     </Tabs.List>
 
                     <Tabs.Panel value="home">
                         <Stack gap="xl">
-                            <Paper p="lg" radius="lg" withBorder shadow="xs">
+                            <Paper p="lg" radius="md" withBorder shadow="xs">
                                 <Title order={4} mb="sm">
                                     {t('sellerShop.homeIntroTitle')}
                                 </Title>
@@ -170,7 +127,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement 
                     </Tabs.Panel>
 
                     <Tabs.Panel value="reviews">
-                        <Paper p="xl" radius="lg" withBorder>
+                        <Paper p="xl" radius="md" withBorder>
                             <Title order={4} mb="sm">
                                 {t('sellerShop.reviewsTitle')}
                             </Title>
@@ -179,7 +136,7 @@ export function SellerShopClient({ shop }: SellerShopClientProps): ReactElement 
                     </Tabs.Panel>
 
                     <Tabs.Panel value="policies">
-                        <Paper p="xl" radius="lg" withBorder>
+                        <Paper p="xl" radius="md" withBorder>
                             <Title order={4} mb="sm">
                                 {t('sellerShop.policiesTitle')}
                             </Title>

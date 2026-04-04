@@ -47,10 +47,10 @@ export function SellerShopHero({
             {/* Banner gradient */}
             <div className="h-28 bg-linear-to-br from-sky-100 via-blue-100 to-indigo-100 md:h-36 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900" />
 
-            <div className="mx-auto max-w-[1280px] px-4 md:px-8">
+            <div className="mx-auto max-w-[var(--mantine-breakpoint-xl)] px-4 md:px-8">
                 {/* Panel trắng bao toàn bộ thông tin + metrics */}
                 <Paper
-                    radius="xl"
+                    radius="md"
                     p="xl"
                     className="relative -mt-14 bg-white shadow-lg dark:bg-slate-900"
                 >
