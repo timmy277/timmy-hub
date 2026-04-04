@@ -32,10 +32,11 @@ interface PermissionCheck {
 
 /** Sidebar cho khu vực seller (không dùng permission, tránh 403 khi click) */
 const getSellerSidebarData = (t: TFunction): SidebarItem[] => [
-    { label: t('sidebar.seller.overview'), icon: 'solar:home-2-bold-duotone', link: '/seller' },
-    { label: t('sidebar.seller.products'), icon: 'solar:box-bold-duotone', link: '/seller/products' },
-    { label: t('sidebar.seller.vouchers'), icon: 'solar:ticket-bold-duotone', link: '/seller/vouchers' },
-    { label: t('sidebar.seller.promotions'), icon: 'solar:gift-bold-duotone', link: '/seller/campaigns' },
+    { label: t('sidebar.seller_nav.overview'), icon: 'solar:home-2-bold-duotone', link: '/seller' },
+    { label: t('sidebar.seller_nav.products'), icon: 'solar:box-bold-duotone', link: '/seller/products' },
+    { label: t('sidebar.seller_nav.orders'), icon: 'solar:clipboard-list-bold-duotone', link: '/seller/orders' },
+    { label: t('sidebar.seller_nav.vouchers'), icon: 'solar:ticket-bold-duotone', link: '/seller/vouchers' },
+    { label: t('sidebar.seller_nav.promotions'), icon: 'solar:gift-bold-duotone', link: '/seller/campaigns' },
 ];
 
 const getMockData = (t: TFunction): SidebarItem[] => [

@@ -240,6 +240,7 @@
         "seller_nav": {
             "overview": "Overview",
             "products": "Products",
+            "orders": "Orders",
             "vouchers": "Vouchers",
             "promotions": "Promotions"
         },

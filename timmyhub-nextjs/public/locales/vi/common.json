@@ -93,6 +93,7 @@
         "seller_nav": {
             "overview": "Tổng quan",
             "products": "Sản phẩm",
+            "orders": "Đơn hàng",
             "vouchers": "Voucher",
             "promotions": "Khuyến mãi"
         },
