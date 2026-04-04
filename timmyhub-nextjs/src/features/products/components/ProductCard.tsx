@@ -22,15 +22,24 @@ import { AddToCartButton } from '@/components/cart/AddToCartButton';
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
 import { formatVND } from '@/utils/currency';
 import { useTranslation } from 'react-i18next';
+import { ClientOnly } from '@/components/ClientOnly';
 
 interface ProductCardProps {
     product: Product;
     viewMode?: 'grid' | 'list' | 'flash-sale';
     hideAddToCart?: boolean;
-    highlight?: string; // HTML string từ ES highlight
+    highlight?: string;
 }
 
-export function ProductCard({ product, viewMode = 'grid', hideAddToCart, highlight }: ProductCardProps) {
+export function ProductCard(props: ProductCardProps) {
+    return (
+        <ClientOnly fallback={<Box h={300} style={{ background: 'var(--mantine-color-gray-1)', borderRadius: 'var(--mantine-radius-md)' }} />}>
+            <ProductCardInner {...props} />
+        </ClientOnly>
+    );
+}
+
+function ProductCardInner({ product, viewMode = 'grid', hideAddToCart, highlight }: ProductCardProps) {
     const { t } = useTranslation('common');
     const discountPercentage = product.originalPrice
         ? Math.round((1 - product.price / product.originalPrice) * 100)

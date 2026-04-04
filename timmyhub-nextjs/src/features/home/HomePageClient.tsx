@@ -126,12 +126,12 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                                 variant="pills"
                                 radius="xl"
                             >
-                                <Tabs.List>
-                                    <Tabs.Tab value="all">{t('homePage.tabAll')}</Tabs.Tab>
-                                    <Tabs.Tab value="new">{t('homePage.tabNew')}</Tabs.Tab>
-                                    <Tabs.Tab value="best">{t('homePage.tabBest')}</Tabs.Tab>
-                                    <Tabs.Tab value="sale">{t('homePage.tabSale')}</Tabs.Tab>
-                                    <Tabs.Tab value="featured">{t('homePage.tabFeatured')}</Tabs.Tab>
+                                <Tabs.List suppressHydrationWarning>
+                                    <Tabs.Tab value="all"><span suppressHydrationWarning>{t('homePage.tabAll')}</span></Tabs.Tab>
+                                    <Tabs.Tab value="new"><span suppressHydrationWarning>{t('homePage.tabNew')}</span></Tabs.Tab>
+                                    <Tabs.Tab value="best"><span suppressHydrationWarning>{t('homePage.tabBest')}</span></Tabs.Tab>
+                                    <Tabs.Tab value="sale"><span suppressHydrationWarning>{t('homePage.tabSale')}</span></Tabs.Tab>
+                                    <Tabs.Tab value="featured"><span suppressHydrationWarning>{t('homePage.tabFeatured')}</span></Tabs.Tab>
                                 </Tabs.List>
                             </Tabs>
                             <Group
