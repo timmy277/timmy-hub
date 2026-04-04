@@ -44,9 +44,10 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
         </Anchor>,
         ...segments.map((segment, index) => {
             const path = `/${segments.slice(0, index + 1).join('/')}`;
-            const label = t(`sidebar.${segment}`, {
-                defaultValue: segment.charAt(0).toUpperCase() + segment.slice(1),
-            });
+            const translated = t(`sidebar.${segment}`, { defaultValue: '' });
+            const label = typeof translated === 'string' && translated
+                ? translated
+                : segment.charAt(0).toUpperCase() + segment.slice(1);
             const isLast = index === segments.length - 1;
 
             return isLast ? (

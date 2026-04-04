@@ -89,7 +89,8 @@
         "orders": "Đơn hàng",
         "customers": "Khách hàng",
         "settings": "Cài đặt",
-        "seller": {
+        "seller": "Người bán",
+        "seller_nav": {
             "overview": "Tổng quan",
             "products": "Sản phẩm",
             "vouchers": "Voucher",

@@ -236,7 +236,8 @@
         "orders": "Orders",
         "customers": "Customers",
         "settings": "Settings",
-        "seller": {
+        "seller": "Seller",
+        "seller_nav": {
             "overview": "Overview",
             "products": "Products",
             "vouchers": "Vouchers",
