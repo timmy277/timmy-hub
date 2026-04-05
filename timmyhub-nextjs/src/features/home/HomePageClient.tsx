@@ -110,11 +110,6 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                                     />
                                 )}
                             </Group>
-                            <Text c="dimmed" suppressHydrationWarning>
-                                {filteredProducts.length > 0
-                                    ? t('homePage.productsForYou', { count: filteredProducts.length })
-                                    : t('homePage.bestForYou')}
-                            </Text>
                         </Box>
 
                         <Group>

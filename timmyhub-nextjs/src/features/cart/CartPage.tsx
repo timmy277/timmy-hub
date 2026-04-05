@@ -14,6 +14,7 @@ import {
     Divider,
     Badge,
     Box,
+    Checkbox,
 } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { modals } from '@mantine/modals';
@@ -39,6 +40,31 @@ export function CartPage() {
         isClearing,
     } = useCart();
     const [quantities, setQuantities] = useState<Record<string, number>>({});
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+    // Khi cart load xong, mặc định chọn tất cả
+    const allIds = cart?.items.map(i => i.id) ?? [];
+    const allSelected = allIds.length > 0 && allIds.every(id => selectedIds.has(id));
+    const someSelected = allIds.some(id => selectedIds.has(id));
+
+    const toggleItem = (id: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+    };
+
+    const toggleAll = () => {
+        setSelectedIds(allSelected ? new Set() : new Set(allIds));
+    };
+
+    // Init select all khi cart load
+    const [initialized, setInitialized] = useState(false);
+    if (cart && !initialized) {
+        setSelectedIds(new Set(cart.items.map(i => i.id)));
+        setInitialized(true);
+    }
 
     const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
         try {
@@ -125,28 +151,33 @@ export function CartPage() {
         });
     };
 
-    const liveItemCount = cart.items.reduce(
+    const selectedItems = cart.items.filter(i => selectedIds.has(i.id));
+
+    const liveItemCount = selectedItems.reduce(
         (sum, item) => sum + (quantities[item.id] ?? item.quantity),
         0,
     );
-    const liveTotalAmount = cart.items.reduce(
+    const liveTotalAmount = selectedItems.reduce(
         (sum, item) =>
-            sum +
-            Number(item.product.price) * (quantities[item.id] ?? item.quantity),
+            sum + Number(item.product.price) * (quantities[item.id] ?? item.quantity),
         0,
     );
 
     return (
         <Container size="lg" py="xl">
             <Group justify="space-between" mb="xl">
-                <Title order={2}>{t('cartPage.yourCart')}</Title>
+                <Group gap="md">
+                    <Checkbox
+                        checked={allSelected}
+                        indeterminate={someSelected && !allSelected}
+                        onChange={toggleAll}
+                        label={<Text fw={600}>{t('cartPage.yourCart')}</Text>}
+                        size="md"
+                    />
+                    <Text c="dimmed" size="sm">({cart.items.length} {t('cart.items')})</Text>
+                </Group>
                 {cart.items.length > 0 && (
-                    <Button
-                        variant="subtle"
-                        color="red"
-                        onClick={confirmClearCart}
-                        loading={isClearing}
-                    >
+                    <Button variant="subtle" color="red" onClick={confirmClearCart} loading={isClearing}>
                         {t('cartPage.clearAll')}
                     </Button>
                 )}
@@ -159,8 +190,14 @@ export function CartPage() {
                         const maxQty = Math.min(99, item.product.stock);
 
                         return (
-                            <Paper key={item.id} p="md" withBorder>
-                                <Group align="flex-start" gap="md">
+                            <Paper key={item.id} p="md" withBorder
+                                style={{ opacity: selectedIds.has(item.id) ? 1 : 0.5, transition: 'opacity 0.15s' }}
+                            >
+                                <Group align="center" gap="md">
+                                    <Checkbox
+                                        checked={selectedIds.has(item.id)}
+                                        onChange={() => toggleItem(item.id)}
+                                    />
                                     <Image
                                         src={item.product.images[0] || '/placeholder-product.jpg'}
                                         alt={item.product.name}
@@ -310,8 +347,15 @@ export function CartPage() {
                             </Text>
                         </Group>
 
-                        <Button component={Link} href="/checkout" size="lg" fullWidth mt="md">
-                            {t('cartPage.checkout')}
+                        <Button
+                            component={Link}
+                            href={`/checkout?items=${[...selectedIds].join(',')}`}
+                            size="lg"
+                            fullWidth
+                            mt="md"
+                            disabled={selectedIds.size === 0}
+                        >
+                            {t('cartPage.checkout')} {selectedIds.size > 0 && `(${selectedIds.size})`}
                         </Button>
 
                         <Button component={Link} href="/" variant="light" fullWidth>
