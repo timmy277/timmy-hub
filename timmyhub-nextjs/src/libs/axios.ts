@@ -74,14 +74,6 @@ axiosClient.interceptors.response.use(
             !shouldSkipRetry &&
             !originalRequest._retry
         ) {
-            // Check if refresh token exists
-            const refreshToken = Cookies.get('refresh_token');
-            if (!refreshToken) {
-                console.warn('[Axios] No refresh token found, redirecting to login...');
-                clearAuthAndRedirect();
-                return Promise.reject(error);
-            }
-
             // Prevent infinite retry loop
             if (failedRefreshCount >= MAX_REFRESH_RETRIES) {
                 console.warn('[Axios] Max refresh retries reached, logging out...');
@@ -103,9 +95,26 @@ axiosClient.interceptors.response.use(
                     );
 
                     // Reset counters on successful refresh
-                    isRefreshing = false;
                     failedRefreshCount = 0;
-                    onRefreshed('refreshed'); // Token mới nằm trong cookie
+                    onRefreshed('refreshed'); // Notify waiting requests
+                    isRefreshing = false;
+
+                    // Fetch lại profile để update user_roles cookie
+                    try {
+                        const profileRes = await axios.get<{
+                            data: { roles: string[]; permissions: string[] };
+                        }>(`${axiosClient.defaults.baseURL}/auth/profile`, {
+                            withCredentials: true,
+                        });
+                        const roles = profileRes.data?.data?.roles ?? [];
+                        const permissions = profileRes.data?.data?.permissions ?? [];
+                        Cookies.set('user_roles', JSON.stringify(roles), { expires: 7 });
+                        Cookies.set('user_permissions', JSON.stringify(permissions), {
+                            expires: 7,
+                        });
+                    } catch {
+                        // Không critical, bỏ qua
+                    }
 
                     console.log('[Axios] ✅ Token refreshed successfully');
 
