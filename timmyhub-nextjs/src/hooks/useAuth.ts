@@ -25,7 +25,11 @@ export const useAuth = () => {
 
     useEffect(() => {
         if (!profileData?.data) return;
-        const device = useAuthStore.getState().device ?? { id: 'web', name: 'web', deviceId: 'web' };
+        const device = useAuthStore.getState().device ?? {
+            id: 'web',
+            name: 'web',
+            deviceId: 'web',
+        };
         setAuthData(profileData.data, device);
     }, [profileData?.data, setAuthData]);
 
@@ -52,7 +56,7 @@ export const useAuth = () => {
     const handleLocalLogout = () => {
         clearAuthData();
 
-        const cookiesToRemove = ['user_role', 'user_permissions', 'access_token', 'refresh_token'];
+        const cookiesToRemove = ['user_roles', 'user_permissions', 'access_token', 'refresh_token'];
         cookiesToRemove.forEach(key => {
             Cookies.remove(key, { path: '/' });
             // Try both with and without domain

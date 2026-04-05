@@ -62,15 +62,20 @@ export function proxy(request: NextRequest) {
     const token = request.cookies.get('access_token')?.value;
     const refreshToken = request.cookies.get('refresh_token')?.value;
     const isLoggedIn = !!(token || refreshToken);
-    const userRole = request.cookies.get('user_role')?.value ?? '';
+    const userRolesRaw = request.cookies.get('user_roles')?.value;
+    const userRoles: string[] = userRolesRaw ? JSON.parse(decodeURIComponent(userRolesRaw)) : [];
+    const hasRole = (role: string) => userRoles.includes(role);
 
     // ── 1. Public paths: luôn cho qua ────────────────────────────────────────
     if (matchesPath(normalizedPath, PUBLIC_PATHS)) {
         // Nếu đã login mà vào /login hoặc /register → redirect về trang phù hợp
         if (isLoggedIn && (normalizedPath === '/login' || normalizedPath === '/register')) {
-            const dest = ['ADMIN', 'SUPER_ADMIN'].includes(userRole) ? '/admin'
-                : userRole === 'SELLER' ? '/seller'
-                : '/';
+            const dest =
+                hasRole('ADMIN') || hasRole('SUPER_ADMIN')
+                    ? '/admin'
+                    : hasRole('SELLER')
+                      ? '/seller'
+                      : '/';
             return NextResponse.redirect(new URL(dest, request.url));
         }
         return NextResponse.next();
@@ -85,7 +90,7 @@ export function proxy(request: NextRequest) {
     }
 
     // ── 3. SUPER_ADMIN bypass tất cả ─────────────────────────────────────────
-    if (userRole === 'SUPER_ADMIN') return NextResponse.next();
+    if (hasRole('SUPER_ADMIN')) return NextResponse.next();
 
     // ── 4. Auth paths: chỉ cần đăng nhập ─────────────────────────────────────
     if (matchesPath(normalizedPath, AUTH_PATHS)) {
@@ -94,29 +99,28 @@ export function proxy(request: NextRequest) {
 
     // ── 5. Admin paths: chỉ ADMIN ────────────────────────────────────────────
     if (normalizedPath.startsWith(ADMIN_PATHS)) {
-        if (userRole !== 'ADMIN') {
+        if (!hasRole('ADMIN')) {
             return NextResponse.redirect(new URL('/403', request.url));
         }
 
-        // Permission-based check cho admin routes
         const permissionsStr = request.cookies.get('user_permissions')?.value;
         let userPermissions: string[] = [];
         try {
             if (permissionsStr) userPermissions = JSON.parse(decodeURIComponent(permissionsStr));
-        } catch { /* ignore */ }
+        } catch {
+            /* ignore */
+        }
 
         const required = getRoutePermissions(normalizedPath);
         if (required.length > 0 && !required.every(p => userPermissions.includes(p))) {
             return NextResponse.redirect(new URL('/403', request.url));
         }
-
         return NextResponse.next();
     }
 
     // ── 6. Seller paths: chỉ SELLER ──────────────────────────────────────────
     if (normalizedPath.startsWith(SELLER_PATHS)) {
-        if (userRole !== 'SELLER') {
-            // Customer chưa là seller → trang đăng ký
+        if (!hasRole('SELLER')) {
             return NextResponse.redirect(new URL('/become-seller', request.url));
         }
         return NextResponse.next();

@@ -101,7 +101,11 @@ function InnerLoginPage() {
 
         setAuthData(user, device);
 
-        Cookies.set('user_role', Array.isArray(user.roles) ? user.roles[0] : (user as { role?: string }).role ?? 'CUSTOMER', { expires: cookieExpires });
+        const roles = Array.isArray(user.roles) ? user.roles : [(user as { role?: string }).role ?? 'CUSTOMER'];
+
+        // Lưu tất cả roles vào cookie (JSON array)
+        Cookies.set('user_roles', JSON.stringify(roles), { expires: cookieExpires });
+        // Xóa cookie cũ nếu còn tồn tại
         Cookies.set('user_permissions', JSON.stringify(user.permissions), {
             expires: cookieExpires,
         });
@@ -113,7 +117,6 @@ function InnerLoginPage() {
             icon: <Icon icon="tabler:check" width={18} />,
         });
 
-        const roles = Array.isArray(user.roles) ? user.roles : [(user as { role?: string }).role ?? 'CUSTOMER'];
         const target =
             redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')
                 ? redirectTo

@@ -8,5 +8,10 @@
         "build:nestjs": "pnpm --filter timmyhub-nestjs build",
         "build:nextjs": "pnpm --filter timmyhub-nextjs build",
         "dev": "pnpm --parallel --filter timmyhub-nestjs --filter timmyhub-nextjs run start:dev"
+    },
+    "pnpm": {
+        "overrides": {
+            "@types/pg": "8.18.0"
+        }
     }
 }

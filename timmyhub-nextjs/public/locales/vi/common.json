@@ -95,7 +95,8 @@
             "products": "Sản phẩm",
             "orders": "Đơn hàng",
             "vouchers": "Voucher",
-            "promotions": "Khuyến mãi"
+            "promotions": "Khuyến mãi",
+            "posts": "Bài đăng"
         },
         "systemManagement": "Quản lý hệ thống",
         "rolesAndPermissions": "Vai trò & Quyền",

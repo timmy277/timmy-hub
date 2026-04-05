@@ -9,7 +9,6 @@ import { useState } from 'react';
 import {
     Container,
     Title,
-    Text,
     Stack,
     Group,
     Tabs,
@@ -32,6 +31,7 @@ import {
     FeatureSection,
     FooterPromo,
 } from './components/index-new';
+import { PostFeedSection } from '@/features/posts/PostFeedSection';
 
 interface HomePageClientProps {
     initialProducts: Product[];
@@ -92,6 +92,9 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
 
                 {/* Flash Sale */}
                 <FlashSaleBanner />
+
+                {/* Post Feed */}
+                <PostFeedSection />
 
                 {/* Main Products */}
                 <Stack gap="md" id="products-section">

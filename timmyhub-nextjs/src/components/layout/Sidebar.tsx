@@ -37,6 +37,7 @@ const getSellerSidebarData = (t: TFunction): SidebarItem[] => [
     { label: t('sidebar.seller_nav.orders'), icon: 'solar:clipboard-list-bold-duotone', link: '/seller/orders' },
     { label: t('sidebar.seller_nav.vouchers'), icon: 'solar:ticket-bold-duotone', link: '/seller/vouchers' },
     { label: t('sidebar.seller_nav.promotions'), icon: 'solar:gift-bold-duotone', link: '/seller/campaigns' },
+    { label: t('sidebar.seller_nav.posts'), icon: 'solar:video-frame-bold-duotone', link: '/seller/posts' },
 ];
 
 const getMockData = (t: TFunction): SidebarItem[] => [

@@ -33,7 +33,7 @@ const onRefreshed = (token: string) => {
 
 const clearAuthAndRedirect = () => {
     // Clear all auth-related cookies
-    const cookiesToRemove = ['access_token', 'refresh_token', 'user_role', 'user_permissions'];
+    const cookiesToRemove = ['access_token', 'refresh_token', 'user_roles', 'user_permissions'];
     cookiesToRemove.forEach(key => {
         Cookies.remove(key, { path: '/' });
         Cookies.remove(key, { path: '/', domain: window.location.hostname });

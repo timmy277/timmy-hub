@@ -242,7 +242,8 @@
             "products": "Products",
             "orders": "Orders",
             "vouchers": "Vouchers",
-            "promotions": "Promotions"
+            "promotions": "Promotions",
+            "posts": "Posts"
         },
         "systemManagement": "System Management",
         "rolesAndPermissions": "Roles & Permissions",

@@ -44,3 +44,16 @@ mark {
     border-radius: 2px;
     font-weight: 600;
 }
+
+/* Tiptap editor */
+.tiptap {
+    outline: none;
+    min-height: inherit;
+}
+.tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: var(--mantine-color-dimmed);
+    pointer-events: none;
+    float: left;
+    height: 0;
+}

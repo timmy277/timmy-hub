@@ -45,9 +45,9 @@ export function OAuthCallbackClient() {
 
                 setAuthData(user, device);
 
-                // Lưu role/permissions vào cookie để middleware đọc
+                // Lưu roles vào cookie để middleware đọc
                 const roles = Array.isArray(user.roles) ? user.roles : [];
-                Cookies.set('user_role', roles[0] ?? 'CUSTOMER', { expires: 7 });
+                Cookies.set('user_roles', JSON.stringify(roles), { expires: 7 });
                 Cookies.set('user_permissions', JSON.stringify(user.permissions ?? []), {
                     expires: 7,
                 });
