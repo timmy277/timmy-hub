@@ -47,6 +47,7 @@ model User {
   receivedMessages   ChatMessage[]       @relation("ReceivedMessages")
   wishlistItems      WishlistItem[]
   systemLogs         SystemLog[]
+  posts              Post[]
 
   @@index([email])
   @@index([phone])
@@ -270,6 +271,7 @@ model Product {
   reviews         Review[]
   wishlistedBy    WishlistItem[]
   campaignProducts CampaignProduct[]
+  postTags        PostProduct[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -743,4 +745,74 @@ model Ward {
 
   @@index([code])
   @@index([districtCode])
+}
+
+// ===== POSTS (Video/Image quảng cáo của Seller) =====
+
+enum PostStatus {
+    DRAFT
+    PUBLISHED
+    HIDDEN
+}
+
+model Post {
+    id           String     @id @default(cuid())
+    sellerId     String
+    seller       User       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+    title        String
+    content      String?
+    videoUrl     String?
+    thumbnailUrl String?
+    images       String[]   @default([])
+    hashtags     String[]   @default([])
+    status       PostStatus @default(PUBLISHED)
+    viewCount    Int        @default(0)
+    likeCount    Int        @default(0)
+    commentCount Int        @default(0)
+    isPinned     Boolean    @default(false)
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+
+    productTags  PostProduct[]
+    likes        PostLike[]
+    comments     PostComment[]
+
+    @@index([sellerId])
+    @@index([status])
+    @@index([createdAt])
+}
+
+model PostProduct {
+    id        String  @id @default(cuid())
+    postId    String
+    post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+    productId String
+    product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+    position  Int     @default(0)
+
+    @@unique([postId, productId])
+    @@index([postId])
+}
+
+model PostLike {
+    id        String   @id @default(cuid())
+    postId    String
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    userId    String
+    createdAt DateTime @default(now())
+
+    @@unique([postId, userId])
+    @@index([postId])
+}
+
+model PostComment {
+    id        String   @id @default(cuid())
+    postId    String
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    userId    String
+    content   String
+    parentId  String?
+    createdAt DateTime @default(now())
+
+    @@index([postId])
 }

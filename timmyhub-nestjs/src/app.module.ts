@@ -34,6 +34,7 @@ import { BrandsModule } from './brands/brands.module';
 import { AddressesModule } from './addresses/addresses.module';
 import { LocationModule } from './location/location.module';
 import { SearchModule } from './search/search.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
     imports: [
@@ -94,6 +95,7 @@ import { SearchModule } from './search/search.module';
         AddressesModule,
         LocationModule,
         SearchModule,
+        PostsModule,
     ],
     controllers: [AppController],
     providers: [
