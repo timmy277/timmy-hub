@@ -5,7 +5,7 @@ import { Box, Text, Group, Avatar, Badge, ActionIcon, Stack, Image, Tooltip } fr
 import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 import { formatVND } from '@/utils/currency';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { postService } from '@/services/post.service';
 import type { Post } from '@/types/post';
 import dayjs from 'dayjs';
@@ -24,7 +24,6 @@ export function PostCard({ post, onOpenDetail }: PostCardProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(post.likeCount);
-    const queryClient = useQueryClient();
 
     const likeMutation = useMutation({
         mutationFn: () => postService.toggleLike(post.id),
@@ -66,12 +65,13 @@ export function PostCard({ post, onOpenDetail }: PostCardProps) {
                     <>
                         <video
                             ref={videoRef}
-                            src={post.videoUrl!}
+                            src={`${post.videoUrl!}#t=0.001`}
                             poster={post.thumbnailUrl ?? undefined}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             muted
                             loop
                             playsInline
+                            preload="metadata"
                             onMouseEnter={() => void videoRef.current?.play().catch(() => { })}
                             onMouseLeave={() => { videoRef.current?.pause(); if (videoRef.current) videoRef.current.currentTime = 0; }}
                         />
@@ -129,14 +129,18 @@ export function PostCard({ post, onOpenDetail }: PostCardProps) {
                     <Avatar src={avatar} size={28} radius="xl" color="blue">
                         {shopName[0]}
                     </Avatar>
-                    <Text
-                        size="xs" fw={600} truncate="end"
-                        component={shopSlug ? Link : 'span'}
-                        href={shopSlug ? `/shop/${shopSlug}` : undefined}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                        {shopName}
-                    </Text>
+                    {shopSlug ? (
+                        <Text
+                            size="xs" fw={600} truncate="end"
+                            component={Link}
+                            href={`/shop/${shopSlug}`}
+                            style={{ textDecoration: 'none', color: 'inherit' }}
+                        >
+                            {shopName}
+                        </Text>
+                    ) : (
+                        <Text size="xs" fw={600} truncate="end">{shopName}</Text>
+                    )}
                     <Text size="xs" c="dimmed" style={{ marginLeft: 'auto', flexShrink: 0 }}>
                         {dayjs(post.createdAt).fromNow()}
                     </Text>

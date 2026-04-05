@@ -88,6 +88,13 @@ export function SellerPostsPage() {
                                     {post.thumbnailUrl || post.images[0] ? (
                                         <Image src={post.thumbnailUrl ?? post.images[0]} alt={post.title}
                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : post.videoUrl ? (
+                                        <video
+                                            src={`${post.videoUrl}#t=0.001`}
+                                            preload="metadata"
+                                            muted playsInline
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                        />
                                     ) : (
                                         <Box style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             <Iconify icon="solar:video-frame-bold" width={28} color="white" />
