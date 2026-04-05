@@ -38,11 +38,19 @@ export function PostDetailModal({ post, opened, onClose }: PostDetailModalProps)
         queryKey: ['post-comments', post.id],
         queryFn: () => postService.getComments(post.id),
         enabled: opened,
+        staleTime: 0,
     });
 
+    // axios interceptor unwraps response.data → commentsData = { success, data: PostComment[] }
+    const rawComments: PostComment[] = Array.isArray((commentsData as { data?: unknown })?.data)
+        ? ((commentsData as { data: PostComment[] }).data)
+        : Array.isArray(commentsData)
+            ? (commentsData as unknown as PostComment[])
+            : [];
+
     const allComments = [
-        ...(commentsData?.data ?? []),
-        ...realtimeComments.filter(rc => !commentsData?.data?.some(c => c.id === rc.id)),
+        ...rawComments,
+        ...realtimeComments.filter(rc => !rawComments.some(c => c.id === rc.id)),
     ];
 
     useEffect(() => {
@@ -76,7 +84,31 @@ export function PostDetailModal({ post, opened, onClose }: PostDetailModalProps)
 
     const commentMutation = useMutation({
         mutationFn: () => postService.addComment(post.id, comment),
-        onSuccess: () => setComment(''),
+        onMutate: () => {
+            // Optimistic: thêm comment ngay vào list
+            if (!user || !comment.trim()) return;
+            const optimistic: PostComment = {
+                id: `temp-${Date.now()}`,
+                postId: post.id,
+                userId: user.id,
+                content: comment,
+                parentId: null,
+                createdAt: new Date().toISOString(),
+            };
+            setRealtimeComments(prev => [...prev, optimistic]);
+            setComment('');
+        },
+        onError: () => {
+            // Rollback optimistic nếu lỗi
+            setRealtimeComments(prev => prev.filter(c => !c.id.startsWith('temp-')));
+        },
+        onSuccess: (data) => {
+            // Thay temp comment bằng comment thật từ server
+            const real = (data as { data?: PostComment }).data ?? (data as unknown as PostComment);
+            setRealtimeComments(prev =>
+                prev.map(c => c.id.startsWith('temp-') ? real : c)
+            );
+        },
     });
 
     const shopName = post.seller.sellerProfile?.shopName ?? 'Shop';
@@ -145,7 +177,7 @@ export function PostDetailModal({ post, opened, onClose }: PostDetailModalProps)
                             <Divider />
 
                             <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                                Bình luận ({allComments.length})
+                                Bình luận ({post.commentCount + realtimeComments.length})
                             </Text>
                             {allComments.map(c => (
                                 <Group key={c.id} align="flex-start" gap="xs">

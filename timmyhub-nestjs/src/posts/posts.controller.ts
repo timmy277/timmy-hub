@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PostsService } from './posts.service';
+import { PostsGateway } from './posts.gateway';
 import { CreatePostDto, UpdatePostDto, GetPostsDto } from './dto/post.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -36,7 +37,10 @@ class AddCommentDto {
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
-    constructor(private readonly postsService: PostsService) {}
+    constructor(
+        private readonly postsService: PostsService,
+        private readonly postsGateway: PostsGateway,
+    ) {}
 
     @Get()
     @Public()
@@ -104,18 +108,22 @@ export class PostsController {
     @ApiBearerAuth()
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'Thêm comment' })
-    addComment(
+    async addComment(
         @Param('id') id: string,
         @CurrentUser() user: { id: string },
         @Body() dto: AddCommentDto,
     ) {
-        return this.postsService.addComment(id, user.id, dto.content, dto.parentId);
+        const comment = await this.postsService.addComment(id, user.id, dto.content, dto.parentId);
+        // Broadcast realtime tới tất cả client đang xem post
+        this.postsGateway.emitNewComment(id, comment);
+        return comment;
     }
 
     @Get(':id/comments')
     @Public()
     @ApiOperation({ summary: 'Lấy comments của post' })
-    getComments(@Param('id') id: string) {
-        return this.postsService.getComments(id);
+    async getComments(@Param('id') id: string) {
+        const comments = await this.postsService.getComments(id);
+        return { success: true, data: comments };
     }
 }
