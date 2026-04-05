@@ -8,7 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { postService } from '@/services/post.service';
 import { fileService } from '@/services/file.service';
 import { notifications } from '@mantine/notifications';
-import { PostRichTextEditor } from './RichTextEditor';
+import { PostRichTextEditor } from '../../../components/common/RichTextEditor';
 import type { CreatePostInput } from '@/types/post';
 
 interface UploadedMedia { url: string; type: 'image' | 'video'; name: string; }

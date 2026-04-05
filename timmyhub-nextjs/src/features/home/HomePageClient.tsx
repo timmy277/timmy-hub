@@ -31,7 +31,12 @@ import {
     FeatureSection,
     FooterPromo,
 } from './components/index-new';
-import { PostFeedSection } from '@/features/posts/PostFeedSection';
+import dynamic from 'next/dynamic';
+
+const PostFeedSection = dynamic(
+    () => import('@/features/posts/PostFeedSection').then(m => m.PostFeedSection),
+    { ssr: false }
+);
 
 interface HomePageClientProps {
     initialProducts: Product[];
