@@ -1,17 +1,20 @@
 'use client';
 
-import { Title, Text, Group, Box, ThemeIcon, SimpleGrid, Skeleton, Anchor } from '@mantine/core';
+import { Title, Text, Group, Box, ThemeIcon, Skeleton, Anchor } from '@mantine/core';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { postService } from '@/services/post.service';
 import { PostCard } from './components/PostCard';
 import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { FreeMode } from 'swiper/modules';
+import 'swiper/css';
 
 export function PostFeedSection() {
     const { data, isLoading } = useInfiniteQuery({
         queryKey: ['posts-feed-home'],
         queryFn: ({ pageParam }) =>
-            postService.getFeed({ cursor: pageParam as string | undefined, limit: 5 }),
+            postService.getFeed({ cursor: pageParam as string | undefined, limit: 10 }),
         initialPageParam: undefined as string | undefined,
         getNextPageParam: () => undefined,
         staleTime: 60_000,
@@ -36,16 +39,27 @@ export function PostFeedSection() {
                 </Anchor>
             </Group>
 
-            <SimpleGrid cols={5} spacing="sm">
+            <Swiper
+                modules={[FreeMode]}
+                freeMode
+                slidesPerView={5.3}
+                spaceBetween={10}
+                grabCursor
+                style={{ paddingBottom: 4 }}
+            >
                 {isLoading
-                    ? Array.from({ length: 5 }).map((_, i) => (
-                        <Skeleton key={i} style={{ aspectRatio: '9/16' }} radius="md" />
+                    ? Array.from({ length: 10 }).map((_, i) => (
+                        <SwiperSlide key={i}>
+                            <Skeleton style={{ aspectRatio: '9/16', borderRadius: 8 }} />
+                        </SwiperSlide>
                     ))
-                    : posts.slice(0, 5).map(post => (
-                        <PostCard key={post.id} post={post} />
+                    : posts.map(post => (
+                        <SwiperSlide key={post.id}>
+                            <PostCard post={post} />
+                        </SwiperSlide>
                     ))
                 }
-            </SimpleGrid>
+            </Swiper>
         </Box>
     );
 }
