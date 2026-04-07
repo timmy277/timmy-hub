@@ -8,12 +8,14 @@ import Link from 'next/link';
 import { useMutation } from '@tanstack/react-query';
 import { postService } from '@/services/post.service';
 import type { Post } from '@/types/post';
+import { useRouter } from 'next/navigation';
 
 interface Props { post: Post; isActive: boolean; }
 
 const H = 'calc(100dvh - 60px)';
 
 export function PostFeedItem({ post, isActive }: Props) {
+    const router = useRouter();
     const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [liked, setLiked] = useState(false);
@@ -107,6 +109,16 @@ export function PostFeedItem({ post, isActive }: Props) {
                     }}
                 />
             ) : null}
+
+            {/* Back button */}
+            <ActionIcon
+                pos="absolute" top={16} left={16}
+                size={40} radius="xl" variant="filled"
+                style={{ background: 'rgba(0,0,0,0.5)', zIndex: 10 }}
+                onClick={() => router.back()}
+            >
+                <Iconify icon="solar:arrow-left-linear" width={22} />
+            </ActionIcon>
 
             {/* Gradient only over the video area */}
             {videoRect && (
