@@ -10,9 +10,10 @@ const AppBar = dynamic(() => import('./AppBar').then(m => m.AppBar), { ssr: fals
 
 interface UserLayoutProps {
     children: ReactNode;
+    withFooter?: boolean;
 }
 
-export function UserLayout({ children }: UserLayoutProps) {
+export function UserLayout({ children, withFooter = true }: UserLayoutProps) {
     return (
         <AppShell header={{ height: 60 }} padding="md">
             <AppShell.Header
@@ -33,7 +34,7 @@ export function UserLayout({ children }: UserLayoutProps) {
                 }}
             >
                 <div className="flex-1">{children}</div>
-                <Footer />
+                {withFooter && <Footer />}
             </AppShell.Main>
             <ChatWidget />
         </AppShell>

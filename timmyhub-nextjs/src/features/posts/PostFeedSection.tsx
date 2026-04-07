@@ -1,22 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { Title, Text, Group, Box, ThemeIcon } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { PostFeed } from './components/PostFeed';
-import { PostDetailModal } from './components/PostDetailModal';
 import Iconify from '@/components/iconify/Iconify';
-import type { Post } from '@/types/post';
 
 export function PostFeedSection() {
-    const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-    const [detailOpened, { open: openDetail, close: closeDetail }] = useDisclosure(false);
-
-    const handleOpenDetail = (post: Post) => {
-        setSelectedPost(post);
-        openDetail();
-    };
-
     return (
         <Box>
             <Group gap="xs" mb="md">
@@ -29,15 +17,8 @@ export function PostFeedSection() {
                 </Box>
             </Group>
 
-            <PostFeed onOpenDetail={handleOpenDetail} />
-
-            {selectedPost && (
-                <PostDetailModal
-                    post={selectedPost}
-                    opened={detailOpened}
-                    onClose={closeDetail}
-                />
-            )}
+            {/* PostFeed không truyền onOpenDetail → PostCard tự navigate /posts */}
+            <PostFeed />
         </Box>
     );
 }

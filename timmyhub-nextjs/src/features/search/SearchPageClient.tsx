@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
     Container, Grid, Paper, Stack, Text, Title, Group, Badge,
-    Select, Slider, RangeSlider, Button, Skeleton, Box,
-    Divider, Checkbox, ActionIcon, Tooltip, NumberInput,
+    Select, RangeSlider, Button, Skeleton, Box,
+    Divider, Checkbox, NumberInput,
     SimpleGrid, Pagination, ThemeIcon,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { searchService, type SearchParams } from '@/services/search.service';
 import { ProductCard } from '@/features/products/components/ProductCard';
+import { ResourceStatus } from '@/types/product';
 import Iconify from '@/components/iconify/Iconify';
 import { formatVND } from '@/utils/currency';
 import { SearchBar } from '@/components/common/SearchBar';
@@ -59,12 +60,12 @@ export function SearchPageClient({ initialParams }: Props) {
         params.maxPrice ?? 50_000_000,
     ]);
     const [minRating, setMinRating] = useState(0);
-
-    // Sync URL → state khi searchParams thay đổi
-    useEffect(() => {
-        const q = searchParams.get('q') ?? '';
-        setParams(prev => ({ ...prev, q, page: 1 }));
-    }, [searchParams]);
+    const urlQ = searchParams.get('q') ?? '';
+    const [lastUrlQ, setLastUrlQ] = useState(urlQ);
+    if (urlQ !== lastUrlQ) {
+        setLastUrlQ(urlQ);
+        setParams(prev => ({ ...prev, q: urlQ, page: 1 }));
+    }
 
     const { data, isLoading, isFetching } = useQuery({
         queryKey: ['search', params],
@@ -109,7 +110,7 @@ export function SearchPageClient({ initialParams }: Props) {
                 {params.q && (
                     <Group gap="xs">
                         <Text c="dimmed" size="sm">Kết quả tìm kiếm cho</Text>
-                        <Badge size="lg" variant="light" color="blue">"{params.q}"</Badge>
+                        <Badge size="lg" variant="light" color="blue">&quot;{params.q}&quot;</Badge>
                         {meta && (
                             <Text c="dimmed" size="sm">
                                 — {meta.total.toLocaleString()} sản phẩm
@@ -303,7 +304,20 @@ export function SearchPageClient({ initialParams }: Props) {
                                     {results.map(p => (
                                         <ProductCard
                                             key={p.id}
-                                            product={p as Parameters<typeof ProductCard>[0]['product']}
+                                            product={{
+                                                ...p,
+                                                sellerId: '',
+                                                stock: 0,
+                                                viewCount: 0,
+                                                isNew: false,
+                                                status: ResourceStatus.APPROVED,
+                                                soldCount: p.soldCount,
+                                                createdAt: '',
+                                                updatedAt: '',
+                                                category: p.categoryName
+                                                    ? { id: '', name: p.categoryName, slug: '', isActive: true, createdAt: '', updatedAt: '' }
+                                                    : null,
+                                            }}
                                             highlight={p.highlight?.name?.[0]}
                                         />
                                     ))}

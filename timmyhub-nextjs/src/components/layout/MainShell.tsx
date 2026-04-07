@@ -9,9 +9,10 @@ const AppBar = dynamic(() => import('./AppBar').then(m => m.AppBar), { ssr: fals
 
 interface MainShellProps {
     children: ReactNode;
+    withFooter?: boolean;
 }
 
-export function MainShell({ children }: MainShellProps) {
+export function MainShell({ children, withFooter = true }: MainShellProps) {
     const computedColorScheme = useComputedColorScheme('light');
     const isDark = computedColorScheme === 'dark';
 
@@ -26,7 +27,7 @@ export function MainShell({ children }: MainShellProps) {
 
             <AppShell.Main display="flex" style={{ flexDirection: 'column', minHeight: '100vh' }}>
                 <div className='flex-1'>{children}</div>
-                <Footer />
+                {withFooter && <Footer />}
             </AppShell.Main>
         </AppShell>
     );

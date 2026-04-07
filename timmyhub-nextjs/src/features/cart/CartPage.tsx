@@ -20,7 +20,7 @@ import Iconify from '@/components/iconify/Iconify';
 import { modals } from '@mantine/modals';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useDebouncedCallback } from '@mantine/hooks';
 import Link from 'next/link';
 import { formatVND } from '@/utils/currency';
@@ -40,17 +40,20 @@ export function CartPage() {
         isClearing,
     } = useCart();
     const [quantities, setQuantities] = useState<Record<string, number>>({});
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const allIds = useMemo(() => cart?.items.map(i => i.id) ?? [], [cart?.items]);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set(allIds));
 
-    // Khi cart load xong, mặc định chọn tất cả
-    const allIds = cart?.items.map(i => i.id) ?? [];
     const allSelected = allIds.length > 0 && allIds.every(id => selectedIds.has(id));
     const someSelected = allIds.some(id => selectedIds.has(id));
 
     const toggleItem = (id: string) => {
         setSelectedIds(prev => {
             const next = new Set(prev);
-            next.has(id) ? next.delete(id) : next.add(id);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
             return next;
         });
     };
@@ -58,13 +61,6 @@ export function CartPage() {
     const toggleAll = () => {
         setSelectedIds(allSelected ? new Set() : new Set(allIds));
     };
-
-    // Init select all khi cart load
-    const [initialized, setInitialized] = useState(false);
-    if (cart && !initialized) {
-        setSelectedIds(new Set(cart.items.map(i => i.id)));
-        setInitialized(true);
-    }
 
     const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
         try {

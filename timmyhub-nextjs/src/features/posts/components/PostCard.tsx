@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Box, Text, Group, Avatar, Badge, ActionIcon, Stack, Image, Tooltip } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
@@ -21,9 +22,15 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, onOpenDetail }: PostCardProps) {
+    const router = useRouter();
     const videoRef = useRef<HTMLVideoElement>(null);
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(post.likeCount);
+
+    const handleOpen = () => {
+        if (onOpenDetail) onOpenDetail(post);
+        else router.push(`/posts?id=${post.id}`);
+    };
 
     const likeMutation = useMutation({
         mutationFn: () => postService.toggleLike(post.id),
@@ -59,7 +66,7 @@ export function PostCard({ post, onOpenDetail }: PostCardProps) {
             <Box
                 pos="relative"
                 style={{ aspectRatio: '9/16', cursor: 'pointer', background: '#000', flexShrink: 0 }}
-                onClick={() => onOpenDetail?.(post)}
+                onClick={() => router.push('/posts')}
             >
                 {hasVideo ? (
                     <>
@@ -148,7 +155,7 @@ export function PostCard({ post, onOpenDetail }: PostCardProps) {
 
                 {/* Title */}
                 <Text size="sm" fw={500} lineClamp={2} style={{ cursor: 'pointer' }}
-                    onClick={() => onOpenDetail?.(post)}>
+                    onClick={handleOpen}>
                     {post.title}
                 </Text>
 
@@ -191,7 +198,7 @@ export function PostCard({ post, onOpenDetail }: PostCardProps) {
                     <Text size="xs" c="dimmed">{likeCount}</Text>
 
                     <ActionIcon variant="subtle" color="gray" size="sm"
-                        onClick={() => onOpenDetail?.(post)}>
+                        onClick={handleOpen}>
                         <Iconify icon="solar:chat-round-dots-linear" width={16} />
                     </ActionIcon>
                     <Text size="xs" c="dimmed">{post.commentCount}</Text>
