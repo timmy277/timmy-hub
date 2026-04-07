@@ -10,6 +10,7 @@ import type { Post } from '@/types/post';
 import { PostMediaPlayer } from './PostMediaPlayer';
 import { PostActionBar } from './PostActionBar';
 import { PostCommentPanel } from './PostCommentPanel';
+import { usePostStore } from '@/stores/usePostStore';
 
 const H = 'calc(100dvh - 60px)';
 
@@ -17,9 +18,11 @@ interface Props { post: Post; isActive: boolean; }
 
 export function PostFeedItem({ post, isActive }: Props) {
     const router = useRouter();
+    const { muted, toggleMute } = usePostStore();
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(post.likeCount);
     const [showComments, setShowComments] = useState(false);
+    const [playing, setPlaying] = useState(true);
     const [videoRect, setVideoRect] = useState<{ left: number; width: number } | null>(null);
 
     const likeMutation = useMutation({
@@ -36,7 +39,11 @@ export function PostFeedItem({ post, isActive }: Props) {
 
     return (
         <div style={{ position: 'relative', width: '100%', height: H, background: '#000', overflow: 'hidden' }}>
-            <PostMediaPlayer post={post} isActive={isActive} videoRect={videoRect} onMeasure={handleMeasure} />
+            <PostMediaPlayer post={post} isActive={isActive} videoRect={videoRect}
+                muted={muted} playing={playing}
+                onMeasure={handleMeasure}
+                onTogglePlay={() => setPlaying(p => !p)}
+            />
 
             {/* Back button */}
             <ActionIcon pos="absolute" top={16} left={16} size={40} radius="xl" variant="filled"
@@ -50,8 +57,10 @@ export function PostFeedItem({ post, isActive }: Props) {
                 likeCount={likeCount}
                 commentCount={post.commentCount}
                 showComments={showComments}
+                muted={muted}
                 onLike={() => likeMutation.mutate()}
                 onToggleComments={() => setShowComments(p => !p)}
+                onToggleMute={toggleMute}
                 style={iconsLeft !== undefined ? { left: iconsLeft } : { right: 12 }}
             />
 

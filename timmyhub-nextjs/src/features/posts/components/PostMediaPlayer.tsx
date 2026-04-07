@@ -1,8 +1,9 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Avatar, Text, Group, Box, Button } from '@mantine/core';
+import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 import type { Post } from '@/types/post';
 
@@ -10,19 +11,39 @@ interface Props {
     post: Post;
     isActive: boolean;
     videoRect: { left: number; width: number } | null;
+    muted: boolean;
+    playing: boolean;
     onMeasure: (rect: { left: number; width: number }) => void;
+    onTogglePlay: () => void;
 }
 
-export function PostMediaPlayer({ post, isActive, videoRect, onMeasure }: Props) {
+export function PostMediaPlayer({ post, isActive, videoRect, muted, playing, onMeasure, onTogglePlay }: Props) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const wrapRef = useRef<HTMLDivElement>(null);
+    const [showPlayIcon, setShowPlayIcon] = useState(false);
 
+    // Sync play/pause
     useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
-        if (isActive) void video.play().catch(() => { });
-        else { video.pause(); video.currentTime = 0; }
-    }, [isActive]);
+        if (isActive && playing) void video.play().catch(() => { });
+        else video.pause();
+        if (!isActive) video.currentTime = 0;
+    }, [isActive, playing]);
+
+    // Sync muted
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+        video.muted = muted;
+    }, [muted]);
+
+    // Flash play/pause icon briefly on click
+    const handleClick = () => {
+        onTogglePlay();
+        setShowPlayIcon(true);
+        setTimeout(() => setShowPlayIcon(false), 600);
+    };
 
     useEffect(() => {
         const measure = () => {
@@ -54,16 +75,25 @@ export function PostMediaPlayer({ post, isActive, videoRect, onMeasure }: Props)
     const avatar = post.seller.sellerProfile?.shopLogo ?? post.seller.profile?.avatar;
 
     return (
-        <div ref={wrapRef} style={{ position: 'absolute', inset: 0 }}>
+        <div ref={wrapRef} style={{ position: 'absolute', inset: 0 }} onClick={handleClick}>
             {post.videoUrl ? (
                 <video ref={videoRef} src={`${post.videoUrl}#t=0.001`}
                     poster={post.thumbnailUrl ?? undefined} loop muted playsInline
-                    style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', cursor: 'pointer' }} />
             ) : post.images[0] ? (
                 <Image src={post.images[0]} alt={post.title} fill
-                    style={{ objectFit: 'contain' }} sizes="100vw" priority={isActive}
+                    style={{ objectFit: 'contain', cursor: 'pointer' }} sizes="100vw" priority={isActive}
                     onLoad={() => window.dispatchEvent(new Event('resize'))} />
             ) : null}
+
+            {/* Play/pause flash icon */}
+            {showPlayIcon && (
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <div style={{ background: 'rgba(0,0,0,0.5)', borderRadius: '50%', padding: 16, opacity: 0.9 }}>
+                        <Iconify icon={playing ? 'solar:pause-bold' : 'solar:play-bold'} width={40} color="white" />
+                    </div>
+                </div>
+            )}
 
             {/* Seller info overlay — bottom left of video content */}
             <Box pos="absolute" bottom={24}
