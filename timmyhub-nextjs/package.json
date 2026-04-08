@@ -44,6 +44,7 @@
         "ag-grid-community": "^35.0.1",
         "ag-grid-enterprise": "^35.0.1",
         "ag-grid-react": "^35.0.1",
+        "autoskills": "^0.2.4",
         "axios": "^1.13.4",
         "clsx": "^2.1.1",
         "dayjs": "^1.11.19",
