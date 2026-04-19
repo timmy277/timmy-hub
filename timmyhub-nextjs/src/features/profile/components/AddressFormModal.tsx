@@ -16,9 +16,15 @@ import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
+import dynamic from 'next/dynamic';
 import { AddressSelect } from '@/components/AddressSelect/AddressSelect';
 import type { User } from '@/types/auth';
 import type { Address, CreateAddressDto } from '@/types/address';
+
+const MapPicker = dynamic(() => import('@/components/map/MapPicker').then(m => m.MapPicker), {
+    ssr: false,
+    loading: () => <Box style={{ height: 220, background: 'var(--mantine-color-gray-1)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Text size="sm" c="dimmed">Đang tải bản đồ...</Text></Box>,
+});
 
 const addressFormSchema = z.object({
     fullName: z.string().min(1).max(200),
@@ -199,14 +205,18 @@ export function AddressFormModal({
                         {...form.getInputProps('addressLine1')}
                     />
 
-                    <Box
-                        className="flex h-48 w-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 dark:border-slate-600 dark:bg-slate-800/50"
-                        aria-hidden
-                    >
-                        <Text size="sm" c="dimmed" ta="center" px="md">
-                            {t('addresses.mapPlaceholder')}
-                        </Text>
-                    </Box>
+                    <MapPicker
+                        searchAddress={[
+                            form.values.wardName,
+                            form.values.districtName,
+                            form.values.provinceName,
+                        ].filter(Boolean).join(', ') || undefined}
+                        onLocationSelect={(latlng, address) => {
+                            if (address && !form.values.addressLine1) {
+                                form.setFieldValue('addressLine1', address);
+                            }
+                        }}
+                    />
 
                     <div>
                         <Text size="sm" fw={500} mb="xs">

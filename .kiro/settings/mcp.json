@@ -9,6 +9,12 @@
             ],
             "disabled": false,
             "autoApprove": ["query"]
+        },
+        "chrome-devtools": {
+            "command": "npx",
+            "args": ["-y", "chrome-devtools-mcp"],
+            "disabled": false,
+            "autoApprove": []
         }
     }
 }
