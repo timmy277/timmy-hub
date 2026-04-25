@@ -41,9 +41,13 @@ async function bootstrap() {
     setupSwagger(app);
 
     // Kích hoạt RedisIoAdapter (nếu có Upstash Redis URL trong ENV)
-    const redisIoAdapter = new RedisIoAdapter(app);
-    await redisIoAdapter.connectToRedis();
-    app.useWebSocketAdapter(redisIoAdapter);
+    try {
+        const redisIoAdapter = new RedisIoAdapter(app);
+        await redisIoAdapter.connectToRedis();
+        app.useWebSocketAdapter(redisIoAdapter);
+    } catch (err) {
+        console.warn('Redis adapter failed, falling back to default WebSocket adapter:', err);
+    }
 
     // Enable CORS
     app.enableCors({
