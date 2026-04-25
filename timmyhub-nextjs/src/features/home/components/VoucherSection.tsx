@@ -1,6 +1,6 @@
 'use client';
 
-import { SimpleGrid, Box, Text, Button, Group, Loader, Center } from '@mantine/core';
+import { SimpleGrid, Box, Text, Button, Group, Skeleton } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { voucherService } from '@/services/voucher.service';
@@ -64,9 +64,16 @@ export function VoucherSection() {
         },
     });
 
+    const pendingId = saveMutation.isPending ? saveMutation.variables : null;
     const vouchers: VoucherDisplay[] = res?.data || [];
 
-    if (isLoading) return <Center py="md"><Loader size="sm" /></Center>;
+    if (isLoading) return (
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+            {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} height={100} radius={12} />
+            ))}
+        </SimpleGrid>
+    );
     if (!vouchers.length) return null;
 
     return (
@@ -136,7 +143,7 @@ export function VoucherSection() {
                                         }
                                         saveMutation.mutate(v.id);
                                     }}
-                                    loading={saveMutation.isPending}
+                                    loading={pendingId === v.id}
                                 >
                                     Lưu
                                 </Button>

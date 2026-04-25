@@ -101,11 +101,9 @@ export function AppBar({ withSidebarToggle = true }: AppBarProps) {
                 {user && <NotificationBell />}
                 {user && <MessageIcon />}
                 {!isAdminPage && <CartBadge />}
-                <LanguageSwitcher />
                 <ThemeSwitcher />
-
+                <LanguageSwitcher />
                 <Divider orientation="vertical" h={24} my="auto" />
-
                 <UserMenu />
             </Group>
         </Group>
