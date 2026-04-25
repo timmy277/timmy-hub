@@ -1,20 +1,11 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 
-/**
- * Production-ready Prisma configuration
- * Optimized for connection pooling and performance
- */
 export const prismaConfig: Prisma.PrismaClientOptions = {
     log:
         process.env.NODE_ENV === 'production'
             ? ['error', 'warn']
             : ['query', 'info', 'warn', 'error'],
-
-    // Error formatting
     errorFormat: process.env.NODE_ENV === 'production' ? 'minimal' : 'colorless',
-
-    // Connection pool configuration (handled by DATABASE_URL connection string)
-    // Add to your DATABASE_URL: ?connection_limit=10&pool_timeout=20
 };
 
 interface DatabaseMetrics {

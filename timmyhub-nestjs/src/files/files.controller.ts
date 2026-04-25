@@ -1,6 +1,3 @@
-/**
- * Files Controller — upload ảnh/video lên Supabase Storage
- */
 import {
     Controller,
     Post,
@@ -40,7 +37,6 @@ class MimeTypeValidator extends FileValidator<{ mimeTypes: string[] }> {
 export class FilesController {
     constructor(private readonly supabaseService: SupabaseService) {}
 
-    /** Upload ảnh/video review (max 50MB, mp4/mov/webm/quicktime + jpeg/png/webp) */
     @Post('upload-media')
     @ApiOperation({ summary: 'Upload ảnh hoặc video review lên Supabase Storage (max 50MB)' })
     @ApiConsumes('multipart/form-data')

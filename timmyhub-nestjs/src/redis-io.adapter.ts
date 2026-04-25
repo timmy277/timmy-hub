@@ -9,11 +9,6 @@ export class RedisIoAdapter extends IoAdapter {
     private readonly logger = new Logger(RedisIoAdapter.name);
 
     async connectToRedis(): Promise<void> {
-        // ⚠️ LƯU Ý CHO UPSTASH REDIS:
-        // Socket.io Redis Adapter bắt buộc dùng Pub/Sub, mà Pub/Sub yêu cầu kết nối TCP (không dùng được REST API).
-        // Bạn cần truy cập Upstash Dashboard -> Kéo xuống phần "Node.js (ioredis / node-redis)"
-        // Copy chuỗi kết nối rediss://... (có port và password) và bỏ vào .env dưới tên UPSTASH_REDIS_TCP_URL
-
         const redisUrl = process.env.UPSTASH_REDIS_TCP_URL || 'redis://localhost:6379';
 
         const pubClient = createClient({ url: redisUrl });

@@ -10,10 +10,6 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { ResourceStatus, Product, UserRole, Prisma } from '@prisma/client';
 import { SearchService } from '../search/search.service';
 
-/**
- * Service quản lý sản phẩm và quy trình phê duyệt
- * @author TimmyHub AI
- */
 @Injectable()
 export class ProductsService {
     constructor(
@@ -21,17 +17,12 @@ export class ProductsService {
         private searchService: SearchService,
     ) {}
 
-    /**
-     * Tạo sản phẩm mới (chờ duyệt)
-     */
     async create(sellerId: string, dto: CreateProductDto): Promise<Product> {
-        // Kiểm tra slug
         const existingSlug = await this.prisma.product.findUnique({
             where: { slug: dto.slug },
         });
         if (existingSlug) throw new ConflictException('Slug sản phẩm đã tồn tại');
 
-        // Kiểm tra SKU nếu có
         if (dto.sku) {
             const existingSku = await this.prisma.product.findUnique({
                 where: { sku: dto.sku },
@@ -39,7 +30,6 @@ export class ProductsService {
             if (existingSku) throw new ConflictException('Mã SKU đã tồn tại');
         }
 
-        // Kiểm tra Category
         if (dto.categoryId) {
             const category = await this.prisma.category.findUnique({
                 where: { id: dto.categoryId },
@@ -56,7 +46,6 @@ export class ProductsService {
         });
     }
 
-    /** Lấy danh sách sản phẩm đã duyệt (Public) */
     async findAll(): Promise<Product[]> {
         return this.prisma.product.findMany({
             where: { status: ResourceStatus.APPROVED },
@@ -65,9 +54,6 @@ export class ProductsService {
         });
     }
 
-    /**
-     * Lấy danh sách sản phẩm với bộ lọc (Public)
-     */
     async findWithFilters(params: {
         page: number;
         limit: number;
@@ -173,7 +159,6 @@ export class ProductsService {
         });
     }
 
-    /** Admin: lấy tất cả sản phẩm (mọi trạng thái) */
     async findAllAdmin(): Promise<Product[]> {
         return this.prisma.product.findMany({
             orderBy: { createdAt: 'desc' },
@@ -192,9 +177,6 @@ export class ProductsService {
         });
     }
 
-    /**
-     * Xem chi tiết sản phẩm
-     */
     async findOne(id: string): Promise<Product> {
         const product = await this.prisma.product.findUnique({
             where: { id },
@@ -208,10 +190,6 @@ export class ProductsService {
         return product;
     }
 
-    /**
-     * Lấy sản phẩm qua slug (Public)
-     * Trả về kèm thông tin người bán (seller + sellerProfile) để hiển thị trên trang chi tiết
-     */
     async findBySlug(slug: string): Promise<Product> {
         const product = await this.prisma.product.findUnique({
             where: { slug },
@@ -245,9 +223,6 @@ export class ProductsService {
         return product;
     }
 
-    /**
-     * Phê duyệt sản phẩm (Admin)
-     */
     async approve(id: string, adminId: string): Promise<Product> {
         const product = await this.findOne(id);
         if (product.status === ResourceStatus.APPROVED) {
@@ -268,9 +243,6 @@ export class ProductsService {
         return updated;
     }
 
-    /**
-     * Từ chối sản phẩm (Admin)
-     */
     async reject(id: string, adminId: string, note: string): Promise<Product> {
         return this.prisma.product.update({
             where: { id },
@@ -282,11 +254,6 @@ export class ProductsService {
         });
     }
 
-    /**
-     * Cập nhật sản phẩm (CASL Policy Check)
-     * SELLER chỉ có thể update sản phẩm của mình
-     * ADMIN có thể update bất kỳ sản phẩm nào
-     */
     async update(id: string, userId: string, dto: Partial<CreateProductDto>): Promise<Product> {
         const product = await this.findOne(id);
 
@@ -298,13 +265,10 @@ export class ProductsService {
 
         if (!user) throw new NotFoundException('Người dùng không tồn tại');
 
-        // CASL đã check quyền Update Product
-        // Nhưng cần check ownership nếu là SELLER
         if (user.roles.includes(UserRole.SELLER) && product.sellerId !== userId) {
             throw new ForbiddenException('Bạn chỉ có thể cập nhật sản phẩm của mình');
         }
 
-        // Check slug nếu có thay đổi
         if (dto.slug && dto.slug !== product.slug) {
             const existingSlug = await this.prisma.product.findUnique({
                 where: { slug: dto.slug },
@@ -312,7 +276,6 @@ export class ProductsService {
             if (existingSlug) throw new ConflictException('Slug sản phẩm đã tồn tại');
         }
 
-        // Check SKU nếu có thay đổi
         if (dto.sku && dto.sku !== product.sku) {
             const existingSku = await this.prisma.product.findUnique({
                 where: { sku: dto.sku },
@@ -325,7 +288,6 @@ export class ProductsService {
             data: dto,
         });
 
-        // Cập nhật index nếu sản phẩm đã được duyệt
         if (updated.status === ResourceStatus.APPROVED) {
             void this.searchService.indexProduct(id);
         }
@@ -333,15 +295,9 @@ export class ProductsService {
         return updated;
     }
 
-    /**
-     * Xóa sản phẩm (CASL Policy Check)
-     * Không thể xóa sản phẩm đã có đơn hàng (soldCount > 0)
-     * SELLER chỉ có thể xóa sản phẩm của mình
-     */
     async delete(id: string, userId: string): Promise<Product> {
         const product = await this.findOne(id);
 
-        // Get user để check role
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
             select: { roles: true },
@@ -349,26 +305,21 @@ export class ProductsService {
 
         if (!user) throw new NotFoundException('Người dùng không tồn tại');
 
-        // Check ownership nếu là SELLER
         if (user.roles.includes(UserRole.SELLER) && product.sellerId !== userId) {
             throw new ForbiddenException('Bạn chỉ có thể xóa sản phẩm của mình');
         }
 
-        // CASL rule: cannot(Action.Delete, 'Product', { soldCount: { $gt: 0 } })
-        // Nhưng trong service ta cần check manual vì DB không support mongo query
         if (product.soldCount > 0) {
             throw new ForbiddenException(
                 'Không thể xóa sản phẩm đã có đơn hàng. Bạn có thể đặt trạng thái DELETED.',
             );
         }
 
-        // Soft delete by setting status to DELETED
         const deleted = await this.prisma.product.update({
             where: { id },
             data: { status: ResourceStatus.DELETED },
         });
 
-        // Xóa khỏi index
         void this.searchService.removeProduct(id);
         return deleted;
     }

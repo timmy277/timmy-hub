@@ -22,7 +22,6 @@ export class NotificationsService {
             },
         });
 
-        // Bắn realtime cho user
         this.notificationsGateway.emitNewNotification(createDto.userId, notif);
 
         return notif;

@@ -11,29 +11,17 @@ export class MetricsController {
         private prisma: PrismaService,
     ) {}
 
-    /**
-     * Prometheus metrics endpoint
-     * GET /metrics
-     */
     @Get()
     @Header('Content-Type', 'text/plain')
     async getMetrics() {
         return this.metricsService.getMetrics();
     }
 
-    /**
-     * JSON metrics endpoint for custom dashboards
-     * GET /metrics/json
-     */
     @Get('json')
     async getMetricsJson() {
         return this.metricsService.getCurrentMetrics();
     }
 
-    /**
-     * Performance summary endpoint
-     * GET /metrics/performance
-     */
     @Get('performance')
     async getPerformance() {
         try {
@@ -118,10 +106,6 @@ export class MetricsController {
         }
     }
 
-    /**
-     * Cache statistics endpoint
-     * GET /metrics/cache
-     */
     @Get('cache')
     getCacheStats(): { message: string; note: string } {
         // TODO: Implement Redis cache stats

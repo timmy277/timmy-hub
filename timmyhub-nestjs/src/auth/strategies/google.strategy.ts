@@ -1,7 +1,3 @@
-/**
- * Google OAuth2 Strategy cho Passport.js
- * Xử lý xác thực người dùng qua tài khoản Google
- */
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback, Profile } from 'passport-google-oauth20';

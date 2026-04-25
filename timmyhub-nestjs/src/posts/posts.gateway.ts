@@ -1,7 +1,3 @@
-/**
- * Posts Gateway - Realtime comments & likes qua WebSocket
- * Client join room theo postId để nhận updates
- */
 import {
     WebSocketGateway,
     WebSocketServer,

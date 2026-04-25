@@ -141,10 +141,6 @@ export class PromotionCampaignsService {
         return { message: 'Đã xóa chương trình khuyến mãi' };
     }
 
-    /**
-     * Lấy danh sách campaigns đang hoạt động (public API cho homepage)
-     * Chỉ trả về campaigns có isActive=true và trong thời gian diễn ra
-     */
     async findActiveCampaigns() {
         const now = new Date();
         return this.prisma.promotionCampaign.findMany({
@@ -246,9 +242,6 @@ export class PromotionCampaignsService {
         return campaign;
     }
 
-    /**
-     * Thêm sản phẩm vào campaign
-     */
     async addProducts(
         campaignId: string,
         userId: string,
@@ -354,9 +347,6 @@ export class PromotionCampaignsService {
         return { message: `Đã xóa ${productIds.length} sản phẩm khỏi chiến dịch` };
     }
 
-    /**
-     * Thêm nhiều sản phẩm vào campaign với giá riêng cho từng sản phẩm
-     */
     async bulkAddProducts(
         campaignId: string,
         userId: string,
@@ -430,9 +420,6 @@ export class PromotionCampaignsService {
         return { message: `Đã thêm ${dto.products.length} sản phẩm vào chiến dịch` };
     }
 
-    /**
-     * Cập nhật giá sản phẩm trong campaign
-     */
     async updateProductPrice(
         campaignId: string,
         productId: string,
@@ -489,9 +476,6 @@ export class PromotionCampaignsService {
         return { message: 'Đã cập nhật giá sản phẩm trong chiến dịch' };
     }
 
-    /**
-     * Lấy sản phẩm trong campaign (public)
-     */
     async getCampaignProducts(campaignId: string) {
         const products = await this.prisma.campaignProduct.findMany({
             where: {
@@ -521,9 +505,6 @@ export class PromotionCampaignsService {
         return products;
     }
 
-    /**
-     * Lấy thông tin giảm giá của sản phẩm trong campaign đang hoạt động
-     */
     async getProductCampaignPrice(productId: string) {
         const now = new Date();
         const campaignProduct = await this.prisma.campaignProduct.findFirst({

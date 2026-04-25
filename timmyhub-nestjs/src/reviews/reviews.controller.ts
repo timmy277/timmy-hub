@@ -1,7 +1,3 @@
-/**
- * Reviews Controller
- * REST endpoints cho review: tạo, lấy theo product, vote helpful
- */
 import {
     Controller,
     Post,
@@ -41,10 +37,8 @@ export class ReviewsController {
     async create(@Req() req: UserRequest, @Body() dto: CreateReviewDto) {
         const review = await this.reviewsService.create(req.user.id, dto);
 
-        // Emit real-time qua Socket.io
         this.reviewsGateway.emitNewReview(dto.productId, review);
 
-        // Lấy ratingAvg mới nhất để emit cập nhật
         const product = await this.prisma.product.findUnique({
             where: { id: dto.productId },
             select: { ratingAvg: true, ratingCount: true },
@@ -127,7 +121,6 @@ export class ReviewsController {
             parentId,
         );
 
-        // Bắn socket cho các client đang xem room của product này
         const review = await this.prisma.review.findUnique({
             where: { id },
             select: { productId: true },

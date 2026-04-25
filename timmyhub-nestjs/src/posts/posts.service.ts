@@ -91,7 +91,6 @@ export class PostsService {
         });
         if (!post) throw new NotFoundException('Không tìm thấy bài đăng');
 
-        // Tăng view count
         void this.prisma.post.update({ where: { id }, data: { viewCount: { increment: 1 } } });
 
         return post;

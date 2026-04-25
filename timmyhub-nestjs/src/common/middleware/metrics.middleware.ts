@@ -21,9 +21,6 @@ export class MetricsMiddleware implements NestMiddleware {
     }
 
     private getRoutePath(req: Request): string {
-        // Extract route pattern instead of actual path
-        // e.g., /api/users/123 -> /api/users/:id
-
         if (req.route && typeof req.route.path === 'string') {
             return req.route.path as string;
         }

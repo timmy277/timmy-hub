@@ -1,10 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-/**
- * Setup swagger documentation for the application
- * @param app NestJS application instance
- */
 export const setupSwagger = (app: INestApplication) => {
     const config = new DocumentBuilder()
         .setTitle('Timmy Hub API')

@@ -123,15 +123,10 @@ export class RbacService {
         await this.findOneRole(roleId);
 
         return this.prisma.$transaction(async tx => {
-            // Xóa tất cả quyền cũ
             await tx.rolePermission.deleteMany({ where: { roleId } });
-
-            // Tìm ID của các quyền mới
             const permissions = await tx.permission.findMany({
                 where: { name: { in: permissionNames } },
             });
-
-            // Tạo mapping mới
             const result = await tx.rolePermission.createMany({
                 data: permissions.map(p => ({
                     roleId,
@@ -139,7 +134,6 @@ export class RbacService {
                 })),
             });
 
-            // Tìm tất cả user đang có role này để xóa cache
             const usersWithRole = await tx.userSystemRole.findMany({
                 where: { roleId },
                 select: { userId: true },
@@ -187,7 +181,6 @@ export class RbacService {
 
     async deletePermission(id: string) {
         await this.findOnePermission(id);
-        // Kiểm tra xem quyền có đang được sử dụng không
         const usageCount = await this.prisma.rolePermission.count({
             where: { permissionId: id },
         });

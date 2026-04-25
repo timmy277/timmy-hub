@@ -1,7 +1,3 @@
-/**
- * Reviews Service
- * Xử lý tạo/lấy review, cập nhật ratingAvg trên Product
- */
 import {
     Injectable,
     BadRequestException,

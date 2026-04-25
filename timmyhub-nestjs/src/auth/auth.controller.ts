@@ -23,7 +23,6 @@ import type { CookieOptions } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import type { UserRequest } from './interfaces/auth.interface';
 
-/** Request với user đã được Passport OAuth populate vào */
 interface OAuthRequest extends Request {
     user: { id: string; email: string };
 }
@@ -185,10 +184,6 @@ export class AuthController {
         return this.handleOAuthCallback(req, res);
     }
 
-    // =========================================================
-    // Helper: xử lý chung cho cả Google và Facebook callback
-    // =========================================================
-
     private async handleOAuthCallback(req: OAuthRequest, res: Response): Promise<void> {
         const user = req.user;
         const ip = req.ip || req.socket.remoteAddress || 'unknown';
@@ -210,7 +205,6 @@ export class AuthController {
             getCookieOptions(this.configService, refreshMaxAge),
         );
 
-        // Redirect về frontend để xử lý tiếp
         const rawFrontendUrl =
             this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
         const frontendUrl = rawFrontendUrl.split(',')[0].trim();

@@ -1,9 +1,3 @@
-/**
- * Search Controller
- * GET /search?q=...&category=...&minPrice=...
- * GET /search/suggest?q=...
- * POST /search/reindex (Admin only)
- */
 import { Controller, Get, Post, Query, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SearchService } from './search.service';

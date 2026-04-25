@@ -22,10 +22,6 @@ export class HealthController {
         private prismaService: PrismaService,
     ) {}
 
-    /**
-     * Basic health check - Fast endpoint for load balancers
-     * GET /health
-     */
     @Get()
     @HealthCheck()
     check() {
@@ -41,10 +37,6 @@ export class HealthController {
         ]);
     }
 
-    /**
-     * Detailed health check - Includes all services
-     * GET /health/detailed
-     */
     @Get('detailed')
     @HealthCheck()
     checkDetailed() {
@@ -62,25 +54,14 @@ export class HealthController {
                     path: '/',
                     thresholdPercent: 0.8,
                 }),
-
-            // External services (if any)
-            // () => this.http.pingCheck('external_api', 'https://api.example.com/health'),
         ]);
     }
 
-    /**
-     * Liveness probe - For Kubernetes
-     * GET /health/live
-     */
     @Get('live')
     live() {
         return { status: 'ok', timestamp: new Date().toISOString() };
     }
 
-    /**
-     * Readiness probe - For Kubernetes
-     * GET /health/ready
-     */
     @Get('ready')
     @HealthCheck()
     ready() {

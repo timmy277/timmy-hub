@@ -1,7 +1,3 @@
-/**
- * Facebook OAuth Strategy cho Passport.js
- * Xử lý xác thực người dùng qua tài khoản Facebook
- */
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile } from 'passport-facebook';

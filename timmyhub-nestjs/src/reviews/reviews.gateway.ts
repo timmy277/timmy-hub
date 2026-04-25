@@ -1,7 +1,3 @@
-/**
- * Reviews WebSocket Gateway
- * Cho phép client subscribe vào room product:{id} để nhận review mới real-time
- */
 import {
     WebSocketGateway,
     WebSocketServer,
