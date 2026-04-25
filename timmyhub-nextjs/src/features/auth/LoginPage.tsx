@@ -103,9 +103,16 @@ function InnerLoginPage() {
 
         const roles = Array.isArray(user.roles) ? user.roles : [(user as { role?: string }).role ?? 'CUSTOMER'];
 
+        const tokenData = response.data as { accessToken?: string; refreshToken?: string };
+        if (tokenData.accessToken) {
+            Cookies.set('access_token', tokenData.accessToken, { expires: 1, path: '/' });
+        }
+        if (tokenData.refreshToken) {
+            Cookies.set('refresh_token', tokenData.refreshToken, { expires: cookieExpires, path: '/' });
+        }
+
         // Lưu tất cả roles vào cookie (JSON array)
         Cookies.set('user_roles', JSON.stringify(roles), { expires: cookieExpires });
-        // Xóa cookie cũ nếu còn tồn tại
         Cookies.set('user_permissions', JSON.stringify(user.permissions), {
             expires: cookieExpires,
         });
@@ -118,12 +125,12 @@ function InnerLoginPage() {
         });
 
         const target =
-            redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')
-                ? redirectTo
+            roles.includes('ADMIN') || roles.includes('SUPER_ADMIN')
+                ? '/admin'
                 : roles.includes('SELLER')
                     ? '/seller'
-                    : roles.includes('ADMIN') || roles.includes('SUPER_ADMIN')
-                        ? '/admin'
+                    : redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')
+                        ? redirectTo
                         : '/';
         router.push(target);
     };

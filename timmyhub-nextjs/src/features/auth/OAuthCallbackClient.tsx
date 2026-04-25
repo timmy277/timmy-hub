@@ -21,20 +21,7 @@ export function OAuthCallbackClient() {
     const setAuthData = useAuthStore(state => state.setAuthData);
 
     useEffect(() => {
-        const success = searchParams.get('success');
 
-        if (success !== 'true') {
-            notifications.show({
-                title: 'Đăng nhập thất bại',
-                message: 'Không thể đăng nhập bằng tài khoản mạng xã hội.',
-                color: 'red',
-                icon: <Iconify icon="tabler:x" width={18} />,
-            });
-            router.replace('/login');
-            return;
-        }
-
-        // Cookie đã được BE set → fetch profile để lấy user data
         authService
             .getProfile()
             .then(response => {

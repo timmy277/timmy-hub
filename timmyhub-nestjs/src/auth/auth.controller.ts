@@ -214,7 +214,7 @@ export class AuthController {
         const rawFrontendUrl =
             this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
         const frontendUrl = rawFrontendUrl.split(',')[0].trim();
-        res.redirect(`${frontendUrl}/auth/callback?success=true`);
+        res.redirect(`${frontendUrl}/api/auth/callback?at=${accessToken}&rt=${refreshToken}`);
     }
 
     @Post('cleanup-expired-tokens')
