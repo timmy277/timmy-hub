@@ -1,15 +1,21 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { postService } from '@/services/post.service';
 import { PostFeedItem } from './components/PostFeedItem';
-import { Center, Loader } from '@mantine/core';
+import { Center, Loader, ActionIcon } from '@mantine/core';
+import Iconify from '@/components/iconify/Iconify';
 import type { Post } from '@/types/post';
 
 export function PostsPage() {
+    const router = useRouter();
     const containerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
+    const searchParams = useSearchParams();
+    const targetId = searchParams.get('id');
+    const scrolledToTarget = useRef(false);
 
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
         queryKey: ['posts-feed'],
@@ -20,7 +26,10 @@ export function PostsPage() {
         staleTime: 60_000,
     });
 
-    const posts: Post[] = data?.pages.flatMap(p => p.data) ?? [];
+    const posts: Post[] = useMemo(
+        () => data?.pages.flatMap(p => p.data) ?? [],
+        [data]
+    );
 
     useEffect(() => {
         if (activeIndex >= posts.length - 2 && hasNextPage && !isFetchingNextPage) {
@@ -51,8 +60,17 @@ export function PostsPage() {
         const container = containerRef.current;
         if (!container) return;
         const item = container.querySelector(`[data-post-index="${idx}"]`) as HTMLElement;
-        item?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        item?.scrollIntoView({ behavior: 'auto', block: 'start' });
     }, []);
+
+    useEffect(() => {
+        if (!targetId || scrolledToTarget.current || posts.length === 0) return;
+        const idx = posts.findIndex(p => p.id === targetId);
+        if (idx !== -1) {
+            scrolledToTarget.current = true;
+            setTimeout(() => scrollToIndex(idx), 100);
+        }
+    }, [targetId, posts, scrollToIndex]);
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
@@ -64,28 +82,43 @@ export function PostsPage() {
     }, [activeIndex, posts.length, scrollToIndex]);
 
     return (
-        <div
-            ref={containerRef}
-            style={{
-                height: 'calc(100dvh - 60px)',
-                overflowY: 'scroll',
-                scrollSnapType: 'y mandatory',
-                scrollbarWidth: 'none',
-            }}
-        >
-            {isLoading ? (
-                <Center h="100dvh"><Loader size="lg" /></Center>
-            ) : (
-                <>
-                    {posts.map((post, i) => (
-                        <div key={post.id} data-post-item data-post-index={i}
-                            style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always', height: 'calc(100dvh - 60px)' }}>
-                            <PostFeedItem post={post} isActive={activeIndex === i} />
-                        </div>
-                    ))}
-                    {isFetchingNextPage && <Center h="100dvh"><Loader size="md" /></Center>}
-                </>
-            )}
-        </div>
+        <>
+            <ActionIcon
+                pos="fixed"
+                top={76}
+                left={36}
+                size="lg"
+                radius="md"
+                variant="subtle"
+                style={{ zIndex: 100 }}
+                onClick={() => router.back()}
+            >
+                <Iconify icon="material-symbols-light:close-rounded" width={22} />
+            </ActionIcon>
+
+            <div
+                ref={containerRef}
+                style={{
+                    height: 'calc(100dvh - 60px)',
+                    overflowY: 'scroll',
+                    scrollSnapType: 'y mandatory',
+                    scrollbarWidth: 'none',
+                }}
+            >
+                {isLoading ? (
+                    <Center h="100dvh"><Loader size="lg" /></Center>
+                ) : (
+                    <>
+                        {posts.map((post, i) => (
+                            <div key={post.id} data-post-item data-post-index={i}
+                                style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always', height: 'calc(100dvh - 60px)' }}>
+                                <PostFeedItem post={post} isActive={activeIndex === i} />
+                            </div>
+                        ))}
+                        {isFetchingNextPage && <Center h="100dvh"><Loader size="md" /></Center>}
+                    </>
+                )}
+            </div>
+        </>
     );
 }

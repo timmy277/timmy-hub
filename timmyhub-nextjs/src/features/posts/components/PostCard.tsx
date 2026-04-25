@@ -16,7 +16,7 @@ export function PostCard({ post, onOpenDetail }: PostCardProps) {
 
     const handleClick = () => {
         if (onOpenDetail) onOpenDetail(post);
-        else router.push('/posts');
+        else router.push(`/posts?id=${post.id}`);
     };
 
     return (
@@ -24,7 +24,7 @@ export function PostCard({ post, onOpenDetail }: PostCardProps) {
             onClick={handleClick}
             style={{
                 position: 'relative',
-                aspectRatio: '9/16',
+                aspectRatio: '3/4',
                 borderRadius: 'var(--mantine-radius-md)',
                 overflow: 'hidden',
                 background: '#111',

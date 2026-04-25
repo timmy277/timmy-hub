@@ -42,7 +42,7 @@ export function PostFeedSection() {
             <Swiper
                 modules={[FreeMode]}
                 freeMode
-                slidesPerView={5.3}
+                slidesPerView={6}
                 spaceBetween={10}
                 grabCursor
                 style={{ paddingBottom: 4 }}
@@ -50,7 +50,7 @@ export function PostFeedSection() {
                 {isLoading
                     ? Array.from({ length: 10 }).map((_, i) => (
                         <SwiperSlide key={i}>
-                            <Skeleton style={{ aspectRatio: '9/16', borderRadius: 8 }} />
+                            <Skeleton style={{ aspectRatio: '3/4', borderRadius: 2 }} />
                         </SwiperSlide>
                     ))
                     : posts.map(post => (

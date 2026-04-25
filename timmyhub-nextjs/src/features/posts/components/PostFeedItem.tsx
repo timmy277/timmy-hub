@@ -45,13 +45,6 @@ export function PostFeedItem({ post, isActive }: Props) {
                 onTogglePlay={() => setPlaying(p => !p)}
             />
 
-            {/* Back button */}
-            <ActionIcon pos="absolute" top={16} left={16} size={40} radius="xl" variant="filled"
-                style={{ background: 'rgba(0,0,0,0.5)', zIndex: 10 }}
-                onClick={() => router.back()}>
-                <Iconify icon="solar:arrow-left-linear" width={22} />
-            </ActionIcon>
-
             <PostActionBar
                 liked={liked}
                 likeCount={likeCount}
