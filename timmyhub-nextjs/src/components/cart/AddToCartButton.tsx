@@ -40,14 +40,15 @@ export function AddToCartButton({
     return (
         <ActionIcon
             variant="filled"
-            color="blue"
-            size="lg"
-            radius="md"
+            size={36}
+            radius={50}
             onClick={handleAddToCart}
             loading={isAdding}
             disabled={disabled}
+            style={{ background: '#00a76f', color: '#fff', flexShrink: 0 }}
+            aria-label="Thêm vào giỏ hàng"
         >
-            <Iconify icon="solar:cart-plus-bold" width={18} />
+            <Iconify icon="solar:bag-plus-bold" width={18} />
         </ActionIcon>
     );
 }

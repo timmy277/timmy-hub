@@ -41,7 +41,7 @@ interface HomePageClientProps {
     initialProducts: Product[];
 }
 
-const PRODUCTS_PAGE_SIZE = 8;
+const PRODUCTS_PAGE_SIZE = 10;
 
 export function HomePageClient({ initialProducts }: HomePageClientProps) {
     const { t } = useTranslation('common');
