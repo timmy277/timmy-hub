@@ -14,7 +14,6 @@ import {
     Tabs,
     ActionIcon,
     Box,
-    useComputedColorScheme,
 } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { useQuery } from '@tanstack/react-query';
@@ -48,8 +47,6 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
     const { t } = useTranslation('common');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [activeTab, setActiveTab] = useState<string | null>('all');
-    const computedColorScheme = useComputedColorScheme('light');
-    const isDark = computedColorScheme === 'dark';
 
     // Dùng useQuery với initialData từ SSR: sản phẩm hiển thị ngay, tự refresh sau staleTime
     const { data: products = initialProducts, isLoading, isFetching } = useQuery({
@@ -81,54 +78,47 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
     const displayProducts = filteredProducts.slice(0, PRODUCTS_PAGE_SIZE);
 
     return (
-        <Container size="xl" py="lg">
-            <Stack gap="xl">
-                {/* Hero Section */}
+        <Container size="xl" py="xl">
+            <Stack gap={48}>
+                {/* Hero */}
                 <HeroCarousel />
 
                 {/* Features */}
                 <FeatureSection />
 
-                {/* Vouchers */}
-                <VoucherSection />
-
                 {/* Categories */}
                 <CategorySection />
+
+                {/* Vouchers */}
+                <Box>
+                    <Group justify="space-between" mb={20}>
+                        <Title order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }}>Voucher dành cho bạn</Title>
+                    </Group>
+                    <VoucherSection />
+                </Box>
 
                 {/* Flash Sale */}
                 <FlashSaleBanner />
 
                 {/* Post Feed */}
-                <PostFeedSection />
+                <Box>
+                    <PostFeedSection />
+                </Box>
 
-                {/* Main Products */}
-                <Stack gap="md" id="products-section">
+                {/* Products */}
+                <Stack gap={20} id="products-section">
                     <Group justify="space-between" align="center">
-                        <Box>
-                            <Group gap="xs" align="center">
-                                <Title order={2} mb={4} suppressHydrationWarning>{t('homePage.todaySuggestion')}</Title>
-                                {isFetching && !isLoading && (
-                                    <Iconify
-                                        icon="tabler:loader-2"
-                                        width={18}
-                                        style={{
-                                            color: 'var(--mantine-color-blue-5)',
-                                            animation: 'spin 1s linear infinite',
-                                        }}
-                                    />
-                                )}
-                            </Group>
-                        </Box>
+                        <Group gap={8} align="center">
+                            <Title order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }} suppressHydrationWarning>
+                                {t('homePage.todaySuggestion')}
+                            </Title>
+                            {isFetching && !isLoading && (
+                                <Iconify icon="solar:refresh-bold" width={16} style={{ color: '#637381', animation: 'spin 1s linear infinite' }} />
+                            )}
+                        </Group>
 
-                        <Group>
-                            <Tabs
-                                value={activeTab}
-                                onChange={(val) => {
-                                    setActiveTab(val);
-                                }}
-                                variant="pills"
-                                radius="xl"
-                            >
+                        <Group gap={12}>
+                            <Tabs value={activeTab} onChange={setActiveTab} variant="pills" radius={50}>
                                 <Tabs.List suppressHydrationWarning>
                                     <Tabs.Tab value="all"><span suppressHydrationWarning>{t('homePage.tabAll')}</span></Tabs.Tab>
                                     <Tabs.Tab value="new"><span suppressHydrationWarning>{t('homePage.tabNew')}</span></Tabs.Tab>
@@ -140,40 +130,22 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                             <Group
                                 gap={0}
                                 style={{
-                                    border: isDark
-                                        ? '1px solid var(--mantine-color-dark-4)'
-                                        : '1px solid #eee',
+                                    border: '1px solid var(--mantine-color-default-border)',
                                     borderRadius: 8,
                                     overflow: 'hidden',
                                 }}
                             >
-                                <ActionIcon
-                                    variant={viewMode === 'grid' ? 'filled' : 'subtle'}
-                                    color="blue"
-                                    size="lg"
-                                    onClick={() => setViewMode('grid')}
-                                    radius={0}
-                                >
-                                    <Iconify icon="tabler:layout-grid" width={20} />
+                                <ActionIcon variant={viewMode === 'grid' ? 'filled' : 'subtle'} color="dark" size="lg" onClick={() => setViewMode('grid')} radius={0}>
+                                    <Iconify icon="solar:widget-4-bold" width={18} />
                                 </ActionIcon>
-                                <ActionIcon
-                                    variant={viewMode === 'list' ? 'filled' : 'subtle'}
-                                    color="blue"
-                                    size="lg"
-                                    onClick={() => setViewMode('list')}
-                                    radius={0}
-                                >
-                                    <Iconify icon="tabler:list" width={20} />
+                                <ActionIcon variant={viewMode === 'list' ? 'filled' : 'subtle'} color="dark" size="lg" onClick={() => setViewMode('list')} radius={0}>
+                                    <Iconify icon="solar:list-bold" width={18} />
                                 </ActionIcon>
                             </Group>
                         </Group>
                     </Group>
 
-                    <ProductGrid
-                        products={displayProducts}
-                        viewMode={viewMode}
-                        isLoading={isLoading}
-                    />
+                    <ProductGrid products={displayProducts} viewMode={viewMode} isLoading={isLoading} />
                 </Stack>
 
                 {/* Footer Promo */}

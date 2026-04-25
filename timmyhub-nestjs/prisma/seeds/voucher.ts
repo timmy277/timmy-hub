@@ -189,6 +189,18 @@ export const seedingPublicVouchersData = async (prisma: PrismaClient) => {
             startDate: now,
             endDate: in90Days,
         },
+        {
+            code: 'HOME200K',
+            type: VoucherType.FIXED_AMOUNT,
+            value: 200000,
+            minOrderValue: 800000,
+            maxDiscount: null,
+            usageLimit: 500,
+            perUserLimit: 1,
+            description: 'Ưu đãi trang chủ - Giảm 200K cho đơn từ 800K',
+            startDate: now,
+            endDate: in60Days,
+        },
     ];
 
     for (const v of vouchers) {

@@ -12,6 +12,7 @@ import { seedingSellerProfilesData } from './seeds/seller';
 import { seedingCategoriesData } from './seeds/category';
 import { seedingProductsData } from './seeds/product';
 import { seedingLocationsData } from './seeds/location';
+import { seedingPublicVouchersData } from './seeds/voucher';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -50,6 +51,9 @@ async function seed() {
 
     // 6. Seed Locations (province, district, ward)
     await seedingLocationsData(prisma);
+
+    // 7. Seed Vouchers
+    await seedingPublicVouchersData(prisma);
 
     if (environment === 'development') {
         // Thêm các dữ liệu dev khác ở đây (Sản phẩm mẫu, Order mẫu...)

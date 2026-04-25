@@ -1,19 +1,14 @@
 'use client';
 
-import { SimpleGrid, Paper, Flex, Stack, Text, ThemeIcon, Button, useComputedColorScheme, Loader, Center, Badge } from '@mantine/core';
+import { SimpleGrid, Box, Text, Button, Group, Loader, Center } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
-import { m } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { voucherService } from '@/services/voucher.service';
 import { useAuth } from '@/hooks/useAuth';
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import { notifications } from '@mantine/notifications';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
 import { formatVND } from '@/utils/currency';
-
-dayjs.extend(relativeTime);
 
 interface VoucherDisplay {
     id: string;
@@ -23,196 +18,131 @@ interface VoucherDisplay {
     minOrderValue?: number;
     description?: string;
     endDate: string;
-    campaign?: {
-        name: string;
-    };
 }
 
-// Helper function to format voucher display
-function formatVoucherValue(voucher: VoucherDisplay): string {
-    switch (voucher.type) {
-        case 'PERCENTAGE':
-            return `${voucher.value}%`;
-        case 'FREE_SHIPPING':
-            return 'Miễn phí vận chuyển';
-        case 'FIXED_AMOUNT':
-            return `${formatVND(voucher.value)}`;
-        default:
-            return `${voucher.value}`;
-    }
+function formatValue(v: VoucherDisplay) {
+    if (v.type === 'PERCENTAGE') return `Giảm ${v.value}%`;
+    if (v.type === 'FREE_SHIPPING') return 'Miễn phí vận chuyển';
+    return `Giảm ${formatVND(v.value)}`;
 }
 
-function getTimeRemaining(endDate: string): string {
-    const now = dayjs();
-    const end = dayjs(endDate);
-    const diff = end.diff(now, 'day');
-
-    if (diff < 0) return 'Đã hết hạn';
-    if (diff === 0) return 'Hết hạn trong ngày';
-    if (diff === 1) return 'Còn 1 ngày';
-    if (diff <= 7) return `Còn ${diff} ngày`;
-    return end.format('DD/MM');
+function daysLeft(endDate: string) {
+    const d = dayjs(endDate).diff(dayjs(), 'day');
+    if (d < 0) return 'Hết hạn';
+    if (d === 0) return 'Hết hạn hôm nay';
+    return `Còn ${d} ngày`;
 }
 
-function getVoucherColor(type: string, index: number): string {
-    const colors = ['teal', 'blue', 'orange', 'violet', 'cyan', 'pink'];
-    return colors[index % colors.length];
-}
-
-function getMinOrderText(minOrderValue?: number): string {
-    if (!minOrderValue) return 'Mọi đơn hàng';
-    return `Đơn từ ${formatVND(minOrderValue)}`;
-}
+const ACCENT_COLORS = ['#00a76f', '#0c68e9', '#ff5630', '#7635dc', '#00b8d9', '#ffab00'];
 
 export function VoucherSection() {
-    const { t } = useTranslation();
-    const queryClient = useQueryClient();
-    const computedColorScheme = useComputedColorScheme('light');
-    const isDark = computedColorScheme === 'dark';
+    const qc = useQueryClient();
     const { isAuthenticated } = useAuth();
 
-    // Get saved vouchers to check which ones are already saved
     const { data: savedRes } = useQuery({
         queryKey: ['my-vouchers'],
         queryFn: () => voucherService.getMyVouchers(undefined),
         enabled: isAuthenticated,
     });
+    const savedIds = new Set(savedRes?.data?.map(uv => uv.voucher.id) || []);
 
-    const savedVoucherIds = new Set(savedRes?.data?.map(uv => uv.voucher.id) || []);
-
-    const { data: res, isLoading, error } = useQuery({
+    const { data: res, isLoading } = useQuery({
         queryKey: ['public-vouchers'],
         queryFn: () => voucherService.getPublicVouchers(),
         staleTime: 5 * 60 * 1000,
     });
 
     const saveMutation = useMutation({
-        mutationFn: (voucherId: string) => voucherService.saveVoucher(voucherId),
+        mutationFn: (id: string) => voucherService.saveVoucher(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['my-vouchers'] });
-            notifications.show({
-                title: 'Thành công',
-                message: 'Đã lưu voucher vào danh sách của bạn',
-                color: 'green',
-            });
+            void qc.invalidateQueries({ queryKey: ['my-vouchers'] });
+            notifications.show({ title: 'Đã lưu voucher', message: '', color: 'green' });
         },
-        onError: (error: unknown) => {
-            const err = error as { response?: { data?: { message?: string } } };
-            notifications.show({
-                title: 'Lỗi',
-                message: err.response?.data?.message || 'Không thể lưu voucher',
-                color: 'red',
-            });
+        onError: (err: unknown) => {
+            const e = err as { response?: { data?: { message?: string } } };
+            notifications.show({ title: 'Lỗi', message: e.response?.data?.message || '', color: 'red' });
         },
     });
 
     const vouchers: VoucherDisplay[] = res?.data || [];
 
-    const handleSaveVoucher = (voucherId: string) => {
-        if (!isAuthenticated) {
-            notifications.show({
-                title: 'Đăng nhập để lưu voucher',
-                message: 'Vui lòng đăng nhập để lưu voucher vào danh sách của bạn',
-                color: 'yellow',
-            });
-            return;
-        }
-        saveMutation.mutate(voucherId);
-    };
-
-    if (isLoading) {
-        return (
-            <Center py="xl">
-                <Loader size="sm" />
-            </Center>
-        );
-    }
-
-    if (error || vouchers.length === 0) {
-        return null;
-    }
+    if (isLoading) return <Center py="md"><Loader size="sm" /></Center>;
+    if (!vouchers.length) return null;
 
     return (
-        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" mb="xl">
-            {vouchers.slice(0, 6).map((voucher, i) => {
-                const color = getVoucherColor(voucher.type, i);
-                const isSaved = savedVoucherIds.has(voucher.id);
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+            {vouchers.slice(0, 6).map((v, i) => {
+                const color = ACCENT_COLORS[i % ACCENT_COLORS.length];
+                const saved = savedIds.has(v.id);
 
                 return (
-                    <Paper key={voucher.id} p="md" radius="md" withBorder
-                        bg={isDark ? `${color}.9` : `${color}.0`}
+                    <Box
+                        key={v.id}
                         style={{
-                            borderColor: isDark ? `var(--mantine-color-${color}-8)` : `var(--mantine-color-${color}-3)`,
-                            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                            borderRadius: 12,
+                            border: `1.5px dashed ${color}22`,
+                            background: `${color}08`,
+                            padding: '16px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 10,
                         }}
-                        component={m.div}
-                        initial={{ opacity: 0, y: 50 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: i * 0.1 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        whileHover={{ scale: 1.02, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
                     >
-                        <Flex gap="md" align="center">
-                            <ThemeIcon size={48} radius="xl" color={color} variant="filled">
-                                <Iconify icon="tabler:ticket" width={24} />
-                            </ThemeIcon>
-                            <Stack gap={2} style={{ flex: 1 }}>
-                                <Text fw={700} size="lg" c={isDark ? 'white' : `${color}.9`}>
-                                    {t('voucher.discount', 'OFF')} {formatVoucherValue(voucher)}
+                        <Group gap={10} align="center">
+                            <Box
+                                style={{
+                                    width: 40, height: 40, borderRadius: 10,
+                                    background: `${color}18`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    flexShrink: 0,
+                                }}
+                            >
+                                <Iconify icon="solar:ticket-bold" width={22} color={color} />
+                            </Box>
+                            <Box style={{ flex: 1, minWidth: 0 }}>
+                                <Text fw={700} size="md" style={{ color: '#1c252e' }}>{formatValue(v)}</Text>
+                                <Text size="xs" c="dimmed">
+                                    {v.minOrderValue ? `Đơn từ ${formatVND(v.minOrderValue)}` : 'Mọi đơn hàng'}
                                 </Text>
-                                <Flex align="center" gap={4}>
-                                    <Text size="xs" c={isDark ? 'dimmed' : 'dimmed'}>
-                                        {getMinOrderText(voucher.minOrderValue)}
-                                    </Text>
-                                </Flex>
-                                <Flex align="center" gap={4}>
-                                    <Iconify icon="tabler:clock" width={12} color={isDark ? `var(--mantine-color-${color}-2)` : `var(--mantine-color-${color}-7)`} />
-                                    <Text size="xs" c={isDark ? `${color}.2` : `${color}.7`} fw={600}>
-                                        HSD: {getTimeRemaining(voucher.endDate)}
-                                    </Text>
-                                </Flex>
-                                {voucher.campaign && (
-                                    <Badge size="xs" variant="light" color={color}>
-                                        {voucher.campaign.name}
-                                    </Badge>
-                                )}
-                            </Stack>
-                        </Flex>
-                        {voucher.description && (
-                            <Text size="xs" c="dimmed" mt={4} lineClamp={1}>
-                                {voucher.description}
-                            </Text>
-                        )}
-                        {isSaved ? (
-                            <Button
-                                size="xs"
-                                radius="xl"
-                                variant="light"
-                                color={color}
-                                mt="sm"
-                                fullWidth
-                                component={Link}
-                                href="/profile/voucher"
-                                leftSection={<Iconify icon="tabler:heart-filled" width={14} />}
-                            >
-                                Đã lưu
-                            </Button>
-                        ) : (
-                            <Button
-                                size="xs"
-                                radius="xl"
-                                variant="white"
-                                color={color}
-                                mt="sm"
-                                fullWidth
-                                leftSection={<Iconify icon="tabler:heart" width={14} />}
-                                onClick={() => handleSaveVoucher(voucher.id)}
-                                loading={saveMutation.isPending}
-                            >
-                                Lưu voucher
-                            </Button>
-                        )}
-                    </Paper>
+                            </Box>
+                        </Group>
+
+                        <Group justify="space-between" align="center">
+                            <Group gap={4}>
+                                <Iconify icon="solar:clock-circle-linear" width={13} color="#637381" />
+                                <Text size="xs" c="dimmed">{daysLeft(v.endDate)}</Text>
+                            </Group>
+                            {saved ? (
+                                <Button
+                                    component={Link}
+                                    href="/profile/voucher"
+                                    size="xs"
+                                    radius={50}
+                                    variant="light"
+                                    style={{ color, background: `${color}14` }}
+                                >
+                                    Đã lưu
+                                </Button>
+                            ) : (
+                                <Button
+                                    size="xs"
+                                    radius={50}
+                                    variant="filled"
+                                    style={{ background: color, color: '#fff' }}
+                                    onClick={() => {
+                                        if (!isAuthenticated) {
+                                            notifications.show({ title: 'Vui lòng đăng nhập', message: '', color: 'yellow' });
+                                            return;
+                                        }
+                                        saveMutation.mutate(v.id);
+                                    }}
+                                    loading={saveMutation.isPending}
+                                >
+                                    Lưu
+                                </Button>
+                            )}
+                        </Group>
+                    </Box>
                 );
             })}
         </SimpleGrid>
