@@ -35,7 +35,7 @@ export function CategorySection() {
                 slideSize={{ base: '25%', sm: '16.66%', md: '12%' }}
                 slideGap="sm"
                 withControls
-                align="start"
+                emblaOptions={{ align: 'start' }}
             >
                 {CATEGORIES.map((cat) => (
                     <Carousel.Slide key={cat.slug}>

@@ -48,7 +48,7 @@ export function HeroCarousel() {
             withIndicators
             height={480}
             slideSize="100%"
-            loop
+            emblaOptions={{ loop: true }}
             style={{ borderRadius: 16, overflow: 'hidden' }}
         >
             {HERO_SLIDES.map((slide) => (
