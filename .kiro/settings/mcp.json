@@ -5,7 +5,7 @@
             "args": [
                 "-y",
                 "@modelcontextprotocol/server-postgres",
-                "postgresql://postgres:mrtuan277@localhost:5432/postgres"
+                "postgresql://postgres.duxwhtfvahbpvptvkegb:timmysadoa277@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
             ],
             "disabled": false,
             "autoApprove": ["query"]
