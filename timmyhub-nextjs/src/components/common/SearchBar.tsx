@@ -53,10 +53,9 @@ export function SearchBar() {
                 placeholder="Tìm kiếm sản phẩm..."
                 radius="md"
                 size="sm"
-                bg="gray.1"
                 styles={{
                     input: {
-                        backgroundColor: 'var(--mantine-color-gray-1)',
+                        backgroundColor: 'var(--mantine-color-default)',
                         border: focused
                             ? '1px solid var(--mantine-primary-color-filled)'
                             : '1px solid var(--mantine-color-default-border)',
@@ -120,7 +119,7 @@ export function SearchBar() {
                                     color: 'inherit',
                                     transition: 'background 0.1s',
                                 }}
-                                onMouseEnter={e => (e.currentTarget.style.background = 'var(--mantine-color-gray-0)')}
+                                onMouseEnter={e => (e.currentTarget.style.background = 'var(--mantine-color-default-hover)')}
                                 onMouseLeave={e => (e.currentTarget.style.background = '')}
                             >
                                 <Group gap="sm" wrap="nowrap">
@@ -162,10 +161,10 @@ export function SearchBar() {
                                 style={{
                                     borderTop: '1px solid var(--mantine-color-default-border)',
                                     cursor: 'pointer',
-                                    background: 'var(--mantine-color-gray-0)',
+                                    background: 'var(--mantine-color-default-hover)',
                                 }}
-                                onMouseEnter={e => (e.currentTarget.style.background = 'var(--mantine-color-blue-0)')}
-                                onMouseLeave={e => (e.currentTarget.style.background = 'var(--mantine-color-gray-0)')}
+                                onMouseEnter={e => (e.currentTarget.style.background = 'var(--mantine-color-blue-light-hover)')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'var(--mantine-color-default-hover)')}
                                 onClick={() => handleSearch(query)}
                             >
                                 <Group gap="xs" justify="center">
