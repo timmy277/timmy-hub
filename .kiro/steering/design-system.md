@@ -1,5 +1,6 @@
 ---
 inclusion: auto
+description: Minimals UI design system rules — tokens, component states, accessibility, and anti-patterns for TimmyHub frontend.
 ---
 
 # Design System — Minimals UI
