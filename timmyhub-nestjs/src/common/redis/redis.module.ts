@@ -14,11 +14,14 @@ export const UPSTASH_REDIS = 'UPSTASH_REDIS';
         {
             provide: UPSTASH_REDIS,
             inject: [ConfigService],
-            useFactory: (configService: ConfigService): Redis => {
-                return new Redis({
-                    url: configService.getOrThrow<string>('UPSTASH_REDIS_REST_URL'),
-                    token: configService.getOrThrow<string>('UPSTASH_REDIS_REST_TOKEN'),
-                });
+            useFactory: (configService: ConfigService): Redis | null => {
+                const url = configService.get<string>('UPSTASH_REDIS_REST_URL');
+                const token = configService.get<string>('UPSTASH_REDIS_REST_TOKEN');
+                if (!url || !token) {
+                    console.warn('⚠️  UPSTASH_REDIS not configured, Redis features disabled');
+                    return null;
+                }
+                return new Redis({ url, token });
             },
         },
     ],

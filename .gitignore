@@ -41,3 +41,6 @@ Thumbs.db
 
 # Cursor IDE local data
 .agent/
+
+# Kiro MCP settings (contains tokens)
+.kiro/settings/mcp.json
