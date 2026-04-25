@@ -10,10 +10,6 @@ export interface TabItem<T> {
     data?: T;
 }
 
-/**
- * Hook quản lý Tabs cho các trang Management (CRUD)
- * @author TimmyHub AI
- */
 export const useManagementTabs = <T extends { id: string }>(entityName: string) => {
     const [activeTab, setActiveTab] = useState<string | null>(ManagementTabType.LIST);
     const [openTabs, setOpenTabs] = useState<TabItem<T>[]>([

@@ -1,8 +1,3 @@
-/**
- * Dữ liệu hành chính Việt Nam (mẫu hardcode — mở rộng sau).
- * Cấu trúc: Tỉnh/TP → Quận/Huyện → Phường/Xã
- */
-
 export interface VnWard {
     id: string;
     name: string;

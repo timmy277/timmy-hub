@@ -7,9 +7,6 @@ import { User } from '@/types/auth';
 import { AxiosError } from 'axios';
 import { QUERY_KEYS } from '@/constants';
 
-/**
- * Hook quản lý người dùng
- */
 export const useUsers = () => {
     return useQuery({
         queryKey: QUERY_KEYS.USERS,

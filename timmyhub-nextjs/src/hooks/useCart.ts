@@ -5,7 +5,6 @@ import { useAuth } from './useAuth';
 import type { AddToCartDto, Cart, UpdateCartItemDto } from '@/types/cart';
 import { QUERY_KEYS } from '@/constants';
 
-/** @deprecated Dùng QUERY_KEYS.CART từ '@/constants' thay thế */
 export const CART_QUERY_KEY = QUERY_KEYS.CART;
 
 const EMPTY_CART: Cart = {

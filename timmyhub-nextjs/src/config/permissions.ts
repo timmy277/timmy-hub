@@ -1,14 +1,5 @@
-/**
- * Permission Constants & Route Mapping
- * Tập trung các định nghĩa quyền và phân quyền cho route.
- * Các thông tin như Hierarchy, Groups, DisplayName được quản lý động từ Backend.
- */
 
-// ===== PERMISSION CONSTANTS =====
-// Sử dụng để check quyền trong code (AccessGuard, Buttons, v.v.)
-// Đảm bảo khớp với name trong Database
 export const PERMISSIONS = {
-    // Quản lý hệ thống (RBAC)
     RBAC: {
         ROLES_READ: 'rbac:roles:read',
         ROLES_CREATE: 'rbac:roles:create',
@@ -16,7 +7,6 @@ export const PERMISSIONS = {
         ROLES_DELETE: 'rbac:roles:delete',
         PERMISSIONS_READ: 'rbac:permissions:read',
     },
-    // Người dùng
     USERS: {
         READ: 'users:read',
         CREATE: 'users:create',
@@ -24,20 +14,17 @@ export const PERMISSIONS = {
         DELETE: 'users:delete',
         MANAGE_ROLES: 'users:manage-roles',
     },
-    // Sản phẩm
     PRODUCTS: {
         READ: 'products:read',
         CREATE: 'products:create',
         UPDATE: 'products:update',
         DELETE: 'products:delete',
     },
-    // Đơn hàng
     ORDERS: {
         READ: 'orders:read',
         PROCESS: 'orders:process',
         CANCEL: 'orders:cancel',
     },
-    // Seller
     SELLER: {
         PRODUCTS_READ: 'seller:products:read',
         PRODUCTS_WRITE: 'seller:products:write',
@@ -48,10 +35,7 @@ export const PERMISSIONS = {
     },
 } as const;
 
-// ===== ROUTE-PERMISSION MAPPING =====
-// Định nghĩa các route yêu cầu quyền truy cập cụ thể
 export const ROUTE_PERMISSIONS: Record<string, string[]> = {
-    // Dashboard - mọi ADMIN đều vào được (role check đã xử lý ở middleware)
     '/admin': [],
     '/admin/dashboard': [],
 
@@ -78,11 +62,6 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/admin/orders/[id]': [PERMISSIONS.ORDERS.READ],
 };
 
-// ===== HELPERS =====
-
-/**
- * Lấy required permissions cho một route (hỗ trợ dynamic routes)
- */
 export const getRoutePermissions = (pathname: string): string[] => {
     if (ROUTE_PERMISSIONS[pathname]) return ROUTE_PERMISSIONS[pathname];
 
@@ -95,9 +74,6 @@ export const getRoutePermissions = (pathname: string): string[] => {
     return [];
 };
 
-/**
- * Kiểm tra user có đầy đủ permissions không
- */
 export const hasPermissions = (
     userPermissions: string[],
     requiredPermissions: string[],
@@ -106,9 +82,6 @@ export const hasPermissions = (
     return requiredPermissions.every(perm => userPermissions.includes(perm));
 };
 
-/**
- * Kiểm tra user có ít nhất một trong các permissions không
- */
 export const hasAnyPermission = (
     userPermissions: string[],
     requiredPermissions: string[],

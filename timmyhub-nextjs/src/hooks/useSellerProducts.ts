@@ -1,6 +1,3 @@
-/**
- * Hooks cho Seller Products - CRUD sản phẩm của gian hàng
- */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { productService } from '@/services/product.service';

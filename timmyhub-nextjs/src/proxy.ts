@@ -74,8 +74,8 @@ export function proxy(request: NextRequest) {
                 hasRole('ADMIN') || hasRole('SUPER_ADMIN')
                     ? '/admin'
                     : hasRole('SELLER')
-                      ? '/seller'
-                      : '/';
+                        ? '/seller'
+                        : '/';
             return NextResponse.redirect(new URL(dest, request.url));
         }
         return NextResponse.next();

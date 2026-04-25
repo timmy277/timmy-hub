@@ -1,10 +1,5 @@
 import { TFunction } from 'i18next';
 
-/**
- * Validator factory functions for form validation
- * @author TimmyHub AI
- */
-
 export const createRequiredValidator = (t: TFunction, fieldKey: string) => {
     return (value: string | undefined | null) => {
         if (!value || value.trim().length === 0) {

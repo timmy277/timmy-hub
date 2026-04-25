@@ -1,7 +1,3 @@
-/**
- * Hằng số cho Order — label, màu, option filter
- * Dùng: import { ORDER_STATUS_LABELS, getOrderStatusColor, ORDER_STATUS_LIST } from '@/constants'
- */
 import type { OrderStatus } from '@/types/order';
 
 export const ORDER_ALL_VALUE = 'all' as const;

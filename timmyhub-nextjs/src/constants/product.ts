@@ -1,7 +1,3 @@
-/**
- * Hằng số cho Product — status config (màu + label)
- * Dùng: import { PRODUCT_STATUS_CONFIG } from '@/constants'
- */
 import { ResourceStatus } from '@/types/product';
 
 export const PRODUCT_STATUS_CONFIG: Record<ResourceStatus, { color: string; label: string }> = {

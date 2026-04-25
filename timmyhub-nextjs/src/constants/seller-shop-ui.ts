@@ -1,6 +1,3 @@
-/**
- * Giá trị hiển thị tạm (chưa có API): người theo dõi, đánh giá tổng, tỉ lệ phản hồi, đang theo.
- */
 export const SELLER_SHOP_HARDCODED = {
     followersDisplay: '15.5k',
     reviewsCountDisplay: '2.4k',

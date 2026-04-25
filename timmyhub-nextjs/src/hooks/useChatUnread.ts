@@ -1,10 +1,3 @@
-/**
- * Hook để sync unread counts từ BE
- * Hybrid approach:
- * - Khi init: fetch unread từ BE
- * - Khi có socket message: increment local (FE-only)
- * - Khi mở chat: gọi BE markAsRead + reset local
- */
 'use client';
 
 import { useEffect } from 'react';
