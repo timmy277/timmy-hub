@@ -3,6 +3,8 @@ import { productService } from '@/services/product.service';
 import { notFound } from 'next/navigation';
 import { ProductDetailClient } from '@/features/products/components/ProductDetailClient';
 
+export const revalidate = 300;
+
 interface Props {
     params: Promise<{ slug: string }>;
 }

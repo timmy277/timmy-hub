@@ -1,6 +1,8 @@
 import { SearchPageClient } from '@/features/search/SearchPageClient';
 import type { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
     const { q } = await searchParams;
     return { title: q ? `Tìm kiếm "${q}" - TimmyHub` : 'Tìm kiếm - TimmyHub' };

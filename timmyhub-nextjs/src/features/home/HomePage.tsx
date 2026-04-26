@@ -6,16 +6,12 @@ const API_URL =
     process.env.NEXT_PUBLIC_API_URL ||
     'http://localhost:3001/api';
 
-/**
- * Server Component - HomePage chính
- * Dùng native fetch để tương thích với Node.js (axios dùng js-cookie/window, chỉ chạy trên browser)
- */
 export default async function HomePage() {
     let products: Product[] = [];
 
     try {
         const res = await fetch(`${API_URL}/products`, {
-            next: { revalidate: 60 },
+            next: { revalidate: 300 },
         });
         if (res.ok) {
             const json = await res.json();
