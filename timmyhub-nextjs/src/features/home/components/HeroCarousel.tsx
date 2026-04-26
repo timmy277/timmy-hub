@@ -2,9 +2,10 @@
 
 import { Carousel } from '@mantine/carousel';
 import { Title, Text, Button, Box, Stack, Overlay } from '@mantine/core';
-import { Image } from '@mantine/core';
+import Image from 'next/image';
 import Link from 'next/link';
 import '@mantine/carousel/styles.css';
+import { memo } from 'react';
 
 interface HeroSlide {
     image: string;
@@ -42,7 +43,7 @@ const HERO_SLIDES: HeroSlide[] = [
     },
 ];
 
-export function HeroCarousel() {
+function HeroCarouselComponent() {
     return (
         <Carousel
             withIndicators
@@ -54,7 +55,14 @@ export function HeroCarousel() {
             {HERO_SLIDES.map((slide) => (
                 <Carousel.Slide key={slide.title}>
                     <Box h="100%" pos="relative">
-                        <Image src={slide.image} h="100%" w="100%" fit="cover" alt={slide.title} />
+                        <Image
+                            src={slide.image}
+                            alt={slide.title}
+                            fill
+                            priority
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                            style={{ objectFit: 'cover' }}
+                        />
                         <Overlay
                             gradient="linear-gradient(105deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.18) 60%, transparent 100%)"
                             opacity={1}
@@ -119,3 +127,5 @@ export function HeroCarousel() {
         </Carousel>
     );
 }
+
+export const HeroCarousel = memo(HeroCarouselComponent);

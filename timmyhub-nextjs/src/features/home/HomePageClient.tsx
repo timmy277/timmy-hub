@@ -1,11 +1,6 @@
 'use client';
 
-/**
- * HomePageClient - Client component chính của trang chủ
- * Dùng useQuery với initialData từ SSR để đảm bảo sản phẩm luôn cập nhật
- */
-
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
     Container,
     Title,
@@ -59,8 +54,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
         staleTime: 60_000,
     });
 
-    // Lọc theo tab đang chọn
-    const filteredProducts = (() => {
+    const filteredProducts = useMemo(() => {
         switch (activeTab) {
             case 'new':
                 return products.filter(p => p.isNew);
@@ -73,9 +67,12 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
             default:
                 return products;
         }
-    })();
+    }, [products, activeTab]);
 
-    const displayProducts = filteredProducts.slice(0, PRODUCTS_PAGE_SIZE);
+    const displayProducts = useMemo(
+        () => filteredProducts.slice(0, PRODUCTS_PAGE_SIZE),
+        [filteredProducts]
+    );
 
     return (
         <Container size="xl" py="xl">

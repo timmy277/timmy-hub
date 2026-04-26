@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { Carousel } from '@mantine/carousel';
 import { Box, Group, Title, Text, Anchor, Skeleton } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
@@ -12,7 +12,7 @@ import { campaignService, Campaign } from '@/services/campaign.service';
 
 const POLLING_INTERVAL = 30000;
 
-function TimerBlock({ value, label }: { value: string; label: string }) {
+const TimerBlock = memo(function TimerBlock({ value, label }: { value: string; label: string }) {
     return (
         <Box style={{ textAlign: 'center' }}>
             <Box
@@ -33,9 +33,9 @@ function TimerBlock({ value, label }: { value: string; label: string }) {
             <Text size="xs" c="dimmed" mt={2}>{label}</Text>
         </Box>
     );
-}
+});
 
-export function FlashSaleBanner() {
+function FlashSaleBannerComponent() {
     const router = useRouter();
 
     const { data: campaigns = [], isLoading } = useQuery({
@@ -115,7 +115,7 @@ export function FlashSaleBanner() {
                 <Anchor
                     fw={600}
                     size="sm"
-                    style={{ color: '#00a76f' }}
+                    style={{ color: '#00a76f', cursor: 'pointer' }}
                     onClick={() => activeCampaign && router.push(`/campaign/${activeCampaign.id}`)}
                 >
                     Xem tất cả →
@@ -132,3 +132,5 @@ export function FlashSaleBanner() {
         </Box>
     );
 }
+
+export const FlashSaleBanner = memo(FlashSaleBannerComponent);

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Group, Image, Text, Box, Anchor, Stack, Progress, Badge } from '@mantine/core';
+import { Card, Group, Image, Text, Box, Anchor, Stack, Progress } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { m } from 'framer-motion';
 import Link from 'next/link';
@@ -8,6 +8,7 @@ import { Product } from '@/types/product';
 import { formatVND } from '@/utils/currency';
 import { useTranslation } from 'react-i18next';
 import { ClientOnly } from '@/components/ClientOnly';
+import { memo } from 'react';
 
 interface ProductCardProps {
     product: Product;
@@ -24,7 +25,7 @@ export function ProductCard(props: ProductCardProps) {
     );
 }
 
-function ProductCardInner({ product, viewMode = 'grid', highlight }: ProductCardProps) {
+const ProductCardInner = memo(function ProductCardInner({ product, viewMode = 'grid', highlight }: ProductCardProps) {
     const { t } = useTranslation('common');
     const discountPercentage = product.originalPrice
         ? Math.round((1 - product.price / product.originalPrice) * 100)
@@ -37,7 +38,7 @@ function ProductCardInner({ product, viewMode = 'grid', highlight }: ProductCard
     // ── Flash Sale ──────────────────────────────────────────────────────────
     if (viewMode === 'flash-sale') {
         return (
-            <m.div whileHover={{ y: -2 }} transition={{ duration: 0.2 }} style={{ height: '100%' }}>
+            <m.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }} style={{ height: '100%' }}>
                 <Card padding="xs" radius={12} withBorder={false} h="100%"
                     style={{ position: 'relative', boxShadow: '0 1px 3px rgba(145,158,171,0.16)', cursor: 'pointer' }}>
                     <Link href={productLink} style={{ position: 'absolute', inset: 0, zIndex: 0 }} aria-label={product.name} />
@@ -110,7 +111,7 @@ function ProductCardInner({ product, viewMode = 'grid', highlight }: ProductCard
 
     // ── Grid (default) ───────────────────────────────────────────────────────
     return (
-        <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} style={{ height: '100%' }}>
+        <m.div whileHover={{ y: -4 }} transition={{ duration: 0.15 }} style={{ height: '100%' }}>
             <Card padding={0} radius={12} withBorder={false} h="100%"
                 style={{
                     position: 'relative', overflow: 'hidden', cursor: 'pointer',
@@ -175,4 +176,4 @@ function ProductCardInner({ product, viewMode = 'grid', highlight }: ProductCard
             </Card>
         </m.div>
     );
-}
+});

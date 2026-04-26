@@ -5,6 +5,7 @@ import { Box, Group, Title, Text, Anchor } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 import '@mantine/carousel/styles.css';
+import { memo } from 'react';
 
 const CATEGORIES = [
     { icon: 'solar:laptop-bold', name: 'Laptop & PC', slug: 'laptop-pc', color: '#0c68e9' },
@@ -19,7 +20,7 @@ const CATEGORIES = [
     { icon: 'solar:football-bold', name: 'Thể thao', slug: 'the-thao', color: '#00a76f' },
 ];
 
-export function CategorySection() {
+function CategorySectionComponent() {
     return (
         <Box>
             <Group justify="space-between" mb={20}>
@@ -78,3 +79,5 @@ export function CategorySection() {
         </Box>
     );
 }
+
+export const CategorySection = memo(CategorySectionComponent);

@@ -4,6 +4,7 @@ import { Text, Center, Skeleton, SimpleGrid, Stack } from '@mantine/core';
 import { m, AnimatePresence } from 'framer-motion';
 import { ProductCard } from './ProductCard';
 import { Product } from '@/types/product';
+import { memo } from 'react';
 
 interface ProductGridProps {
     products: Product[];
@@ -13,15 +14,15 @@ interface ProductGridProps {
 
 const stagger = {
     initial: {},
-    animate: { transition: { staggerChildren: 0.04 } },
+    animate: { transition: { staggerChildren: 0.03, delayChildren: 0.05 } },
 };
 
 const fadeUp = {
-    initial: { opacity: 0, y: 16 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.25 } },
+    initial: { opacity: 0, y: 12 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } },
 };
 
-export function ProductGrid({ products, viewMode, isLoading = false }: ProductGridProps) {
+function ProductGridComponent({ products, viewMode, isLoading = false }: ProductGridProps) {
     if (isLoading) {
         return (
             <SimpleGrid cols={{ base: 2, sm: 3, md: 4, lg: 5 }} spacing="md">
@@ -42,8 +43,13 @@ export function ProductGrid({ products, viewMode, isLoading = false }: ProductGr
 
     return (
         <AnimatePresence mode="wait">
-            <m.div key={viewMode} variants={stagger} initial="initial" animate="animate"
-                exit={{ opacity: 0, transition: { duration: 0.15 } }}>
+            <m.div
+                key={viewMode}
+                variants={stagger}
+                initial="initial"
+                animate="animate"
+                exit={{ opacity: 0, transition: { duration: 0.1 } }}
+            >
                 {viewMode === 'list' ? (
                     <Stack gap="sm">
                         {products.map(product => (
@@ -65,3 +71,5 @@ export function ProductGrid({ products, viewMode, isLoading = false }: ProductGr
         </AnimatePresence>
     );
 }
+
+export const ProductGrid = memo(ProductGridComponent);

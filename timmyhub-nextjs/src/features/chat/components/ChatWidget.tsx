@@ -121,7 +121,8 @@ export function ChatWidget({ externalOpenContactId }: ChatWidgetProps) {
             newSocket.disconnect();
             setSocket(null);
         };
-    }, [isAuthenticated, user, defaultAdmin?.id, refetchContacts, contactsRes?.data, handleIncomingMessage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated, user?.id]);
 
     if (!user || user.roles.includes(UserRole.ADMIN)) {
         return null;

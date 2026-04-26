@@ -2,6 +2,7 @@
 
 import { SimpleGrid, Group, Text, Stack, Box } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
+import { memo } from 'react';
 
 const FEATURES = [
     { icon: 'solar:delivery-bold', title: 'Miễn phí vận chuyển', desc: 'Cho đơn từ 199.000đ' },
@@ -10,7 +11,7 @@ const FEATURES = [
     { icon: 'solar:clock-circle-bold', title: 'Giao hàng nhanh', desc: 'Nội thành trong 2h' },
 ];
 
-export function FeatureSection() {
+function FeatureSectionComponent() {
     return (
         <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md">
             {FEATURES.map((f) => (
@@ -48,3 +49,5 @@ export function FeatureSection() {
         </SimpleGrid>
     );
 }
+
+export const FeatureSection = memo(FeatureSectionComponent);

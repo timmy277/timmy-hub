@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import { notifications } from '@mantine/notifications';
 import Link from 'next/link';
 import { formatVND } from '@/utils/currency';
+import { memo } from 'react';
 
 interface VoucherDisplay {
     id: string;
@@ -35,7 +36,7 @@ function daysLeft(endDate: string) {
 
 const ACCENT_COLORS = ['#00a76f', '#0c68e9', '#ff5630', '#7635dc', '#00b8d9', '#ffab00'];
 
-export function VoucherSection() {
+function VoucherSectionComponent() {
     const qc = useQueryClient();
     const { isAuthenticated } = useAuth();
 
@@ -155,3 +156,5 @@ export function VoucherSection() {
         </SimpleGrid>
     );
 }
+
+export const VoucherSection = memo(VoucherSectionComponent);

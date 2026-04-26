@@ -1,8 +1,10 @@
 'use client';
 
-import { Box, Grid, Image, Title, Text, Stack, Group, Button } from '@mantine/core';
+import { Box, Grid, Title, Text, Stack, Group, Button } from '@mantine/core';
+import Image from 'next/image';
+import { memo } from 'react';
 
-export function FooterPromo() {
+function FooterPromoComponent() {
     return (
         <Box
             style={{
@@ -13,12 +15,15 @@ export function FooterPromo() {
         >
             <Grid gutter={0}>
                 <Grid.Col span={{ base: 12, md: 6 }}>
-                    <Image
-                        alt="TimmyHub App"
-                        src="https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=2664&auto=format&fit=crop"
-                        h={280}
-                        fit="cover"
-                    />
+                    <Box style={{ position: 'relative', height: 280 }}>
+                        <Image
+                            alt="TimmyHub App"
+                            src="https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=2664&auto=format&fit=crop"
+                            fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            style={{ objectFit: 'cover' }}
+                        />
+                    </Box>
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, md: 6 }}>
                     <Stack
@@ -70,3 +75,5 @@ export function FooterPromo() {
         </Box>
     );
 }
+
+export const FooterPromo = memo(FooterPromoComponent);
