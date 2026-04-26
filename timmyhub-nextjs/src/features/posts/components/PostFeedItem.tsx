@@ -1,11 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { ActionIcon } from '@mantine/core';
-import Iconify from '@/components/iconify/Iconify';
 import { useMutation } from '@tanstack/react-query';
 import { postService } from '@/services/post.service';
-import { useRouter } from 'next/navigation';
 import type { Post } from '@/types/post';
 import { PostMediaPlayer } from './PostMediaPlayer';
 import { PostActionBar } from './PostActionBar';
@@ -17,7 +14,6 @@ const H = 'calc(100dvh - 60px)';
 interface Props { post: Post; isActive: boolean; }
 
 export function PostFeedItem({ post, isActive }: Props) {
-    const router = useRouter();
     const { muted, toggleMute } = usePostStore();
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(post.likeCount);

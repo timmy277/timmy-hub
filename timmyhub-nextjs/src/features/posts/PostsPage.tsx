@@ -5,7 +5,8 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { postService } from '@/services/post.service';
 import { PostFeedItem } from './components/PostFeedItem';
-import { Center, Loader, ActionIcon } from '@mantine/core';
+import { PostSkeleton } from './components/PostSkeleton';
+import { ActionIcon } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import type { Post } from '@/types/post';
 
@@ -106,7 +107,13 @@ export function PostsPage() {
                 }}
             >
                 {isLoading ? (
-                    <Center h="100dvh"><Loader size="lg" /></Center>
+                    <>
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always', height: 'calc(100dvh - 60px)' }}>
+                                <PostSkeleton />
+                            </div>
+                        ))}
+                    </>
                 ) : (
                     <>
                         {posts.map((post, i) => (
@@ -115,7 +122,11 @@ export function PostsPage() {
                                 <PostFeedItem post={post} isActive={activeIndex === i} />
                             </div>
                         ))}
-                        {isFetchingNextPage && <Center h="100dvh"><Loader size="md" /></Center>}
+                        {isFetchingNextPage && (
+                            <div style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always', height: 'calc(100dvh - 60px)' }}>
+                                <PostSkeleton />
+                            </div>
+                        )}
                     </>
                 )}
             </div>
