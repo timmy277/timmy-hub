@@ -85,7 +85,7 @@ function FlashSaleBannerComponent() {
         return () => clearInterval(id);
     }, [endTimestamp]);
 
-    if (isLoading) return <Skeleton height={240} radius={12} />;
+    if (isLoading) return <Skeleton height={240} radius={12} aria-label="Đang tải Flash Sale" />;
     if (!activeCampaign || top5Products.length === 0) return null;
 
     return (
@@ -96,19 +96,21 @@ function FlashSaleBannerComponent() {
                 border: '1px solid #ffe4e6',
                 background: '#fff5f5',
             }}
+            component="section"
+            aria-labelledby="flash-sale-title"
         >
             {/* Header */}
             <Group justify="space-between" mb={20} align="center">
                 <Group gap={12} align="center">
-                    <Iconify icon="solar:fire-bold" width={28} color="#ff3030" />
-                    <Title order={3} style={{ fontSize: 20, fontWeight: 800, color: '#1c252e', letterSpacing: '-0.01em' }}>
+                    <Iconify icon="solar:fire-bold" width={28} color="#ff3030" aria-hidden="true" />
+                    <Title id="flash-sale-title" order={3} style={{ fontSize: 20, fontWeight: 800, color: '#1c252e', letterSpacing: '-0.01em' }}>
                         Flash Sale
                     </Title>
-                    <Group gap={6} align="flex-end">
+                    <Group gap={6} align="flex-end" role="timer" aria-live="polite" aria-label={`Thời gian còn lại: ${timer.h} giờ ${timer.m} phút ${timer.s} giây`}>
                         <TimerBlock value={timer.h} label="giờ" />
-                        <Text fw={700} c="dimmed" mb={16}>:</Text>
+                        <Text fw={700} c="dimmed" mb={16} aria-hidden="true">:</Text>
                         <TimerBlock value={timer.m} label="phút" />
-                        <Text fw={700} c="dimmed" mb={16}>:</Text>
+                        <Text fw={700} c="dimmed" mb={16} aria-hidden="true">:</Text>
                         <TimerBlock value={timer.s} label="giây" />
                     </Group>
                 </Group>
@@ -117,12 +119,18 @@ function FlashSaleBannerComponent() {
                     size="sm"
                     style={{ color: '#00a76f', cursor: 'pointer' }}
                     onClick={() => activeCampaign && router.push(`/campaign/${activeCampaign.id}`)}
+                    aria-label="Xem tất cả sản phẩm Flash Sale"
                 >
                     Xem tất cả →
                 </Anchor>
             </Group>
 
-            <Carousel slideSize={{ base: '80%', xs: '50%', sm: '33%', md: '20%' }} slideGap="md" withControls={false}>
+            <Carousel
+                slideSize={{ base: '80%', xs: '50%', sm: '33%', md: '20%' }}
+                slideGap="md"
+                withControls={false}
+                aria-label="Sản phẩm Flash Sale"
+            >
                 {top5Products.map((product) => (
                     <Carousel.Slide key={product.id}>
                         <ProductCard product={product} viewMode="flash-sale" />

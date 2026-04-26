@@ -22,12 +22,12 @@ const CATEGORIES = [
 
 function CategorySectionComponent() {
     return (
-        <Box>
+        <Box component="section" aria-labelledby="category-section-title">
             <Group justify="space-between" mb={20}>
-                <Title order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }}>
+                <Title id="category-section-title" order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }}>
                     Danh mục nổi bật
                 </Title>
-                <Anchor component={Link} href="/collection" size="sm" fw={600} style={{ color: '#00a76f' }}>
+                <Anchor component={Link} href="/collection" size="sm" fw={600} style={{ color: '#00a76f' }} aria-label="Xem tất cả danh mục">
                     Xem tất cả
                 </Anchor>
             </Group>
@@ -37,10 +37,11 @@ function CategorySectionComponent() {
                 slideGap="sm"
                 withControls
                 emblaOptions={{ align: 'start' }}
+                aria-label="Danh mục sản phẩm"
             >
                 {CATEGORIES.map((cat) => (
                     <Carousel.Slide key={cat.slug}>
-                        <Link href={`/collection?category=${cat.slug}`} style={{ textDecoration: 'none' }}>
+                        <Link href={`/collection?category=${cat.slug}`} style={{ textDecoration: 'none' }} aria-label={`Xem sản phẩm ${cat.name}`}>
                             <Box
                                 style={{
                                     display: 'flex',
@@ -54,6 +55,8 @@ function CategorySectionComponent() {
                                     cursor: 'pointer',
                                     transition: 'border-color 150ms',
                                 }}
+                                role="button"
+                                tabIndex={0}
                             >
                                 <Box
                                     style={{
@@ -65,6 +68,7 @@ function CategorySectionComponent() {
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                     }}
+                                    aria-hidden="true"
                                 >
                                     <Iconify icon={cat.icon} width={26} color={cat.color} />
                                 </Box>

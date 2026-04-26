@@ -51,15 +51,17 @@ function HeroCarouselComponent() {
             slideSize="100%"
             emblaOptions={{ loop: true }}
             style={{ borderRadius: 16, overflow: 'hidden' }}
+            aria-label="Banner khuyến mãi"
+            aria-roledescription="carousel"
         >
-            {HERO_SLIDES.map((slide) => (
-                <Carousel.Slide key={slide.title}>
-                    <Box h="100%" pos="relative">
+            {HERO_SLIDES.map((slide, index) => (
+                <Carousel.Slide key={slide.title} aria-label={`Slide ${index + 1} của ${HERO_SLIDES.length}: ${slide.title}`}>
+                    <Box h="100%" pos="relative" role="group" aria-roledescription="slide">
                         <Image
                             src={slide.image}
-                            alt={slide.title}
+                            alt={`${slide.title} - ${slide.desc}`}
                             fill
-                            priority
+                            priority={index === 0}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
                             style={{ objectFit: 'cover' }}
                         />
@@ -84,6 +86,8 @@ function HeroCarouselComponent() {
                                         textTransform: 'uppercase',
                                         fontSize: 12,
                                     }}
+                                    component="span"
+                                    aria-label={`Danh mục: ${slide.tag}`}
                                 >
                                     {slide.tag}
                                 </Text>
@@ -115,6 +119,7 @@ function HeroCarouselComponent() {
                                             paddingLeft: 28,
                                             paddingRight: 28,
                                         }}
+                                        aria-label={`${slide.action} - ${slide.title}`}
                                     >
                                         {slide.action}
                                     </Button>

@@ -69,7 +69,7 @@ function VoucherSectionComponent() {
     const vouchers: VoucherDisplay[] = res?.data || [];
 
     if (isLoading) return (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" aria-label="Đang tải voucher">
             {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} height={100} radius={12} />
             ))}
@@ -78,7 +78,7 @@ function VoucherSectionComponent() {
     if (!vouchers.length) return null;
 
     return (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" component="section" aria-label="Voucher khuyến mãi">
             {vouchers.slice(0, 6).map((v, i) => {
                 const color = ACCENT_COLORS[i % ACCENT_COLORS.length];
                 const saved = savedIds.has(v.id);
@@ -95,6 +95,8 @@ function VoucherSectionComponent() {
                             flexDirection: 'column',
                             gap: 10,
                         }}
+                        role="article"
+                        aria-label={`Voucher ${formatValue(v)}`}
                     >
                         <Group gap={10} align="center">
                             <Box
@@ -104,6 +106,7 @@ function VoucherSectionComponent() {
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     flexShrink: 0,
                                 }}
+                                aria-hidden="true"
                             >
                                 <Iconify icon="solar:ticket-bold" width={22} color={color} />
                             </Box>
@@ -117,7 +120,7 @@ function VoucherSectionComponent() {
 
                         <Group justify="space-between" align="center">
                             <Group gap={4}>
-                                <Iconify icon="solar:clock-circle-linear" width={13} color="#637381" />
+                                <Iconify icon="solar:clock-circle-linear" width={13} color="#637381" aria-hidden="true" />
                                 <Text size="xs" c="dimmed">{daysLeft(v.endDate)}</Text>
                             </Group>
                             {saved ? (
@@ -128,6 +131,7 @@ function VoucherSectionComponent() {
                                     radius={50}
                                     variant="light"
                                     style={{ color, background: `${color}14` }}
+                                    aria-label="Đã lưu voucher, xem trong tài khoản"
                                 >
                                     Đã lưu
                                 </Button>
@@ -145,6 +149,7 @@ function VoucherSectionComponent() {
                                         saveMutation.mutate(v.id);
                                     }}
                                     loading={pendingId === v.id}
+                                    aria-label={`Lưu voucher ${formatValue(v)}`}
                                 >
                                     Lưu
                                 </Button>

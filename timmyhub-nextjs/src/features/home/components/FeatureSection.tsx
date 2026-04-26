@@ -13,7 +13,7 @@ const FEATURES = [
 
 function FeatureSectionComponent() {
     return (
-        <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md">
+        <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md" component="section" aria-label="Tính năng nổi bật">
             {FEATURES.map((f) => (
                 <Box
                     key={f.title}
@@ -23,6 +23,7 @@ function FeatureSectionComponent() {
                         border: '1px solid var(--mantine-color-default-border)',
                         background: 'var(--mantine-color-body)',
                     }}
+                    role="article"
                 >
                     <Group gap="sm" align="flex-start">
                         <Box
@@ -36,6 +37,7 @@ function FeatureSectionComponent() {
                                 justifyContent: 'center',
                                 flexShrink: 0,
                             }}
+                            aria-hidden="true"
                         >
                             <Iconify icon={f.icon} width={22} color="#00a76f" />
                         </Box>
