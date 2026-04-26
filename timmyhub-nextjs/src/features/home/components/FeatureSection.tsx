@@ -13,7 +13,7 @@ const FEATURES = [
 
 function FeatureSectionComponent() {
     return (
-        <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md" component="section" aria-label="Tính năng nổi bật">
+        <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md" component="section" aria-label="Tính năng nổi bật" suppressHydrationWarning>
             {FEATURES.map((f) => (
                 <Box
                     key={f.title}

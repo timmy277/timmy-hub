@@ -22,7 +22,7 @@ const CATEGORIES = [
 
 function CategorySectionComponent() {
     return (
-        <Box component="section" aria-labelledby="category-section-title">
+        <Box component="section" aria-labelledby="category-section-title" suppressHydrationWarning>
             <Group justify="space-between" mb={20}>
                 <Title id="category-section-title" order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }}>
                     Danh mục nổi bật

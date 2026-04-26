@@ -15,8 +15,8 @@ function FooterPromoComponent() {
             component="section"
             aria-labelledby="app-promo-title"
         >
-            <Grid gutter={0}>
-                <Grid.Col span={{ base: 12, md: 6 }}>
+            <Grid gutter={0} suppressHydrationWarning>
+                <Grid.Col span={{ base: 12, md: 6 }} suppressHydrationWarning>
                     <Box style={{ position: 'relative', height: 280 }}>
                         <Image
                             alt="Ứng dụng TimmyHub trên điện thoại - Mua sắm tiện lợi mọi lúc mọi nơi"
@@ -27,7 +27,7 @@ function FooterPromoComponent() {
                         />
                     </Box>
                 </Grid.Col>
-                <Grid.Col span={{ base: 12, md: 6 }}>
+                <Grid.Col span={{ base: 12, md: 6 }} suppressHydrationWarning>
                     <Stack
                         justify="center"
                         h="100%"

@@ -69,7 +69,7 @@ function VoucherSectionComponent() {
     const vouchers: VoucherDisplay[] = res?.data || [];
 
     if (isLoading) return (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" aria-label="Đang tải voucher">
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" aria-label="Đang tải voucher" suppressHydrationWarning>
             {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} height={100} radius={12} />
             ))}
@@ -78,7 +78,7 @@ function VoucherSectionComponent() {
     if (!vouchers.length) return null;
 
     return (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" component="section" aria-label="Voucher khuyến mãi">
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" component="section" aria-label="Voucher khuyến mãi" suppressHydrationWarning>
             {vouchers.slice(0, 6).map((v, i) => {
                 const color = ACCENT_COLORS[i % ACCENT_COLORS.length];
                 const saved = savedIds.has(v.id);

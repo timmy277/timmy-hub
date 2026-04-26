@@ -115,13 +115,13 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                         </Group>
 
                         <Group gap={12}>
-                            <Tabs value={activeTab} onChange={setActiveTab} variant="pills" radius={50}>
+                            <Tabs value={activeTab} onChange={setActiveTab} variant="pills" radius={50} suppressHydrationWarning>
                                 <Tabs.List suppressHydrationWarning>
-                                    <Tabs.Tab value="all"><span suppressHydrationWarning>{t('homePage.tabAll')}</span></Tabs.Tab>
-                                    <Tabs.Tab value="new"><span suppressHydrationWarning>{t('homePage.tabNew')}</span></Tabs.Tab>
-                                    <Tabs.Tab value="best"><span suppressHydrationWarning>{t('homePage.tabBest')}</span></Tabs.Tab>
-                                    <Tabs.Tab value="sale"><span suppressHydrationWarning>{t('homePage.tabSale')}</span></Tabs.Tab>
-                                    <Tabs.Tab value="featured"><span suppressHydrationWarning>{t('homePage.tabFeatured')}</span></Tabs.Tab>
+                                    <Tabs.Tab value="all" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabAll')}</span></Tabs.Tab>
+                                    <Tabs.Tab value="new" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabNew')}</span></Tabs.Tab>
+                                    <Tabs.Tab value="best" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabBest')}</span></Tabs.Tab>
+                                    <Tabs.Tab value="sale" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabSale')}</span></Tabs.Tab>
+                                    <Tabs.Tab value="featured" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabFeatured')}</span></Tabs.Tab>
                                 </Tabs.List>
                             </Tabs>
                             <Group
