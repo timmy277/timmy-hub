@@ -53,7 +53,6 @@ function HeroCarouselComponent() {
             <Carousel
                 withIndicators
                 height={480}
-                loop
                 draggable
                 withControls
                 plugins={[autoplay.current]}
