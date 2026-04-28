@@ -25,7 +25,7 @@ export function SellerProductList() {
     const deleteMutation = useDeleteSellerProduct();
 
     const { activeTab, setActiveTab, openTabs, handleAction, closeTab } =
-        useManagementTabs<Product>('Sản phẩm');
+        useManagementTabs<Product>(t('seller.products'));
 
     const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
 
@@ -82,7 +82,7 @@ export function SellerProductList() {
                     if (!product) return null;
                     return (
                         <Group gap={4} mt={8}>
-                            <Tooltip label="Sửa">
+                            <Tooltip label={t('table.actions.edit')}>
                                 <ActionIcon
                                     variant="light"
                                     color="blue"
@@ -91,7 +91,7 @@ export function SellerProductList() {
                                     <Iconify icon="tabler:edit" width={16} />
                                 </ActionIcon>
                             </Tooltip>
-                            <Tooltip label="Xóa">
+                            <Tooltip label={t('table.actions.delete')}>
                                 <ActionIcon
                                     variant="light"
                                     color="red"
@@ -101,7 +101,7 @@ export function SellerProductList() {
                                     <Iconify icon="tabler:trash" width={16} />
                                 </ActionIcon>
                             </Tooltip>
-                            <Tooltip label="Xem chi tiết">
+                            <Tooltip label={t('table.actions.view')}>
                                 <ActionIcon
                                     variant="light"
                                     color="green"
@@ -132,14 +132,14 @@ export function SellerProductList() {
     return (
         <>
             <ManagementPage<Product>
-                entityName="Sản phẩm"
+                entityName={t('seller.products')}
                 rowData={useMemo(() => response?.data ?? [], [response?.data])}
                 columnDefs={columnDefs}
                 isLoading={isLoading}
                 onRefresh={refetch}
                 onAdd={() => handleAction('Create')}
                 renderTabContent={renderTabContent}
-                searchPlaceholder="Tìm theo tên, SKU..."
+                searchPlaceholder={t('seller.searchByNameSku')}
                 listIcon={<Iconify icon="tabler:package" width={16} />}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -150,13 +150,13 @@ export function SellerProductList() {
             <Modal
                 opened={!!deleteProduct}
                 onClose={() => setDeleteProduct(null)}
-                title="Xóa sản phẩm"
+                title={t('seller.deleteProductTitle')}
                 centered
             >
                 {deleteProduct && (
                     <div>
                         <p>
-                            Bạn có chắc chắn muốn xóa sản phẩm{' '}
+                            {t('seller.deleteProductConfirm')}{' '}
                             <strong>{deleteProduct.name}</strong>?
                         </p>
                         {(deleteProduct.soldCount ?? 0) > 0 && (
@@ -170,7 +170,7 @@ export function SellerProductList() {
                                 disabled={deleteMutation.isPending}
                                 style={{ padding: '8px 16px', cursor: 'pointer' }}
                             >
-                                Huỷ
+                                {t('common.cancel')}
                             </Button>
                             <Button
                                 onClick={handleDeleteConfirm}
@@ -184,7 +184,7 @@ export function SellerProductList() {
                                     borderRadius: '4px',
                                 }}
                             >
-                                {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa'}
+                                {deleteMutation.isPending ? t('seller.deleting') : t('common.delete')}
                             </Button>
                         </Group>
                     </div>

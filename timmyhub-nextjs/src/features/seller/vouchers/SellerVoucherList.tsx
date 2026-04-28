@@ -17,8 +17,10 @@ import { VoucherDetail } from '@/features/vouchers/components/VoucherDetail';
 import { getActionColumn } from '@/constants/column';
 import { QUERY_KEYS } from '@/constants';
 import { formatVND } from '@/utils/currency';
+import { useTranslation } from 'react-i18next';
 
 export function SellerVoucherList() {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
     const { data: res, isLoading, refetch } = useQuery({
         queryKey: QUERY_KEYS.SELLER_VOUCHERS,
@@ -159,7 +161,7 @@ export function SellerVoucherList() {
             onRefresh={refetch}
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
-            searchPlaceholder="Tìm mã voucher..."
+            searchPlaceholder={t('seller.searchVoucherCode')}
             listIcon={<Iconify icon="tabler:ticket" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}

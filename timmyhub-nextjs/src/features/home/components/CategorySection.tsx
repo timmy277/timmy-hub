@@ -6,6 +6,7 @@ import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 import '@mantine/carousel/styles.css';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const CATEGORIES = [
     { icon: 'solar:laptop-bold', name: 'Laptop & PC', slug: 'laptop-pc', color: '#0c68e9' },
@@ -21,14 +22,15 @@ const CATEGORIES = [
 ];
 
 function CategorySectionComponent() {
+    const { t } = useTranslation('common');
     return (
         <Box component="section" aria-labelledby="category-section-title" suppressHydrationWarning>
             <Group justify="space-between" mb={20}>
                 <Title id="category-section-title" order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }}>
-                    Danh mục nổi bật
+                    {t('categorySection.title')}
                 </Title>
-                <Anchor component={Link} href="/collection" size="sm" fw={600} style={{ color: '#00a76f' }} aria-label="Xem tất cả danh mục">
-                    Xem tất cả
+                <Anchor component={Link} href="/collection" size="sm" fw={600} style={{ color: '#00a76f' }} aria-label={t('categorySection.viewAllAria')}>
+                    {t('categorySection.viewAll')}
                 </Anchor>
             </Group>
 
@@ -37,7 +39,7 @@ function CategorySectionComponent() {
                 slideGap="sm"
                 withControls
                 emblaOptions={{ align: 'start' }}
-                aria-label="Danh mục sản phẩm"
+                aria-label={t('categorySection.carouselAria')}
             >
                 {CATEGORIES.map((cat) => (
                     <Carousel.Slide key={cat.slug}>

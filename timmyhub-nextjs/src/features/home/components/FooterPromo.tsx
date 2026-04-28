@@ -3,8 +3,10 @@
 import { Box, Grid, Title, Text, Stack, Group, Button } from '@mantine/core';
 import Image from 'next/image';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function FooterPromoComponent() {
+    const { t } = useTranslation('common');
     return (
         <Box
             style={{
@@ -19,7 +21,7 @@ function FooterPromoComponent() {
                 <Grid.Col span={{ base: 12, md: 6 }} suppressHydrationWarning>
                     <Box style={{ position: 'relative', height: 280 }}>
                         <Image
-                            alt="Ứng dụng TimmyHub trên điện thoại - Mua sắm tiện lợi mọi lúc mọi nơi"
+                            alt={t('footerPromo.imageAlt')}
                             src="https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=2664&auto=format&fit=crop"
                             fill
                             sizes="(max-width: 768px) 100vw, 50vw"
@@ -45,7 +47,7 @@ function FooterPromoComponent() {
                             }}
                             component="span"
                         >
-                            App Exclusive
+                            {t('footerPromo.appExclusive')}
                         </Text>
                         <Title
                             id="app-promo-title"
@@ -53,26 +55,26 @@ function FooterPromoComponent() {
                             c="white"
                             style={{ fontSize: 24, fontWeight: 800, lineHeight: 1.3 }}
                         >
-                            Tải App TimmyHub Ngay!
+                            {t('footerPromo.title')}
                         </Title>
                         <Text c="white" size="sm" style={{ opacity: 0.72, maxWidth: 360 }}>
-                            Mua sắm tiện lợi hơn, nhận thêm voucher giảm giá 50% cho đơn hàng đầu tiên trên ứng dụng mobile.
+                            {t('footerPromo.desc')}
                         </Text>
                         <Group mt={8} gap={12}>
                             <Button
                                 radius={50}
                                 style={{ background: '#fff', color: '#1c252e', fontWeight: 700 }}
-                                aria-label="Tải ứng dụng TimmyHub trên App Store"
+                                aria-label={t('footerPromo.appStoreAria')}
                             >
-                                App Store
+                                {t('footerPromo.appStore')}
                             </Button>
                             <Button
                                 radius={50}
                                 variant="outline"
                                 style={{ borderColor: 'rgba(255,255,255,0.32)', color: '#fff' }}
-                                aria-label="Tải ứng dụng TimmyHub trên Google Play"
+                                aria-label={t('footerPromo.googlePlayAria')}
                             >
-                                Google Play
+                                {t('footerPromo.googlePlay')}
                             </Button>
                         </Group>
                     </Stack>

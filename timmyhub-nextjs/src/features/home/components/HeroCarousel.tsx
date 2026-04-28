@@ -6,6 +6,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import '@mantine/carousel/styles.css';
 import { memo } from 'react';
+import Autoplay from 'embla-carousel-autoplay';
+import { useRef } from 'react';
 
 interface HeroSlide {
     image: string;
@@ -44,13 +46,19 @@ const HERO_SLIDES: HeroSlide[] = [
 ];
 
 function HeroCarouselComponent() {
+    const autoplay = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
+
     return (
         <Box suppressHydrationWarning>
             <Carousel
                 withIndicators
                 height={480}
-                slideSize="100%"
-                emblaOptions={{ loop: true }}
+                loop
+                draggable
+                withControls
+                plugins={[autoplay.current]}
+                onMouseEnter={autoplay.current.stop}
+                onMouseLeave={autoplay.current.reset}
                 style={{ borderRadius: 16, overflow: 'hidden' }}
                 aria-label="Banner khuyến mãi"
                 aria-roledescription="carousel"

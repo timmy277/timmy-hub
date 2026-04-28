@@ -89,7 +89,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                 {/* Vouchers */}
                 <Box>
                     <Group justify="space-between" mb={20}>
-                        <Title order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }}>Voucher dành cho bạn</Title>
+                        <Title order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }}>{t('home.voucherForYou')}</Title>
                     </Group>
                     <VoucherSection />
                 </Box>

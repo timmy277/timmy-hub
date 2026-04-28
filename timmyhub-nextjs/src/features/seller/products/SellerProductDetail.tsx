@@ -19,18 +19,20 @@ import { Product, ResourceStatus } from '@/types/product';
 import { formatDate } from '@/utils/date';
 import { formatVND } from '@/utils/currency';
 import { PRODUCT_STATUS_CONFIG } from '@/constants';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     product: Product;
 }
 
 export function SellerProductDetail({ product }: Props) {
+    const { t } = useTranslation('common');
     const statusCfg = PRODUCT_STATUS_CONFIG[product.status] ?? { color: 'gray', label: product.status };
 
     return (
         <Stack gap="md" p="md">
             {product.status === ResourceStatus.REJECTED && product.reviewNote && (
-                <Alert icon={<Iconify icon="tabler:info-circle" width={18} />} color="red" variant="light" title="Lý do từ chối">
+                <Alert icon={<Iconify icon="tabler:info-circle" width={18} />} color="red" variant="light" title={t('seller.rejectionReason')}>
                     {product.reviewNote}
                 </Alert>
             )}

@@ -9,8 +9,10 @@ import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { FreeMode } from 'swiper/modules';
 import 'swiper/css';
+import { useTranslation } from 'react-i18next';
 
 export function PostFeedSection() {
+    const { t } = useTranslation('common');
     const { data, isLoading } = useInfiniteQuery({
         queryKey: ['posts-feed-home'],
         queryFn: ({ pageParam }) =>
@@ -30,8 +32,8 @@ export function PostFeedSection() {
                         <Iconify icon="solar:video-frame-bold" width={18} />
                     </ThemeIcon>
                     <Box>
-                        <Title order={3}>Video & Bài đăng</Title>
-                        <Text size="xs" c="dimmed">Khám phá sản phẩm qua video từ các shop</Text>
+                        <Title order={3}>{t('posts.title')}</Title>
+                        <Text size="xs" c="dimmed">{t('posts.subtitle')}</Text>
                     </Box>
                 </Group>
                 <Anchor component={Link} href="/posts" size="sm" fw={500}>

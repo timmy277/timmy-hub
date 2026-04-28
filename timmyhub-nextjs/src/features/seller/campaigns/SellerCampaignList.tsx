@@ -16,8 +16,10 @@ import { CreateCampaignForm } from '@/features/campaigns/components/CreateCampai
 import { CampaignDetail } from '@/features/campaigns/components/CampaignDetail';
 import { getActionColumn } from '@/constants/column';
 import { QUERY_KEYS } from '@/constants';
+import { useTranslation } from 'react-i18next';
 
 export function SellerCampaignList() {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
     const { data: res, isLoading, refetch } = useQuery({
         queryKey: QUERY_KEYS.SELLER_CAMPAIGNS,
@@ -131,7 +133,7 @@ export function SellerCampaignList() {
             onRefresh={refetch}
             onAdd={() => handleAction('Create')}
             renderTabContent={renderTabContent}
-            searchPlaceholder="Tìm campaign..."
+            searchPlaceholder={t('seller.searchCampaign')}
             listIcon={<Iconify icon="tabler:discount" width={16} />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}

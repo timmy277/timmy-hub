@@ -219,9 +219,9 @@ export function SellerDashboard() {
                     </Box>
                     <Select size="xs" w={140} value={range} onChange={v => setRange(v ?? '30')}
                         data={[
-                            { value: '7', label: '7 ngày qua' },
-                            { value: '30', label: '30 ngày qua' },
-                            { value: '90', label: '90 ngày qua' },
+                            { value: '7', label: `7 ${t('dashboard.days')}` },
+                            { value: '30', label: `30 ${t('dashboard.days')}` },
+                            { value: '90', label: `90 ${t('dashboard.days')}` },
                         ]}
                         leftSection={<Iconify icon="solar:calendar-bold" width={14} />}
                     />
@@ -229,24 +229,24 @@ export function SellerDashboard() {
 
                 {/* Stat cards */}
                 <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md">
-                    <StatCard icon="solar:wallet-money-bold" label={`Doanh thu ${range} ngày`}
-                        value={formatVND(revenueInRange)} sub={`Hôm nay: ${formatVND(revenueToday)}`}
+                    <StatCard icon="solar:wallet-money-bold" label={t('seller.revenueRange', { range })}
+                        value={formatVND(revenueInRange)} sub={`${t('seller.today')} ${formatVND(revenueToday)}`}
                         color="green" loading={isLoading} />
-                    <StatCard icon="solar:bag-smile-bold" label="Doanh thu tháng này"
-                        value={formatVND(revenueThisMonth)} sub={`${ordersThisMonth.length} đơn`}
+                    <StatCard icon="solar:bag-smile-bold" label={t('seller.thisMonthRevenue')}
+                        value={formatVND(revenueThisMonth)} sub={`${ordersThisMonth.length} ${t('orders.orders')}`}
                         color="blue" loading={isLoading} />
-                    <StatCard icon="solar:box-bold" label="Đơn chờ xử lý"
-                        value={String(pendingOrders)} sub={`${processingOrders} đang giao`}
+                    <StatCard icon="solar:box-bold" label={t('seller.pendingOrders')}
+                        value={String(pendingOrders)} sub={`${processingOrders} ${t('seller.shipping')}`}
                         color="orange" loading={isLoading} />
-                    <StatCard icon="solar:shop-bold" label="Tổng sản phẩm"
+                    <StatCard icon="solar:shop-bold" label={t('seller.totalProducts')}
                         value={String(products.length)}
-                        sub={outOfStockCount > 0 ? `${outOfStockCount} hết hàng` : 'Tất cả còn hàng'}
+                        sub={outOfStockCount > 0 ? `${outOfStockCount} ${t('seller.outOfStock')}` : t('seller.allInStock')}
                         color={outOfStockCount > 0 ? 'red' : 'teal'} loading={isLoading} />
                 </SimpleGrid>
 
                 {/* Area chart: doanh thu theo ngày */}
                 <Paper withBorder p="lg" radius="md">
-                    <ChartHeader icon="solar:graph-up-bold" color="blue" title={`Doanh thu & Đơn hàng (${rangeNum} ngày)`} />
+                    <ChartHeader icon="solar:graph-up-bold" color="blue" title={t('seller.revenueAndOrders', { range: rangeNum })} />
                     {isLoading ? <Skeleton h={260} radius="sm" /> : (
                         <ResponsiveContainer width="100%" height={260}>
                             <AreaChart data={revenueByDay} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
@@ -267,10 +267,10 @@ export function SellerDashboard() {
                                 <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
                                 <RTooltip
                                     formatter={(value: number, name: string) =>
-                                        name === 'revenue' ? [formatVND(value), 'Doanh thu'] : [value, 'Đơn hàng']
+                                        name === 'revenue' ? [formatVND(value), t('dashboard.revenue')] : [value, t('dashboard.orders')]
                                     }
                                 />
-                                <Legend formatter={v => v === 'revenue' ? 'Doanh thu' : 'Đơn hàng'} />
+                                <Legend formatter={v => v === 'revenue' ? t('dashboard.revenue') : t('dashboard.orders')} />
                                 <Area yAxisId="left" type="monotone" dataKey="revenue"
                                     stroke="#3b82f6" strokeWidth={2} fill="url(#gradRevenue)" />
                                 <Area yAxisId="right" type="monotone" dataKey="orders"
@@ -284,9 +284,9 @@ export function SellerDashboard() {
                 <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
                     {/* Bar: top sản phẩm */}
                     <Paper withBorder p="lg" radius="md">
-                        <ChartHeader icon="solar:chart-bold" color="orange" title="Top sản phẩm bán chạy" />
+                        <ChartHeader icon="solar:chart-bold" color="orange" title={t('seller.topSellingProducts')} />
                         {isLoading ? <Skeleton h={240} radius="sm" /> : barData.length === 0 ? (
-                            <Text c="dimmed" size="sm" ta="center" py="xl">Chưa có dữ liệu</Text>
+                            <Text c="dimmed" size="sm" ta="center" py="xl">{t('common.noData')}</Text>
                         ) : (
                             <ResponsiveContainer width="100%" height={240}>
                                 <BarChart data={barData} margin={{ top: 4, right: 8, left: 0, bottom: 40 }}>
@@ -295,8 +295,8 @@ export function SellerDashboard() {
                                     <YAxis tick={{ fontSize: 11 }} />
                                     <RTooltip />
                                     <Legend />
-                                    <Bar dataKey="Đã bán" fill="#f97316" radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="Tồn kho" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="Đã bán" fill="#f97316" radius={[4, 4, 0, 0]} name={t('dashboard.sold')} />
+                                    <Bar dataKey="Tồn kho" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('table.columns.stock')} />
                                 </BarChart>
                             </ResponsiveContainer>
                         )}
@@ -304,9 +304,9 @@ export function SellerDashboard() {
 
                     {/* Pie: trạng thái đơn */}
                     <Paper withBorder p="lg" radius="md">
-                        <ChartHeader icon="solar:pie-chart-2-bold" color="violet" title={`Trạng thái đơn (${rangeNum} ngày)`} />
+                        <ChartHeader icon="solar:pie-chart-2-bold" color="violet" title={`${t('seller.orderStatus')} (${rangeNum} ${t('dashboard.days')})`} />
                         {isLoading ? <Skeleton h={240} radius="sm" /> : pieData.length === 0 ? (
-                            <Text c="dimmed" size="sm" ta="center" py="xl">Chưa có đơn hàng</Text>
+                            <Text c="dimmed" size="sm" ta="center" py="xl">{t('seller.noOrders')}</Text>
                         ) : (
                             <ResponsiveContainer width="100%" height={240}>
                                 <PieChart>
@@ -330,22 +330,22 @@ export function SellerDashboard() {
                 <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
                     <Paper withBorder p="lg" radius="md">
                         <Group justify="space-between" mb="md">
-                            <ChartHeader icon="solar:clipboard-list-bold" color="blue" title="Đơn hàng gần đây" />
-                            <Tooltip label="Xem tất cả">
+                            <ChartHeader icon="solar:clipboard-list-bold" color="blue" title={t('seller.recentOrders')} />
+                            <Tooltip label={t('common.viewAll')}>
                                 <ActionIcon component={Link} href="/seller/orders" variant="subtle" size="sm">
                                     <Iconify icon="solar:arrow-right-bold" width={16} />
                                 </ActionIcon>
                             </Tooltip>
                         </Group>
                         {isLoading ? <Stack gap="xs">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} h={36} />)}</Stack>
-                            : recentOrders.length === 0 ? <Text c="dimmed" size="sm" ta="center" py="md">Chưa có đơn hàng</Text>
+                            : recentOrders.length === 0 ? <Text c="dimmed" size="sm" ta="center" py="md">{t('seller.noOrders')}</Text>
                                 : (
                                     <Table verticalSpacing="xs" fz="sm">
                                         <Table.Thead>
                                             <Table.Tr>
-                                                <Table.Th>Mã đơn</Table.Th>
-                                                <Table.Th>Trạng thái</Table.Th>
-                                                <Table.Th ta="right">Tổng tiền</Table.Th>
+                                                <Table.Th>{t('seller.orderId')}</Table.Th>
+                                                <Table.Th>{t('seller.status')}</Table.Th>
+                                                <Table.Th ta="right">{t('orders.total')}</Table.Th>
                                             </Table.Tr>
                                         </Table.Thead>
                                         <Table.Tbody>
@@ -376,10 +376,10 @@ export function SellerDashboard() {
                                 <ThemeIcon size={28} radius="sm" variant="light" color="red">
                                     <Iconify icon="solar:danger-triangle-bold" width={16} />
                                 </ThemeIcon>
-                                <Text fw={700}>Sắp hết hàng</Text>
-                                {outOfStockCount > 0 && <Badge size="xs" color="red">{outOfStockCount} hết hàng</Badge>}
+                                <Text fw={700}>{t('seller.lowStock')}</Text>
+                                {outOfStockCount > 0 && <Badge size="xs" color="red">{outOfStockCount} {t('seller.outOfStock')}</Badge>}
                             </Group>
-                            <Tooltip label="Quản lý sản phẩm">
+                            <Tooltip label={t('seller.manageProducts')}>
                                 <ActionIcon component={Link} href="/seller/products" variant="subtle" size="sm">
                                     <Iconify icon="solar:arrow-right-bold" width={16} />
                                 </ActionIcon>
@@ -389,7 +389,7 @@ export function SellerDashboard() {
                             : lowStockProducts.length === 0 ? (
                                 <Group gap="xs" py="md" justify="center">
                                     <Iconify icon="solar:check-circle-bold" width={20} color="var(--mantine-color-green-6)" />
-                                    <Text c="dimmed" size="sm">Tất cả sản phẩm còn hàng</Text>
+                                    <Text c="dimmed" size="sm">{t('seller.allProductsInStock')}</Text>
                                 </Group>
                             ) : (
                                 <Stack gap="sm">
@@ -417,9 +417,9 @@ export function SellerDashboard() {
 
                 {/* Order status breakdown */}
                 <Paper withBorder p="lg" radius="md">
-                    <ChartHeader icon="solar:chart-2-bold" color="teal" title={`Phân bổ trạng thái đơn hàng (${rangeNum} ngày)`} />
+                    <ChartHeader icon="solar:chart-2-bold" color="teal" title={`${t('seller.orderStatusBreakdown')} (${rangeNum} ${t('dashboard.days')})`} />
                     {isLoading ? <Stack gap="xs">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} h={28} />)}</Stack>
-                        : statusBreakdown.length === 0 ? <Text c="dimmed" size="sm" ta="center" py="md">Chưa có đơn hàng</Text>
+                        : statusBreakdown.length === 0 ? <Text c="dimmed" size="sm" ta="center" py="md">{t('seller.noOrders')}</Text>
                             : (
                                 <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
                                     {statusBreakdown.map(([s, count]) => (
@@ -438,13 +438,13 @@ export function SellerDashboard() {
 
                 {/* Quick links */}
                 <Paper withBorder p="lg" radius="md">
-                    <Text fw={700} mb="md">Truy cập nhanh</Text>
+                    <Text fw={700} mb="md">{t('seller.quickAccess')}</Text>
                     <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="sm">
                         {[
-                            { href: '/seller/products', icon: 'solar:box-bold', label: 'Sản phẩm', color: 'blue' },
-                            { href: '/seller/orders', icon: 'solar:clipboard-list-bold', label: 'Đơn hàng', color: 'green' },
-                            { href: '/seller/vouchers', icon: 'solar:ticket-sale-bold', label: 'Voucher', color: 'violet' },
-                            { href: '/seller/campaigns', icon: 'solar:megaphone-bold', label: 'Chiến dịch', color: 'orange' },
+                            { href: '/seller/products', icon: 'solar:box-bold', label: t('seller.products'), color: 'blue' },
+                            { href: '/seller/orders', icon: 'solar:clipboard-list-bold', label: t('seller.orders'), color: 'green' },
+                            { href: '/seller/vouchers', icon: 'solar:ticket-sale-bold', label: t('seller.vouchers'), color: 'violet' },
+                            { href: '/seller/campaigns', icon: 'solar:megaphone-bold', label: t('seller.campaigns'), color: 'orange' },
                         ].map(item => (
                             <Paper key={item.href} component={Link} href={item.href} withBorder p="md" radius="md"
                                 style={{ textDecoration: 'none', cursor: 'pointer' }}>

@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { useThemeStore, PrimaryColor } from '@/stores/useThemeStore';
+import { useTranslation } from 'react-i18next';
 
 const colors: PrimaryColor[] = [
     'blue',
@@ -30,6 +31,7 @@ const colors: PrimaryColor[] = [
 
 export function ThemeSwitcher() {
     // ===== Hooks & Context =====
+    const { t } = useTranslation('common');
     const { setColorScheme } = useMantineColorScheme();
     const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
     const { primaryColor, setPrimaryColor } = useThemeStore();
@@ -55,7 +57,7 @@ export function ThemeSwitcher() {
             {/* Primary Color Picker */}
             <Popover width={220} position="bottom" withArrow shadow="md">
                 <Popover.Target>
-                    <Tooltip label="Change primary color">
+                    <Tooltip label={t('theme.changePrimaryColor')}>
                         <ActionIcon variant="subtle" size="lg" radius="md" c={primaryColor}>
                             <Iconify icon="solar:pallete-2-bold" width={18} />
                         </ActionIcon>
@@ -64,7 +66,7 @@ export function ThemeSwitcher() {
                 <Popover.Dropdown p="md">
                     <Stack gap="xs">
                         <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                            Primary Color
+                            {t('theme.primaryColor')}
                         </Text>
                         <Group gap={7}>
                             {colors.map(color => (

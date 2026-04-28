@@ -16,14 +16,12 @@ function displayName(user: { profile?: { firstName?: string; lastName?: string; 
 }
 
 export function UserMenu() {
-    const { t } = useTranslation();
+    const { t } = useTranslation('common');
     const { user, logout } = useAuth();
     const _hasHydrated = useAuthStore(s => s._hasHydrated);
 
-    // Chưa hydrate xong thì không render gì (tránh flash)
     if (!_hasHydrated) return null;
 
-    // Chưa login → hiện nút Login
     if (!user) {
         return (
             <Button

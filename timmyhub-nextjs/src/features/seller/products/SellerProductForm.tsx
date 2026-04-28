@@ -22,6 +22,7 @@ import { productService } from '@/services/product.service';
 import { notifications } from '@mantine/notifications';
 import { Product, CreateProductInput } from '@/types/product';
 import { QUERY_KEYS } from '@/constants';
+import { useTranslation } from 'react-i18next';
 
 interface FormValues {
     name: string;
@@ -40,6 +41,7 @@ interface Props {
 }
 
 export function SellerProductForm({ product, onSuccess, onCancel }: Props) {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
     const isEdit = !!product;
 
@@ -49,8 +51,8 @@ export function SellerProductForm({ product, onSuccess, onCancel }: Props) {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_PRODUCTS });
             notifications.show({
-                title: 'Thành công',
-                message: isEdit ? 'Cập nhật sản phẩm thành công. Vui lòng chờ admin duyệt lại.' : 'Sản phẩm đang chờ admin phê duyệt.',
+                title: t('common.success'),
+                message: isEdit ? t('seller.productUpdateSuccess') : t('seller.productCreateSuccess'),
                 color: 'green',
             });
             onSuccess();
@@ -59,8 +61,8 @@ export function SellerProductForm({ product, onSuccess, onCancel }: Props) {
             const msg =
                 err && typeof err === 'object' && 'response' in err
                     ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-                    : 'Có lỗi xảy ra';
-            notifications.show({ title: 'Lỗi', message: String(msg ?? 'Có lỗi xảy ra'), color: 'red' });
+                    : t('common.error');
+            notifications.show({ title: t('common.error'), message: String(msg ?? t('common.error')), color: 'red' });
         },
     });
 
@@ -75,10 +77,10 @@ export function SellerProductForm({ product, onSuccess, onCancel }: Props) {
             sku: product?.sku || '',
         },
         validate: {
-            name: v => (!v.trim() ? 'Nhập tên sản phẩm' : null),
-            slug: v => (!v.trim() ? 'Nhập slug' : null),
-            price: v => (v < 0 ? 'Giá không hợp lệ' : null),
-            stock: v => (v < 0 ? 'Tồn kho không hợp lệ' : null),
+            name: v => (!v.trim() ? t('validation.required', { field: t('seller.productNameLabel') }) : null),
+            slug: v => (!v.trim() ? t('validation.required', { field: t('seller.slugLabel') }) : null),
+            price: v => (v < 0 ? t('seller.invalidPrice') : null),
+            stock: v => (v < 0 ? t('seller.invalidStock') : null),
         },
     });
 
@@ -122,39 +124,39 @@ export function SellerProductForm({ product, onSuccess, onCancel }: Props) {
                 >
                     {isEdit ? (
                         <>
-                            Sản phẩm cập nhật sẽ quay lại trạng thái{' '}
-                            <Text span fw={600}>Chờ duyệt</Text>. Admin sẽ phê duyệt lại sau khi thay đổi.
+                            {t('seller.productUpdateNote')}{' '}
+                            <Text span fw={600}>{t('seller.pendingApprovalStatus')}</Text>. {t('seller.productUpdateMessage')}
                         </>
                     ) : (
                         <>
-                            Sản phẩm sau khi đăng sẽ ở trạng thái{' '}
-                            <Text span fw={600}>Chờ duyệt</Text>. Admin sẽ phê duyệt trước khi hiển thị trên sàn.
+                            {t('seller.pendingApprovalNote')}{' '}
+                            <Text span fw={600}>{t('seller.pendingApprovalStatus')}</Text>{t('seller.pendingApprovalMessage')}
                         </>
                     )}
                 </Alert>
 
                 <TextInput
-                    label="Tên sản phẩm"
-                    placeholder="VD: Áo thun cotton basic"
+                    label={t('seller.productNameLabel')}
+                    placeholder={t('seller.productNameExample')}
                     required
                     {...form.getInputProps('name')}
                 />
                 <TextInput
-                    label="Slug (URL)"
+                    label={t('seller.slugLabel')}
                     placeholder="ao-thun-cotton-basic"
-                    description="Tự động tạo từ tên. Chỉ chữ thường, số và dấu gạch ngang."
+                    description={t('seller.slugDescription')}
                     required
                     {...form.getInputProps('slug')}
                 />
                 <Textarea
-                    label="Mô tả sản phẩm"
-                    placeholder="Mô tả chi tiết về sản phẩm..."
+                    label={t('seller.productDescriptionLabel')}
+                    placeholder={t('seller.productDescriptionPlaceholder')}
                     rows={4}
                     {...form.getInputProps('description')}
                 />
                 <Group grow>
                     <NumberInput
-                        label="Giá bán (₫)"
+                        label={t('seller.sellingPrice')}
                         placeholder="0"
                         min={0}
                         thousandSeparator=","
@@ -162,7 +164,7 @@ export function SellerProductForm({ product, onSuccess, onCancel }: Props) {
                         {...form.getInputProps('price')}
                     />
                     <NumberInput
-                        label="Giá gốc (₫)"
+                        label={t('seller.originalPriceLabel')}
                         placeholder="0"
                         min={0}
                         thousandSeparator=","
@@ -171,15 +173,15 @@ export function SellerProductForm({ product, onSuccess, onCancel }: Props) {
                 </Group>
                 <Group grow>
                     <NumberInput
-                        label="Tồn kho"
+                        label={t('seller.stockLabel')}
                         placeholder="0"
                         min={0}
                         required
                         {...form.getInputProps('stock')}
                     />
                     <TextInput
-                        label="Mã SKU"
-                        placeholder="VD: AT-001-TRANG-L"
+                        label={t('seller.skuCode')}
+                        placeholder={t('seller.skuExample')}
                         {...form.getInputProps('sku')}
                     />
                 </Group>
@@ -190,13 +192,13 @@ export function SellerProductForm({ product, onSuccess, onCancel }: Props) {
                         onClick={onCancel}
                         disabled={mutation.isPending}
                     >
-                        Huỷ
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         type="submit"
                         loading={mutation.isPending}
                     >
-                        {isEdit ? 'Lưu thay đổi' : 'Gửi duyệt'}
+                        {isEdit ? t('common.save') : t('seller.submitForApproval')}
                     </Button>
                 </Group>
             </Stack>

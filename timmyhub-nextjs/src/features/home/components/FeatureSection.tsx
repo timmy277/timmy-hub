@@ -3,17 +3,20 @@
 import { SimpleGrid, Group, Text, Stack, Box } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { memo } from 'react';
-
-const FEATURES = [
-    { icon: 'solar:delivery-bold', title: 'Miễn phí vận chuyển', desc: 'Cho đơn từ 199.000đ' },
-    { icon: 'solar:shield-check-bold', title: 'Bảo hành chính hãng', desc: 'Cam kết 100%' },
-    { icon: 'solar:headphones-round-sound-bold', title: 'Hỗ trợ 24/7', desc: 'Hotline: 1900 1234' },
-    { icon: 'solar:clock-circle-bold', title: 'Giao hàng nhanh', desc: 'Nội thành trong 2h' },
-];
+import { useTranslation } from 'react-i18next';
 
 function FeatureSectionComponent() {
+    const { t } = useTranslation('common');
+
+    const FEATURES = [
+        { icon: 'solar:delivery-bold', title: t('featureSection.freeShippingTitle'), desc: t('featureSection.freeShippingDesc') },
+        { icon: 'solar:shield-check-bold', title: t('featureSection.warrantyTitle'), desc: t('featureSection.warrantyDesc') },
+        { icon: 'solar:headphones-round-sound-bold', title: t('featureSection.supportTitle'), desc: t('featureSection.supportDesc') },
+        { icon: 'solar:clock-circle-bold', title: t('featureSection.fastDeliveryTitle'), desc: t('featureSection.fastDeliveryDesc') },
+    ];
+
     return (
-        <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md" component="section" aria-label="Tính năng nổi bật" suppressHydrationWarning>
+        <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md" component="section" aria-label={t('featureSection.ariaLabel')} suppressHydrationWarning>
             {FEATURES.map((f) => (
                 <Box
                     key={f.title}
