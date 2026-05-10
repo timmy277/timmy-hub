@@ -69,16 +69,16 @@ function VoucherSectionComponent() {
     const vouchers: VoucherDisplay[] = res?.data || [];
 
     if (isLoading) return (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" aria-label="Đang tải voucher" suppressHydrationWarning>
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg" aria-label="Đang tải voucher" suppressHydrationWarning>
             {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} height={100} radius={12} />
+                <Skeleton key={i} height={140} radius={12} />
             ))}
         </SimpleGrid>
     );
     if (!vouchers.length) return null;
 
     return (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" component="section" aria-label="Voucher khuyến mãi" suppressHydrationWarning>
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg" component="section" aria-label="Voucher khuyến mãi" suppressHydrationWarning>
             {vouchers.slice(0, 6).map((v, i) => {
                 const color = ACCENT_COLORS[i % ACCENT_COLORS.length];
                 const saved = savedIds.has(v.id);
@@ -88,59 +88,119 @@ function VoucherSectionComponent() {
                         key={v.id}
                         style={{
                             borderRadius: 12,
-                            border: `1.5px dashed ${color}22`,
+                            border: `2px dashed ${color}`,
                             background: `${color}08`,
-                            padding: '16px',
+                            padding: 24,
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: 10,
+                            gap: 16,
+                            boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)',
+                            transition: 'all 150ms ease',
+                        }}
+                        styles={{
+                            root: {
+                                '&:hover': {
+                                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.12)',
+                                    transform: 'translateY(-2px)',
+                                }
+                            }
                         }}
                         role="article"
                         aria-label={`Voucher ${formatValue(v)}`}
                     >
-                        <Group gap={10} align="center">
+                        <Group gap={12} align="center">
                             <Box
                                 style={{
-                                    width: 40, height: 40, borderRadius: 10,
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: 12,
                                     background: `${color}18`,
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                     flexShrink: 0,
                                 }}
                                 aria-hidden="true"
                             >
-                                <Iconify icon="solar:ticket-bold" width={22} color={color} />
+                                <Iconify icon="solar:ticket-bold" width={24} color={color} />
                             </Box>
                             <Box style={{ flex: 1, minWidth: 0 }}>
-                                <Text fw={700} size="md" style={{ color: '#1c252e' }}>{formatValue(v)}</Text>
-                                <Text size="xs" c="dimmed">
+                                <Text
+                                    fw={700}
+                                    size="lg"
+                                    style={{
+                                        color: '#1c252e',
+                                        fontFamily: 'Public Sans Variable, sans-serif',
+                                        fontSize: 19,
+                                    }}
+                                >
+                                    {formatValue(v)}
+                                </Text>
+                                <Text
+                                    size="sm"
+                                    style={{
+                                        color: '#637381',
+                                        fontFamily: 'Public Sans Variable, sans-serif',
+                                        fontSize: 14,
+                                    }}
+                                >
                                     {v.minOrderValue ? `Đơn từ ${formatVND(v.minOrderValue)}` : 'Mọi đơn hàng'}
                                 </Text>
                             </Box>
                         </Group>
 
                         <Group justify="space-between" align="center">
-                            <Group gap={4}>
-                                <Iconify icon="solar:clock-circle-linear" width={13} color="#637381" aria-hidden="true" />
-                                <Text size="xs" c="dimmed">{daysLeft(v.endDate)}</Text>
+                            <Group gap={6}>
+                                <Iconify icon="solar:clock-circle-linear" width={14} color="#637381" aria-hidden="true" />
+                                <Text
+                                    size="sm"
+                                    style={{
+                                        color: '#637381',
+                                        fontFamily: 'Public Sans Variable, sans-serif',
+                                        fontSize: 12,
+                                    }}
+                                >
+                                    {daysLeft(v.endDate)}
+                                </Text>
                             </Group>
                             {saved ? (
                                 <Button
                                     component={Link}
                                     href="/profile/voucher"
-                                    size="xs"
-                                    radius={50}
+                                    size="sm"
+                                    radius={8}
                                     variant="light"
-                                    style={{ color, background: `${color}14` }}
+                                    style={{
+                                        color,
+                                        background: `${color}14`,
+                                        fontFamily: 'Public Sans Variable, sans-serif',
+                                        fontWeight: 600,
+                                        fontSize: 14,
+                                    }}
                                     aria-label="Đã lưu voucher, xem trong tài khoản"
                                 >
                                     Đã lưu
                                 </Button>
                             ) : (
                                 <Button
-                                    size="xs"
-                                    radius={50}
+                                    size="sm"
+                                    radius={8}
                                     variant="filled"
-                                    style={{ background: color, color: '#fff' }}
+                                    style={{
+                                        background: color,
+                                        color: '#fff',
+                                        fontFamily: 'Public Sans Variable, sans-serif',
+                                        fontWeight: 400,
+                                        fontSize: 14,
+                                        boxShadow: `${color}40 0px 4px 12px 0px`,
+                                    }}
+                                    styles={{
+                                        root: {
+                                            '&:hover': {
+                                                opacity: 0.9,
+                                            }
+                                        }
+                                    }}
                                     onClick={() => {
                                         if (!isAuthenticated) {
                                             notifications.show({ title: 'Vui lòng đăng nhập', message: '', color: 'yellow' });

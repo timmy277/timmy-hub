@@ -20,17 +20,28 @@ const TimerBlock = memo(function TimerBlock({ value, label }: { value: string; l
                     background: '#1c252e',
                     color: '#fff',
                     borderRadius: 8,
-                    padding: '4px 10px',
+                    padding: '6px 12px',
                     fontWeight: 700,
-                    fontSize: 18,
+                    fontSize: 20,
                     fontVariantNumeric: 'tabular-nums',
-                    minWidth: 40,
+                    minWidth: 48,
                     display: 'inline-block',
+                    fontFamily: 'Public Sans Variable, sans-serif',
                 }}
             >
                 {value}
             </Box>
-            <Text size="xs" c="dimmed" mt={2}>{label}</Text>
+            <Text
+                size="xs"
+                c="dimmed"
+                mt={4}
+                style={{
+                    fontFamily: 'Public Sans Variable, sans-serif',
+                    fontSize: 12,
+                }}
+            >
+                {label}
+            </Text>
         </Box>
     );
 });
@@ -90,23 +101,34 @@ function FlashSaleBannerComponent() {
 
     return (
         <Box
-            p="xl"
+            p={32}
             style={{
                 borderRadius: 16,
                 border: '1px solid #ffe4e6',
-                background: '#fff5f5',
+                background: 'linear-gradient(135deg, #fff5f5 0%, #fffbfb 100%)',
+                boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.08)',
             }}
             component="section"
             aria-labelledby="flash-sale-title"
         >
             {/* Header */}
-            <Group justify="space-between" mb={20} align="center">
-                <Group gap={12} align="center">
-                    <Iconify icon="solar:fire-bold" width={28} color="#ff3030" aria-hidden="true" />
-                    <Title id="flash-sale-title" order={3} style={{ fontSize: 20, fontWeight: 800, color: '#1c252e', letterSpacing: '-0.01em' }}>
+            <Group justify="space-between" mb={24} align="center">
+                <Group gap={16} align="center">
+                    <Iconify icon="solar:fire-bold" width={32} color="#ff3030" aria-hidden="true" />
+                    <Title
+                        id="flash-sale-title"
+                        order={2}
+                        style={{
+                            fontFamily: 'Barlow, sans-serif',
+                            fontSize: 32,
+                            fontWeight: 800,
+                            color: '#1c252e',
+                            letterSpacing: '-0.5px',
+                        }}
+                    >
                         Flash Sale
                     </Title>
-                    <Group gap={6} align="flex-end" role="timer" aria-live="polite" aria-label={`Thời gian còn lại: ${timer.h} giờ ${timer.m} phút ${timer.s} giây`}>
+                    <Group gap={8} align="flex-end" role="timer" aria-live="polite" aria-label={`Thời gian còn lại: ${timer.h} giờ ${timer.m} phút ${timer.s} giây`}>
                         <TimerBlock value={timer.h} label="giờ" />
                         <Text fw={700} c="dimmed" mb={16} aria-hidden="true">:</Text>
                         <TimerBlock value={timer.m} label="phút" />
@@ -115,9 +137,23 @@ function FlashSaleBannerComponent() {
                     </Group>
                 </Group>
                 <Anchor
-                    fw={600}
-                    size="sm"
-                    style={{ color: '#00a76f', cursor: 'pointer' }}
+                    fw={400}
+                    size="md"
+                    style={{
+                        color: '#00a76f',
+                        cursor: 'pointer',
+                        fontFamily: 'Public Sans Variable, sans-serif',
+                        fontSize: 16,
+                        textDecoration: 'none',
+                    }}
+                    styles={{
+                        root: {
+                            '&:hover': {
+                                textDecoration: 'underline',
+                                color: '#007C56',
+                            }
+                        }
+                    }}
                     onClick={() => activeCampaign && router.push(`/campaign/${activeCampaign.id}`)}
                     aria-label="Xem tất cả sản phẩm Flash Sale"
                 >

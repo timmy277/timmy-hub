@@ -52,13 +52,13 @@ function HeroCarouselComponent() {
         <Box suppressHydrationWarning>
             <Carousel
                 withIndicators
-                height={480}
+                height={520}
                 draggable
                 withControls
                 plugins={[autoplay.current]}
                 onMouseEnter={autoplay.current.stop}
                 onMouseLeave={autoplay.current.reset}
-                style={{ borderRadius: 16, overflow: 'hidden' }}
+                style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.12)' }}
                 aria-label="Banner khuyến mãi"
                 aria-roledescription="carousel"
             >
@@ -81,9 +81,9 @@ function HeroCarouselComponent() {
                             <Box
                                 pos="absolute"
                                 top={0} left={0} right={0} bottom={0}
-                                style={{ zIndex: 2, display: 'flex', alignItems: 'center', padding: '0 64px' }}
+                                style={{ zIndex: 2, display: 'flex', alignItems: 'center', padding: '0 80px' }}
                             >
-                                <Stack gap={20} maw={520}>
+                                <Stack gap={24} maw={560}>
                                     <Text
                                         size="sm"
                                         fw={600}
@@ -93,6 +93,7 @@ function HeroCarouselComponent() {
                                             letterSpacing: '0.08em',
                                             textTransform: 'uppercase',
                                             fontSize: 12,
+                                            fontFamily: 'Public Sans Variable, sans-serif',
                                         }}
                                         component="span"
                                         aria-label={`Danh mục: ${slide.tag}`}
@@ -103,29 +104,54 @@ function HeroCarouselComponent() {
                                         c="white"
                                         order={1}
                                         style={{
-                                            fontSize: 40,
+                                            fontFamily: 'Barlow, sans-serif',
+                                            fontSize: 48,
                                             fontWeight: 800,
-                                            lineHeight: 1.15,
+                                            lineHeight: 1.2,
                                             whiteSpace: 'pre-line',
+                                            letterSpacing: '-1px',
                                         }}
                                     >
                                         {slide.title}
                                     </Title>
-                                    <Text c="white" size="md" style={{ opacity: 0.8, maxWidth: 400 }}>
+                                    <Text
+                                        c="white"
+                                        size="lg"
+                                        style={{
+                                            opacity: 0.88,
+                                            maxWidth: 480,
+                                            fontFamily: 'Public Sans Variable, sans-serif',
+                                            fontSize: 20,
+                                            lineHeight: 1.8,
+                                        }}
+                                    >
                                         {slide.desc}
                                     </Text>
-                                    <Box>
+                                    <Box mt={8}>
                                         <Button
                                             component={Link}
                                             href={slide.href}
-                                            size="md"
-                                            radius={50}
+                                            size="lg"
+                                            radius={8}
                                             style={{
                                                 background: '#00a76f',
                                                 color: '#fff',
-                                                fontWeight: 700,
-                                                paddingLeft: 28,
-                                                paddingRight: 28,
+                                                fontWeight: 400,
+                                                fontFamily: 'Public Sans Variable, sans-serif',
+                                                fontSize: 16,
+                                                paddingLeft: 24,
+                                                paddingRight: 24,
+                                                height: 48,
+                                                boxShadow: 'rgba(0, 167, 111, 0.24) 0px 8px 16px 0px',
+                                                transition: 'all 150ms ease',
+                                            }}
+                                            styles={{
+                                                root: {
+                                                    '&:hover': {
+                                                        background: '#00936A',
+                                                        boxShadow: 'rgba(0, 167, 111, 0.32) 0px 12px 20px 0px',
+                                                    }
+                                                }
                                             }}
                                             aria-label={`${slide.action} - ${slide.title}`}
                                         >

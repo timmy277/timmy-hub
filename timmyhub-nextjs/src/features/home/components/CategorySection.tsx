@@ -25,18 +25,48 @@ function CategorySectionComponent() {
     const { t } = useTranslation('common');
     return (
         <Box component="section" aria-labelledby="category-section-title" suppressHydrationWarning>
-            <Group justify="space-between" mb={20}>
-                <Title id="category-section-title" order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }}>
+            <Group justify="space-between" mb={24}>
+                <Title
+                    id="category-section-title"
+                    order={2}
+                    style={{
+                        fontFamily: 'Barlow, sans-serif',
+                        fontSize: 32,
+                        fontWeight: 700,
+                        color: '#1c252e',
+                        letterSpacing: '-0.5px',
+                    }}
+                >
                     {t('categorySection.title')}
                 </Title>
-                <Anchor component={Link} href="/collection" size="sm" fw={600} style={{ color: '#00a76f' }} aria-label={t('categorySection.viewAllAria')}>
+                <Anchor
+                    component={Link}
+                    href="/collection"
+                    size="md"
+                    fw={400}
+                    style={{
+                        color: '#00a76f',
+                        fontFamily: 'Public Sans Variable, sans-serif',
+                        fontSize: 16,
+                        textDecoration: 'none',
+                    }}
+                    styles={{
+                        root: {
+                            '&:hover': {
+                                textDecoration: 'underline',
+                                color: '#007C56',
+                            }
+                        }
+                    }}
+                    aria-label={t('categorySection.viewAllAria')}
+                >
                     {t('categorySection.viewAll')}
                 </Anchor>
             </Group>
 
             <Carousel
                 slideSize={{ base: '25%', sm: '16.66%', md: '12%' }}
-                slideGap="sm"
+                slideGap="md"
                 withControls
                 emblaOptions={{ align: 'start' }}
                 aria-label={t('categorySection.carouselAria')}
@@ -49,21 +79,30 @@ function CategorySectionComponent() {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    gap: 8,
-                                    padding: '12px 8px',
+                                    gap: 12,
+                                    padding: 16,
                                     borderRadius: 12,
-                                    border: '1px solid var(--mantine-color-default-border)',
-                                    background: 'var(--mantine-color-body)',
+                                    border: '1px solid #DFE3E8',
+                                    background: '#FFFFFF',
                                     cursor: 'pointer',
-                                    transition: 'border-color 150ms',
+                                    transition: 'all 150ms ease',
+                                    boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)',
+                                }}
+                                styles={{
+                                    root: {
+                                        '&:hover': {
+                                            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.12)',
+                                            borderColor: '#C4CDD5',
+                                        }
+                                    }
                                 }}
                                 role="button"
                                 tabIndex={0}
                             >
                                 <Box
                                     style={{
-                                        width: 48,
-                                        height: 48,
+                                        width: 56,
+                                        height: 56,
                                         borderRadius: 12,
                                         background: `${cat.color}18`,
                                         display: 'flex',
@@ -72,9 +111,19 @@ function CategorySectionComponent() {
                                     }}
                                     aria-hidden="true"
                                 >
-                                    <Iconify icon={cat.icon} width={26} color={cat.color} />
+                                    <Iconify icon={cat.icon} width={28} color={cat.color} />
                                 </Box>
-                                <Text size="xs" fw={500} ta="center" style={{ color: '#1c252e', lineHeight: 1.3 }}>
+                                <Text
+                                    size="sm"
+                                    fw={600}
+                                    ta="center"
+                                    style={{
+                                        color: '#1c252e',
+                                        lineHeight: 1.4,
+                                        fontFamily: 'Public Sans Variable, sans-serif',
+                                        fontSize: 14,
+                                    }}
+                                >
                                     {cat.name}
                                 </Text>
                             </Box>

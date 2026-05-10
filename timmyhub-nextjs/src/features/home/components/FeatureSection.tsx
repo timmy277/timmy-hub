@@ -16,25 +16,35 @@ function FeatureSectionComponent() {
     ];
 
     return (
-        <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md" component="section" aria-label={t('featureSection.ariaLabel')} suppressHydrationWarning>
+        <SimpleGrid cols={{ base: 2, md: 4 }} spacing="lg" component="section" aria-label={t('featureSection.ariaLabel')} suppressHydrationWarning>
             {FEATURES.map((f) => (
                 <Box
                     key={f.title}
-                    p="md"
+                    p={24}
                     style={{
                         borderRadius: 12,
-                        border: '1px solid var(--mantine-color-default-border)',
-                        background: 'var(--mantine-color-body)',
+                        border: '1px solid #DFE3E8',
+                        background: '#FFFFFF',
+                        boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)',
+                        transition: 'all 150ms ease',
+                    }}
+                    styles={{
+                        root: {
+                            '&:hover': {
+                                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.12)',
+                                borderColor: '#C4CDD5',
+                            }
+                        }
                     }}
                     role="article"
                 >
-                    <Group gap="sm" align="flex-start">
+                    <Group gap="md" align="flex-start">
                         <Box
                             style={{
-                                width: 40,
-                                height: 40,
-                                borderRadius: 10,
-                                background: 'rgba(0,167,111,0.08)',
+                                width: 48,
+                                height: 48,
+                                borderRadius: 12,
+                                background: 'rgba(0,167,111,0.12)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -42,11 +52,31 @@ function FeatureSectionComponent() {
                             }}
                             aria-hidden="true"
                         >
-                            <Iconify icon={f.icon} width={22} color="#00a76f" />
+                            <Iconify icon={f.icon} width={24} color="#00a76f" />
                         </Box>
-                        <Stack gap={2}>
-                            <Text fw={600} size="sm" style={{ color: '#1c252e' }}>{f.title}</Text>
-                            <Text size="xs" c="dimmed">{f.desc}</Text>
+                        <Stack gap={4}>
+                            <Text
+                                fw={700}
+                                size="md"
+                                style={{
+                                    color: '#1c252e',
+                                    fontFamily: 'Public Sans Variable, sans-serif',
+                                    fontSize: 16,
+                                }}
+                            >
+                                {f.title}
+                            </Text>
+                            <Text
+                                size="sm"
+                                style={{
+                                    color: '#637381',
+                                    fontFamily: 'Public Sans Variable, sans-serif',
+                                    fontSize: 14,
+                                    lineHeight: 1.6,
+                                }}
+                            >
+                                {f.desc}
+                            </Text>
                         </Stack>
                     </Group>
                 </Box>

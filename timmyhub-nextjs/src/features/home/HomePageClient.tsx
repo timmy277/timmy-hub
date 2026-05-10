@@ -88,8 +88,8 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
 
                 {/* Vouchers */}
                 <Box>
-                    <Group justify="space-between" mb={20}>
-                        <Title order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }}>{t('home.voucherForYou')}</Title>
+                    <Group justify="space-between" mb={24}>
+                        <Title order={2} style={{ fontFamily: 'Barlow, sans-serif', fontSize: 32, fontWeight: 700, color: '#1c252e', letterSpacing: '-0.5px' }}>{t('home.voucherForYou')}</Title>
                     </Group>
                     <VoucherSection />
                 </Box>
@@ -103,14 +103,14 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                 </Box>
 
                 {/* Products */}
-                <Stack gap={20} id="products-section">
+                <Stack gap={24} id="products-section">
                     <Group justify="space-between" align="center">
                         <Group gap={8} align="center">
-                            <Title order={3} style={{ fontSize: 20, fontWeight: 700, color: '#1c252e' }} suppressHydrationWarning>
+                            <Title order={2} style={{ fontFamily: 'Barlow, sans-serif', fontSize: 32, fontWeight: 700, color: '#1c252e', letterSpacing: '-0.5px' }} suppressHydrationWarning>
                                 {t('homePage.todaySuggestion')}
                             </Title>
                             {isFetching && !isLoading && (
-                                <Iconify icon="solar:refresh-bold" width={16} style={{ color: '#637381', animation: 'spin 1s linear infinite' }} />
+                                <Iconify icon="solar:refresh-bold" width={20} style={{ color: '#637381', animation: 'spin 1s linear infinite' }} />
                             )}
                         </Group>
 
