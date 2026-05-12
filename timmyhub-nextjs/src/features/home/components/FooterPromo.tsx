@@ -49,6 +49,7 @@ function FooterPromoComponent() {
                                 fontSize: 12,
                             }}
                             component="span"
+                            suppressHydrationWarning
                         >
                             {t('footerPromo.appExclusive')}
                         </Text>
@@ -63,6 +64,7 @@ function FooterPromoComponent() {
                                 lineHeight: 1.3,
                                 letterSpacing: '-0.5px',
                             }}
+                            suppressHydrationWarning
                         >
                             {t('footerPromo.title')}
                         </Title>
@@ -76,6 +78,7 @@ function FooterPromoComponent() {
                                 fontSize: 16,
                                 lineHeight: 1.6,
                             }}
+                            suppressHydrationWarning
                         >
                             {t('footerPromo.desc')}
                         </Text>
@@ -91,6 +94,7 @@ function FooterPromoComponent() {
                                     fontSize: 16,
                                 }}
                                 aria-label={t('footerPromo.appStoreAria')}
+                                suppressHydrationWarning
                             >
                                 {t('footerPromo.appStore')}
                             </Button>
@@ -106,6 +110,7 @@ function FooterPromoComponent() {
                                     fontSize: 16,
                                 }}
                                 aria-label={t('footerPromo.googlePlayAria')}
+                                suppressHydrationWarning
                             >
                                 {t('footerPromo.googlePlay')}
                             </Button>

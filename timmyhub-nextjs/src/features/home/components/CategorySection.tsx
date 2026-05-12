@@ -36,6 +36,7 @@ function CategorySectionComponent() {
                         color: '#1c252e',
                         letterSpacing: '-0.5px',
                     }}
+                    suppressHydrationWarning
                 >
                     {t('categorySection.title')}
                 </Title>
@@ -59,6 +60,7 @@ function CategorySectionComponent() {
                         e.currentTarget.style.color = '#00a76f';
                     }}
                     aria-label={t('categorySection.viewAllAria')}
+                    suppressHydrationWarning
                 >
                     {t('categorySection.viewAll')}
                 </Anchor>

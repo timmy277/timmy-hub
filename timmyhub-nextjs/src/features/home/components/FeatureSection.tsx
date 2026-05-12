@@ -63,6 +63,7 @@ function FeatureSectionComponent() {
                                     fontFamily: 'Public Sans Variable, sans-serif',
                                     fontSize: 16,
                                 }}
+                                suppressHydrationWarning
                             >
                                 {f.title}
                             </Text>
@@ -74,6 +75,7 @@ function FeatureSectionComponent() {
                                     fontSize: 14,
                                     lineHeight: 1.6,
                                 }}
+                                suppressHydrationWarning
                             >
                                 {f.desc}
                             </Text>
