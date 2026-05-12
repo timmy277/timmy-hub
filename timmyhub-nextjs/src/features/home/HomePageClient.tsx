@@ -14,6 +14,8 @@ import Iconify from '@/components/iconify/Iconify';
 import { useQuery } from '@tanstack/react-query';
 import { ProductGrid } from '@/features/products/components/ProductGrid';
 import { Product } from '@/types/product';
+import type { Post } from '@/types/post';
+import type { Voucher } from '@/services/voucher.service';
 import { productService } from '@/services/product.service';
 import { useTranslation } from 'react-i18next';
 
@@ -34,11 +36,13 @@ const PostFeedSection = dynamic(
 
 interface HomePageClientProps {
     initialProducts: Product[];
+    initialVouchers: Voucher[];
+    initialPosts: Post[];
 }
 
 const PRODUCTS_PAGE_SIZE = 10;
 
-export function HomePageClient({ initialProducts }: HomePageClientProps) {
+export function HomePageClient({ initialProducts, initialVouchers, initialPosts }: HomePageClientProps) {
     const { t } = useTranslation('common');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [activeTab, setActiveTab] = useState<string | null>('all');
@@ -91,7 +95,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
                     <Group justify="space-between" mb={24}>
                         <Title order={2} style={{ fontFamily: 'Barlow, sans-serif', fontSize: 32, fontWeight: 700, color: '#1c252e', letterSpacing: '-0.5px' }}>{t('home.voucherForYou')}</Title>
                     </Group>
-                    <VoucherSection />
+                    <VoucherSection initialVouchers={initialVouchers} />
                 </Box>
 
                 {/* Flash Sale */}
@@ -99,7 +103,7 @@ export function HomePageClient({ initialProducts }: HomePageClientProps) {
 
                 {/* Post Feed */}
                 <Box>
-                    <PostFeedSection />
+                    <PostFeedSection initialPosts={initialPosts} />
                 </Box>
 
                 {/* Products */}

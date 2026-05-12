@@ -3,7 +3,7 @@
 import { SimpleGrid, Box, Text, Button, Group, Skeleton } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { voucherService } from '@/services/voucher.service';
+import { voucherService, type Voucher } from '@/services/voucher.service';
 import { useAuth } from '@/hooks/useAuth';
 import dayjs from 'dayjs';
 import { notifications } from '@mantine/notifications';
@@ -11,17 +11,11 @@ import Link from 'next/link';
 import { formatVND } from '@/utils/currency';
 import { memo } from 'react';
 
-interface VoucherDisplay {
-    id: string;
-    code: string;
-    type: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING';
-    value: number;
-    minOrderValue?: number;
-    description?: string;
-    endDate: string;
+interface VoucherSectionProps {
+    initialVouchers: Voucher[];
 }
 
-function formatValue(v: VoucherDisplay) {
+function formatValue(v: Voucher) {
     if (v.type === 'PERCENTAGE') return `Giảm ${v.value}%`;
     if (v.type === 'FREE_SHIPPING') return 'Miễn phí vận chuyển';
     return `Giảm ${formatVND(v.value)}`;
@@ -36,7 +30,7 @@ function daysLeft(endDate: string) {
 
 const ACCENT_COLORS = ['#00a76f', '#0c68e9', '#ff5630', '#7635dc', '#00b8d9', '#ffab00'];
 
-function VoucherSectionComponent() {
+function VoucherSectionComponent({ initialVouchers }: VoucherSectionProps) {
     const qc = useQueryClient();
     const { isAuthenticated } = useAuth();
 
@@ -50,6 +44,12 @@ function VoucherSectionComponent() {
     const { data: res, isLoading } = useQuery({
         queryKey: ['public-vouchers'],
         queryFn: () => voucherService.getPublicVouchers(),
+        initialData: initialVouchers.length > 0 ? {
+            success: true,
+            data: initialVouchers,
+            message: 'Initial vouchers from SSR',
+            timestamp: new Date().toISOString()
+        } : undefined,
         staleTime: 5 * 60 * 1000,
     });
 
@@ -66,7 +66,7 @@ function VoucherSectionComponent() {
     });
 
     const pendingId = saveMutation.isPending ? saveMutation.variables : null;
-    const vouchers: VoucherDisplay[] = res?.data || [];
+    const vouchers: Voucher[] = res?.data || [];
 
     if (isLoading) return (
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg" aria-label="Đang tải voucher" suppressHydrationWarning>
@@ -96,17 +96,18 @@ function VoucherSectionComponent() {
                             gap: 16,
                             boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)',
                             transition: 'all 150ms ease',
-                        }}
-                        styles={{
-                            root: {
-                                '&:hover': {
-                                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.12)',
-                                    transform: 'translateY(-2px)',
-                                }
-                            }
+                            cursor: 'default',
                         }}
                         role="article"
                         aria-label={`Voucher ${formatValue(v)}`}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.12)';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.boxShadow = '0px 1px 3px rgba(0, 0, 0, 0.08)';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                        }}
                     >
                         <Group gap={12} align="center">
                             <Box
@@ -194,19 +195,18 @@ function VoucherSectionComponent() {
                                         fontSize: 14,
                                         boxShadow: `${color}40 0px 4px 12px 0px`,
                                     }}
-                                    styles={{
-                                        root: {
-                                            '&:hover': {
-                                                opacity: 0.9,
-                                            }
-                                        }
-                                    }}
                                     onClick={() => {
                                         if (!isAuthenticated) {
                                             notifications.show({ title: 'Vui lòng đăng nhập', message: '', color: 'yellow' });
                                             return;
                                         }
                                         saveMutation.mutate(v.id);
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.opacity = '0.9';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.opacity = '1';
                                     }}
                                     loading={pendingId === v.id}
                                     aria-label={`Lưu voucher ${formatValue(v)}`}

@@ -10,8 +10,13 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { FreeMode } from 'swiper/modules';
 import 'swiper/css';
 import { useTranslation } from 'react-i18next';
+import type { Post } from '@/types/post';
 
-export function PostFeedSection() {
+interface PostFeedSectionProps {
+    initialPosts: Post[];
+}
+
+export function PostFeedSection({ initialPosts }: PostFeedSectionProps) {
     const { t } = useTranslation('common');
     const { data, isLoading } = useInfiniteQuery({
         queryKey: ['posts-feed-home'],
@@ -19,6 +24,10 @@ export function PostFeedSection() {
             postService.getFeed({ cursor: pageParam as string | undefined, limit: 10 }),
         initialPageParam: undefined as string | undefined,
         getNextPageParam: () => undefined,
+        initialData: initialPosts.length > 0 ? {
+            pages: [{ data: initialPosts, nextCursor: null, hasMore: false }],
+            pageParams: [undefined]
+        } : undefined,
         staleTime: 60_000,
     });
 
