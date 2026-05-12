@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
     Container,
     Title,
@@ -16,7 +16,7 @@ import { ProductGrid } from '@/features/products/components/ProductGrid';
 import { Product } from '@/types/product';
 import type { Post } from '@/types/post';
 import type { Voucher } from '@/services/voucher.service';
-import { productService } from '@/services/product.service';
+import { productService, type ProductFilterParams } from '@/services/product.service';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -47,36 +47,27 @@ export function HomePageClient({ initialProducts, initialVouchers, initialPosts 
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [activeTab, setActiveTab] = useState<string | null>('all');
 
-    // Dùng useQuery với initialData từ SSR: sản phẩm hiển thị ngay, tự refresh sau staleTime
+    // Gọi API với params dựa trên activeTab
     const { data: products = initialProducts, isLoading, isFetching } = useQuery({
-        queryKey: ['products', 'approved'],
+        queryKey: ['products', 'home', activeTab],
         queryFn: async () => {
-            const res = await productService.getProducts();
-            return res.data;
+            const params: ProductFilterParams = { limit: PRODUCTS_PAGE_SIZE };
+
+            switch (activeTab) {
+                case 'new':
+                    params.sort = 'newest';
+                    break;
+                case 'best':
+                    params.sort = 'best_selling';
+                    break;
+            }
+
+            const res = await productService.getProductsWithFilters(params);
+            return res.data.data || [];
         },
-        initialData: initialProducts,
+        initialData: activeTab === 'all' ? initialProducts.slice(0, PRODUCTS_PAGE_SIZE) : undefined,
         staleTime: 60_000,
     });
-
-    const filteredProducts = useMemo(() => {
-        switch (activeTab) {
-            case 'new':
-                return products.filter(p => p.isNew);
-            case 'sale':
-                return products.filter(p => p.originalPrice != null && p.originalPrice > p.price);
-            case 'best':
-                return [...products].sort((a, b) => b.soldCount - a.soldCount);
-            case 'featured':
-                return products.filter(p => p.isFeatured);
-            default:
-                return products;
-        }
-    }, [products, activeTab]);
-
-    const displayProducts = useMemo(
-        () => filteredProducts.slice(0, PRODUCTS_PAGE_SIZE),
-        [filteredProducts]
-    );
 
     return (
         <Container size="xl" py="xl">
@@ -124,8 +115,6 @@ export function HomePageClient({ initialProducts, initialVouchers, initialPosts 
                                     <Tabs.Tab value="all" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabAll')}</span></Tabs.Tab>
                                     <Tabs.Tab value="new" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabNew')}</span></Tabs.Tab>
                                     <Tabs.Tab value="best" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabBest')}</span></Tabs.Tab>
-                                    <Tabs.Tab value="sale" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabSale')}</span></Tabs.Tab>
-                                    <Tabs.Tab value="featured" suppressHydrationWarning><span suppressHydrationWarning>{t('homePage.tabFeatured')}</span></Tabs.Tab>
                                 </Tabs.List>
                             </Tabs>
                             <Group
@@ -146,7 +135,7 @@ export function HomePageClient({ initialProducts, initialVouchers, initialPosts 
                         </Group>
                     </Group>
 
-                    <ProductGrid products={displayProducts} viewMode={viewMode} isLoading={isLoading} />
+                    <ProductGrid products={products} viewMode={viewMode} isLoading={isLoading} />
                 </Stack>
 
                 {/* Footer Promo */}
