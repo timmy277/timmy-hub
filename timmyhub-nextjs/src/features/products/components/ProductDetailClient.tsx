@@ -42,6 +42,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     const { user } = useAuth();
     const { addToCart, isAdding } = useCart();
     const [quantity, setQuantity] = useState(1);
+    const [isBuyingNow, setIsBuyingNow] = useState(false);
     const { t } = useTranslation('common');
 
     // Fetch campaign price for this product
@@ -96,11 +97,14 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             return;
         }
 
+        setIsBuyingNow(true);
         try {
             await addToCart({ productId: product.id, quantity });
             router.push('/cart');
         } catch {
             // Error notification đã được xử lý trong useCart hook
+        } finally {
+            setIsBuyingNow(false);
         }
     };
 
@@ -248,7 +252,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                     leftSection={<Iconify icon="tabler:shopping-cart" width={20} />}
                                     onClick={handleAddToCart}
                                     loading={isAdding}
-                                    disabled={isOutOfStock}
+                                    disabled={isOutOfStock || isBuyingNow}
                                     style={{ flex: 1 }}
                                 >
                                     {t('product.addToCart')}
@@ -259,8 +263,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                                     variant="filled"
                                     color="blue"
                                     onClick={handleBuyNow}
-                                    loading={isAdding}
-                                    disabled={isOutOfStock}
+                                    loading={isBuyingNow}
+                                    disabled={isOutOfStock || isAdding}
                                     style={{ flex: 1 }}
                                 >
                                     {t('product.buyNow')}
