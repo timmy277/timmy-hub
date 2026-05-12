@@ -28,15 +28,15 @@ function FeatureSectionComponent() {
                         boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)',
                         transition: 'all 150ms ease',
                     }}
-                    styles={{
-                        root: {
-                            '&:hover': {
-                                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.12)',
-                                borderColor: '#C4CDD5',
-                            }
-                        }
-                    }}
                     role="article"
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.12)';
+                        e.currentTarget.style.borderColor = '#C4CDD5';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = '0px 1px 3px rgba(0, 0, 0, 0.08)';
+                        e.currentTarget.style.borderColor = '#DFE3E8';
+                    }}
                 >
                     <Group gap="md" align="flex-start">
                         <Box

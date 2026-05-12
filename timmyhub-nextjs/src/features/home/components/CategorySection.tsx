@@ -50,13 +50,13 @@ function CategorySectionComponent() {
                         fontSize: 16,
                         textDecoration: 'none',
                     }}
-                    styles={{
-                        root: {
-                            '&:hover': {
-                                textDecoration: 'underline',
-                                color: '#007C56',
-                            }
-                        }
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.textDecoration = 'underline';
+                        e.currentTarget.style.color = '#007C56';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.textDecoration = 'none';
+                        e.currentTarget.style.color = '#00a76f';
                     }}
                     aria-label={t('categorySection.viewAllAria')}
                 >
@@ -88,16 +88,16 @@ function CategorySectionComponent() {
                                     transition: 'all 150ms ease',
                                     boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)',
                                 }}
-                                styles={{
-                                    root: {
-                                        '&:hover': {
-                                            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.12)',
-                                            borderColor: '#C4CDD5',
-                                        }
-                                    }
-                                }}
                                 role="button"
                                 tabIndex={0}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.12)';
+                                    e.currentTarget.style.borderColor = '#C4CDD5';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.boxShadow = '0px 1px 3px rgba(0, 0, 0, 0.08)';
+                                    e.currentTarget.style.borderColor = '#DFE3E8';
+                                }}
                             >
                                 <Box
                                     style={{
