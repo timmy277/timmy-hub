@@ -7,6 +7,7 @@ import '@mantine/dropzone/styles.css';
 import './globals.css';
 import { ColorSchemeScript } from '@mantine/core';
 import { AppProvider } from '@/components';
+import { NProgressBar } from '@/components/NProgressBar';
 
 const publicSans = Public_Sans({
     variable: '--font-public-sans',
@@ -48,6 +49,7 @@ export default function RootLayout({
                 <ColorSchemeScript />
             </head>
             <body className={`${publicSans.variable} ${barlow.variable} antialiased font-public-sans`}>
+                <NProgressBar />
                 <AppProvider>{children}</AppProvider>
             </body>
         </html>
