@@ -23,11 +23,10 @@ import {
 } from '@/constants/seller-shop-ui';
 import {
     sortProductsByMode,
-} from '@/features/sellers/utils/seller-shop-products';
-import { SellerShopHero } from './seller-shop/SellerShopHero';
-import { SellerShopProductBlock } from './seller-shop/SellerShopProductBlock';
-import { SellerShopFooter } from './seller-shop/SellerShopFooter';
-
+} from '@/utils/seller-shop-products';
+import { SellerShopHero } from './SellerShopHero';
+import { SellerShopProductBlock } from './SellerShopProductBlock';
+import { SellerShopFooter } from './SellerShopFooter';
 interface SellerShopClientProps {
     shop: SellerShop;
 }

@@ -20,7 +20,7 @@ import Iconify from '@/components/iconify/Iconify';
 import { useTranslation } from 'react-i18next';
 import type { SellerShop } from '@/types/product';
 import { SELLER_SHOP_HARDCODED } from '@/constants/seller-shop-ui';
-import { formatShopJoinedRelative } from '@/features/sellers/utils/seller-shop-joined';
+import { formatShopJoinedRelative } from '@/utils/seller-shop-joined';
 
 interface SellerShopHeroProps {
     shop: SellerShop;

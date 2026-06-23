@@ -1,6 +1,6 @@
 export { SellerDashboard } from './SellerDashboard';
 export { BecomeSellerLandingPage } from './BecomeSellerLandingPage';
-export { BecomeSellerRegisterForm } from './BecomeSellerRegisterForm';
+export { BecomeSellerRegisterForm } from './become-seller/BecomeSellerRegisterForm';
 export { SellerLayoutContent } from './SellerLayoutContent';
 export * from './campaigns';
 export * from './vouchers';

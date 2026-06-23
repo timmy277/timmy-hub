@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { productService } from '@/services/product.service';
 import { notFound } from 'next/navigation';
-import { SellerShopClient } from '@/features/sellers/components/SellerShopClient';
+import { SellerShopClient } from '@/features/seller/seller-shop/SellerShopClient';
 
 interface Props {
     params: Promise<{ slug: string }>;
