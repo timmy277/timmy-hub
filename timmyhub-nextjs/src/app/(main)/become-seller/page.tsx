@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { BecomeSellerLandingPage } from '@/features/seller/BecomeSellerLandingPage';
+import { BecomeSellerLandingPage } from '@/features/seller/become-seller';
 
 export const metadata: Metadata = {
     title: 'Trở thành người bán | TimmyHub',

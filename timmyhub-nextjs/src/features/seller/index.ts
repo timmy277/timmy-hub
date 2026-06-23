@@ -1,5 +1,5 @@
 export { SellerDashboard } from './SellerDashboard';
-export { BecomeSellerLandingPage } from './BecomeSellerLandingPage';
+export { BecomeSellerLandingPage } from './become-seller/BecomeSellerLandingPage';
 export { BecomeSellerRegisterForm } from './become-seller/BecomeSellerRegisterForm';
 export { SellerLayoutContent } from './SellerLayoutContent';
 export * from './campaigns';

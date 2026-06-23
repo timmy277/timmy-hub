@@ -74,6 +74,7 @@
             "permissions": "Permissions",
             "usersCount": "Users",
             "createdAt": "Created At",
+            "updatedAt": "Updated At",
             "permissionName": "Permission Name",
             "module": "Module",
             "action": "Action",

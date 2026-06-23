@@ -47,13 +47,16 @@ export function LanguageSwitcher() {
 
             <Menu.Dropdown>
                 <Menu.Label>{t('Select Language') || 'Select Language'}</Menu.Label>
-                {languages.map(lang => {
+                {languages.map((lang, index) => {
                     const isActive = currentLanguage.startsWith(lang.code);
                     return (
                         <Menu.Item
                             key={lang.code}
                             leftSection={lang.flag}
                             onClick={() => handleLanguageChange(lang.code)}
+                            color={isActive ? primaryColor : undefined}
+                            bg={isActive ? `var(--mantine-color-${primaryColor}-light)` : undefined}
+                            mt={index > 0 ? 2 : 0}
                             classNames={{
                                 itemLabel: 'whitespace-nowrap',
                             }}
