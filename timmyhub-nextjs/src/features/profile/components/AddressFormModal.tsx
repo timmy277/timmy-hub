@@ -17,11 +17,11 @@ import { zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
-import { AddressSelect } from '@/components/AddressSelect/AddressSelect';
+import { AddressSelect } from '@/components/common/AddressSelect';
 import type { User } from '@/types/auth';
 import type { Address, CreateAddressDto } from '@/types/address';
 
-const MapPicker = dynamic(() => import('@/components/map/MapPicker').then(m => m.MapPicker), {
+const MapPicker = dynamic(() => import('@/components/common/MapPicker').then(m => m.MapPicker), {
     ssr: false,
     loading: () => <Box style={{ height: 220, background: 'var(--mantine-color-gray-1)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Text size="sm" c="dimmed">Đang tải bản đồ...</Text></Box>,
 });

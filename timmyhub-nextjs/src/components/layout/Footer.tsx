@@ -4,7 +4,7 @@ import { Container, Text, Group, ActionIcon, Box, Grid, Title, Stack, TextInput,
 import Iconify from '@/components/iconify/Iconify';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { ClientOnly } from '@/components/ClientOnly';
+import { ClientOnly } from '@/components/common/ClientOnly';
 import { BECOME_SELLER_PATH } from '@/constants/become-seller';
 
 const SOCIAL_LINKS = [

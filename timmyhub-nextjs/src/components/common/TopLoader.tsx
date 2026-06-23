@@ -8,7 +8,6 @@ export function TopLoader() {
     const primaryColor = useThemeStore(state => state.primaryColor);
     const theme = useMantineTheme();
 
-    // Get primary color value from Mantine theme
     const color = theme.colors[primaryColor][6];
 
     return (

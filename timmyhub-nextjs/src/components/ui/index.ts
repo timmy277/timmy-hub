@@ -1,2 +1,1 @@
-
-export { LoadingPage } from '../LoadingPage';
+export { LoadingPage } from '../common/LoadingPage';

@@ -24,7 +24,7 @@ import {
     CsvExportModule,
     EventApiModule,
 } from 'ag-grid-community';
-import { BaseDataTable } from '@/components/tables/BaseDataTable';
+import { BaseDataTable } from '@/components/common/BaseDataTable';
 import { TabItem } from '@/hooks/useManagementTabs';
 import { ManagementTabType } from '@/types/enums';
 

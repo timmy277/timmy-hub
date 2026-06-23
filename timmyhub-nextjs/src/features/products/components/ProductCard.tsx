@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Product } from '@/types/product';
 import { formatVND } from '@/utils/currency';
 import { useTranslation } from 'react-i18next';
-import { ClientOnly } from '@/components/ClientOnly';
+import { ClientOnly } from '@/components/common/ClientOnly';
 import { memo } from 'react';
 
 interface ProductCardProps {
