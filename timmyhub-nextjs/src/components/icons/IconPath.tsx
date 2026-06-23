@@ -91,14 +91,15 @@ const icons = {
 } satisfies Record<string, IconConfig>;
 
 export type IconName = keyof typeof icons;
-interface IconPathProps extends Omit<React.SVGProps<SVGSVGElement>, 'width' | 'height'> {
+
+export interface IconPathProps extends Omit<React.SVGProps<SVGSVGElement>, 'width' | 'height'> {
     name: IconName;
     size?: number | string;
     color?: string;
     decorative?: boolean;
 }
 
-export const IconPath = ({
+export const IconPath = React.memo(({
     name,
     size,
     color,
@@ -174,4 +175,6 @@ export const IconPath = ({
             {resolvedContent}
         </svg>
     );
-};
+});
+
+IconPath.displayName = 'IconPath';
