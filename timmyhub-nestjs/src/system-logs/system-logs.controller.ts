@@ -1,10 +1,19 @@
-import { Controller, Get, Query, UseGuards, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Query,
+    UseGuards,
+    DefaultValuePipe,
+    ParseIntPipe,
+    Param,
+} from '@nestjs/common';
 import { SystemLogsService } from './system-logs.service';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
+import { ResponseDto } from '../common/dto/response.dto';
 
 @ApiTags('System Logs')
 @ApiBearerAuth()
@@ -15,7 +24,7 @@ export class SystemLogsController {
     constructor(private readonly systemLogsService: SystemLogsService) {}
 
     @Get()
-    @ApiOperation({ summary: 'Get system audit logs (Admin only)' })
+    @ApiOperation({ summary: 'Get system audit logs list (Admin only)' })
     @ApiQuery({ name: 'page', required: false, type: Number })
     @ApiQuery({ name: 'limit', required: false, type: Number })
     @ApiQuery({ name: 'action', required: false, type: String })
@@ -29,5 +38,12 @@ export class SystemLogsController {
         @Query('entityType') entityType?: string,
     ) {
         return this.systemLogsService.getLogs(page, limit, { action, userId, entityType });
+    }
+
+    @Get(':id')
+    @ApiOperation({ summary: 'Get system audit log detail with diff (Admin only)' })
+    async getLogDetail(@Param('id') id: string) {
+        const log = await this.systemLogsService.getLogDetail(id);
+        return ResponseDto.success('OK', log);
     }
 }

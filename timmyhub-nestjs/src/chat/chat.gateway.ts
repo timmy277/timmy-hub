@@ -11,13 +11,15 @@ import {
 import { Server, Socket } from 'socket.io';
 import { randomUUID } from 'crypto';
 import { GoogleGenAI } from '@google/genai';
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger, UseGuards, Inject } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { WsJwtGuard } from '../auth/guards/ws-jwt.guard';
 import { AuthenticatedUser } from '../auth/interfaces/auth.interface';
 import { JwtService } from '@nestjs/jwt';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '@prisma/client';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @WebSocketGateway({
     cors: {
@@ -32,17 +34,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     private readonly logger = new Logger(ChatGateway.name);
 
+    private socketUserMap = new Map<string, string>();
+
     constructor(
         private readonly chatService: ChatService,
         private readonly jwtService: JwtService,
         private readonly notificationsService: NotificationsService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 
     async handleConnection(client: Socket) {
         try {
             // Xác thực token thủ công khi connect
-            let token =
-                client.handshake.auth?.token ||
+            let token: string | undefined =
+                (client.handshake.auth?.token as string | undefined) ||
                 client.handshake.headers.authorization?.split(' ')[1];
 
             if (!token && client.handshake.headers.cookie) {
@@ -53,16 +58,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 }
             }
 
-            if (!token) {
-                this.logger.warn(`No token provided, disconnecting Socket ${client.id}`);
+            if (!token || typeof token !== 'string') {
+                this.logger.warn(`No valid token provided, disconnecting Socket ${client.id}`);
                 return client.disconnect();
             }
 
+            // TypeScript now knows token is string
             const payload = await this.jwtService.verifyAsync(token);
-            if (payload && payload.sub) {
+            if (payload && payload.sub && typeof payload.sub === 'string') {
+                const userId = payload.sub as string;
                 // Join vào room cá nhân của user
-                client.join(`user_${payload.sub}`);
-                this.logger.log(`Client connected and joined user_${payload.sub}: ${client.id}`);
+                await client.join(`user_${userId}`);
+                this.logger.log(`Client connected and joined user_${userId}: ${client.id}`);
             } else {
                 client.disconnect();
             }

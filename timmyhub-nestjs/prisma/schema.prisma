@@ -28,26 +28,26 @@ model User {
   addresses          Address[]
   brandProfile       BrandProfile?
   cart               Cart?
+  receivedMessages   ChatMessage[]       @relation("ReceivedMessages")
+  sentMessages       ChatMessage[]       @relation("SentMessages")
   devices            Device?
   notifications      Notification[]
   orders             Order[]
+  posts              Post[]
   products           Product[]
   profile            Profile?
   refreshTokens      RefreshToken[]
   reviews            Review[]
+  reviewComments     ReviewComment[]
   reviewHelpfulVotes ReviewHelpfulVote[]
   sellerProfile      SellerProfile?
+  systemLogs         SystemLog[]
   userPermissions    UserPermission[]
   userRoles          UserSystemRole[]
-  sellerVouchers     Voucher[]
   userVouchers       UserVoucher[]
+  sellerVouchers     Voucher[]
   wallet             Wallet?
-  reviewComments     ReviewComment[]
-  sentMessages       ChatMessage[]       @relation("SentMessages")
-  receivedMessages   ChatMessage[]       @relation("ReceivedMessages")
   wishlistItems      WishlistItem[]
-  systemLogs         SystemLog[]
-  posts              Post[]
 
   @@index([email])
   @@index([phone])
@@ -155,24 +155,24 @@ model UserPermission {
 }
 
 model Address {
-  id            String      @id @default(cuid())
-  userId        String
-  label         String?
-  fullName      String
-  phone         String
-  addressLine1  String
-  addressLine2  String?
-  provinceCode  String?     // nullable để tương thích data cũ
-  districtCode  String?     // nullable để tương thích data cũ
-  wardCode      String?     // nullable để tương thích data cũ
-  provinceName String?     // denormalized để hiển thị trực tiếp
-  districtName String?     // denormalized để hiển thị trực tiếp
-  wardName     String?     // denormalized để hiển thị trực tiếp
-  isDefault     Boolean     @default(false)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders        Order[]
+  id           String   @id @default(cuid())
+  userId       String
+  label        String?
+  fullName     String
+  phone        String
+  addressLine1 String
+  addressLine2 String?
+  provinceCode String?
+  districtCode String?
+  wardCode     String?
+  provinceName String?
+  districtName String?
+  wardName     String?
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders       Order[]
 
   @@index([userId])
 }
@@ -231,47 +231,47 @@ model Category {
 }
 
 model Product {
-  id              String           @id @default(cuid())
-  sellerId        String
-  brandId         String?
-  categoryId      String?
-  name            String
-  slug            String           @unique
-  description     String?
-  price           Decimal          @db.Decimal(15, 2)
-  originalPrice   Decimal?         @db.Decimal(15, 2)
-  discount        Int?             @default(0)
-  stock           Int              @default(0)
-  sku             String?          @unique
-  images          String[]
-  weight          Float?
-  length          Float?
-  width           Float?
-  height          Float?
-  attributes      Json?
-  specifications  Json?
-  soldCount       Int              @default(0)
-  viewCount       Int              @default(0)
-  ratingAvg       Float            @default(0)
-  ratingCount     Int              @default(0)
-  isFeatured      Boolean          @default(false)
-  isNew           Boolean          @default(true)
-  status          ResourceStatus   @default(PENDING)
-  reviewNote      String?
-  reviewedById    String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  sellerProfileId String?
-  cartItems       CartItem[]
-  brand           BrandProfile?    @relation(fields: [brandId], references: [id])
-  category        Category?        @relation(fields: [categoryId], references: [id])
-  seller          User             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  sellerProfile   SellerProfile?   @relation(fields: [sellerProfileId], references: [id])
-  variants        ProductVariant[]
-  reviews         Review[]
-  wishlistedBy    WishlistItem[]
+  id               String            @id @default(cuid())
+  sellerId         String
+  brandId          String?
+  categoryId       String?
+  name             String
+  slug             String            @unique
+  description      String?
+  price            Decimal           @db.Decimal(15, 2)
+  originalPrice    Decimal?          @db.Decimal(15, 2)
+  discount         Int?              @default(0)
+  stock            Int               @default(0)
+  sku              String?           @unique
+  images           String[]
+  weight           Float?
+  length           Float?
+  width            Float?
+  height           Float?
+  attributes       Json?
+  specifications   Json?
+  soldCount        Int               @default(0)
+  viewCount        Int               @default(0)
+  ratingAvg        Float             @default(0)
+  ratingCount      Int               @default(0)
+  isFeatured       Boolean           @default(false)
+  isNew            Boolean           @default(true)
+  status           ResourceStatus    @default(PENDING)
+  reviewNote       String?
+  reviewedById     String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  sellerProfileId  String?
   campaignProducts CampaignProduct[]
-  postTags        PostProduct[]
+  cartItems        CartItem[]
+  postTags         PostProduct[]
+  brand            BrandProfile?     @relation(fields: [brandId], references: [id])
+  category         Category?         @relation(fields: [categoryId], references: [id])
+  seller           User              @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerProfile    SellerProfile?    @relation(fields: [sellerProfileId], references: [id])
+  variants         ProductVariant[]
+  reviews          Review[]
+  wishlistedBy     WishlistItem[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -327,13 +327,13 @@ model Order {
   addressId        String?
   shippingFullName String?
   shippingPhone    String?
-  shippingAddress  String?       @db.Text
-  customerNote     String?       @db.Text
+  shippingAddress  String?
+  customerNote     String?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+  address          Address?      @relation(fields: [addressId], references: [id])
   user             User          @relation(fields: [userId], references: [id])
   voucher          Voucher?      @relation(fields: [voucherId], references: [id])
-  address          Address?      @relation(fields: [addressId], references: [id], onDelete: SetNull)
   orderItems       OrderItem[]
   payment          Payment?
 
@@ -378,47 +378,41 @@ model Payment {
 }
 
 model PromotionCampaign {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  type        String
-  ownerType   String
-  ownerId     String?
-  startDate   DateTime
-  endDate     DateTime
-  isActive    Boolean   @default(true)
-
-  banner      String?   // Main banner URL
-  icon        String?   // Campaign icon (e.g., lightning for flash sale)
-  backgroundColor String? // Campaign background color
-  titleColor  String?   // Title text color
-  badgeText   String?   // Badge text (e.g., "GIẢM ĐẾN 50%")
-
-  createdBy   String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  vouchers    Voucher[]
-
-  // Campaign products - products specifically added to this campaign
+  id               String            @id @default(cuid())
+  name             String
+  description      String?
+  type             String
+  ownerType        String
+  ownerId          String?
+  startDate        DateTime
+  endDate          DateTime
+  isActive         Boolean           @default(true)
+  banner           String?
+  icon             String?
+  backgroundColor  String?
+  titleColor       String?
+  badgeText        String?
+  createdBy        String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   campaignProducts CampaignProduct[]
+  vouchers         Voucher[]
 
   @@index([ownerType, ownerId])
   @@index([startDate, endDate])
   @@index([isActive, startDate, endDate])
 }
 
-// Join table for campaign-products relationship with campaign-specific pricing
 model CampaignProduct {
-  id           String           @id @default(cuid())
-  campaignId   String
-  productId    String
-  campaignPrice Decimal?         @db.Decimal(15, 2) // Special price during campaign
-  discountPercent Int?           // Discount percentage (e.g., 50 means 50%)
-  maxQuantity  Int?             // Max quantity per user for flash sale
-  soldQuantity Int             @default(0) // Quantity sold in campaign
-
-  campaign    PromotionCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  product     Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id              String            @id @default(cuid())
+  campaignId      String
+  productId       String
+  campaignPrice   Decimal?          @db.Decimal(15, 2)
+  discountPercent Int?
+  maxQuantity     Int?
+  soldQuantity    Int               @default(0)
+  campaign        PromotionCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  product         Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([campaignId, productId])
   @@index([campaignId])
@@ -447,10 +441,10 @@ model Voucher {
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
   orders         Order[]
+  userVouchers   UserVoucher[]
   campaign       PromotionCampaign? @relation(fields: [campaignId], references: [id])
   seller         User?              @relation(fields: [sellerId], references: [id])
   usageLogs      VoucherUsageLog[]
-  userVouchers   UserVoucher[]
 
   @@index([code])
   @@index([sellerId])
@@ -473,24 +467,18 @@ model VoucherUsageLog {
 }
 
 model UserVoucher {
-  id        String   @id @default(cuid())
+  id        String            @id @default(cuid())
   userId    String
   voucherId String
-  savedAt   DateTime @default(now())
+  savedAt   DateTime          @default(now())
   status    UserVoucherStatus @default(SAVED)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  voucher   Voucher  @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  voucher   Voucher           @relation(fields: [voucherId], references: [id], onDelete: Cascade)
 
   @@unique([userId, voucherId])
   @@index([userId])
   @@index([voucherId])
   @@index([userId, status])
-}
-
-enum UserVoucherStatus {
-  SAVED
-  USED
-  EXPIRED
 }
 
 model Review {
@@ -506,29 +494,28 @@ model Review {
   helpfulCount Int                 @default(0)
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
+  orderItem    OrderItem?          @relation(fields: [orderItemId], references: [id])
   product      Product             @relation(fields: [productId], references: [id])
   user         User                @relation(fields: [userId], references: [id])
-  orderItem    OrderItem?          @relation(fields: [orderItemId], references: [id])
-  helpfulVotes ReviewHelpfulVote[]
   comments     ReviewComment[]
+  helpfulVotes ReviewHelpfulVote[]
 
   @@index([productId])
   @@index([userId])
 }
 
 model ReviewComment {
-  id        String   @id @default(cuid())
+  id        String          @id @default(cuid())
   reviewId  String
   userId    String
   content   String
   parentId  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  review  Review          @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent  ReviewComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies ReviewComment[] @relation("CommentReplies")
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  parent    ReviewComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   ReviewComment[] @relation("CommentReplies")
+  review    Review          @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([reviewId])
   @@index([userId])
@@ -542,9 +529,8 @@ model ChatMessage {
   content    String
   isRead     Boolean  @default(false)
   createdAt  DateTime @default(now())
-
-  sender   User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([senderId, receiverId])
   @@index([receiverId, senderId])
@@ -567,9 +553,8 @@ model WishlistItem {
   userId    String
   productId String
   createdAt DateTime @default(now())
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, productId])
   @@index([userId])
@@ -590,7 +575,7 @@ model Notification {
   userId    String
   title     String
   content   String
-  link      String? // Đường dẫn để redirect
+  link      String?
   type      NotificationType @default(SYSTEM)
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
@@ -599,6 +584,136 @@ model Notification {
   @@index([userId])
   @@index([isRead])
   @@index([type])
+}
+
+model SystemLog {
+  id           String    @id @default(cuid())
+  userId       String?
+  action       String
+  entityType   String?
+  entityId     String?
+  metadata     Json?
+  ipAddress    String?
+  userAgent    String?
+  status       LogStatus @default(SUCCESS)
+  errorMessage String?
+  createdAt    DateTime  @default(now())
+  newValue     Json?
+  oldValue     Json?
+  user         User?     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model Province {
+  id        String     @id @default(cuid())
+  code      String     @unique
+  name      String
+  slug      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  districts District[]
+
+  @@index([code])
+}
+
+model District {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  provinceCode String
+  name         String
+  slug         String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  province     Province @relation(fields: [provinceCode], references: [code])
+  wards        Ward[]
+
+  @@index([code])
+  @@index([provinceCode])
+}
+
+model Ward {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  districtCode String
+  name         String
+  slug         String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  district     District @relation(fields: [districtCode], references: [code])
+
+  @@index([code])
+  @@index([districtCode])
+}
+
+model Post {
+  id           String        @id @default(cuid())
+  sellerId     String
+  title        String
+  content      String?
+  videoUrl     String?
+  thumbnailUrl String?
+  images       String[]      @default([])
+  hashtags     String[]      @default([])
+  status       PostStatus    @default(PUBLISHED)
+  viewCount    Int           @default(0)
+  likeCount    Int           @default(0)
+  commentCount Int           @default(0)
+  isPinned     Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  seller       User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  comments     PostComment[]
+  likes        PostLike[]
+  productTags  PostProduct[]
+
+  @@index([sellerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model PostProduct {
+  id        String  @id @default(cuid())
+  postId    String
+  productId String
+  position  Int     @default(0)
+  post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, productId])
+  @@index([postId])
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  parentId  String?
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+enum UserVoucherStatus {
+  SAVED
+  USED
+  EXPIRED
 }
 
 enum UserRole {
@@ -678,141 +793,13 @@ enum TransactionType {
   FEE
 }
 
-model SystemLog {
-  id           String    @id @default(cuid())
-  userId       String?
-  action       String // e.g., DELETE_USER, CANCEL_ORDER, UPDATE_ROLE
-  entityType   String? // e.g., User, Order
-  entityId     String?
-  metadata     Json? // Stores detailed changes or additional info
-  ipAddress    String?
-  userAgent    String?
-  status       LogStatus @default(SUCCESS)
-  errorMessage String?
-  createdAt    DateTime  @default(now())
-
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([action])
-  @@index([entityType, entityId])
-  @@index([createdAt])
-}
-
 enum LogStatus {
   SUCCESS
   FAILED
 }
 
-// ===== LOCATION MODELS =====
-
-model Province {
-  id        String     @id @default(cuid())
-  code      String     @unique // Mã tỉnh/thành (VD: "01")
-  name      String
-  slug      String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  districts District[]
-
-  @@index([code])
-}
-
-model District {
-  id          String   @id @default(cuid())
-  code        String   @unique // Mã quận/huyện (VD: "001")
-  provinceCode String
-  name        String
-  slug        String   @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  province    Province @relation(fields: [provinceCode], references: [code])
-  wards       Ward[]
-
-  @@index([code])
-  @@index([provinceCode])
-}
-
-model Ward {
-  id          String   @id @default(cuid())
-  code        String   @unique // Mã phường/xã (VD: "00001")
-  districtCode String
-  name        String
-  slug        String   @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  district    District @relation(fields: [districtCode], references: [code])
-
-  @@index([code])
-  @@index([districtCode])
-}
-
-// ===== POSTS (Video/Image quảng cáo của Seller) =====
-
 enum PostStatus {
-    DRAFT
-    PUBLISHED
-    HIDDEN
-}
-
-model Post {
-    id           String     @id @default(cuid())
-    sellerId     String
-    seller       User       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-    title        String
-    content      String?
-    videoUrl     String?
-    thumbnailUrl String?
-    images       String[]   @default([])
-    hashtags     String[]   @default([])
-    status       PostStatus @default(PUBLISHED)
-    viewCount    Int        @default(0)
-    likeCount    Int        @default(0)
-    commentCount Int        @default(0)
-    isPinned     Boolean    @default(false)
-    createdAt    DateTime   @default(now())
-    updatedAt    DateTime   @updatedAt
-
-    productTags  PostProduct[]
-    likes        PostLike[]
-    comments     PostComment[]
-
-    @@index([sellerId])
-    @@index([status])
-    @@index([createdAt])
-}
-
-model PostProduct {
-    id        String  @id @default(cuid())
-    postId    String
-    post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
-    productId String
-    product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-    position  Int     @default(0)
-
-    @@unique([postId, productId])
-    @@index([postId])
-}
-
-model PostLike {
-    id        String   @id @default(cuid())
-    postId    String
-    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-    userId    String
-    createdAt DateTime @default(now())
-
-    @@unique([postId, userId])
-    @@index([postId])
-}
-
-model PostComment {
-    id        String   @id @default(cuid())
-    postId    String
-    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-    userId    String
-    content   String
-    parentId  String?
-    createdAt DateTime @default(now())
-
-    @@index([postId])
+  DRAFT
+  PUBLISHED
+  HIDDEN
 }
