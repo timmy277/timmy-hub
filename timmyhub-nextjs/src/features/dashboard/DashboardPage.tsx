@@ -1,5 +1,3 @@
-'use client';
-
 import { Container, Title, Group, Text, Stack } from '@mantine/core';
 import { DashboardClient } from './components/DashboardClient';
 
