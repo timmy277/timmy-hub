@@ -3,7 +3,7 @@
 import { Group, Text, Divider, ActionIcon, Breadcrumbs, Anchor } from '@mantine/core';
 import { LanguageSwitcher, ThemeSwitcher } from '../shared';
 import { Logo } from '../common';
-import { CartBadge } from '../../features/cart/components/CartBadge';
+import { CartBadge } from '../shared/CartBadge';
 import { NotificationBell } from './NotificationBell';
 import { MessageIcon } from './MessageIcon';
 import { SellerButton } from './SellerButton';
