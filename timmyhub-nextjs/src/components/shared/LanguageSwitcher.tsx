@@ -4,12 +4,12 @@ import { ActionIcon, Menu, Tooltip } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '@/stores/useThemeStore';
-import { FlagVN, FlagUK } from '@/components/common';
+import { IconPath } from '../icons';
 
 // ===== Data =====
 const languages = [
-    { code: 'en', label: 'English', flag: <FlagUK /> },
-    { code: 'vi', label: 'Tiếng Việt', flag: <FlagVN /> },
+    { code: 'en', label: 'English', flag: <IconPath name="flag-uk" /> },
+    { code: 'vi', label: 'Tiếng Việt', flag: <IconPath name="flag-vn" /> },
 ];
 
 export function LanguageSwitcher() {
@@ -36,7 +36,11 @@ export function LanguageSwitcher() {
             <Menu.Target>
                 <Tooltip label={t('Change language') || 'Change language'}>
                     <ActionIcon variant="subtle" size="lg" radius="md">
-                        {currentLanguage.startsWith('vi') ? <FlagVN /> : <FlagUK />}
+                        {currentLanguage.startsWith('vi') ? (
+                            <IconPath name="flag-vn" />
+                        ) : (
+                            <IconPath name="flag-uk" />
+                        )}
                     </ActionIcon>
                 </Tooltip>
             </Menu.Target>

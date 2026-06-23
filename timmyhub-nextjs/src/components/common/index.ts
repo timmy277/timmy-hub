@@ -1,4 +1,3 @@
-export * from './icons/iconPath';
 export * from './Logo';
 export { TopLoader } from './TopLoader';
 export { ClientOnly } from './ClientOnly';
