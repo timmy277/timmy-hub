@@ -240,7 +240,7 @@ export function ManagementPage<T>({
                                             </Button>
                                             {onAdd && (
                                                 <Button
-                                                    leftSection={<Iconify icon="solar:plus-bold" width={16} />}
+                                                    leftSection={<Iconify icon="mdi:plus" width={16} />}
                                                     onClick={onAdd}
                                                 >
                                                     Thêm {entityName}
