@@ -28,7 +28,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Product } from '@/types/product';
 import { ProductImageGallery } from './ProductImageGallery';
 import { AppBreadcrumbs, type BreadcrumbItem } from '@/components/shared';
-import { WishlistButton } from '@/components/wishlist/WishlistButton';
+import { WishlistButton } from '@/components/common/WishlistButton';
 import { ReviewList } from '@/features/reviews';
 import { campaignService } from '@/services/campaign.service';
 import { useTranslation } from 'react-i18next';

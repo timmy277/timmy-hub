@@ -5,3 +5,4 @@ export { LoadingPage } from './LoadingPage';
 export { AddressSelect } from './AddressSelect';
 export { MapPicker } from './MapPicker';
 export { BaseDataTable } from './BaseDataTable';
+export { WishlistButton } from './WishlistButton';
