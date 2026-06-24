@@ -1,22 +1,16 @@
-import { Container, Stack, Skeleton, Paper } from '@mantine/core';
+import AdminTableSkeleton from '../components/AdminTableSkeleton';
 
 export default function AdminVouchersLoading() {
     return (
-        <Container fluid p="md">
-            <Stack gap="md">
-                <Skeleton height={40} width={200} />
-                <Skeleton height={50} width="100%" />
-
-                <Paper withBorder>
-                    <Stack gap={0}>
-                        {Array.from({ length: 10 }).map((_, i) => (
-                            <div key={i} style={{ borderBottom: '1px solid var(--mantine-color-default-border)', padding: '12px' }}>
-                                <Skeleton height={60} />
-                            </div>
-                        ))}
-                    </Stack>
-                </Paper>
-            </Stack>
-        </Container>
+        <AdminTableSkeleton
+            titleWidth={160}
+            showAddButton={true}
+            showExportButton={true}
+            showSearch={true}
+            searchWidth={350}
+            rowCount={5}
+            columnCount={8}
+            columnWidths={[100, 200, 100, 100, 120, 120, 100, 150]}
+        />
     );
 }

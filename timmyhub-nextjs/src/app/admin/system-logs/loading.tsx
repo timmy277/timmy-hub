@@ -1,22 +1,25 @@
-import { Container, Stack, Skeleton, Paper } from '@mantine/core';
+import AdminTableSkeleton from '../components/AdminTableSkeleton';
 
 export default function AdminSystemLogsLoading() {
     return (
-        <Container fluid p="md">
-            <Stack gap="md">
-                <Skeleton height={40} width={200} />
-                <Skeleton height={50} width="100%" />
-
-                <Paper withBorder>
-                    <Stack gap={0}>
-                        {Array.from({ length: 15 }).map((_, i) => (
-                            <div key={i} style={{ borderBottom: '1px solid var(--mantine-color-default-border)', padding: '8px' }}>
-                                <Skeleton height={40} />
-                            </div>
-                        ))}
-                    </Stack>
-                </Paper>
-            </Stack>
-        </Container>
+        <AdminTableSkeleton
+            titleWidth={180}
+            showAddButton={false}
+            showExportButton={true}
+            showSearch={true}
+            searchWidth={350}
+            rowCount={9}
+            columns={[
+                { width: 40, type: 'checkbox' },      // Checkbox column
+                { width: 170, type: 'text' },          // Thời gian
+                { width: 250, type: 'twoLine' },       // Người thực hiện (tên + email)
+                { width: 220, type: 'text' },          // Hành động
+                { width: 140, type: 'text' },          // Loại Data
+                { width: 200, type: 'text' },          // Data ID
+                { width: 140, type: 'badge' },         // Trạng thái (badge)
+                { width: 150, type: 'text' },          // IP
+                { width: 180, type: 'icon' },          // Chi tiết (icon button)
+            ]}
+        />
     );
 }

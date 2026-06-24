@@ -1,22 +1,16 @@
-import { Container, Stack, Skeleton, Paper } from '@mantine/core';
+import AdminTableSkeleton from '../components/AdminTableSkeleton';
 
 export default function AdminCampaignsLoading() {
     return (
-        <Container fluid p="md">
-            <Stack gap="md">
-                <Skeleton height={40} width={200} />
-                <Skeleton height={50} width="100%" />
-
-                <Paper withBorder>
-                    <Stack gap={0}>
-                        {Array.from({ length: 10 }).map((_, i) => (
-                            <div key={i} style={{ borderBottom: '1px solid var(--mantine-color-default-border)', padding: '12px' }}>
-                                <Skeleton height={50} />
-                            </div>
-                        ))}
-                    </Stack>
-                </Paper>
-            </Stack>
-        </Container>
+        <AdminTableSkeleton
+            titleWidth={180}
+            showAddButton={true}
+            showExportButton={true}
+            showSearch={true}
+            searchWidth={350}
+            rowCount={5}
+            columnCount={7}
+            columnWidths={[150, 120, 250, 250, 200, 120, 150]}
+        />
     );
 }

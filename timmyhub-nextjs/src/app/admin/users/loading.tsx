@@ -1,22 +1,23 @@
-import { Container, Stack, Skeleton, Paper } from '@mantine/core';
+import AdminTableSkeleton from '../components/AdminTableSkeleton';
 
 export default function AdminUsersLoading() {
     return (
-        <Container fluid p="md">
-            <Stack gap="md">
-                <Skeleton height={40} width={200} />
-                <Skeleton height={50} width="100%" />
-
-                <Paper withBorder>
-                    <Stack gap={0}>
-                        {Array.from({ length: 10 }).map((_, i) => (
-                            <div key={i} style={{ borderBottom: '1px solid var(--mantine-color-default-border)', padding: '12px' }}>
-                                <Skeleton height={60} />
-                            </div>
-                        ))}
-                    </Stack>
-                </Paper>
-            </Stack>
-        </Container>
+        <AdminTableSkeleton
+            titleWidth={150}
+            showAddButton={true}
+            showExportButton={true}
+            showSearch={true}
+            searchWidth={350}
+            rowCount={9}
+            columns={[
+                { width: 40, type: 'checkbox' },      // Checkbox
+                { width: 100, type: 'icon' },          // Avatar
+                { width: 150, type: 'text' },          // Name
+                { width: 200, type: 'text' },          // Email
+                { width: 180, type: 'badge' },         // Role (badges)
+                { width: 150, type: 'badge' },         // Status
+                { width: 150, type: 'text' },          // Member Since
+            ]}
+        />
     );
 }

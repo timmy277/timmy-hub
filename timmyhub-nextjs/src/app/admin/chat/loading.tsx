@@ -1,23 +1,18 @@
-import { Container, SimpleGrid, Stack, Skeleton, Paper } from '@mantine/core';
+import AdminTableSkeleton from '../components/AdminTableSkeleton';
 
 export default function AdminChatLoading() {
     return (
-        <Container fluid p="md">
-            <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
-                <Paper withBorder p="md">
-                    <Stack gap="sm">
-                        {Array.from({ length: 8 }).map((_, i) => (
-                            <Skeleton key={i} height={60} />
-                        ))}
-                    </Stack>
-                </Paper>
-
-                <div style={{ gridColumn: 'span 2' }}>
-                    <Paper withBorder p="md" style={{ height: '600px' }}>
-                        <Skeleton height="100%" />
-                    </Paper>
-                </div>
-            </SimpleGrid>
-        </Container>
+        <AdminTableSkeleton
+            titleWidth={150}
+            showAddButton={false}
+            showExportButton={false}
+            showSearch={true}
+            searchWidth={350}
+            rowCount={5}
+            columnCount={5}
+            columnWidths={[50, 150, 200, 100, 80]}
+            showImageColumn={true}
+            imageColumnSize={40}
+        />
     );
 }

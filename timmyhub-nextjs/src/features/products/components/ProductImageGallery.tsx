@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { Box, Image, ActionIcon, Modal, ScrollArea } from '@mantine/core';
+import { Box, ActionIcon, Modal, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Iconify from '@/components/iconify/Iconify';
+import Image from 'next/image';
 
 interface ProductImageGalleryProps {
     images: string[];
@@ -52,19 +53,21 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                     onMouseMove={handleMouseMove}
                     onClick={openZoom}
                 >
-                    <Image
-                        src={mainImage}
-                        alt={productName}
-                        fit="cover"
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            transition: 'transform 0.1s ease',
-                            transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
-                            transform: isHovering ? `scale(${ZOOM_SCALE})` : 'scale(1)',
-                            display: 'block',
-                        }}
-                    />
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <Image
+                            src={mainImage}
+                            alt={productName}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 600px"
+                            style={{
+                                objectFit: 'cover',
+                                transition: 'transform 0.1s ease',
+                                transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                                transform: isHovering ? `scale(${ZOOM_SCALE})` : 'scale(1)',
+                            }}
+                            unoptimized={mainImage.startsWith('/placeholder')}
+                        />
+                    </div>
 
                     {/* Expand button */}
                     {!isHovering && (
@@ -144,12 +147,16 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                                             if (!isActive) e.currentTarget.style.opacity = '0.65';
                                         }}
                                     >
-                                        <Image
-                                            src={img}
-                                            alt={`${productName} ${index + 1}`}
-                                            fit="cover"
-                                            style={{ width: '100%', height: '100%', display: 'block' }}
-                                        />
+                                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                            <Image
+                                                src={img}
+                                                alt={`${productName} ${index + 1}`}
+                                                fill
+                                                sizes="80px"
+                                                style={{ objectFit: 'cover' }}
+                                                unoptimized={img.startsWith('/placeholder')}
+                                            />
+                                        </div>
                                     </Box>
                                 );
                             })}
@@ -216,12 +223,16 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                         </>
                     )}
 
-                    <Image
-                        src={mainImage}
-                        alt={productName}
-                        fit="contain"
-                        style={{ maxHeight: '75vh', width: '100%' }}
-                    />
+                    <div style={{ position: 'relative', width: '100%', maxHeight: '75vh', aspectRatio: '4/3' }}>
+                        <Image
+                            src={mainImage}
+                            alt={productName}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 1200px"
+                            style={{ objectFit: 'contain' }}
+                            unoptimized={mainImage.startsWith('/placeholder')}
+                        />
+                    </div>
 
                     {/* Thumbnail strip in modal */}
                     {displayImages.length > 1 && (
@@ -249,12 +260,16 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                                                 transition: 'opacity 0.15s, border-color 0.15s',
                                             }}
                                         >
-                                            <Image
-                                                src={img}
-                                                alt={`${productName} ${index + 1}`}
-                                                fit="cover"
-                                                style={{ width: '100%', height: '100%', display: 'block' }}
-                                            />
+                                            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                                <Image
+                                                    src={img}
+                                                    alt={`${productName} ${index + 1}`}
+                                                    fill
+                                                    sizes="60px"
+                                                    style={{ objectFit: 'cover' }}
+                                                    unoptimized={img.startsWith('/placeholder')}
+                                                />
+                                            </div>
                                         </Box>
                                     );
                                 })}
