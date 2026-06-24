@@ -124,6 +124,7 @@ export function MapPicker({ center, searchAddress, onLocationSelect, height = 22
     useEffect(() => {
         if (!center || !mapRef.current) return;
         void import('leaflet').then(L => moveMarker(L, center));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [center?.lat, center?.lng, moveMarker]);
 
     const handleLocateMe = () => {

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { TextInput, Paper, Stack, Text, Box, Loader, Group } from '@mantine/core';
+import { TextInput, Paper, Stack, Text, Box, Loader, Group, Badge } from '@mantine/core';
 import { useDebouncedValue, useClickOutside } from '@mantine/hooks';
 import Iconify from '@/components/iconify/Iconify';
 import { searchService } from '@/services/search.service';

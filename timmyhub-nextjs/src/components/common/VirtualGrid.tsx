@@ -66,6 +66,7 @@ export function VirtualGrid<T>({
 
     const totalRows = rows.length + (hasMore ? 1 : 0); // +1 cho loader row
 
+    // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual is intentionally used here
     const rowVirtualizer = useVirtualizer({
         count: totalRows,
         getScrollElement: () => parentRef.current,
