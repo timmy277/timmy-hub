@@ -2,12 +2,7 @@ import { HomePageClient } from './HomePageClient';
 import { Product } from '@/types/product';
 import type { Post } from '@/types/post';
 import type { Voucher } from '@/services/voucher.service';
-import dynamic from 'next/dynamic';
-
-const HeroCarousel = dynamic(() =>
-    import('./components/HeroCarousel').then(m => ({ default: m.HeroCarousel })),
-    { ssr: false, loading: () => null }
-);
+import { HeroCarousel } from './components/HeroCarousel';
 
 const API_URL =
     process.env.API_URL ||
