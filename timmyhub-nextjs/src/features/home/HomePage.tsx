@@ -2,6 +2,12 @@ import { HomePageClient } from './HomePageClient';
 import { Product } from '@/types/product';
 import type { Post } from '@/types/post';
 import type { Voucher } from '@/services/voucher.service';
+import dynamic from 'next/dynamic';
+
+const HeroCarousel = dynamic(() =>
+    import('./components/HeroCarousel').then(m => ({ default: m.HeroCarousel })),
+    { ssr: false, loading: () => null }
+);
 
 const API_URL =
     process.env.API_URL ||
@@ -61,5 +67,5 @@ export default async function HomePage() {
         }
     }
 
-    return <HomePageClient initialProducts={products} initialVouchers={vouchers} initialPosts={posts} />;
+    return <HomePageClient initialProducts={products} initialVouchers={vouchers} initialPosts={posts} HeroCarouselComponent={HeroCarousel} />;
 }

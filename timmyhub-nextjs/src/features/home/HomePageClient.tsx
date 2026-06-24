@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ComponentType } from 'react';
 import {
     Container,
     Title,
@@ -20,7 +20,6 @@ import { productService, type ProductFilterParams } from '@/services/product.ser
 import { useTranslation } from 'react-i18next';
 
 import {
-    HeroCarousel,
     CategorySection,
     FlashSaleBanner,
     VoucherSection,
@@ -38,11 +37,12 @@ interface HomePageClientProps {
     initialProducts: Product[];
     initialVouchers: Voucher[];
     initialPosts: Post[];
+    HeroCarouselComponent: ComponentType;
 }
 
 const PRODUCTS_PAGE_SIZE = 10;
 
-export function HomePageClient({ initialProducts, initialVouchers, initialPosts }: HomePageClientProps) {
+export function HomePageClient({ initialProducts, initialVouchers, initialPosts, HeroCarouselComponent }: HomePageClientProps) {
     const { t } = useTranslation('common');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [activeTab, setActiveTab] = useState<string | null>('all');
@@ -72,8 +72,8 @@ export function HomePageClient({ initialProducts, initialVouchers, initialPosts 
     return (
         <Container size="xl" py="xl">
             <Stack gap={48}>
-                {/* Hero */}
-                <HeroCarousel />
+                {/* Hero - Dynamic loaded */}
+                <HeroCarouselComponent />
 
                 {/* Features */}
                 <FeatureSection />
