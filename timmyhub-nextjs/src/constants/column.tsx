@@ -264,18 +264,17 @@ export const createProductColumns = (options: ColumnConfigOptions): ColDef<Produ
             sortable: false,
             cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
             cellRenderer: (params: ICellRendererParams<Product>) => {
-                const imageUrl = params.value?.[0] || '';
+                const imageUrl = params.value?.[0] || 'https://placehold.co/40x40?text=HP';
                 return (
-                    <Image
-                        component={NextImage}
-                        src={imageUrl}
-                        height={35}
-                        width={35}
-                        radius="md"
-                        fallbackSrc="https://placehold.co/40x40?text=HP"
-                        fit="cover"
-                        alt={params.data?.name || 'Product'}
-                    />
+                    <div style={{ position: 'relative', width: 35, height: 35, borderRadius: 8, overflow: 'hidden' }}>
+                        <NextImage
+                            src={imageUrl}
+                            alt={params.data?.name || 'Product'}
+                            fill
+                            sizes="35px"
+                            style={{ objectFit: 'cover' }}
+                        />
+                    </div>
                 );
             },
         },
@@ -407,18 +406,20 @@ export const createSellerProductColumns = (options: ColumnConfigOptions): ColDef
             filter: false,
             sortable: false,
             cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
-            cellRenderer: (params: ICellRendererParams<Product>) => (
-                <Image
-                    component={NextImage}
-                    src={params.value?.[0] || ''}
-                    height={35}
-                    width={35}
-                    radius="md"
-                    fallbackSrc="https://placehold.co/40x40?text=SP"
-                    fit="cover"
-                    alt={params.data?.name || 'Product'}
-                />
-            ),
+            cellRenderer: (params: ICellRendererParams<Product>) => {
+                const imageUrl = params.value?.[0] || 'https://placehold.co/40x40?text=SP';
+                return (
+                    <div style={{ position: 'relative', width: 35, height: 35, borderRadius: 8, overflow: 'hidden' }}>
+                        <NextImage
+                            src={imageUrl}
+                            alt={params.data?.name || 'Product'}
+                            fill
+                            sizes="35px"
+                            style={{ objectFit: 'cover' }}
+                        />
+                    </div>
+                );
+            },
         },
         {
             headerName: t('table.columns.product'),
