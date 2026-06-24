@@ -1,5 +1,3 @@
-'use client';
-
 import { Skeleton, Stack, Group } from '@mantine/core';
 
 const H = 'calc(100dvh - 60px)';
