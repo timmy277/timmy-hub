@@ -8,9 +8,7 @@ export default function AdminSellerApplicationsLoading() {
             showExportButton={true}
             showSearch={true}
             searchWidth={350}
-            rowCount={5}
-            hasImage={false}
-            actionButtonCount={2}
+            rowCount={9}
         />
     );
 }

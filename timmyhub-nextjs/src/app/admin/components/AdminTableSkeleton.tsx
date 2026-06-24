@@ -1,4 +1,4 @@
-import { Container, Stack, Skeleton, Paper, Box } from '@mantine/core';
+import { Container, Stack, Skeleton, Paper } from '@mantine/core';
 
 interface AdminTableSkeletonProps {
     titleWidth?: number;
@@ -7,11 +7,6 @@ interface AdminTableSkeletonProps {
     showSearch?: boolean;
     searchWidth?: number;
     rowCount?: number;
-    // Column configuration for table-like skeleton
-    columns?: {
-        width: number | string; // width in pixels or percentage
-        type?: 'checkbox' | 'text' | 'badge' | 'twoLine' | 'icon'; // visual style
-    }[];
 }
 
 export default function AdminTableSkeleton({
@@ -21,21 +16,7 @@ export default function AdminTableSkeleton({
     showSearch = true,
     searchWidth = 300,
     rowCount = 10,
-    columns,
 }: AdminTableSkeletonProps) {
-    // Default columns if none provided (generic table)
-    const defaultColumns = [
-        { width: 40, type: 'checkbox' as const },
-        { width: 150, type: 'text' as const },
-        { width: 200, type: 'twoLine' as const },
-        { width: 180, type: 'text' as const },
-        { width: 120, type: 'badge' as const },
-        { width: 150, type: 'text' as const },
-        { width: 100, type: 'icon' as const },
-    ];
-
-    const tableColumns = columns || defaultColumns;
-
     return (
         <Container
             fluid
@@ -47,7 +28,7 @@ export default function AdminTableSkeleton({
             }}
         >
             <Paper withBorder radius="md" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                {/* Title - Inside Paper Top */}
+                {/* Title */}
                 <div style={{ padding: '16px', borderBottom: '1px solid var(--mantine-color-default-border)' }}>
                     <Skeleton height={28} width={titleWidth} />
                 </div>
@@ -73,7 +54,7 @@ export default function AdminTableSkeleton({
                 {/* Table Header */}
                 <div
                     style={{
-                        padding: '8px 16px',
+                        padding: '10px 16px',
                         borderBottom: '2px solid var(--mantine-color-default-border)',
                         display: 'flex',
                         gap: '1rem',
@@ -81,24 +62,15 @@ export default function AdminTableSkeleton({
                         background: 'var(--mantine-color-gray-0)',
                     }}
                 >
-                    {tableColumns.map((col, idx) => (
-                        <Box
-                            key={idx}
-                            style={{
-                                width: typeof col.width === 'number' ? `${col.width}px` : col.width,
-                                flexShrink: 0,
-                            }}
-                        >
-                            {col.type === 'checkbox' ? (
-                                <Skeleton height={16} width={16} />
-                            ) : (
-                                <Skeleton height={12} width="70%" />
-                            )}
-                        </Box>
-                    ))}
+                    <Skeleton height={12} width={30} />
+                    <Skeleton height={12} width="15%" />
+                    <Skeleton height={12} width="20%" />
+                    <Skeleton height={12} width="15%" />
+                    <Skeleton height={12} width="12%" />
+                    <Skeleton height={12} width="18%" />
                 </div>
 
-                {/* Table Content - Rows */}
+                {/* Table Rows */}
                 <div style={{ flex: 1, overflow: 'hidden' }}>
                     <Stack gap={0}>
                         {Array.from({ length: rowCount }).map((_, rowIndex) => (
@@ -109,39 +81,19 @@ export default function AdminTableSkeleton({
                                         rowIndex < rowCount - 1
                                             ? '1px solid var(--mantine-color-default-border)'
                                             : 'none',
-                                    padding: '10px 16px',
+                                    padding: '12px 16px',
                                     display: 'flex',
                                     gap: '1rem',
                                     alignItems: 'center',
                                 }}
                             >
-                                {tableColumns.map((col, colIndex) => (
-                                    <Box
-                                        key={colIndex}
-                                        style={{
-                                            width:
-                                                typeof col.width === 'number'
-                                                    ? `${col.width}px`
-                                                    : col.width,
-                                            flexShrink: 0,
-                                        }}
-                                    >
-                                        {col.type === 'checkbox' ? (
-                                            <Skeleton height={16} width={16} />
-                                        ) : col.type === 'twoLine' ? (
-                                            <Stack gap={4}>
-                                                <Skeleton height={14} width="80%" />
-                                                <Skeleton height={12} width="60%" />
-                                            </Stack>
-                                        ) : col.type === 'badge' ? (
-                                            <Skeleton height={22} width={70} radius="xl" />
-                                        ) : col.type === 'icon' ? (
-                                            <Skeleton height={28} width={28} radius="sm" />
-                                        ) : (
-                                            <Skeleton height={14} width="90%" />
-                                        )}
-                                    </Box>
-                                ))}
+                                {/* Simple skeleton blocks */}
+                                <Skeleton height={16} width={30} />
+                                <Skeleton height={16} width="15%" />
+                                <Skeleton height={16} width="20%" />
+                                <Skeleton height={16} width="15%" />
+                                <Skeleton height={16} width="12%" />
+                                <Skeleton height={16} width="18%" />
                             </div>
                         ))}
                     </Stack>

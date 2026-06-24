@@ -8,9 +8,7 @@ export default function AdminOrdersLoading() {
             showExportButton={true}
             showSearch={true}
             searchWidth={350}
-            rowCount={5}
-            columnCount={7}
-            columnWidths={[120, 200, 140, 120, 130, 150, 150]}
+            rowCount={9}
         />
     );
 }

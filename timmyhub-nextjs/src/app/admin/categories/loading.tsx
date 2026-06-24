@@ -8,9 +8,7 @@ export default function AdminCategoriesLoading() {
             showExportButton={true}
             showSearch={true}
             searchWidth={350}
-            rowCount={5}
-            columnCount={5}
-            columnWidths={[100, 200, 120, 150, 150]}
+            rowCount={9}
         />
     );
 }

@@ -8,9 +8,7 @@ export default function AdminCampaignsLoading() {
             showExportButton={true}
             showSearch={true}
             searchWidth={350}
-            rowCount={5}
-            columnCount={7}
-            columnWidths={[150, 120, 250, 250, 200, 120, 150]}
+            rowCount={9}
         />
     );
 }

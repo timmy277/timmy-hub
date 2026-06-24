@@ -1,4 +1,4 @@
-import AdminTableSkeleton from '../components/AdminTableSkeleton';
+import AdminTableSkeleton from '../../components/AdminTableSkeleton';
 
 export default function AdminProvincesLoading() {
     return (
@@ -8,9 +8,7 @@ export default function AdminProvincesLoading() {
             showExportButton={false}
             showSearch={true}
             searchWidth={300}
-            rowCount={5}
-            columnCount={5}
-            columnWidths={[100, 220, 120, 100, 120]}
+            rowCount={9}
         />
     );
 }

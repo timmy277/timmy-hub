@@ -8,9 +8,7 @@ export default function AdminWardsLoading() {
             showExportButton={false}
             showSearch={true}
             searchWidth={300}
-            rowCount={5}
-            columnCount={5}
-            columnWidths={[100, 200, 150, 100, 120]}
+            rowCount={9}
         />
     );
 }
