@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Stack, TextInput, Button, Group, Text, Box, ActionIcon, Image, Progress, Paper, SimpleGrid } from '@mantine/core';
+import { Stack, TextInput, Button, Group, Text, Box, ActionIcon, Progress, Paper, SimpleGrid } from '@mantine/core';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import Iconify from '@/components/iconify/Iconify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { fileService } from '@/services/file.service';
 import { notifications } from '@mantine/notifications';
 import { PostRichTextEditor } from '../../../components/common/RichTextEditor';
 import type { CreatePostInput } from '@/types/post';
+import Image from 'next/image';
 
 interface UploadedMedia { url: string; type: 'image' | 'video'; name: string; }
 
@@ -100,7 +101,12 @@ export function CreatePostForm({ onSuccess }: { onSuccess?: () => void }) {
                                 {m.type === 'video' ? (
                                     <video src={m.url} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} controls muted playsInline />
                                 ) : (
-                                    <Image src={m.url} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <Image
+                                        src={m.url}
+                                        alt={m.name}
+                                        fill
+                                        style={{ objectFit: 'cover', display: 'block' }}
+                                    />
                                 )}
                             </Paper>
                             <ActionIcon

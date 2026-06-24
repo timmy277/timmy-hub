@@ -1,4 +1,4 @@
-import { Badge, Group, ActionIcon, Tooltip, Avatar, Stack, Text, Image, Flex } from '@mantine/core';
+import { Badge, Group, ActionIcon, Tooltip, Avatar, Stack, Text, Flex } from '@mantine/core';
 import NextImage from 'next/image';
 import Iconify from '@/components/iconify/Iconify';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';

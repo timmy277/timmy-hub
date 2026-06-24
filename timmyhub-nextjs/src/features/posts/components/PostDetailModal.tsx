@@ -1,11 +1,12 @@
 'use client';
 
-import { Modal, Group, Avatar, Text, Stack, Box, ScrollArea, TextInput, ActionIcon, Divider, Image } from '@mantine/core';
+import { Modal, Group, Avatar, Text, Stack, Box, ScrollArea, TextInput, ActionIcon, Divider } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { postService } from '@/services/post.service';
 import { formatVND } from '@/utils/currency';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { RichTextContent } from '@/components/common/RichTextContent';
 import { useAuth } from '@/hooks/useAuth';
@@ -125,8 +126,12 @@ export function PostDetailModal({ post, opened, onClose }: PostDetailModalProps)
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             controls autoPlay muted />
                     ) : post.images[0] ? (
-                        <Image src={post.images[0]} alt={post.title}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <Image
+                            src={post.images[0]}
+                            alt={post.title}
+                            fill
+                            style={{ objectFit: 'cover', display: 'block' }}
+                        />
                     ) : null}
                 </Box>
 
@@ -162,7 +167,13 @@ export function PostDetailModal({ post, opened, onClose }: PostDetailModalProps)
                                         {post.productTags.map(pt => (
                                             <Box key={pt.id} component={Link} href={`/product/${pt.product.slug}`}
                                                 style={{ textDecoration: 'none', color: 'inherit', padding: 8, borderRadius: 8, border: '1px solid var(--mantine-color-default-border)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                <Image src={pt.product.images[0]} alt={pt.product.name} w={48} h={48} radius="sm" fit="cover" style={{ flexShrink: 0 }} />
+                                                <Image
+                                                    src={pt.product.images[0]}
+                                                    alt={pt.product.name}
+                                                    width={48}
+                                                    height={48}
+                                                    style={{ objectFit: 'cover', borderRadius: 'var(--mantine-radius-sm)', flexShrink: 0, display: 'block' }}
+                                                />
                                                 <Box style={{ flex: 1, minWidth: 0 }}>
                                                     <Text size="sm" truncate="end">{pt.product.name}</Text>
                                                     <Text size="sm" fw={700} c="blue">{formatVND(pt.product.price)}</Text>

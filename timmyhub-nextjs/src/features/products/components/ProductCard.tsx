@@ -1,9 +1,10 @@
 'use client';
 
-import { Card, Group, Image, Text, Box, Anchor, Stack, Progress } from '@mantine/core';
+import { Card, Group, Text, Box, Anchor, Stack, Progress } from '@mantine/core';
 import Iconify from '@/components/iconify/Iconify';
 import { m } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Product } from '@/types/product';
 import { formatVND } from '@/utils/currency';
 import { useTranslation } from 'react-i18next';
@@ -43,7 +44,12 @@ const ProductCardInner = memo(function ProductCardInner({ product, viewMode = 'g
                     style={{ position: 'relative', boxShadow: '0 1px 3px rgba(145,158,171,0.16)', cursor: 'pointer' }}>
                     <Link href={productLink} style={{ position: 'absolute', inset: 0, zIndex: 0 }} aria-label={product.name} />
                     <Box pos="relative" style={{ aspectRatio: '1/1', overflow: 'hidden', borderRadius: 8, background: '#f4f6f8' }}>
-                        <Image src={product.images[0] || '/placeholder-product.jpg'} w="100%" h="100%" fit="cover" alt={product.name} />
+                        <Image
+                            src={product.images[0] || '/placeholder-product.jpg'}
+                            fill
+                            alt={product.name}
+                            style={{ objectFit: 'cover', display: 'block' }}
+                        />
                         {discountPercentage > 0 && (
                             <Box pos="absolute" top={6} left={6}
                                 style={{ background: '#ff3030', color: '#fff', fontWeight: 700, fontSize: 11, padding: '2px 7px', borderRadius: 5 }}>
@@ -80,7 +86,13 @@ const ProductCardInner = memo(function ProductCardInner({ product, viewMode = 'g
                 <Link href={productLink} style={{ position: 'absolute', inset: 0, zIndex: 0 }} aria-label={product.name} />
                 <Group gap={0} align="stretch" wrap="nowrap">
                     <Box style={{ width: 160, flexShrink: 0, aspectRatio: '1/1', overflow: 'hidden', background: '#f4f6f8' }}>
-                        <Image src={product.images[0] || '/placeholder-product.jpg'} w={160} h="100%" fit="cover" alt={product.name} style={{ display: 'block' }} />
+                        <Image
+                            src={product.images[0] || '/placeholder-product.jpg'}
+                            width={160}
+                            height={160}
+                            alt={product.name}
+                            style={{ objectFit: 'cover', display: 'block' }}
+                        />
                     </Box>
                     <Box p={14} style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
                         <Text size="xs" fw={600} style={{ color: '#637381', textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>
@@ -123,7 +135,12 @@ const ProductCardInner = memo(function ProductCardInner({ product, viewMode = 'g
 
                 {/* Image */}
                 <Box pos="relative" style={{ aspectRatio: '1/1', overflow: 'hidden', background: '#f4f6f8' }}>
-                    <Image src={product.images[0] || '/placeholder-product.jpg'} w="100%" h="100%" fit="cover" alt={product.name} style={{ display: 'block' }} />
+                    <Image
+                        src={product.images[0] || '/placeholder-product.jpg'}
+                        fill
+                        alt={product.name}
+                        style={{ objectFit: 'cover', display: 'block' }}
+                    />
                     {discountPercentage > 0 && (
                         <Box pos="absolute" top={8} left={8}
                             style={{ background: '#ff3030', color: '#fff', fontWeight: 700, fontSize: 11, padding: '2px 8px', borderRadius: 6 }}>

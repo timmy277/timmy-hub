@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Box, Image } from '@mantine/core';
+import { Box } from '@mantine/core';
 import type { Post } from '@/types/post';
+import Image from 'next/image';
 
 interface PostCardProps {
     post: Post;
@@ -43,7 +44,8 @@ export function PostCard({ post, onOpenDetail }: PostCardProps) {
                 <Image
                     src={post.images[0]}
                     alt={post.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    fill
+                    style={{ objectFit: 'cover', display: 'block' }}
                 />
             ) : null}
         </Box>

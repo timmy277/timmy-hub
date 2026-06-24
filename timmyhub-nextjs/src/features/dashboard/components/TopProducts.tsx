@@ -1,9 +1,10 @@
 'use client';
 
 import { ReactElement } from 'react';
-import { Paper, Text, Stack, Group, Image, Badge, Box } from '@mantine/core';
+import { Paper, Text, Stack, Group, Badge, Box } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { formatVND, formatCompact } from '@/utils/currency';
+import Image from 'next/image';
 import type { TopProduct } from '@/types/dashboard';
 
 interface TopProductsProps {
@@ -45,14 +46,14 @@ export function TopProducts({ data }: TopProductsProps): ReactElement {
                                 #{idx + 1}
                             </Text>
                             {product.image ? (
-                                <Image
-                                    src={product.image}
-                                    alt={product.name}
-                                    w={36}
-                                    h={36}
-                                    radius="sm"
-                                    className="object-cover"
-                                />
+                                <div style={{ width: 36, height: 36, flexShrink: 0, borderRadius: 'var(--mantine-radius-sm)', overflow: 'hidden', background: '#f4f6f8' }}>
+                                    <Image
+                                        src={product.image}
+                                        alt={product.name}
+                                        fill
+                                        style={{ objectFit: 'cover', width: '100%', height: '100%', display: 'block' }}
+                                    />
+                                </div>
                             ) : (
                                 <Box w={36} h={36} className="rounded-sm bg-slate-200 dark:bg-slate-700" />
                             )}

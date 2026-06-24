@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Container, Button, Group, Modal, Text, ActionIcon, Menu, Badge, Stack, Paper, Image, Box } from '@mantine/core';
+import { Container, Button, Group, Modal, Text, ActionIcon, Menu, Badge, Stack, Paper, Box } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { postService } from '@/services/post.service';
@@ -12,6 +12,7 @@ import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
 import type { Post } from '@/types/post';
 import dayjs from 'dayjs';
+import Image from 'next/image';
 
 export function SellerPostsPage() {
     const queryClient = useQueryClient();

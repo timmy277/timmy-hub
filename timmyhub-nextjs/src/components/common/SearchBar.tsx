@@ -2,13 +2,14 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { TextInput, Paper, Stack, Text, Box, Loader, Group, Image, Badge } from '@mantine/core';
+import { TextInput, Paper, Stack, Text, Box, Loader, Group } from '@mantine/core';
 import { useDebouncedValue, useClickOutside } from '@mantine/hooks';
 import Iconify from '@/components/iconify/Iconify';
 import { searchService } from '@/services/search.service';
 import { useQuery } from '@tanstack/react-query';
 import { formatVND } from '@/utils/currency';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export function SearchBar() {
     const router = useRouter();
@@ -123,12 +124,14 @@ export function SearchBar() {
                                 onMouseLeave={e => (e.currentTarget.style.background = '')}
                             >
                                 <Group gap="sm" wrap="nowrap">
-                                    <Image
-                                        src={p.images?.[0] ?? '/placeholder-product.jpg'}
-                                        w={40} h={40} radius="sm" fit="cover"
-                                        alt={p.name}
-                                        style={{ flexShrink: 0 }}
-                                    />
+                                    <div style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 'var(--mantine-radius-sm)', overflow: 'hidden', background: '#f4f6f8' }}>
+                                        <Image
+                                            src={p.images?.[0] ?? '/placeholder-product.jpg'}
+                                            alt={p.name}
+                                            fill
+                                            style={{ objectFit: 'cover', width: '100%', height: '100%', display: 'block' }}
+                                        />
+                                    </div>
                                     <Box style={{ flex: 1, minWidth: 0 }}>
                                         <Text size="sm" fw={500} truncate="end"
                                             dangerouslySetInnerHTML={{
