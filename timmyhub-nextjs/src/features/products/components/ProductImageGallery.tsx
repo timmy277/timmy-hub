@@ -115,7 +115,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                             style={{
                                 display: 'flex',
                                 gap: THUMB_GAP,
-                                paddingBottom: 4,
+                                padding: 4,
                                 width: 'max-content',
                             }}
                         >
